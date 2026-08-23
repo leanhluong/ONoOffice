@@ -1,0 +1,53 @@
+<div class="login">
+  <form class="login__card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <h1 class="login__title">ONoOffice</h1>
+    <p class="login__subtitle">Đăng nhập để vào không gian làm việc của bạn.</p>
+
+    @if (formError(); as error) {
+      <app-alert tone="error" title="Không đăng nhập được" [code]="error.code">
+        {{ error.message }}
+      </app-alert>
+    }
+
+    <div class="field">
+      <label class="field__label" for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        class="field__input"
+        formControlName="email"
+        autocomplete="username"
+        [attr.aria-invalid]="errorFor(emailControl, 'email') !== null"
+        [attr.aria-describedby]="errorFor(emailControl, 'email') ? 'email-error' : null"
+      />
+      @if (errorFor(emailControl, 'email'); as message) {
+        <p class="field__error" id="email-error">{{ message }}</p>
+      }
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="password">Mật khẩu</label>
+      <input
+        id="password"
+        type="password"
+        class="field__input"
+        formControlName="password"
+        autocomplete="current-password"
+        [attr.aria-invalid]="errorFor(passwordControl, 'password') !== null"
+        [attr.aria-describedby]="errorFor(passwordControl, 'password') ? 'password-error' : null"
+      />
+      @if (errorFor(passwordControl, 'password'); as message) {
+        <p class="field__error" id="password-error">{{ message }}</p>
+      }
+    </div>
+
+    <button type="submit" class="login__submit" [disabled]="submitting()">
+      {{ submitting() ? 'Đang đăng nhập…' : 'Đăng nhập' }}
+    </button>
+
+    <p class="login__note">
+      Backend chưa có endpoint đăng nhập — bấm nút sẽ báo lỗi kết nối. Đây là hành vi đúng ở giai
+      đoạn này.
+    </p>
+  </form>
+</div>

@@ -1,0 +1,47 @@
+.alert {
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+
+  &--error {
+    border-color: #f5c2c7;
+    background: #fdf2f2;
+    color: #842029;
+  }
+
+  &--warning {
+    border-color: #ffe69c;
+    background: #fff9e6;
+    color: #664d03;
+  }
+
+  &--info {
+    border-color: #b6d4fe;
+    background: #f0f6ff;
+    color: #084298;
+  }
+
+  &--success {
+    border-color: #badbcc;
+    background: #f1f9f4;
+    color: #0f5132;
+  }
+
+  &__title {
+    margin: 0 0 0.25rem;
+    font-weight: 600;
+  }
+
+  &__message {
+    margin: 0;
+  }
+
+  &__code {
+    margin: 0.4rem 0 0;
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+    font-size: 0.75rem;
+    opacity: 0.75;
+  }
+}

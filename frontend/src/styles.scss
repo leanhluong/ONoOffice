@@ -1,0 +1,55 @@
+/**
+ * Style toàn cục.
+ *
+ * Chỉ chứa: reset tối thiểu + bộ biến màu dùng chung. Mọi thứ khác thuộc về
+ * SCSS của từng component (Angular tự bọc scope, không sợ đè nhau).
+ *
+ * Vì sao dùng CSS custom property chứ không phải biến SCSS: biến SCSS bị
+ * "nướng" cứng lúc build, còn custom property đọc được lúc chạy — sau này
+ * làm chế độ tối hoặc đổi màu theo tenant chỉ cần ghi đè trên `:root`.
+ */
+
+:root {
+  --color-bg: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f3f6;
+  --color-surface-strong: #1f2937;
+  --color-on-strong: #f8fafc;
+  --color-border: #dfe3e8;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-accent: #2563eb;
+  --color-accent-soft: #e6efff;
+  --color-hover: #e6e9ee;
+  --color-danger: #dc2626;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family:
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    system-ui,
+    -apple-system,
+    'Noto Sans',
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+code {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 0.9em;
+}
