@@ -1,7 +1,8 @@
 # Đăng nhập
 
-> Module `identity` · Trạng thái: 🟢 **Đã thiết kế, chờ chốt bộ màu**
-> Bản dựng để duyệt: https://claude.ai/code/artifact/0aaa520d-04b3-46a4-b297-c04a88482ded
+> Module `identity` · Trạng thái: 🟢 **Đã thiết kế** — dùng cả bốn bộ màu, người dùng tự chọn
+> Bản dựng màu: https://claude.ai/code/artifact/0aaa520d-04b3-46a4-b297-c04a88482ded
+> Wireframe: [`../wireframes.html`](../wireframes.html)
 
 ---
 
@@ -125,9 +126,9 @@ Bàn phím bật lên không che nút Đăng nhập (form cuộn được)
 | **Chặn thử sai nhiều lần** | Cần Redis. Đếm trong bộ nhớ thì chạy nhiều pod là vô dụng — thà chưa làm còn hơn làm giả |
 | **Ghi nhớ tôi** | Ô tick đã có nhưng **chưa nối gì**. Sẽ quyết định hạn refresh token dài/ngắn theo ô này |
 
-## Chờ chốt
+## Bộ màu — giữ cả bốn
 
-**Bộ màu** — bốn phương án trong bản dựng ở đầu file:
+Cả bốn bộ đều ship, người dùng đổi trong menu avatar:
 
 | | Nền | Điểm nhấn |
 |---|---|---|
@@ -136,5 +137,5 @@ Bàn phím bật lên không che nút Đăng nhập (form cuộn được)
 | Giấy | `#FAFAF8` | Đỏ rượu `#8C2F39` |
 | Rêu | `#12160F` | Xanh xô thơm `#A3B18A` |
 
-Chốt xong thì bộ được chọn mới làm **cả chế độ sáng lẫn tối**, và các token màu ghi vào
+Token của từng bộ ghi ở
 [`he-thong-thiet-ke.md`](../he-thong-thiet-ke.md).

@@ -15,6 +15,7 @@ thứ đổi chậm: mục đích của màn, ai vào được, có bao nhiêu t
 07-giao-dien/
 ├── he-thong-thiet-ke.md      · bộ màu · chữ · khoảng cách · component dùng chung
 ├── da-ngon-ngu.md            · tiếng Việt + tiếng Anh — cách làm và bốn thứ hay quên
+├── wireframes.html           · bố cục 6 màn, đơn sắc có chú thích — MỞ BẰNG TRÌNH DUYỆT
 ├── chung/                    · thứ không thuộc module nào
 │   ├── khung-man-hinh.md     · sidebar + topbar
 │   └── trang-thai-chung.md   · rỗng · lỗi · 403 · 404 · đang tải
@@ -57,6 +58,7 @@ của thư viện, là chuyện xảy ra hoài.
 | [Khung màn hình](./chung/khung-man-hinh.md) | chung | 🟡 Có khung Angular, chưa chốt thiết kế |
 | [Trạng thái chung](./chung/trang-thai-chung.md) | chung | 🟡 Đã định nghĩa, chưa dựng |
 | [Đa ngôn ngữ](./da-ngon-ngu.md) | chung | 🟡 Đã chốt cách làm, chưa dựng |
+| [Wireframe 6 màn](./wireframes.html) | chung | 🟢 Đã vẽ |
 | [Danh bạ](./org/danh-ba.md) | org | ⬜ Chưa tới lượt |
 | [Sơ đồ tổ chức](./org/so-do-to-chuc.md) | org | ⬜ Chưa tới lượt |
 | [Quản trị nhân viên](./org/quan-tri-nhan-vien.md) | org | ⬜ Chưa tới lượt |

@@ -1,0 +1,344 @@
+<title>Wireframe ONoOffice</title>
+<style>
+/* Wireframe cố ý ĐƠN SẮC và thô.
+   Tô màu vào wireframe là mời người xem bàn về màu, trong khi thứ cần chốt ở giai đoạn
+   này là BỐ CỤC và LUỒNG. Màu đã có bản dựng riêng để duyệt. */
+:root {
+  --paper: #ffffff;
+  --ink: #14161a;
+  --muted: #6b7079;
+  --faint: #9aa0a8;
+  --line: #c9ced6;
+  --fill: #eef0f3;
+  --note: #1b5e9c;
+  --note-bg: #eaf2fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14161a; --ink: #e8eaed; --muted: #9aa0a8; --faint: #6b7079;
+    --line: #3a3f47; --fill: #1d2026; --note: #79b8f3; --note-bg: #16202b;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14161a; --ink: #e8eaed; --muted: #9aa0a8; --faint: #6b7079;
+  --line: #3a3f47; --fill: #1d2026; --note: #79b8f3; --note-bg: #16202b;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; padding: 32px 20px 80px;
+  background: var(--paper); color: var(--ink);
+  font: 15px/1.6 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 1000px; margin: 0 auto; }
+h1 { font-size: 27px; letter-spacing: -0.02em; margin: 0 0 6px; text-wrap: balance; }
+.lede { color: var(--muted); margin: 0 0 8px; max-width: 62ch; }
+h2 {
+  font-size: 19px; margin: 52px 0 4px; padding-top: 20px;
+  border-top: 1px solid var(--line); letter-spacing: -0.01em;
+}
+h2 .tag {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); border: 1px solid var(--line); border-radius: 4px;
+  padding: 2px 7px; margin-left: 10px; vertical-align: 2px;
+}
+h3 { font-size: 14px; margin: 26px 0 8px; color: var(--muted); font-weight: 600; }
+p { max-width: 68ch; }
+
+/* Khung wireframe */
+.frame {
+  border: 1.5px solid var(--line); border-radius: 6px;
+  background: var(--paper); overflow: hidden; margin: 14px 0 10px;
+}
+.frame__bar {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 12px; border-bottom: 1px solid var(--line); background: var(--fill);
+  font-size: 11.5px; color: var(--muted);
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.frame__body { display: flex; min-height: 300px; }
+
+/* Khối giả lập */
+.box {
+  border: 1.5px dashed var(--line); border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--faint); font-size: 12.5px; text-align: center; padding: 8px;
+}
+.solid { border-style: solid; background: var(--fill); color: var(--muted); }
+.filled { border: 1.5px solid var(--ink); background: var(--ink); color: var(--paper); font-weight: 600; }
+.txt { height: 9px; border-radius: 2px; background: var(--line); }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+.row { display: flex; gap: 8px; align-items: center; }
+
+/* Chú thích đánh số */
+.pin {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 19px; height: 19px; flex: none;
+  border-radius: 50%; background: var(--note); color: #fff;
+  font-size: 11px; font-weight: 700; font-family: ui-monospace, monospace;
+}
+.notes { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 9px; }
+.notes li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+.notes b { font-weight: 600; }
+.callout {
+  border-left: 3px solid var(--note); background: var(--note-bg);
+  padding: 11px 14px; border-radius: 0 6px 6px 0; margin: 14px 0;
+  font-size: 14px; max-width: 68ch;
+}
+.callout strong { color: var(--note); }
+code {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.88em; background: var(--fill); padding: 1px 5px; border-radius: 3px;
+}
+.mobile { max-width: 260px; }
+@media (max-width: 720px) { .frame__body { flex-direction: column; } }
+</style>
+
+<div class="wrap">
+
+<h1>Wireframe ONoOffice</h1>
+<p class="lede">
+  Bố cục và luồng của từng màn. Cố ý <b>đơn sắc và thô</b> — tô màu vào wireframe là mời
+  người xem bàn về màu, trong khi thứ cần chốt ở đây là <b>cái gì nằm đâu</b> và
+  <b>chuyện gì xảy ra khi hỏng</b>. Màu sắc có bản dựng riêng để duyệt.
+</p>
+<p class="lede">
+  Mỗi màn kèm chú thích đánh số cho những chỗ <b>có quyết định</b>, không chú thích những
+  chỗ hiển nhiên.
+</p>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2>1 · Đăng nhập <span class="tag">/login · công khai</span></h2>
+
+<div class="frame">
+  <div class="frame__bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span> onooffice.com/login</div>
+  <div class="frame__body">
+    <div style="flex:1.15; border-right:1.5px solid var(--line); padding:22px; display:flex; flex-direction:column; justify-content:space-between; gap:20px;">
+      <div class="row"><div class="box solid" style="width:26px;height:26px">O</div><div class="txt" style="width:88px"></div></div>
+      <div class="stack" style="gap:10px">
+        <div class="txt" style="width:78%;height:15px"></div>
+        <div class="txt" style="width:56%;height:15px"></div>
+        <div class="txt" style="width:90%;background:var(--fill)"></div>
+        <div class="txt" style="width:64%;background:var(--fill)"></div>
+      </div>
+      <div class="box" style="height:54px"><span class="pin">1</span>&nbsp; nền: sơ đồ tổ chức trôi chậm</div>
+    </div>
+    <div style="flex:1; padding:22px; display:flex; align-items:center;">
+      <div class="stack" style="width:100%; max-width:290px; margin:0 auto; gap:11px">
+        <div class="txt" style="width:96px;height:17px"></div>
+        <div class="txt" style="width:150px;background:var(--fill)"></div>
+        <div class="box solid" style="height:34px; justify-content:flex-start; padding-left:11px"><span class="pin">2</span>&nbsp; Email công ty</div>
+        <div class="box solid" style="height:34px; justify-content:space-between; padding:0 11px">Mật khẩu <span style="font-size:11px">Hiện</span></div>
+        <div class="row" style="justify-content:space-between; font-size:11.5px; color:var(--faint)">
+          <span>☐ Ghi nhớ tôi</span><span>Quên mật khẩu?</span>
+        </div>
+        <div class="box filled" style="height:38px">Đăng nhập</div>
+        <div class="row" style="gap:9px; color:var(--faint); font-size:11px">
+          <div style="flex:1;height:1px;background:var(--line)"></div>hoặc<div style="flex:1;height:1px;background:var(--line)"></div>
+        </div>
+        <div class="row" style="gap:8px">
+          <div class="box solid" style="flex:1;height:34px"><span class="pin">3</span>&nbsp;Google</div>
+          <div class="box solid" style="flex:1;height:34px">Facebook</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ul class="notes">
+  <li><span class="pin">1</span><span><b>Nền là sơ đồ tổ chức, không phải hoa văn.</b> Các chấm nối nhau chính là thứ sản phẩm nói về. Đứng yên hoàn toàn khi máy bật chế độ giảm chuyển động.</span></li>
+  <li><span class="pin">2</span><span><b>Không có ô "mã công ty".</b> Email unique toàn hệ thống nên hai ô là đủ — xem <code>ADR-0002</code>.</span></li>
+  <li><span class="pin">3</span><span>Hai nút mạng xã hội <b>đã có nhưng chưa nối</b>. Bấm vào hiện <i>"tính năng đang phát triển"</i>.</span></li>
+</ul>
+
+<h3>Bốn trạng thái</h3>
+<div class="row" style="gap:10px; flex-wrap:wrap">
+  <div class="box" style="flex:1;min-width:180px;height:74px;flex-direction:column;gap:5px"><b>Mặc định</b><span>form sạch</span></div>
+  <div class="box" style="flex:1;min-width:180px;height:74px;flex-direction:column;gap:5px"><b>Lỗi kiểm dữ liệu</b><span>viền đỏ + nhắc dưới TỪNG ô</span></div>
+  <div class="box" style="flex:1;min-width:180px;height:74px;flex-direction:column;gap:5px"><b>Sai email/mật khẩu</b><span>khung cảnh báo trên form<br>ô KHÔNG bôi đỏ</span></div>
+  <div class="box" style="flex:1;min-width:180px;height:74px;flex-direction:column;gap:5px"><b>Đang gửi</b><span>nút khoá, ô vẫn sửa được</span></div>
+</div>
+
+<div class="callout">
+  <strong>Vì sao ô không bôi đỏ khi sai mật khẩu:</strong> ta <b>không biết</b> ô nào sai —
+  và cũng không được để lộ. Bôi đỏ ô email nghĩa là nói "email này không tồn tại", đúng thứ
+  kẻ dò tài khoản cần.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2>2 · Khung màn hình <span class="tag">mọi màn sau khi đăng nhập</span></h2>
+
+<div class="frame">
+  <div class="frame__bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span> onooffice.com/employees</div>
+  <div class="frame__body" style="min-height:270px">
+    <div style="width:180px; border-right:1.5px solid var(--line); padding:14px; display:flex; flex-direction:column; gap:9px">
+      <div class="row" style="gap:8px"><div class="box solid" style="width:22px;height:22px">O</div><div class="txt" style="width:72px"></div></div>
+      <div style="height:8px"></div>
+      <div class="box solid" style="height:28px; justify-content:flex-start; padding-left:10px">Danh bạ</div>
+      <div class="box" style="height:28px; justify-content:flex-start; padding-left:10px">Phòng ban</div>
+      <div class="box" style="height:28px; justify-content:flex-start; padding-left:10px">Đơn từ</div>
+      <div style="height:1px;background:var(--line);margin:4px 0"></div>
+      <div class="box" style="height:28px; justify-content:flex-start; padding-left:10px"><span class="pin">4</span>&nbsp;Quản trị</div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column">
+      <div class="row" style="padding:11px 14px; border-bottom:1.5px solid var(--line); gap:10px">
+        <div class="box solid" style="flex:1;height:28px;justify-content:flex-start;padding-left:10px">Tìm kiếm…</div>
+        <div class="box" style="width:28px;height:28px">🔔</div>
+        <div class="box solid" style="width:28px;height:28px;border-radius:50%"><span class="pin">5</span></div>
+      </div>
+      <div class="box" style="flex:1;margin:14px;border-radius:5px">nội dung màn hiện tại</div>
+    </div>
+  </div>
+</div>
+
+<ul class="notes">
+  <li><span class="pin">4</span><span><b>Menu ẩn hiện theo QUYỀN, không theo vai trò.</b> <code>*hasPermission="'user.manage'"</code>. Kiểm theo vai trò thì hôm nào quản trị tạo vai mới là menu lệch khỏi server ngay.</span></li>
+  <li><span class="pin">5</span><span>Menu avatar: Hồ sơ · <b>Ngôn ngữ</b> · <b>Giao diện</b> (4 bộ màu) · Đăng xuất.</span></li>
+</ul>
+
+<div class="callout">
+  <strong>Ẩn nút KHÔNG phải là phân quyền.</strong> Nó chỉ là phép lịch sự — đỡ cho người
+  dùng bấm vào rồi bị từ chối. Phân quyền thật nằm ở server, và có test canh.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2>3 · Danh bạ nhân viên <span class="tag">/employees · employee.read</span></h2>
+
+<div class="frame">
+  <div class="frame__bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span> onooffice.com/employees</div>
+  <div class="frame__body" style="flex-direction:column; min-height:250px; padding:14px; gap:11px">
+    <div class="row" style="gap:9px">
+      <div class="box solid" style="flex:1;height:32px;justify-content:flex-start;padding-left:11px">🔍 Tìm theo tên, email, số điện thoại</div>
+      <div class="box" style="width:130px;height:32px"><span class="pin">6</span>&nbsp;Phòng ban ▾</div>
+      <div class="box filled" style="width:118px;height:32px">+ Thêm nhân viên</div>
+    </div>
+    <div class="stack" style="gap:7px">
+      <div class="row" style="gap:10px; padding:0 4px; font-size:11.5px; color:var(--faint)">
+        <span style="flex:2">HỌ TÊN</span><span style="flex:1.4">PHÒNG BAN</span><span style="flex:1.4">CHỨC DANH</span><span style="flex:1.6">LIÊN HỆ</span>
+      </div>
+      <div class="box solid" style="height:38px;justify-content:flex-start;padding-left:11px">Lê Anh Lượng · Kỹ thuật · Backend Developer</div>
+      <div class="box" style="height:38px;justify-content:flex-start;padding-left:11px">Nguyễn Thị B · Nhân sự · HR Executive</div>
+      <div class="box" style="height:38px;justify-content:flex-start;padding-left:11px">Trần Văn C · Kinh doanh · Sales</div>
+    </div>
+    <div class="row" style="justify-content:space-between; font-size:12px; color:var(--faint); margin-top:auto">
+      <span><span class="pin">7</span>&nbsp; 1–20 trong 187</span><span>◀ 1 2 3 … 10 ▶</span>
+    </div>
+  </div>
+</div>
+
+<ul class="notes">
+  <li><span class="pin">6</span><span>Lọc theo phòng ban là <b>cây nhiều cấp</b>, không phải danh sách phẳng — chọn "Kỹ thuật" phải ra cả nhân viên các tổ con.</span></li>
+  <li><span class="pin">7</span><span>Hiện <b>tổng số</b> chứ không chỉ "còn nữa". Đây là lý do <code>PagedList&lt;T&gt;</code> mang theo <code>TotalCount</code> — vẽ được "Trang 2/10" mà không tốn thêm một lượt gọi.</span></li>
+</ul>
+
+<h3>Ba trạng thái không được quên</h3>
+<div class="row" style="gap:10px; flex-wrap:wrap">
+  <div class="box" style="flex:1;min-width:210px;height:96px;flex-direction:column;gap:6px"><b>Đang tải</b><span>khung xám mô phỏng hàng<br>KHÔNG dùng con quay giữa màn</span></div>
+  <div class="box" style="flex:1;min-width:210px;height:96px;flex-direction:column;gap:6px"><b>Rỗng</b><span>"Chưa có nhân viên nào"<br>+ nút Thêm — chỉ khi CÓ quyền</span></div>
+  <div class="box" style="flex:1;min-width:210px;height:96px;flex-direction:column;gap:6px"><b>Lỗi</b><span>câu chữ theo mã lỗi<br>+ [Thử lại] + mã tham chiếu</span></div>
+</div>
+
+<div class="callout">
+  <strong>Vì sao khung xám chứ không phải con quay:</strong> con quay không nói gì về thứ
+  sắp hiện ra, và màn hình nhảy một cái khi dữ liệu về. Khung xám giữ đúng chỗ, nên nội
+  dung hiện ra <b>không đẩy gì đi đâu</b>.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2>4 · Sơ đồ tổ chức <span class="tag">/departments · department.read</span></h2>
+
+<div class="frame">
+  <div class="frame__bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span> onooffice.com/departments</div>
+  <div class="frame__body" style="min-height:240px">
+    <div style="width:250px;border-right:1.5px solid var(--line);padding:14px" class="stack">
+      <div class="box solid" style="height:30px;justify-content:flex-start;padding-left:10px">▾ Công ty ACME</div>
+      <div class="box" style="height:28px;justify-content:flex-start;padding-left:24px">▾ Khối Kỹ thuật</div>
+      <div class="box solid" style="height:28px;justify-content:flex-start;padding-left:38px">Tổ Backend · 8</div>
+      <div class="box" style="height:28px;justify-content:flex-start;padding-left:38px">Tổ Frontend · 5</div>
+      <div class="box" style="height:28px;justify-content:flex-start;padding-left:24px">▸ Khối Kinh doanh · 22</div>
+      <div class="box" style="height:28px;justify-content:flex-start;padding-left:24px">▸ Nhân sự · 4</div>
+    </div>
+    <div style="flex:1;padding:14px" class="stack">
+      <div class="txt" style="width:150px;height:15px"></div>
+      <div class="row" style="gap:9px;font-size:12px;color:var(--faint)"><span class="pin">8</span> Trưởng phòng · 8 thành viên · thuộc Khối Kỹ thuật</div>
+      <div class="box" style="flex:1;border-radius:5px">danh sách thành viên của tổ đang chọn</div>
+    </div>
+  </div>
+</div>
+
+<ul class="notes">
+  <li><span class="pin">8</span><span><b>Cây bên trái, chi tiết bên phải</b> — không mở trang mới. Người dùng thường bấm qua lại nhiều phòng ban liên tiếp; mở trang mới mỗi lần là bắt họ chờ và mất chỗ đang đứng.</span></li>
+</ul>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2>5 · Trạng thái chung <span class="tag">mọi màn</span></h2>
+
+<div class="row" style="gap:12px; flex-wrap:wrap; margin-top:14px">
+  <div class="frame" style="flex:1;min-width:240px;margin:0">
+    <div class="frame__bar">403 — không đủ quyền</div>
+    <div class="frame__body" style="min-height:150px;align-items:center;justify-content:center;flex-direction:column;gap:9px;padding:18px;text-align:center">
+      <div class="txt" style="width:170px;height:13px"></div>
+      <div class="txt" style="width:210px;background:var(--fill)"></div>
+      <div class="box solid" style="width:120px;height:30px">Về trang chủ</div>
+    </div>
+  </div>
+  <div class="frame" style="flex:1;min-width:240px;margin:0">
+    <div class="frame__bar">404 — không tìm thấy</div>
+    <div class="frame__body" style="min-height:150px;align-items:center;justify-content:center;flex-direction:column;gap:9px;padding:18px;text-align:center">
+      <div class="txt" style="width:150px;height:13px"></div>
+      <div class="box solid" style="width:120px;height:30px">Về trang chủ</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Xem dữ liệu công ty khác trả 404, không phải 403.</strong> Trả 403 là
+  <b>xác nhận rằng thứ đó có tồn tại</b> — kẻ dò chỉ cần thử hàng loạt id là biết công ty
+  khác có bao nhiêu bản ghi. Và màn 403 <b>không liệt kê quyền còn thiếu tên là gì</b>:
+  đó là thông tin về cấu trúc hệ thống.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2>6 · Trên điện thoại <span class="tag">&lt; 720px</span></h2>
+
+<div class="row" style="gap:14px; flex-wrap:wrap; align-items:flex-start">
+  <div class="frame mobile" style="margin:0">
+    <div class="frame__bar">đăng nhập</div>
+    <div class="frame__body" style="flex-direction:column;min-height:250px">
+      <div class="box" style="height:74px;border:0;border-bottom:1.5px solid var(--line);border-radius:0">dải thương hiệu thu gọn</div>
+      <div class="stack" style="padding:14px;gap:9px">
+        <div class="box solid" style="height:30px">Email</div>
+        <div class="box solid" style="height:30px">Mật khẩu</div>
+        <div class="box filled" style="height:34px">Đăng nhập</div>
+        <div class="row" style="gap:7px"><div class="box solid" style="flex:1;height:30px">G</div><div class="box solid" style="flex:1;height:30px">f</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="frame mobile" style="margin:0">
+    <div class="frame__bar">danh bạ</div>
+    <div class="frame__body" style="flex-direction:column;min-height:250px">
+      <div class="row" style="padding:9px 11px;border-bottom:1.5px solid var(--line);gap:8px">
+        <div class="box" style="width:26px;height:26px">☰</div>
+        <div class="box solid" style="flex:1;height:26px">Tìm…</div>
+      </div>
+      <div class="stack" style="padding:11px;gap:7px">
+        <div class="box solid" style="height:46px;justify-content:flex-start;padding-left:10px"><span class="pin">9</span>&nbsp;thẻ, không phải hàng bảng</div>
+        <div class="box" style="height:46px"></div>
+        <div class="box" style="height:46px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ul class="notes">
+  <li><span class="pin">9</span><span><b>Bảng đổi thành thẻ, không cuộn ngang.</b> Bảng 4 cột trên màn 360px thì hoặc chữ bé không đọc nổi, hoặc phải kéo ngang — cả hai đều tệ hơn là xếp lại thành thẻ.</span></li>
+</ul>
+
+<h2>Còn chờ chốt</h2>
+<ul class="notes">
+  <li><span class="pin">?</span><span>Thanh bên có gập lại thành dải biểu tượng được không?</span></li>
+  <li><span class="pin">?</span><span>Chuông thông báo — chưa có module Notification. Ẩn hẳn, hay hiện mà rỗng?</span></li>
+  <li><span class="pin">?</span><span>Danh bạ mặc định xem dạng <b>bảng</b> hay dạng <b>thẻ</b> trên màn rộng?</span></li>
+</ul>
+
+</div>

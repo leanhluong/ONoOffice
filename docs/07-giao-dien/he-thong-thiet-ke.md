@@ -1,6 +1,6 @@
 # Hệ thống thiết kế
 
-> Trạng thái: 🟡 **Chờ chốt bộ màu** — chữ và khoảng cách thì đã chốt
+> Trạng thái: 🟢 **Đã chốt** — bốn bộ màu (người dùng tự chọn), chữ, khoảng cách, bo góc
 
 Trang này giữ những thứ **mọi màn đều dùng**. Có nó thì mỗi màn mới không phải quyết định
 lại từ đầu, và không có chuyện hai màn cùng một ý nhưng khác nhau vài pixel.
@@ -46,7 +46,43 @@ huy hiệu, chip     999px (bo tròn hẳn)
 Cố ý **không dùng bo góc lớn** ở khắp nơi — nó làm giao diện trông mềm và giống mọi sản
 phẩm khác. Góc 10px giữ được cảm giác gọn và chính xác.
 
-## Màu — CHỜ CHỐT
+## Màu — GIỮ CẢ BỐN BỘ, cho người dùng tự chọn
+
+Chốt ngày 2026-08-23: **không chọn một bộ, mà ship cả bốn thành tính năng đổi giao diện.**
+
+Quyết định này **rẻ vì đã chuẩn bị từ trước**: luật "component chỉ dùng token, không bao
+giờ viết mã màu trực tiếp" đã có từ đầu. Bốn bộ chỉ là bốn lần khai lại 10 token.
+
+```
+Mực        nền đen ám xanh    · điểm nhấn hổ phách      · trầm, dùng lâu không mỏi mắt
+Hải đăng   nền xanh mực sâu   · điểm nhấn san hô        · ấm và sống động hơn
+Giấy       nền trắng ngà      · điểm nhấn đỏ rượu       · sáng, sắc nét, kiểu tạp chí
+Rêu        nền xanh rêu tối   · điểm nhấn xanh xô thơm  · dịu nhất, ít gặp
+```
+
+**Chọn mặc định theo máy người dùng**, không ép:
+
+```
+prefers-color-scheme: dark   → Mực
+prefers-color-scheme: light  → Giấy
+người dùng tự chọn           → ghi localStorage['theme'], từ đó ưu tiên lựa chọn của họ
+```
+
+Giao diện là **lựa chọn của từng người**, giống ngôn ngữ — không phải cấu hình của
+workspace. Hai người cùng công ty được dùng hai giao diện khác nhau.
+
+### Cái giá — nói thẳng
+
+| Mất gì | Cách sống chung |
+|---|---|
+| Mỗi component mới phải **nhìn đúng ở cả bốn bộ** | Luật token đã bắt buộc; thêm một lần soi mắt lúc review |
+| Ảnh chụp trong tài liệu **nhân lên bốn** | Chỉ chụp bộ mặc định; nêu rõ đây là một trong bốn |
+| Bốn bộ đều phải đủ **độ tương phản** cho chữ | Kiểm bằng công cụ, không kiểm bằng mắt — mắt quen rất nhanh |
+
+*Ngưỡng phải xem lại:* khi thêm một bộ thứ năm bắt đầu thấy phiền, hoặc khi có bộ nào
+người dùng gần như không ai chọn — lúc đó bỏ bớt.
+
+## Mười token của mỗi bộ
 
 Mỗi bộ khai đủ 10 token dưới đây. Component **chỉ được dùng token**, không bao giờ viết
 mã màu trực tiếp — nhờ vậy đổi bộ màu là đổi một chỗ.
@@ -64,7 +100,7 @@ mã màu trực tiếp — nhờ vậy đổi bộ màu là đổi một chỗ.
 --danger      lỗi
 ```
 
-Bốn phương án đang chờ chọn: **Mực · Hải đăng · Giấy · Rêu** — xem
+Cả bốn bộ đều ship. Bảng màu cụ thể xem
 [`identity/dang-nhap.md`](./identity/dang-nhap.md).
 
 **Một điểm nhấn duy nhất trên nền trầm.** Cố ý tránh gradient tím-xanh — kiểu đó đang bị
