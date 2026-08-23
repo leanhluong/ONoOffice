@@ -178,3 +178,50 @@ docs/07-giao-dien/identity/dang-nhap.html     · bản dựng màu — 4 bộ, 4
 ```
 
 Cả hai **mở thẳng bằng trình duyệt** là chạy.
+
+---
+
+## 🚀 PROMPT KHỞI ĐỘNG SESSION MỚI
+
+Mở session Claude Code mới **tại `D:/Nextx/2026/project-persion`**, dán nguyên đoạn dưới:
+
+```
+Đọc kỹ theo thứ tự:
+  ONoOffice/HANDOFF.md                     ← đọc TRƯỚC, có đủ trạng thái + việc tiếp theo
+  ONoOffice/docs/02-kien-truc/README.md
+  ONoOffice/docs/02-kien-truc/adr/         ← 3 ADR, đọc cả mục "Đánh đổi"
+  ONoOffice/docs/01-tong-quan/tien-do.md   ← nhật ký chi tiết
+
+Đây là dự án VỪA LÀM VỪA HỌC. Giá trị nằm ở chỗ tôi hiểu từng quyết định,
+không phải ở tốc độ ra code.
+
+LUẬT BẮT BUỘC:
+1. Trước khi code BẤT KỲ chức năng nào: trình bày luồng nghiệp vụ, pattern áp dụng
+   và vì sao, file nào ở tầng nào, cổng nào lộ ra, và những chỗ cần tôi quyết
+   (nêu rõ đánh đổi + đề xuất). CHỜ TÔI GẬT rồi mới viết.
+2. TDD thật: viết test → chạy → THẤY NÓ ĐỎ → mới viết code. Test xanh ngay từ đầu
+   không chứng minh được gì. Với test canh luật thì phải cố ý phá luật một lần
+   để chứng minh nó bắt được.
+3. Commit message bằng TIẾNG ANH. Hội thoại và comment trong code bằng TIẾNG VIỆT.
+4. Làm thẳng trên nhánh develop, không nhánh phụ, không PR.
+5. Có việc chạy song song thì git add <đường-dẫn>, KHÔNG BAO GIỜ git add -A.
+6. Xong việc → cập nhật ONoOffice/docs/01-tong-quan/tien-do.md VÀ ONoOffice/HANDOFF.md
+   trong CÙNG commit.
+7. Comment trong code phải giải thích VÌ SAO, không mô tả lại code đang làm gì.
+   Nêu rõ đánh đổi và chuyện gì hỏng nếu làm khác đi.
+
+Cách giảng: đừng dùng thuật ngữ chưa định nghĩa; ví von đời thường + số liệu cụ thể;
+mở đầu bằng sự cố thật rồi mới tới lý thuyết.
+
+VIỆC TIẾP THEO: tầng Api (AuthController · phân quyền động theo permission ·
+Program.cs · CORS · security header). Thiết kế ĐÃ ĐƯỢC DUYỆT — xem mục
+"VIỆC TIẾP THEO" trong HANDOFF.md, code luôn không cần hỏi lại thiết kế.
+
+Bắt đầu bằng việc chạy `cd ONoOffice/backend && dotnet build && dotnet test`
+để xác nhận 161 test còn xanh, rồi báo tôi trạng thái trước khi làm gì.
+```
+
+**Vì sao đoạn prompt này dài như vậy:** session mới không nhớ gì cả. Ba thứ nó **không thể
+tự đoán ra** là (a) luật phải trình bày thiết kế trước, (b) TDD phải thấy đỏ thật, và
+(c) commit tiếng Anh nhưng hội thoại tiếng Việt. Thiếu chúng thì session mới sẽ lao vào
+code ngay và viết commit tiếng Việt.
