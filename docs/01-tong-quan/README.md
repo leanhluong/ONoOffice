@@ -85,15 +85,21 @@ Tiến độ thật nằm ở [`tien-do.md`](./tien-do.md) — đó là file đ�
 
 ---
 
-## 6 câu còn treo — chốt xong mới sang `02-kien-truc/`
+## 6 câu đã chốt (2026-08-23)
 
-| # | Câu hỏi | Mặc định tạm nếu không chốt |
+| # | Câu hỏi | Đã chốt |
 |---|---|---|
-| 1 | Một công ty, hay nhiều công ty cùng dùng (mỗi bên thấy dữ liệu riêng)? | Một công ty |
-| 2 | Quy mô thật: bao nhiêu nhân viên, bao nhiêu phòng ban? | ~200 người, ~15 phòng |
-| 3 | Phòng ban lồng mấy cấp? Một người thuộc 2 phòng được không? Có "quản lý trực tiếp" không? | Lồng nhiều cấp · mỗi người 1 phòng · có quản lý trực tiếp |
-| 4 | Đủ 4 vai `Admin`/`HR`/`Trưởng phòng`/`Nhân viên` chưa? | Đủ 4 vai |
-| 5 | Đăng nhập bằng email + mật khẩu? Sau này có cần Google/Microsoft không? | Email + mật khẩu; chừa chỗ cho đăng nhập ngoài |
-| 6 | Sau lát 1 làm module nào tiếp — Chat / Đơn từ / Task / Lịch? | Đơn từ (nghỉ phép) |
+| 1 | Một công ty hay nhiều công ty? | **Nhiều công ty (multi-tenant).** Chung một database, mỗi bảng có cột `tenant_id`. Chi tiết: [ADR-0001](../02-kien-truc/adr/ADR-0001-chien-luoc-multi-tenant.md) |
+| 2 | Quy mô | ~200 người/công ty, ~15 phòng ban. Vài trăm công ty |
+| 3 | Phòng ban | Lồng nhiều cấp · mỗi người thuộc **một** phòng · có "quản lý trực tiếp" |
+| 4 | Vai trò | **`Owner` · `Admin` · `Manager` · `Member`** — gieo sẵn khi tạo workspace |
+| 5 | Đăng nhập | **Email + mật khẩu, một bước.** Email unique **toàn hệ thống**. Chừa chỗ cho đăng nhập ngoài. Chi tiết: [ADR-0002](../02-kien-truc/adr/ADR-0002-xac-thuc-va-phan-quyen.md) |
+| 6 | Module tiếp theo | Đơn từ — nghỉ phép |
 
-> Câu **#1 nặng nhất**: nó quyết định mọi bảng dữ liệu có thêm cột "công ty nào" hay không. Thêm sau nghĩa là sửa lại toàn bộ.
+### Ba điều cần nhớ từ các quyết định trên
+
+**Mỗi người thuộc đúng MỘT workspace.** Cố ý chọn cách đơn giản: không có chuyện một tài khoản tham gia nhiều công ty như Lark/Slack. Đổi lại, email phải unique toàn hệ thống — nếu chỉ unique trong một công ty thì đăng nhập bằng email + mật khẩu sẽ mơ hồ, vì hai công ty có thể cùng có `an@gmail.com`.
+
+**Mỗi workspace có đúng MỘT `Owner`.** Không xoá được, không tự bỏ vai được. Muốn đổi thì phải chuyển nhượng.
+
+**`tenant_id` nằm trong token, không nhận từ client.** Nếu để client gửi qua header hay body thì ai cũng đổi được một con số rồi đọc dữ liệu công ty khác.

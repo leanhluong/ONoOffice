@@ -15,7 +15,7 @@
 |---|---|---|
 | Dựng khung 6 thư mục tài liệu | 🟢 | |
 | `01-tong-quan` — ý tưởng, phạm vi, tiến độ | 🟢 | Còn treo 6 câu hỏi nghiệp vụ ở cuối README |
-| `02-kien-truc` — cấu trúc BE, ranh giới module | ⬜ | Chờ chốt 6 câu hỏi |
+| `02-kien-truc` — cấu trúc BE, ranh giới module | 🟢 | Sơ đồ · 2 module Identity/Org · 4 luật ranh giới · ADR-0001 (multi-tenant) · ADR-0002 (xác thực) |
 | `03-quy-uoc` — luật viết code | ⬜ | |
 | `04-database` — bảng, quan hệ | ⬜ | |
 | `05-api` — danh sách endpoint | ⬜ | |
@@ -57,7 +57,7 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 
 | Việc | Trạng thái | Ghi chú |
 |---|---|---|
-| Khởi tạo solution ONoOffice | ⬜ | Chờ 6 câu hỏi nghiệp vụ |
+| Khởi tạo solution ONoOffice | ⬜ | Sẵn sàng — tài liệu kiến trúc đã xong |
 | Module `Identity` — đăng nhập, token, vai trò | ⬜ | |
 | Module `Org` — phòng ban, nhân viên | ⬜ | |
 | Test ranh giới module | ⬜ | |
@@ -96,3 +96,5 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | 2026-08-23 | `Luong.Kernel`: xong `Caching` (Redis + distributed lock nhả đúng mã) và `Realtime` (SignalR + backplane). Dựng CI GitHub Actions + workflow phát hành GitHub Packages theo tag `v*`. **Đủ 7 package · 149 test xanh.** |
 | 2026-08-23 | `Luong.Kernel`: thêm `Application` (CQRS trên **MediatR** + 3 pipeline behavior), `ICurrentUser` bản đọc HTTP, `IUnitOfWork`. Chốt: **KHÔNG làm repository gốc generic** — `DbSet<T>` đã là repository, bọc thêm chỉ mất `Include`/projection/`AsNoTracking`. Repository theo từng aggregate sẽ viết trong ONoOffice với tên nói đúng câu hỏi nghiệp vụ. Tổng 165 test xanh, 8 package. |
 | 2026-08-23 | **Đổi tên gói:** `LibNetCore.*` → `Luong.Kernel.*`. Lý do: `LibNetCore` trên nuget.org đã có người khác lấy · chữ "Lib" thừa · ".NET Core" là tên đã lỗi thời từ 2020 · `LibNetCore.Core` lặp chữ. Đổi bây giờ vì chưa phát hành gì — sau khi đẩy lên nuget.org thì tên là vĩnh viễn. Thêm bước đẩy nuget.org vào `release.yml`. |
+| 2026-08-23 | **Phát hành `Luong.Kernel` 0.1.0 lên GitHub Packages** — đủ 8 gói, đã xác minh qua API. nuget.org tạm tắt (API key bị 403). Vá 2 lỗi trong workflow: regex đọc `<Version>` bắt trúng chú thích · `contents: read` khiến bước tạo Release trả 403. |
+| 2026-08-23 | **Chốt 6 câu nghiệp vụ.** Multi-tenant chung DB + `tenant_id` · mỗi người thuộc đúng 1 workspace · email unique toàn hệ thống · 4 vai `Owner`/`Admin`/`Manager`/`Member` · kiểm `permission` không kiểm `role`. Viết `02-kien-truc` + ADR-0001 + ADR-0002. |
