@@ -17,4 +17,13 @@
     <ProjectReference Include="..\Modules\Org\ONoOffice.Org.Infrastructure\ONoOffice.Org.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!--
+      Nhúng .resx vào assembly. LogicalName đặt tay để tên tài nguyên không phụ thuộc
+      cấu trúc thư mục — dời file sang chỗ khác thì ResourceManager vẫn tìm ra.
+    -->
+    <EmbeddedResource Update="ResourcesMessages.vi.resx" LogicalName="ONoOffice.Api.Resources.Messages.vi.resources" />
+    <EmbeddedResource Update="ResourcesMessages.en.resx" LogicalName="ONoOffice.Api.Resources.Messages.en.resources" />
+  </ItemGroup>
+
 </Project>

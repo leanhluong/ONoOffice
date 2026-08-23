@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Bản dịch thông báo lỗi — ngôn ngữ: English
+
+    KHOÁ = MÃ LỖI trong IdentityErrors.cs, không phải một tên riêng. Trùng khít như vậy
+    thì frontend tra bản dịch chỉ bằng chính mã nhận được, không cần bảng ánh xạ trung
+    gian và không có chỗ nào để lệch.
+
+    Có test đối chiếu ba nguồn: IdentityErrors.cs, Messages.vi.resx, Messages.en.resx.
+    Thiếu một khoá ở bất kỳ đâu là CI đỏ.
+  -->
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Auth.AccountDisabled" xml:space="preserve">
+    <value>Your account has been disabled. Please contact your administrator.</value>
+  </data>
+  <data name="Auth.InvalidCredentials" xml:space="preserve">
+    <value>Incorrect email or password.</value>
+  </data>
+  <data name="Auth.InvalidRefreshToken" xml:space="preserve">
+    <value>Your session has expired. Please sign in again.</value>
+  </data>
+  <data name="Auth.WorkspaceDisabled" xml:space="preserve">
+    <value>This workspace is no longer active. Please contact your administrator.</value>
+  </data>
+  <data name="Email.Empty" xml:space="preserve">
+    <value>Email is required.</value>
+  </data>
+  <data name="Email.Invalid" xml:space="preserve">
+    <value>Email format is not valid.</value>
+  </data>
+  <data name="Email.TooLong" xml:space="preserve">
+    <value>Email must be 254 characters or fewer.</value>
+  </data>
+  <data name="RefreshToken.AlreadyRevoked" xml:space="preserve">
+    <value>This session has already been revoked.</value>
+  </data>
+  <data name="RefreshToken.HashRequired" xml:space="preserve">
+    <value>The refresh token hash is missing.</value>
+  </data>
+  <data name="RefreshToken.InvalidLifetime" xml:space="preserve">
+    <value>Refresh token lifetime must be greater than zero.</value>
+  </data>
+  <data name="RefreshToken.InvalidReplacement" xml:space="preserve">
+    <value>The replacement token is not valid.</value>
+  </data>
+  <data name="RefreshToken.NotActive" xml:space="preserve">
+    <value>Your session has expired. Please sign in again.</value>
+  </data>
+  <data name="RefreshToken.OwnerRequired" xml:space="preserve">
+    <value>The session is missing its account or workspace.</value>
+  </data>
+  <data name="Role.NameEmpty" xml:space="preserve">
+    <value>Role name is required.</value>
+  </data>
+  <data name="Role.NameTooLong" xml:space="preserve">
+    <value>Role name must be 100 characters or fewer.</value>
+  </data>
+  <data name="Role.PermissionAlreadyGranted" xml:space="preserve">
+    <value>This role already has that permission.</value>
+  </data>
+  <data name="Role.PermissionEmpty" xml:space="preserve">
+    <value>Permission name is required.</value>
+  </data>
+  <data name="Role.PermissionNotGranted" xml:space="preserve">
+    <value>This role does not have that permission.</value>
+  </data>
+  <data name="Role.PermissionUnknown" xml:space="preserve">
+    <value>That permission does not exist in this system.</value>
+  </data>
+  <data name="Role.SystemRoleIsImmutable" xml:space="preserve">
+    <value>System roles cannot be edited. Create a new role if you need a different set of permissions.</value>
+  </data>
+  <data name="Role.TenantRequired" xml:space="preserve">
+    <value>A role must belong to a workspace.</value>
+  </data>
+  <data name="Server.Unexpected" xml:space="preserve">
+    <value>Something went wrong. Please try again.</value>
+  </data>
+  <data name="Tenant.AlreadyActive" xml:space="preserve">
+    <value>This workspace is already active.</value>
+  </data>
+  <data name="Tenant.AlreadyHasOwner" xml:space="preserve">
+    <value>This workspace already has an owner. Use transfer instead of assigning a new one.</value>
+  </data>
+  <data name="Tenant.AlreadyInactive" xml:space="preserve">
+    <value>This workspace is already inactive.</value>
+  </data>
+  <data name="Tenant.AlreadyTheOwner" xml:space="preserve">
+    <value>This person already owns the workspace.</value>
+  </data>
+  <data name="Tenant.HasNoOwner" xml:space="preserve">
+    <value>This workspace has no owner to transfer from.</value>
+  </data>
+  <data name="Tenant.NameEmpty" xml:space="preserve">
+    <value>Workspace name is required.</value>
+  </data>
+  <data name="Tenant.NameTooLong" xml:space="preserve">
+    <value>Workspace name must be 200 characters or fewer.</value>
+  </data>
+  <data name="TenantCode.Empty" xml:space="preserve">
+    <value>Workspace code is required.</value>
+  </data>
+  <data name="TenantCode.Invalid" xml:space="preserve">
+    <value>Workspace code may contain only lowercase letters, digits and hyphens; it must start with a letter and end with a letter or digit.</value>
+  </data>
+  <data name="TenantCode.WrongLength" xml:space="preserve">
+    <value>Workspace code must be between 3 and 30 characters.</value>
+  </data>
+  <data name="User.AlreadyActive" xml:space="preserve">
+    <value>This account is already active.</value>
+  </data>
+  <data name="User.AlreadyInactive" xml:space="preserve">
+    <value>This account has already been disabled.</value>
+  </data>
+  <data name="User.FullNameEmpty" xml:space="preserve">
+    <value>Full name is required.</value>
+  </data>
+  <data name="User.FullNameTooLong" xml:space="preserve">
+    <value>Full name must be 200 characters or fewer.</value>
+  </data>
+  <data name="User.PasswordHashRequired" xml:space="preserve">
+    <value>The password hash is missing.</value>
+  </data>
+  <data name="User.RoleAlreadyAssigned" xml:space="preserve">
+    <value>This account already has that role.</value>
+  </data>
+  <data name="User.RoleNotAssigned" xml:space="preserve">
+    <value>This account does not have that role.</value>
+  </data>
+  <data name="User.TenantRequired" xml:space="preserve">
+    <value>An account must belong to a workspace.</value>
+  </data>
+  <data name="Validation.Multiple" xml:space="preserve">
+    <value>Several fields are not valid.</value>
+  </data>
+</root>

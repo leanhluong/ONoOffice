@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Bản dịch thông báo lỗi — ngôn ngữ: tiếng Việt (gốc)
+
+    KHOÁ = MÃ LỖI trong IdentityErrors.cs, không phải một tên riêng. Trùng khít như vậy
+    thì frontend tra bản dịch chỉ bằng chính mã nhận được, không cần bảng ánh xạ trung
+    gian và không có chỗ nào để lệch.
+
+    Có test đối chiếu ba nguồn: IdentityErrors.cs, Messages.vi.resx, Messages.en.resx.
+    Thiếu một khoá ở bất kỳ đâu là CI đỏ.
+  -->
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Auth.AccountDisabled" xml:space="preserve">
+    <value>Tài khoản đã bị vô hiệu hoá. Vui lòng liên hệ quản trị viên.</value>
+  </data>
+  <data name="Auth.InvalidCredentials" xml:space="preserve">
+    <value>Email hoặc mật khẩu không đúng.</value>
+  </data>
+  <data name="Auth.InvalidRefreshToken" xml:space="preserve">
+    <value>Phiên đăng nhập không còn hiệu lực. Vui lòng đăng nhập lại.</value>
+  </data>
+  <data name="Auth.WorkspaceDisabled" xml:space="preserve">
+    <value>Workspace đã ngừng hoạt động. Vui lòng liên hệ quản trị viên.</value>
+  </data>
+  <data name="Email.Empty" xml:space="preserve">
+    <value>Email không được để trống.</value>
+  </data>
+  <data name="Email.Invalid" xml:space="preserve">
+    <value>Email không đúng định dạng.</value>
+  </data>
+  <data name="Email.TooLong" xml:space="preserve">
+    <value>Email không được dài quá 254 ký tự.</value>
+  </data>
+  <data name="RefreshToken.AlreadyRevoked" xml:space="preserve">
+    <value>Refresh token đã bị thu hồi.</value>
+  </data>
+  <data name="RefreshToken.HashRequired" xml:space="preserve">
+    <value>Thiếu chuỗi băm của refresh token.</value>
+  </data>
+  <data name="RefreshToken.InvalidLifetime" xml:space="preserve">
+    <value>Thời hạn refresh token phải lớn hơn 0.</value>
+  </data>
+  <data name="RefreshToken.InvalidReplacement" xml:space="preserve">
+    <value>Token thay thế không hợp lệ.</value>
+  </data>
+  <data name="RefreshToken.NotActive" xml:space="preserve">
+    <value>Phiên đăng nhập không còn hiệu lực. Vui lòng đăng nhập lại.</value>
+  </data>
+  <data name="RefreshToken.OwnerRequired" xml:space="preserve">
+    <value>Thiếu tài khoản hoặc workspace của phiên.</value>
+  </data>
+  <data name="Role.NameEmpty" xml:space="preserve">
+    <value>Tên vai trò không được để trống.</value>
+  </data>
+  <data name="Role.NameTooLong" xml:space="preserve">
+    <value>Tên vai trò không được dài quá 100 ký tự.</value>
+  </data>
+  <data name="Role.PermissionAlreadyGranted" xml:space="preserve">
+    <value>Vai trò đã có quyền này.</value>
+  </data>
+  <data name="Role.PermissionEmpty" xml:space="preserve">
+    <value>Tên quyền không được để trống.</value>
+  </data>
+  <data name="Role.PermissionNotGranted" xml:space="preserve">
+    <value>Vai trò không có quyền này.</value>
+  </data>
+  <data name="Role.PermissionUnknown" xml:space="preserve">
+    <value>Quyền này không tồn tại trong hệ thống.</value>
+  </data>
+  <data name="Role.SystemRoleIsImmutable" xml:space="preserve">
+    <value>Vai trò hệ thống không được phép sửa. Hãy tạo một vai trò mới nếu cần bộ quyền khác.</value>
+  </data>
+  <data name="Role.TenantRequired" xml:space="preserve">
+    <value>Vai trò phải thuộc về một workspace.</value>
+  </data>
+  <data name="Server.Unexpected" xml:space="preserve">
+    <value>Đã xảy ra lỗi ngoài dự kiến. Vui lòng thử lại sau.</value>
+  </data>
+  <data name="Tenant.AlreadyActive" xml:space="preserve">
+    <value>Workspace đang hoạt động.</value>
+  </data>
+  <data name="Tenant.AlreadyHasOwner" xml:space="preserve">
+    <value>Workspace đã có chủ sở hữu. Dùng chức năng chuyển nhượng thay vì gán mới.</value>
+  </data>
+  <data name="Tenant.AlreadyInactive" xml:space="preserve">
+    <value>Workspace đã ngừng hoạt động.</value>
+  </data>
+  <data name="Tenant.AlreadyTheOwner" xml:space="preserve">
+    <value>Người này đã là chủ sở hữu workspace.</value>
+  </data>
+  <data name="Tenant.HasNoOwner" xml:space="preserve">
+    <value>Workspace chưa có chủ sở hữu để chuyển nhượng.</value>
+  </data>
+  <data name="Tenant.NameEmpty" xml:space="preserve">
+    <value>Tên workspace không được để trống.</value>
+  </data>
+  <data name="Tenant.NameTooLong" xml:space="preserve">
+    <value>Tên workspace không được dài quá 200 ký tự.</value>
+  </data>
+  <data name="TenantCode.Empty" xml:space="preserve">
+    <value>Mã workspace không được để trống.</value>
+  </data>
+  <data name="TenantCode.Invalid" xml:space="preserve">
+    <value>Mã workspace chỉ gồm chữ thường, số và gạch nối; phải bắt đầu bằng chữ cái và kết thúc bằng chữ hoặc số.</value>
+  </data>
+  <data name="TenantCode.WrongLength" xml:space="preserve">
+    <value>Mã workspace phải dài từ 3 đến 30 ký tự.</value>
+  </data>
+  <data name="User.AlreadyActive" xml:space="preserve">
+    <value>Tài khoản đang hoạt động.</value>
+  </data>
+  <data name="User.AlreadyInactive" xml:space="preserve">
+    <value>Tài khoản đã bị vô hiệu hoá.</value>
+  </data>
+  <data name="User.FullNameEmpty" xml:space="preserve">
+    <value>Họ tên không được để trống.</value>
+  </data>
+  <data name="User.FullNameTooLong" xml:space="preserve">
+    <value>Họ tên không được dài quá 200 ký tự.</value>
+  </data>
+  <data name="User.PasswordHashRequired" xml:space="preserve">
+    <value>Thiếu chuỗi băm mật khẩu.</value>
+  </data>
+  <data name="User.RoleAlreadyAssigned" xml:space="preserve">
+    <value>Tài khoản đã có vai trò này.</value>
+  </data>
+  <data name="User.RoleNotAssigned" xml:space="preserve">
+    <value>Tài khoản không có vai trò này.</value>
+  </data>
+  <data name="User.TenantRequired" xml:space="preserve">
+    <value>Tài khoản phải thuộc về một workspace.</value>
+  </data>
+  <data name="Validation.Multiple" xml:space="preserve">
+    <value>Dữ liệu gửi lên có nhiều chỗ không hợp lệ.</value>
+  </data>
+</root>
