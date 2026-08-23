@@ -43,14 +43,14 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | EF: interceptor tự điền `CreatedAt`/`UpdatedAt` | 🟢 | Một chỗ duy nhất, không handler nào phải nhớ |
 | EF: xoá mềm + bộ lọc toàn cục | 🟢 | `Remove()` thành `UPDATE is_deleted` · query thường tự động không thấy hàng đã xoá |
 | EF: bảng Outbox + ghi cùng transaction | 🟢 | Bịt lỗ "ghi hai nơi" · RabbitMQ chết thì nghiệp vụ vẫn chạy |
-| `Messaging` — cổng + điều phối Outbox + Inbox | 🟡 | `EventEnvelope` · `OutboxDispatcher` · `InboxGuard` · `EfOutboxStore` · `EfInboxStore` xong · **bản RabbitMQ chưa làm** |
-| `Jobs` — Hangfire + job đẩy Outbox | ⬜ | Package thứ 5 |
+| `Messaging` — Outbox/Inbox + RabbitMQ | 🟢 | `OutboxDispatcher` · `InboxGuard` · publisher · consumer gốc (ack tay, prefetch, thư chết) · hosted service 10s |
+| `Jobs` — Hangfire cho việc có lịch | 🟢 | **Không** dùng cho outbox (cron nhỏ nhất 1 phút) · chặn cửa dashboard · ghim Newtonsoft.Json vá lỗ hổng |
 | `Caching` — Redis + distributed lock | ⬜ | Package thứ 6 |
 | `Realtime` — SignalR + backplane | ⬜ | Package thứ 7 |
 | CI: build + test mỗi lần push | ⬜ | |
 | Phát hành lên GitHub Packages | ⬜ | |
 
-**Số test hiện tại: 105 · tất cả xanh** (Core 41 · AspNetCore 20 · EntityFrameworkCore 32 · Messaging 12).
+**Số test hiện tại: 127 · tất cả xanh** (Core 50 · AspNetCore 20 · EntityFrameworkCore 32 · Messaging 25). 5 package pack được ở `0.1.0`.
 
 ## Giai đoạn 2 — Backend lát 1 (ONoOffice)
 
@@ -91,3 +91,4 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | 2026-08-23 | `libNetCore`: thêm `Entity`/`AggregateRoot`/domain event · `IDateTimeProvider` · `ICurrentUser` (interface) · `PagedList<T>`. Tổng 61 test xanh. Chốt: commit message viết bằng tiếng Anh. |
 | 2026-08-23 | `libNetCore`: xong `LibNetCore.EntityFrameworkCore` — snake_case, interceptor audit, xoá mềm + bộ lọc toàn cục, **Outbox ghi cùng transaction**. Test bằng SQLite in-memory chứ không dùng EF InMemory (xanh giả). Tổng 83 test xanh. |
 | 2026-08-23 | `libNetCore`: package thứ 4 `Messaging` — `OutboxDispatcher` (nửa "gửi" của outbox) + `InboxGuard` (chống xử lý trùng) + bản cài EF cho cả hai. Cổng đặt ở `Core` nên test được mà không cần broker. Tổng 105 test xanh. |
+| 2026-08-23 | `libNetCore`: xong `Messaging` (RabbitMQ publisher + consumer gốc + hosted service điều phối outbox 10 giây/vòng) và `Jobs` (Hangfire cho việc nghiệp vụ có lịch). Chốt ranh giới: **outbox dùng BackgroundService, không dùng Hangfire** — cron nhỏ nhất của Hangfire là 1 phút, quá thưa. `TreatWarningsAsErrors` bắt được lỗ hổng Newtonsoft.Json 11.0.1 do Hangfire kéo theo → ghim 13.0.3. Tổng 127 test xanh, 5 package. |
