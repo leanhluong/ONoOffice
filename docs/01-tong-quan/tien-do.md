@@ -37,7 +37,7 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | `Result` → `IResult` cho endpoint | 🟢 | Endpoint còn một dòng, không tự quyết định mã HTTP |
 | Middleware correlation-id | 🟢 | Giữ nguyên mã đến từ gateway, không sinh mã mới |
 | `Entity` · `AggregateRoot` · `IDomainEvent` | 🟢 | So sánh bằng danh tính · gốc tổng hợp ghi lại sự kiện, không tự gọi ai |
-| `IDateTimeProvider` · `ICurrentUser` | 🟡 | Interface + đồng hồ hệ thống xong · bản `ICurrentUser` đọc từ HTTP chưa làm |
+| `IDateTimeProvider` · `ICurrentUser` | 🟢 | Bản `ICurrentUser` đọc claim từ HTTP xong · không có `HttpContext` thì trả "không có ai", không ném lỗi |
 | `PagedList<T>` | 🟢 | Mang theo `TotalCount` để vẽ được "Trang 2/17" · làm tròn LÊN |
 | EF: quy ước snake_case | 🟢 | Đổi cả bảng, cột, khoá chính, khoá ngoại, chỉ mục — không sót cái nào |
 | EF: interceptor tự điền `CreatedAt`/`UpdatedAt` | 🟢 | Một chỗ duy nhất, không handler nào phải nhớ |
@@ -47,10 +47,11 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | `Jobs` — Hangfire cho việc có lịch | 🟢 | **Không** dùng cho outbox (cron nhỏ nhất 1 phút) · chặn cửa dashboard · ghim Newtonsoft.Json vá lỗ hổng |
 | `Caching` — Redis + distributed lock | 🟢 | `ICacheService` (cache cả giá trị rỗng) · lock nhả đúng mã bằng Lua · `CacheKey` |
 | `Realtime` — SignalR + backplane | 🟢 | Backplane Redis · `ClaimsUserIdProvider` nhận cả `sub` lẫn `NameIdentifier` |
+| `Application` — CQRS trên MediatR | 🟢 | `ICommand`/`IQuery` + 3 behavior: Validation → Transaction → Logging · `IUnitOfWork` một phương thức |
 | CI: build + test mỗi lần push | 🟢 | `.github/workflows/ci.yml` — restore→build→test→pack thử |
 | Phát hành lên GitHub Packages | 🟢 | `release.yml` chạy khi đẩy tag `v*` · đối chiếu tag ↔ `<Version>` trước khi phát hành |
 
-**Số test hiện tại: 149 · tất cả xanh** (Core 50 · AspNetCore 20 · EntityFrameworkCore 32 · Messaging 25 · Caching 17 · Realtime 5). 7 package pack được ở `0.1.0`.
+**Số test hiện tại: 165 · tất cả xanh** (Core 50 · AspNetCore 27 · EntityFrameworkCore 32 · Messaging 25 · Caching 17 · Application 9 · Realtime 5). **8 package** pack được ở `0.1.0`.
 
 ## Giai đoạn 2 — Backend lát 1 (ONoOffice)
 
@@ -93,3 +94,4 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | 2026-08-23 | `libNetCore`: package thứ 4 `Messaging` — `OutboxDispatcher` (nửa "gửi" của outbox) + `InboxGuard` (chống xử lý trùng) + bản cài EF cho cả hai. Cổng đặt ở `Core` nên test được mà không cần broker. Tổng 105 test xanh. |
 | 2026-08-23 | `libNetCore`: xong `Messaging` (RabbitMQ publisher + consumer gốc + hosted service điều phối outbox 10 giây/vòng) và `Jobs` (Hangfire cho việc nghiệp vụ có lịch). Chốt ranh giới: **outbox dùng BackgroundService, không dùng Hangfire** — cron nhỏ nhất của Hangfire là 1 phút, quá thưa. `TreatWarningsAsErrors` bắt được lỗ hổng Newtonsoft.Json 11.0.1 do Hangfire kéo theo → ghim 13.0.3. Tổng 127 test xanh, 5 package. |
 | 2026-08-23 | `libNetCore`: xong `Caching` (Redis + distributed lock nhả đúng mã) và `Realtime` (SignalR + backplane). Dựng CI GitHub Actions + workflow phát hành GitHub Packages theo tag `v*`. **Đủ 7 package · 149 test xanh.** |
+| 2026-08-23 | `libNetCore`: thêm `Application` (CQRS trên **MediatR** + 3 pipeline behavior), `ICurrentUser` bản đọc HTTP, `IUnitOfWork`. Chốt: **KHÔNG làm repository gốc generic** — `DbSet<T>` đã là repository, bọc thêm chỉ mất `Include`/projection/`AsNoTracking`. Repository theo từng aggregate sẽ viết trong ONoOffice với tên nói đúng câu hỏi nghiệp vụ. Tổng 165 test xanh, 8 package. |
