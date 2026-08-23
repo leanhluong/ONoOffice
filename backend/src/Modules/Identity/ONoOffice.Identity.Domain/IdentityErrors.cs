@@ -99,4 +99,58 @@ public static class IdentityErrors
         public static readonly Error AlreadyActive =
             Error.Conflict("User.AlreadyActive", "Tài khoản đang hoạt động.");
     }
+
+    public static class Roles
+    {
+        public static readonly Error TenantRequired =
+            Error.Validation("Role.TenantRequired", "Vai trò phải thuộc về một workspace.");
+
+        public static readonly Error NameEmpty =
+            Error.Validation("Role.NameEmpty", "Tên vai trò không được để trống.");
+
+        public static readonly Error NameTooLong =
+            Error.Validation("Role.NameTooLong", "Tên vai trò không được dài quá 100 ký tự.");
+
+        public static readonly Error PermissionEmpty =
+            Error.Validation("Role.PermissionEmpty", "Tên quyền không được để trống.");
+
+        public static readonly Error PermissionUnknown = Error.Validation(
+            "Role.PermissionUnknown",
+            "Quyền này không tồn tại trong hệ thống.");
+
+        public static readonly Error PermissionAlreadyGranted =
+            Error.Conflict("Role.PermissionAlreadyGranted", "Vai trò đã có quyền này.");
+
+        public static readonly Error PermissionNotGranted =
+            Error.Conflict("Role.PermissionNotGranted", "Vai trò không có quyền này.");
+
+        public static readonly Error SystemRoleIsImmutable = Error.Conflict(
+            "Role.SystemRoleIsImmutable",
+            "Vai trò hệ thống không được phép sửa. Hãy tạo một vai trò mới nếu cần bộ quyền khác.");
+    }
+
+    public static class RefreshTokens
+    {
+        public static readonly Error OwnerRequired =
+            Error.Validation("RefreshToken.OwnerRequired", "Thiếu tài khoản hoặc workspace của phiên.");
+
+        public static readonly Error HashRequired =
+            Error.Validation("RefreshToken.HashRequired", "Thiếu chuỗi băm của refresh token.");
+
+        public static readonly Error InvalidLifetime =
+            Error.Validation("RefreshToken.InvalidLifetime", "Thời hạn refresh token phải lớn hơn 0.");
+
+        public static readonly Error InvalidReplacement =
+            Error.Validation("RefreshToken.InvalidReplacement", "Token thay thế không hợp lệ.");
+
+        public static readonly Error AlreadyRevoked =
+            Error.Conflict("RefreshToken.AlreadyRevoked", "Refresh token đã bị thu hồi.");
+
+        // CỐ Ý gộp "đã thu hồi" và "đã hết hạn" vào cùng một thông báo. Nói rõ cho
+        // người gọi biết token hỏng vì lý do nào là giúp kẻ tấn công dò ra token nào
+        // từng tồn tại. Chi tiết thật ghi ở log phía server, nơi chỉ mình đọc được.
+        public static readonly Error NotActive = Error.Unauthorized(
+            "RefreshToken.NotActive",
+            "Phiên đăng nhập không còn hiệu lực. Vui lòng đăng nhập lại.");
+    }
 }
