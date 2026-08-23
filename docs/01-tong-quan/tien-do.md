@@ -57,7 +57,8 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 
 | Việc | Trạng thái | Ghi chú |
 |---|---|---|
-| Khởi tạo solution ONoOffice | ⬜ | Sẵn sàng — tài liệu kiến trúc đã xong |
+| Khởi tạo solution ONoOffice | 🟢 | backend/ + frontend/ · 9 project · 6 test kiến trúc canh 4 luật ranh giới |
+| Module `Identity` — tầng Domain | 🟢 | Email · TenantCode · Tenant · User · Role · Permissions · RefreshToken — **104 test** |
 | Module `Identity` — đăng nhập, token, vai trò | ⬜ | |
 | Module `Org` — phòng ban, nhân viên | ⬜ | |
 | Test ranh giới module | ⬜ | |
@@ -67,7 +68,7 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 
 | Việc | Trạng thái | Ghi chú |
 |---|---|---|
-| Khởi tạo Angular | ⬜ | |
+| Khởi tạo Angular | 🟢 | Angular 22.1 · standalone + signal · 3 interceptor · guard theo permission · build + lint + 8 test xanh |
 | Màn đăng nhập | ⬜ | |
 | Cây phòng ban + danh bạ | ⬜ | |
 | Màn quản trị nhân viên (HR) | ⬜ | |
@@ -98,3 +99,5 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | 2026-08-23 | **Đổi tên gói:** `LibNetCore.*` → `Luong.Kernel.*`. Lý do: `LibNetCore` trên nuget.org đã có người khác lấy · chữ "Lib" thừa · ".NET Core" là tên đã lỗi thời từ 2020 · `LibNetCore.Core` lặp chữ. Đổi bây giờ vì chưa phát hành gì — sau khi đẩy lên nuget.org thì tên là vĩnh viễn. Thêm bước đẩy nuget.org vào `release.yml`. |
 | 2026-08-23 | **Phát hành `Luong.Kernel` 0.1.0 lên GitHub Packages** — đủ 8 gói, đã xác minh qua API. nuget.org tạm tắt (API key bị 403). Vá 2 lỗi trong workflow: regex đọc `<Version>` bắt trúng chú thích · `contents: read` khiến bước tạo Release trả 403. |
 | 2026-08-23 | **Chốt 6 câu nghiệp vụ.** Multi-tenant chung DB + `tenant_id` · mỗi người thuộc đúng 1 workspace · email unique toàn hệ thống · 4 vai `Owner`/`Admin`/`Manager`/`Member` · kiểm `permission` không kiểm `role`. Viết `02-kien-truc` + ADR-0001 + ADR-0002. |
+| 2026-08-23 | **Dựng khung code.** Backend: 9 project (2 module × 4 tầng + Api), `Directory.Build.targets` có công tắc `UseLocalKernel`, 6 test kiến trúc canh 4 luật ranh giới — đã chứng minh bằng cách cố ý phá luật 2 lần rồi khôi phục. Frontend: Angular 22.1 dựng song song bởi agent nền, chỉ được chạm `frontend/` và **cấm chạy git** để không giẫm chân commit của backend. |
+| 2026-08-23 | **Xong tầng `Domain` của `Identity`** — 104 test, đỏ trước xanh sau. Chốt: quyền là hằng số trong code (quét bằng phản chiếu), vai trò nằm trong DB · vai trò hệ thống bất biến · refresh token **xoay vòng, dùng một lần** — dùng lại lần hai nghĩa là bị trộm, phải thu hồi cả chuỗi. Thư viện `Luong.Kernel` bị ứng dụng vạch ra một lỗ hổng: `Result` trơn thiếu phép đổi ngầm từ `Error` → đã vá. |
