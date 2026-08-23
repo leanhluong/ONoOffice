@@ -39,9 +39,10 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | `Entity` · `AggregateRoot` · `IDomainEvent` | 🟢 | So sánh bằng danh tính · gốc tổng hợp ghi lại sự kiện, không tự gọi ai |
 | `IDateTimeProvider` · `ICurrentUser` | 🟡 | Interface + đồng hồ hệ thống xong · bản `ICurrentUser` đọc từ HTTP chưa làm |
 | `PagedList<T>` | 🟢 | Mang theo `TotalCount` để vẽ được "Trang 2/17" · làm tròn LÊN |
-| EF: quy ước snake_case | ⬜ | |
-| EF: interceptor tự điền `CreatedAt`/`UpdatedAt` | ⬜ | |
-| EF: bảng Outbox + ghi cùng transaction | ⬜ | |
+| EF: quy ước snake_case | 🟢 | Đổi cả bảng, cột, khoá chính, khoá ngoại, chỉ mục — không sót cái nào |
+| EF: interceptor tự điền `CreatedAt`/`UpdatedAt` | 🟢 | Một chỗ duy nhất, không handler nào phải nhớ |
+| EF: xoá mềm + bộ lọc toàn cục | 🟢 | `Remove()` thành `UPDATE is_deleted` · query thường tự động không thấy hàng đã xoá |
+| EF: bảng Outbox + ghi cùng transaction | 🟢 | Bịt lỗ "ghi hai nơi" · RabbitMQ chết thì nghiệp vụ vẫn chạy |
 | `Messaging` — RabbitMQ, EventEnvelope, Inbox | ⬜ | Package thứ 4 |
 | `Jobs` — Hangfire + job đẩy Outbox | ⬜ | Package thứ 5 |
 | `Caching` — Redis + distributed lock | ⬜ | Package thứ 6 |
@@ -49,7 +50,7 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | CI: build + test mỗi lần push | ⬜ | |
 | Phát hành lên GitHub Packages | ⬜ | |
 
-**Số test hiện tại: 61 · tất cả xanh** (Core 41 · AspNetCore 20).
+**Số test hiện tại: 83 · tất cả xanh** (Core 41 · AspNetCore 20 · EntityFrameworkCore 22).
 
 ## Giai đoạn 2 — Backend lát 1 (ONoOffice)
 
@@ -88,3 +89,4 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | 2026-08-23 | Chốt quy trình git cho repo cá nhân: **làm thẳng trên nhánh `develop`**, không nhánh phụ, không PR. |
 | 2026-08-23 | `libNetCore`: khép kín chuẩn lỗi ra tới HTTP — ProblemDetails, correlation-id, exception lọt lưới, `Result` → `IResult`. 3 vòng TDD nữa, tổng 41 test xanh. |
 | 2026-08-23 | `libNetCore`: thêm `Entity`/`AggregateRoot`/domain event · `IDateTimeProvider` · `ICurrentUser` (interface) · `PagedList<T>`. Tổng 61 test xanh. Chốt: commit message viết bằng tiếng Anh. |
+| 2026-08-23 | `libNetCore`: xong `LibNetCore.EntityFrameworkCore` — snake_case, interceptor audit, xoá mềm + bộ lọc toàn cục, **Outbox ghi cùng transaction**. Test bằng SQLite in-memory chứ không dùng EF InMemory (xanh giả). Tổng 83 test xanh. |
