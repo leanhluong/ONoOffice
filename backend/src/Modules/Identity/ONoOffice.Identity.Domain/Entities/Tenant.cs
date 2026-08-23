@@ -16,7 +16,7 @@ namespace ONoOffice.Identity.Domain.Entities;
 /// vụ, không phải sự cố. Ném exception cho chúng vừa đắt, vừa giấu mất luồng thật của
 /// code — đọc chữ ký hàm không biết được nó có thể từ chối kiểu gì.
 /// </summary>
-public sealed class Tenant : AggregateRoot<Guid>
+public sealed class Tenant : AggregateRoot<Guid>, IAuditable
 {
     private const int MaxNameLength = 200;
 
@@ -46,6 +46,13 @@ public sealed class Tenant : AggregateRoot<Guid>
     public Guid? OwnerUserId { get; private set; }
 
     public bool IsActive { get; private set; }
+
+    // Hạ tầng tự điền qua AuditableEntityInterceptor. Public setter là nhượng bộ có chủ ý
+    // của Luong.Kernel: đổi lại, KHÔNG chỗ nào trong tầng nghiệp vụ được phép gán tay —
+    // gán tay nghĩa là đang nói dối về thời điểm.
+    public DateTimeOffset CreatedAtUtc { get; set; }
+
+    public DateTimeOffset? UpdatedAtUtc { get; set; }
 
     public static Result<Tenant> Create(string? code, string? name)
     {

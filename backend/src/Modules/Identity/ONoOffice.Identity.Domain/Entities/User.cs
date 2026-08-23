@@ -19,7 +19,7 @@ namespace ONoOffice.Identity.Domain.Entities;
 /// Ở đây chỉ nhận chuỗi băm đã có sẵn — và biết chắc một điều: chuỗi rỗng nghĩa là ai đó
 /// đã bỏ qua bước băm, và tài khoản như vậy tuyệt đối không được tồn tại.
 /// </summary>
-public sealed class User : AggregateRoot<Guid>
+public sealed class User : AggregateRoot<Guid>, ITenantScoped, IAuditable
 {
     private const int MaxFullNameLength = 200;
 
@@ -57,6 +57,13 @@ public sealed class User : AggregateRoot<Guid>
     public string FullName { get; private set; }
 
     public bool IsActive { get; private set; }
+
+    // Hạ tầng tự điền qua AuditableEntityInterceptor. Public setter là nhượng bộ có chủ ý
+    // của Luong.Kernel: đổi lại, KHÔNG chỗ nào trong tầng nghiệp vụ được phép gán tay —
+    // gán tay nghĩa là đang nói dối về thời điểm.
+    public DateTimeOffset CreatedAtUtc { get; set; }
+
+    public DateTimeOffset? UpdatedAtUtc { get; set; }
 
     /// <summary>
     /// Chỉ đọc. Trả thẳng <c>List</c> ra ngoài thì bất kỳ ai cũng <c>Add</c>/<c>Remove</c>

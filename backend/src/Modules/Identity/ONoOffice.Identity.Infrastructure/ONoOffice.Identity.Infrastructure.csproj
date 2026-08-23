@@ -15,4 +15,17 @@
     <ProjectReference Include="..\ONoOffice.Identity.Application\ONoOffice.Identity.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Isopoh.Cryptography.Argon2" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.11" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.22.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Bản cài đặt để internal: chúng là chi tiết kỹ thuật, không phải API cho ai gọi. -->
+    <InternalsVisibleTo Include="ONoOffice.Identity.UnitTests" />
+  </ItemGroup>
+
 </Project>

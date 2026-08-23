@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\Identity\ONoOffice.Identity.Domain\ONoOffice.Identity.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Identity\ONoOffice.Identity.Application\ONoOffice.Identity.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity\ONoOffice.Identity.Infrastructure\ONoOffice.Identity.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

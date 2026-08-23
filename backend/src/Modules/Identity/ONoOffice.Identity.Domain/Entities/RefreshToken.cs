@@ -19,7 +19,7 @@ namespace ONoOffice.Identity.Domain.Entities;
 /// <b>Không giữ đồng hồ bên trong.</b> Mọi phương thức nhận <c>now</c> từ ngoài — nhờ vậy
 /// test kiểm được "hết hạn sau 30 ngày" mà không phải chờ 30 ngày.
 /// </summary>
-public sealed class RefreshToken : Entity<Guid>
+public sealed class RefreshToken : Entity<Guid>, ITenantScoped
 {
     private RefreshToken(
         Guid id,

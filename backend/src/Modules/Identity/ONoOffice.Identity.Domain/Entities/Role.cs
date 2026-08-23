@@ -15,7 +15,7 @@ namespace ONoOffice.Identity.Domain.Entities;
 /// Nhờ vậy hôm nào công ty muốn thêm vai <i>"Trợ lý nhân sự"</i> — sửa được hồ sơ nhưng
 /// không xoá được — thì chỉ cần tạo vai mới rồi tick vài ô, <b>không đụng một dòng code</b>.
 /// </summary>
-public sealed class Role : AggregateRoot<Guid>
+public sealed class Role : AggregateRoot<Guid>, ITenantScoped, IAuditable
 {
     private const int MaxNameLength = 100;
 
@@ -42,6 +42,10 @@ public sealed class Role : AggregateRoot<Guid>
     /// <c>Manager</c>, <c>Member</c>). <b>Bất biến</b> — xem lý do ở <see cref="Grant"/>.
     /// </summary>
     public bool IsSystem { get; private set; }
+
+    public DateTimeOffset CreatedAtUtc { get; set; }
+
+    public DateTimeOffset? UpdatedAtUtc { get; set; }
 
     /// <summary>
     /// Bọc trong <see cref="ReadOnlySet{T}"/> chứ KHÔNG trả thẳng <c>HashSet</c>.
