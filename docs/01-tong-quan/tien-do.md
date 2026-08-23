@@ -43,14 +43,14 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | EF: interceptor tự điền `CreatedAt`/`UpdatedAt` | 🟢 | Một chỗ duy nhất, không handler nào phải nhớ |
 | EF: xoá mềm + bộ lọc toàn cục | 🟢 | `Remove()` thành `UPDATE is_deleted` · query thường tự động không thấy hàng đã xoá |
 | EF: bảng Outbox + ghi cùng transaction | 🟢 | Bịt lỗ "ghi hai nơi" · RabbitMQ chết thì nghiệp vụ vẫn chạy |
-| `Messaging` — RabbitMQ, EventEnvelope, Inbox | ⬜ | Package thứ 4 |
+| `Messaging` — cổng + điều phối Outbox + Inbox | 🟡 | `EventEnvelope` · `OutboxDispatcher` · `InboxGuard` · `EfOutboxStore` · `EfInboxStore` xong · **bản RabbitMQ chưa làm** |
 | `Jobs` — Hangfire + job đẩy Outbox | ⬜ | Package thứ 5 |
 | `Caching` — Redis + distributed lock | ⬜ | Package thứ 6 |
 | `Realtime` — SignalR + backplane | ⬜ | Package thứ 7 |
 | CI: build + test mỗi lần push | ⬜ | |
 | Phát hành lên GitHub Packages | ⬜ | |
 
-**Số test hiện tại: 83 · tất cả xanh** (Core 41 · AspNetCore 20 · EntityFrameworkCore 22).
+**Số test hiện tại: 105 · tất cả xanh** (Core 41 · AspNetCore 20 · EntityFrameworkCore 32 · Messaging 12).
 
 ## Giai đoạn 2 — Backend lát 1 (ONoOffice)
 
@@ -90,3 +90,4 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | 2026-08-23 | `libNetCore`: khép kín chuẩn lỗi ra tới HTTP — ProblemDetails, correlation-id, exception lọt lưới, `Result` → `IResult`. 3 vòng TDD nữa, tổng 41 test xanh. |
 | 2026-08-23 | `libNetCore`: thêm `Entity`/`AggregateRoot`/domain event · `IDateTimeProvider` · `ICurrentUser` (interface) · `PagedList<T>`. Tổng 61 test xanh. Chốt: commit message viết bằng tiếng Anh. |
 | 2026-08-23 | `libNetCore`: xong `LibNetCore.EntityFrameworkCore` — snake_case, interceptor audit, xoá mềm + bộ lọc toàn cục, **Outbox ghi cùng transaction**. Test bằng SQLite in-memory chứ không dùng EF InMemory (xanh giả). Tổng 83 test xanh. |
+| 2026-08-23 | `libNetCore`: package thứ 4 `Messaging` — `OutboxDispatcher` (nửa "gửi" của outbox) + `InboxGuard` (chống xử lý trùng) + bản cài EF cho cả hai. Cổng đặt ở `Core` nên test được mà không cần broker. Tổng 105 test xanh. |
