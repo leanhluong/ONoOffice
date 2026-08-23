@@ -32,7 +32,7 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | `Error` + `ErrorType` | 🟢 | 6 loại lỗi · mã dạng `Vùng.ChuyệnGì` · record nên so sánh được |
 | `Result` + `Result<T>` | 🟢 | Chặn 3 trạng thái vô lý · 2 phép chuyển ngầm |
 | `ValidationError` — ôm nhiều lỗi con | 🟢 | Để form 10 ô sai báo cả 10 lượt |
-| Middleware Problem Details (`AspNetCore`) | 🟡 | Đang làm — đổi `Error` → HTTP + RFC 7807 |
+| Middleware Problem Details (`AspNetCore`) | 🟢 | `Error` → HTTP + RFC 7807 · trường `errors` luôn là danh sách |
 | Middleware bắt exception lọt lưới | 🟢 | Log đủ stack trace, trả ra ngoài không lộ gì · kèm `correlationId` |
 | `Result` → `IResult` cho endpoint | 🟢 | Endpoint còn một dòng, không tự quyết định mã HTTP |
 | Middleware correlation-id | 🟢 | Giữ nguyên mã đến từ gateway, không sinh mã mới |
