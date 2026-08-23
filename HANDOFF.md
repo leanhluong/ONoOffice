@@ -133,7 +133,7 @@ Sau `Api` còn:
 | Token | Access 15 phút · refresh 30 ngày, **lưu băm, xoay vòng** | `ADR-0002` |
 | Phân quyền | Kiểm **`permission`**, KHÔNG kiểm `role` | `ADR-0002` |
 | Web | **Controller**, không phải Minimal API | `ADR-0003` |
-| Lưu token ở FE | Access trong biến, refresh trong `localStorage` | `ADR-0004` *(chờ viết)* |
+| Lưu token ở FE | Access trong biến, refresh trong `localStorage` | `ADR-0004` |
 | Ký JWT | **HS256** — một tiến trình vừa phát vừa xác minh | — |
 | Băm mật khẩu | **Argon2id**, m=19MiB t=2 p=1 | — |
 | Đa ngôn ngữ | **Cả BE lẫn FE**. BE dùng `.resx`, FE dùng `ngx-translate` | `07-giao-dien/da-ngon-ngu.md` |
@@ -165,10 +165,22 @@ email **vẫn phải chạy `Verify`** một lần. Bỏ qua bước băm làm r
 
 | Việc | Ghi chú |
 |---|---|
-| Tên miền cho FE và API | Nếu **cùng site** thì chuyển refresh token sang cookie `HttpOnly` (an toàn hơn hẳn) |
 | Đăng nhập Google / Facebook | Nút đã có, bấm hiện *"đang phát triển"*. Cần đăng ký ứng dụng ở Google/Meta |
 | `NUGET_API_KEY` | Đã tắt bước đẩy nuget.org trong `release.yml` vì key bị 403 |
 | Ba câu hỏi giao diện | Cuối `docs/07-giao-dien/wireframes.html` |
+
+## Về triển khai — đã chốt 2026-08-23
+
+Hiện chạy **local**, chưa có tên miền nào. Deploy đầu tiên sẽ lên **hạ tầng miễn phí**,
+nên FE và BE gần như chắc chắn **khác tên miền gốc** (`*.pages.dev` với `*.onrender.com`).
+
+Hệ quả: **cookie không dùng được** — cookie do API đặt sẽ là cookie bên thứ ba, Safari
+chặn mặc định. Vì vậy token đi trong thân phản hồi, xem [`ADR-0004`](./docs/02-kien-truc/adr/ADR-0004-luu-token-o-frontend.md).
+
+⚠️ **Một cái bẫy của hạ tầng miễn phí:** phần lớn gói free **tắt máy khi không có ai dùng**
+(Render free là ví dụ). Request đầu tiên sau khi ngủ mất **30–60 giây** để đánh thức — và
+người dùng sẽ tưởng app hỏng. Màn đăng nhập phải có trạng thái chờ **nói rõ đang làm gì**,
+đừng để nút quay im lặng.
 
 ## Xem nhanh thiết kế
 
