@@ -1,0 +1,20 @@
+<Project>
+
+  <!--
+    Biến danh sách <KernelReference Include="Luong.Kernel.AspNetCore" /> mà mỗi project
+    khai, thành ProjectReference hoặc PackageReference tuỳ công tắc $(UseLocalKernel).
+
+    Nhờ vậy mỗi .csproj chỉ cần viết TÊN gói mình cần, không phải lặp lại đường dẫn
+    tương đối dài dòng ở 9 chỗ — và đổi cách tham chiếu là đổi MỘT công tắc, không
+    phải sửa 9 file rồi bỏ sót một cái.
+  -->
+
+  <ItemGroup Condition="'$(UseLocalKernel)' == 'true'">
+    <ProjectReference Include="@(KernelReference->'$(KernelSrc)%(Identity)/%(Identity).csproj')" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseLocalKernel)' != 'true'">
+    <PackageReference Include="@(KernelReference)" Version="$(KernelVersion)" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <KernelReference Include="Luong.Kernel" />
+    <KernelReference Include="Luong.Kernel.Application" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ONoOffice.Org.Domain\ONoOffice.Org.Domain.csproj" />
+    <ProjectReference Include="..\ONoOffice.Org.Contracts\ONoOffice.Org.Contracts.csproj" />
+    <ProjectReference Include="..\..\Identity\ONoOffice.Identity.Contracts\ONoOffice.Identity.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

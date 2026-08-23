@@ -1,0 +1,47 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+
+    <!-- Bắt null lúc biên dịch, không đợi tới lúc chạy mới nổ NullReferenceException -->
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Warning hôm nay là bug tuần sau. Bao gồm cả cảnh báo lỗ hổng của package (NU1903) -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- Không đóng gói NuGet: đây là ứng dụng, không phải thư viện -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!--
+    ══════════════════════════════════════════════════════════════════════════
+    CÔNG TẮC: dùng Luong.Kernel bằng mã nguồn hay bằng gói NuGet?
+
+      true  (mặc định)  → ProjectReference sang ../libNetCore/src/...
+                          Sửa thư viện là dùng được NGAY, gỡ lỗi bước thẳng
+                          vào code thư viện. Dùng khi đang phát triển.
+
+      false             → PackageReference, ghim đúng $(KernelVersion).
+                          Dùng khi build trên CI hoặc khi thư viện đã ổn định
+                          và không muốn nó đổi dưới chân mình.
+
+    Bật/tắt tại dòng lệnh, không cần sửa file:
+        dotnet build -p:UseLocalKernel=false
+    ══════════════════════════════════════════════════════════════════════════
+  -->
+  <PropertyGroup>
+    <UseLocalKernel Condition="'$(UseLocalKernel)' == ''">true</UseLocalKernel>
+    <!--
+      Dùng [MSBuild]::NormalizeDirectory chứ không dùng Path.GetFullPath:
+      GetFullPath giải đường dẫn tương đối theo THƯ MỤC LÀM VIỆC hiện tại, mà thư mục
+      đó khác nhau tuỳ chỗ gọi (build một .csproj vs build cả .slnx). NormalizeDirectory
+      ghép theo vị trí CỦA CHÍNH FILE NÀY nên ra cùng một kết quả ở mọi lối gọi.
+    -->
+    <KernelSrc>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..', 'libNetCore', 'src'))</KernelSrc>
+    <KernelVersion>0.1.0</KernelVersion>
+  </PropertyGroup>
+
+</Project>

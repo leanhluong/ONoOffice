@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ONoOffice.Api/ONoOffice.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Identity/">
+    <Project Path="src/Modules/Identity/ONoOffice.Identity.Application/ONoOffice.Identity.Application.csproj" />
+    <Project Path="src/Modules/Identity/ONoOffice.Identity.Contracts/ONoOffice.Identity.Contracts.csproj" />
+    <Project Path="src/Modules/Identity/ONoOffice.Identity.Domain/ONoOffice.Identity.Domain.csproj" />
+    <Project Path="src/Modules/Identity/ONoOffice.Identity.Infrastructure/ONoOffice.Identity.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Org/">
+    <Project Path="src/Modules/Org/ONoOffice.Org.Application/ONoOffice.Org.Application.csproj" />
+    <Project Path="src/Modules/Org/ONoOffice.Org.Contracts/ONoOffice.Org.Contracts.csproj" />
+    <Project Path="src/Modules/Org/ONoOffice.Org.Domain/ONoOffice.Org.Domain.csproj" />
+    <Project Path="src/Modules/Org/ONoOffice.Org.Infrastructure/ONoOffice.Org.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ONoOffice.ArchitectureTests/ONoOffice.ArchitectureTests.csproj" />
+    <Project Path="tests/ONoOffice.Identity.UnitTests/ONoOffice.Identity.UnitTests.csproj" />
+    <Project Path="tests/ONoOffice.Org.UnitTests/ONoOffice.Org.UnitTests.csproj" />
+  </Folder>
+</Solution>
