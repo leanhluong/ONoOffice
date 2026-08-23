@@ -16,4 +16,13 @@
     <ProjectReference Include="..\ONoOffice.Identity.Contracts\ONoOffice.Identity.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!--
+      Handler và validator để internal: chúng là chuyện nội bộ của module, không phải
+      API cho ai gọi. MediatR và FluentValidation vẫn tìm ra chúng qua phản chiếu.
+      Riêng project test thì cần thấy để gọi thẳng handler mà không phải dựng MediatR.
+    -->
+    <InternalsVisibleTo Include="ONoOffice.Identity.UnitTests" />
+  </ItemGroup>
+
 </Project>

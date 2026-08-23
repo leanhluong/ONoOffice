@@ -129,6 +129,31 @@ public static class IdentityErrors
             "Vai trò hệ thống không được phép sửa. Hãy tạo một vai trò mới nếu cần bộ quyền khác.");
     }
 
+    public static class Auth
+    {
+        /// <summary>
+        /// MỘT thông báo duy nhất cho cả "email không tồn tại" lẫn "sai mật khẩu".
+        ///
+        /// Tách bạch hai ca là tặng công cụ dò tài khoản: gõ 10.000 email, cái nào báo
+        /// "sai mật khẩu" nghĩa là email đó CÓ THẬT trong hệ thống — từ đó tập trung
+        /// tấn công đúng những email có thật.
+        /// </summary>
+        public static readonly Error InvalidCredentials =
+            Error.Unauthorized("Auth.InvalidCredentials", "Email hoặc mật khẩu không đúng.");
+
+        // Hai lỗi dưới đây CỐ Ý nói thẳng, khác với lỗi trên. Người tới được đây đã gõ
+        // ĐÚNG mật khẩu, tức là gần như chắc chắn chủ tài khoản thật. Giấu thì họ gọi
+        // điện cho IT hỏi "sao tôi không vào được" — tốn thời gian cả hai bên mà không
+        // bảo vệ được gì.
+        public static readonly Error AccountDisabled = Error.Forbidden(
+            "Auth.AccountDisabled",
+            "Tài khoản đã bị vô hiệu hoá. Vui lòng liên hệ quản trị viên.");
+
+        public static readonly Error WorkspaceDisabled = Error.Forbidden(
+            "Auth.WorkspaceDisabled",
+            "Workspace đã ngừng hoạt động. Vui lòng liên hệ quản trị viên.");
+    }
+
     public static class RefreshTokens
     {
         public static readonly Error OwnerRequired =
