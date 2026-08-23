@@ -49,7 +49,8 @@ Ghi ra để về sau không tự tiện thêm vào giữa chừng:
 | Upload ảnh đại diện | Cần chỗ lưu file — để chung lát có Drive |
 | Quên mật khẩu qua email | Cần dịch vụ gửi mail — lát 2 |
 | Đăng nhập bằng Google/Microsoft | Chừa chỗ trong thiết kế, chưa làm |
-| Đa ngôn ngữ, giao diện tối | Không phục vụ mục tiêu học nào cả |
+| ~~Đa ngôn ngữ~~ | **ĐÃ ĐỔI Ý 23/08 — làm ngay từ đầu.** Thêm vào sau khi đã có 40 màn là mở từng file tìm từng chuỗi viết cứng, sót thì không có lỗi nào báo. Xem [`07-giao-dien/da-ngon-ngu.md`](../07-giao-dien/da-ngon-ngu.md) |
+| Giao diện tối | Chốt bộ màu xong mới làm cả sáng lẫn tối cho bộ được chọn |
 | Nhật ký thay đổi (audit log) | Lát 2, khi đã có dữ liệu đáng để ghi vết |
 
 ---

@@ -3,7 +3,7 @@
 > Nguyên tắc: **làm tới đâu, viết tới đó.** Không viết trước thứ chưa làm.
 > Thư mục nào chưa tới lượt thì chỉ có 1 file ghi "chưa tới lượt" — đó là trạng thái hợp lệ, không phải thiếu sót.
 
-## 6 thư mục — mỗi thư mục trả lời đúng 1 câu hỏi
+## 7 thư mục — mỗi thư mục trả lời đúng 1 câu hỏi
 
 | # | Thư mục | Trả lời câu hỏi | Trạng thái |
 |---|---|---|---|
@@ -13,6 +13,7 @@
 | 04 | [`04-database/`](./04-database/) | Dữ liệu nằm ở bảng nào, đổi schema theo quy trình nào? | ⬜ Chưa tới lượt |
 | 05 | [`05-api/`](./05-api/) | Frontend gọi endpoint nào, gửi gì, nhận gì? | ⬜ Chưa tới lượt |
 | 06 | [`06-deploy/`](./06-deploy/) | Chạy local thế nào, lên mạng thế nào? | ⬜ Chưa tới lượt |
+| 07 | [`07-giao-dien/`](./07-giao-dien/) | Màn hình nào tồn tại, làm gì, trông ra sao ở mọi trạng thái? | 🟢 Đang viết |
 
 ## Đọc theo thứ tự nào
 
