@@ -33,8 +33,9 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | `Result` + `Result<T>` | 🟢 | Chặn 3 trạng thái vô lý · 2 phép chuyển ngầm |
 | `ValidationError` — ôm nhiều lỗi con | 🟢 | Để form 10 ô sai báo cả 10 lượt |
 | Middleware Problem Details (`AspNetCore`) | 🟡 | Đang làm — đổi `Error` → HTTP + RFC 7807 |
-| Middleware bắt exception lọt lưới | ⬜ | 500 nhưng không lộ stack trace |
-| Middleware correlation-id | ⬜ | Lần vết một request qua nhiều service |
+| Middleware bắt exception lọt lưới | 🟢 | Log đủ stack trace, trả ra ngoài không lộ gì · kèm `correlationId` |
+| `Result` → `IResult` cho endpoint | 🟢 | Endpoint còn một dòng, không tự quyết định mã HTTP |
+| Middleware correlation-id | 🟢 | Giữ nguyên mã đến từ gateway, không sinh mã mới |
 | `Entity` · `AggregateRoot` · `IDomainEvent` | ⬜ | |
 | `IDateTimeProvider` · `ICurrentUser` | ⬜ | |
 | `PagedList<T>` | ⬜ | |
@@ -48,7 +49,7 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | CI: build + test mỗi lần push | ⬜ | |
 | Phát hành lên GitHub Packages | ⬜ | |
 
-**Số test hiện tại: 21 · tất cả xanh.**
+**Số test hiện tại: 41 · tất cả xanh** (Core 21 · AspNetCore 20).
 
 ## Giai đoạn 2 — Backend lát 1 (ONoOffice)
 
@@ -85,3 +86,4 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | 2026-08-23 | Chốt: modular monolith · lát 1 = đăng nhập + sơ đồ tổ chức · tài liệu 6 thư mục trong repo. Viết xong `01-tong-quan`. |
 | 2026-08-23 | `libNetCore`: dựng solution 3 package + test. Viết `Error`/`Result`/`ValidationError` theo TDD (3 vòng đỏ→xanh, 21 test). `dotnet pack` ra 3 `.nupkg` ở `0.1.0`. |
 | 2026-08-23 | Chốt quy trình git cho repo cá nhân: **làm thẳng trên nhánh `develop`**, không nhánh phụ, không PR. |
+| 2026-08-23 | `libNetCore`: khép kín chuẩn lỗi ra tới HTTP — ProblemDetails, correlation-id, exception lọt lưới, `Result` → `IResult`. 3 vòng TDD nữa, tổng 41 test xanh. |
