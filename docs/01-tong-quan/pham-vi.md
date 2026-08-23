@@ -20,7 +20,7 @@ Dự án này đi theo cách thứ hai.
 
 ## Lát 1 — Đăng nhập + Sơ đồ tổ chức
 
-Chọn lát này làm đầu tiên vì nghiệp vụ của nó **nhẹ nhất**, nên toàn bộ công sức đổ vào dựng khung: Clean Architecture, `libNetCore`, Docker, CI, Cloudflare. Khung dựng đúng một lần rồi mọi lát sau dùng lại.
+Chọn lát này làm đầu tiên vì nghiệp vụ của nó **nhẹ nhất**, nên toàn bộ công sức đổ vào dựng khung: Clean Architecture, `Luong.Kernel`, Docker, CI, Cloudflare. Khung dựng đúng một lần rồi mọi lát sau dùng lại.
 
 ### Xong lát 1 nghĩa là gì
 

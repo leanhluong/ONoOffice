@@ -59,16 +59,16 @@ Ghi ra để về sau không tự ý phình:
 | Kiến trúc BE | **Clean Architecture + Modular Monolith** | Mục tiêu học là chỗ này. Chi tiết ở `02-kien-truc/` |
 | Frontend | **Angular** | Có TypeScript chặt chẽ, hợp với người quen tư duy backend |
 | Database | **PostgreSQL 16** | Miễn phí, mạnh, đúng thứ đang dùng đi làm |
-| Package dùng chung | **`libNetCore`** — repo riêng, đẩy lên GitHub | Học cách tách thư viện dùng chung, đánh version, phát hành. Xem ghi chú bên dưới |
+| Package dùng chung | **`Luong.Kernel`** — repo riêng, đẩy lên GitHub | Học cách tách thư viện dùng chung, đánh version, phát hành. Xem ghi chú bên dưới |
 | Chạy máy local | **Docker Compose** | Một lệnh dựng đủ API + DB + web |
 | Đưa lên mạng | **Cloudflare** | Học thêm mảng hạ tầng. Chi tiết ở `06-deploy/` |
 
-### Ghi chú về `libNetCore`
+### Ghi chú về `Luong.Kernel`
 
 Đây là **repo tách riêng** (`github.com/leanhluong/libNetCore`), không nằm trong ONoOffice.
 
 - **Chứa gì:** những mảnh không dính nghiệp vụ và dùng lại được ở bất kỳ dự án .NET nào — kiểu `Result<T>` để trả lỗi mà không ném exception, lớp `Entity` gốc, đồng hồ `IDateTimeProvider`, phân trang, quy ước đặt tên bảng snake_case, middleware bắt lỗi.
-- **Cấm chứa gì:** bất kỳ thứ gì có chữ `Employee`, `Department`, `Leave`… Hễ thấy từ nghiệp vụ ONoOffice xuất hiện trong `libNetCore` là đã đặt sai chỗ.
+- **Cấm chứa gì:** bất kỳ thứ gì có chữ `Employee`, `Department`, `Leave`… Hễ thấy từ nghiệp vụ ONoOffice xuất hiện trong `Luong.Kernel` là đã đặt sai chỗ.
 - **Vì sao tách repo mà không để chung:** để bị ép sống với hệ quả thật — phải đánh số phiên bản, phải phát hành, và khi sửa thì phải nghĩ "sửa thế này có làm hỏng người dùng cũ không". Để chung thư mục thì không học được gì cả, vì sửa xong là chạy ngay.
 
 ---
