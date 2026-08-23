@@ -69,4 +69,34 @@ public static class IdentityErrors
         public static readonly Error AlreadyActive =
             Error.Conflict("Tenant.AlreadyActive", "Workspace đang hoạt động.");
     }
+
+    public static class Users
+    {
+        public static readonly Error TenantRequired =
+            Error.Validation("User.TenantRequired", "Tài khoản phải thuộc về một workspace.");
+
+        public static readonly Error FullNameEmpty =
+            Error.Validation("User.FullNameEmpty", "Họ tên không được để trống.");
+
+        public static readonly Error FullNameTooLong =
+            Error.Validation("User.FullNameTooLong", "Họ tên không được dài quá 200 ký tự.");
+
+        // Đây là lỗi LẬP TRÌNH chứ không phải lỗi người dùng — người dùng không bao giờ
+        // gửi lên chuỗi băm. Vẫn trả về Result thay vì ném exception, để nó đi cùng một
+        // đường với mọi thất bại khác và không có nhánh xử lý riêng nào phải nhớ.
+        public static readonly Error PasswordHashRequired =
+            Error.Validation("User.PasswordHashRequired", "Thiếu chuỗi băm mật khẩu.");
+
+        public static readonly Error RoleAlreadyAssigned =
+            Error.Conflict("User.RoleAlreadyAssigned", "Tài khoản đã có vai trò này.");
+
+        public static readonly Error RoleNotAssigned =
+            Error.Conflict("User.RoleNotAssigned", "Tài khoản không có vai trò này.");
+
+        public static readonly Error AlreadyInactive =
+            Error.Conflict("User.AlreadyInactive", "Tài khoản đã bị vô hiệu hoá.");
+
+        public static readonly Error AlreadyActive =
+            Error.Conflict("User.AlreadyActive", "Tài khoản đang hoạt động.");
+    }
 }
