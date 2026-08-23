@@ -10,7 +10,7 @@ namespace ONoOffice.Identity.Application.Abstractions;
 /// Nó cũng là ví dụ cho luật đã bàn: repository trả về thứ USE CASE cần, không phải thứ
 /// bảng dữ liệu có.
 /// </summary>
-public sealed record LoginUserData(
+public sealed record AuthUserData(
     Guid UserId,
     Guid TenantId,
     string PasswordHash,
@@ -23,5 +23,8 @@ public sealed record LoginUserData(
 public interface IUserRepository
 {
     /// <summary>Trả <c>null</c> khi không có tài khoản nào mang email này.</summary>
-    Task<LoginUserData?> GetForLoginAsync(string email, CancellationToken cancellationToken = default);
+    Task<AuthUserData?> GetForLoginAsync(string email, CancellationToken cancellationToken = default);
+
+    /// <summary>Dùng khi gia hạn phiên — lúc đó đã biết là ai, chỉ cần nạp lại quyền và trạng thái.</summary>
+    Task<AuthUserData?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default);
 }

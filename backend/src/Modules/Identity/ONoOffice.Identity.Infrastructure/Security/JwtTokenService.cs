@@ -117,8 +117,16 @@ internal sealed class JwtTokenService(IOptions<JwtOptions> options, IDateTimePro
         //
         // Băm ở đây phục vụ một mục đích khác: lộ bảng database thì kẻ đọc được cũng
         // không dùng được, vì họ chỉ có bản băm.
-        string hash = Convert.ToHexString(SHA256.HashData(raw));
-
-        return new RefreshTokenPair(rawToken, hash);
+        return new RefreshTokenPair(rawToken, HashRefreshToken(rawToken));
     }
+
+    /// <summary>
+    /// Băm CHUỖI mà client cầm, không phải mảng byte gốc — để lúc gia hạn phiên, chuỗi
+    /// client gửi lên băm ra đúng giá trị đang nằm trong bảng.
+    ///
+    /// Băm hai bên bằng hai cách khác nhau là lỗi im lặng kinh điển: mọi lần gia hạn đều
+    /// "không tìm thấy token", và trông y hệt như token đã hết hạn.
+    /// </summary>
+    public string HashRefreshToken(string rawToken) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rawToken)));
 }

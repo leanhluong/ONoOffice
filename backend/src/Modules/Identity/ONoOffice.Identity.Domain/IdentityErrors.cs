@@ -149,6 +149,17 @@ public static class IdentityErrors
             "Auth.AccountDisabled",
             "Tài khoản đã bị vô hiệu hoá. Vui lòng liên hệ quản trị viên.");
 
+        /// <summary>
+        /// Một thông báo duy nhất cho MỌI ca hỏng của refresh token: không tìm thấy,
+        /// hết hạn, đã thu hồi, hay bị dùng lại.
+        ///
+        /// Nói rõ "vé này đã bị dùng lại" là mách cho kẻ tấn công biết hệ thống đang
+        /// theo dõi được nó — và hắn sẽ đổi cách. Chi tiết thật ghi ở log server.
+        /// </summary>
+        public static readonly Error InvalidRefreshToken = Error.Unauthorized(
+            "Auth.InvalidRefreshToken",
+            "Phiên đăng nhập không còn hiệu lực. Vui lòng đăng nhập lại.");
+
         public static readonly Error WorkspaceDisabled = Error.Forbidden(
             "Auth.WorkspaceDisabled",
             "Workspace đã ngừng hoạt động. Vui lòng liên hệ quản trị viên.");

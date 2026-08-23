@@ -16,4 +16,7 @@ public interface ITokenService
     AccessToken IssueAccessToken(Guid userId, Guid tenantId, IReadOnlySet<string> permissions);
 
     RefreshTokenPair IssueRefreshToken();
+
+    /// <summary>Băm chuỗi thô client gửi lên, để tra trong bảng. Cùng thuật toán với lúc phát.</summary>
+    string HashRefreshToken(string rawToken);
 }

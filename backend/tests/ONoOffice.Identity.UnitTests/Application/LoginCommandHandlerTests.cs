@@ -10,11 +10,13 @@ namespace ONoOffice.Identity.UnitTests.Application;
 
 internal sealed class FakeUserRepository : IUserRepository
 {
-    public LoginUserData? Data { get; set; }
+    public AuthUserData? Data { get; set; }
 
     public string? EmailDaHoi { get; private set; }
 
-    public Task<LoginUserData?> GetForLoginAsync(string email, CancellationToken ct = default)
+    public Task<AuthUserData?> GetByIdAsync(Guid userId, CancellationToken ct = default) => Task.FromResult(Data);
+
+    public Task<AuthUserData?> GetForLoginAsync(string email, CancellationToken ct = default)
     {
         EmailDaHoi = email;
         return Task.FromResult(Data);
@@ -25,7 +27,20 @@ internal sealed class FakeRefreshTokenRepository : IRefreshTokenRepository
 {
     public List<RefreshToken> DaThem { get; } = [];
 
+    public RefreshToken? TokenTraCuuDuoc { get; set; }
+
+    public List<Guid> DaThuHoiToanBoCua { get; } = [];
+
     public void Add(RefreshToken token) => DaThem.Add(token);
+
+    public Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken ct = default) =>
+        Task.FromResult(TokenTraCuuDuoc);
+
+    public Task<int> RevokeAllForUserAsync(Guid userId, DateTimeOffset now, CancellationToken ct = default)
+    {
+        DaThuHoiToanBoCua.Add(userId);
+        return Task.FromResult(1);
+    }
 }
 
 /// <summary>Bộ băm giả, có đếm số lần gọi — dùng để kiểm chống dò tài khoản qua thời gian.</summary>
@@ -55,6 +70,8 @@ internal sealed class FakeTokenService : ITokenService
     }
 
     public RefreshTokenPair IssueRefreshToken() => new("chuoi-tho-gui-cho-client", "chuoi-bam-luu-db");
+
+    public string HashRefreshToken(string rawToken) => $"bam::{rawToken}";
 }
 
 internal sealed class FrozenClock(DateTimeOffset now) : IDateTimeProvider
@@ -82,7 +99,7 @@ public class LoginCommandHandlerTests
         bool userActive = true,
         bool tenantActive = true,
         params string[] permissions) =>
-        _users.Data = new LoginUserData(
+        _users.Data = new AuthUserData(
             UserId,
             TenantId,
             "hash-trong-db",

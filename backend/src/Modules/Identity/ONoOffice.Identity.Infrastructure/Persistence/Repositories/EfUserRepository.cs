@@ -6,7 +6,7 @@ namespace ONoOffice.Identity.Infrastructure.Persistence.Repositories;
 
 internal sealed class EfUserRepository(IdentityDbContext context) : IUserRepository
 {
-    public async Task<LoginUserData?> GetForLoginAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<AuthUserData?> GetForLoginAsync(string email, CancellationToken cancellationToken = default)
     {
         var emailResult = Email.Create(email);
 
@@ -62,11 +62,67 @@ internal sealed class EfUserRepository(IdentityDbContext context) : IUserReposit
                 .Distinct()
                 .ToListAsync(cancellationToken);
 
-        return new LoginUserData(
+        return new AuthUserData(
             row.Id,
             row.TenantId,
             row.PasswordHash,
             emailResult.Value.Value,
+            row.FullName,
+            row.IsUserActive,
+            row.IsTenantActive,
+            permissions.ToHashSet(StringComparer.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Nạp lại quyền và trạng thái khi gia hạn phiên.
+    ///
+    /// Nạp LẠI chứ không tin token cũ là có chủ ý: giữa hai lần gia hạn, người này có thể
+    /// đã bị khoá tài khoản hoặc bị thu hồi quyền. Đây chính là chỗ những thay đổi đó có
+    /// hiệu lực — và cũng là lý do access token cố tình chỉ sống 15 phút.
+    /// </summary>
+    public async Task<AuthUserData?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var row = await context.Users
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(u => u.Id == userId)
+            .Join(
+                context.Tenants.IgnoreQueryFilters().AsNoTracking(),
+                u => u.TenantId,
+                t => t.Id,
+                (u, t) => new
+                {
+                    u.Id,
+                    u.TenantId,
+                    u.PasswordHash,
+                    u.FullName,
+                    Email = u.Email,
+                    IsUserActive = u.IsActive,
+                    IsTenantActive = t.IsActive,
+                    RoleIds = EF.Property<List<Guid>>(u, "_roleIds"),
+                })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (row is null)
+        {
+            return null;
+        }
+
+        var permissions = row.RoleIds.Count == 0
+            ? []
+            : await context.Roles
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .Where(r => row.RoleIds.Contains(r.Id))
+                .SelectMany(r => r.Permissions)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+        return new AuthUserData(
+            row.Id,
+            row.TenantId,
+            row.PasswordHash,
+            row.Email.Value,
             row.FullName,
             row.IsUserActive,
             row.IsTenantActive,
