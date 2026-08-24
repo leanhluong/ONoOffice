@@ -1,0 +1,408 @@
+<!doctype html>
+<!--
+  Bản dựng màn VAI TRÒ & QUYỀN.
+
+  Luật nền của cả hệ thống: **quyền đi theo VAI TRÒ, không gán lẻ cho từng người**
+  (ADR-0002). Gán lẻ thì sau một năm không ai trả lời nổi câu "vì sao người này xem được
+  bảng lương" — phải mở từng tài khoản ra dò.
+
+  Bốn vai hệ thống KHÔNG sửa được. Đây không phải hạn chế cho vui: `SystemRoles` là hằng số
+  trong mã nguồn và seeder dựng lại chúng ở mọi workspace, nên một workspace sửa đi thì lần
+  nâng cấp sau sẽ ghi đè mà không báo. Cần bộ quyền khác thì tạo vai trò mới.
+
+  Mở thẳng bằng trình duyệt là chạy.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vai trò &amp; quyền · ONoOffice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../chung/_shell.css">
+<link rel="stylesheet" href="../chung/_khung.css">
+<link rel="stylesheet" href="../chung/_dieukhien.css">
+
+<style>
+.hai { flex: 1; min-height: 0; display: flex; }
+
+/* ── Cột danh sách vai trò ────────────────────────────────────────── */
+.dsvai { width: 252px; flex: none; display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); }
+.dsvai__cuon { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 8px; }
+.dsvai__nhan {
+  padding: 12px 8px 5px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.vaimuc {
+  position: relative; width: 100%; box-sizing: border-box;
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; margin-bottom: 2px;
+  border: 0; border-radius: 10px; background: transparent;
+  color: var(--ink-soft); font-family: inherit; text-align: left; cursor: pointer;
+}
+.vaimuc:hover { background: var(--surface-2); }
+.vaimuc[aria-current="true"] { background: color-mix(in srgb, var(--accent) 13%, transparent); }
+
+.vaimuc__giua { flex: 1; min-width: 0; }
+.vaimuc__ten { display: block; font-size: 13.5px; font-weight: 500; color: var(--ink); }
+.vaimuc[aria-current="true"] .vaimuc__ten { color: var(--accent); font-weight: 600; }
+.vaimuc__phu { display: block; font-size: 11.5px; color: var(--ink-faint); margin-top: 2px; }
+.vaimuc__khoa { width: 13px; height: 13px; flex: none; color: var(--ink-faint); }
+
+/* ── Cột chi tiết ─────────────────────────────────────────────────── */
+.chitiet { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+.chitiet__cuon { flex: 1; min-height: 0; overflow-y: auto; padding: 18px; }
+
+/* Dải nói vì sao vai trò này khoá. Đặt NGAY TRÊN bảng quyền — nếu để cuối trang thì người
+   dùng bấm ba lần vào công tắc không nhúc nhích rồi mới đọc tới. */
+.khoabao {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; padding: 11px 14px;
+  border: 1px solid color-mix(in srgb, var(--canh) 40%, var(--line)); border-radius: 12px;
+  background: color-mix(in srgb, var(--canh) 10%, var(--surface));
+  font-size: 12.5px; color: var(--ink-soft); line-height: 1.55;
+}
+.khoabao svg { width: 16px; height: 16px; flex: none; color: var(--canh); }
+.khoabao b { color: var(--ink); }
+[data-vai="tuytao"] .khoabao { display: none; }
+
+.mo { display: none; }
+[data-vai="tuytao"] .mo { display: inline-flex; }
+[data-vai="tuytao"] .khoa { display: none; }
+
+/* ── Bảng quyền ───────────────────────────────────────────────────── */
+.nhomq { margin-bottom: 12px; }
+.nhomq__dau {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px 12px 0 0;
+}
+.nhomq__ten { flex: 1; font-size: 13px; font-weight: 600; color: var(--ink); }
+.nhomq__dem { font-size: 11.5px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.nhomq__than { border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px; }
+
+.quyen { display: flex; align-items: center; gap: 14px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+.quyen:last-child { border-bottom: 0; }
+.quyen__giua { flex: 1; min-width: 0; }
+.quyen__ten { font-size: 13px; color: var(--ink); }
+.quyen__ma {
+  font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; color: var(--ink-faint);
+  margin-top: 2px;
+}
+.quyen__mota { font-size: 12px; color: var(--ink-faint); margin-top: 3px; line-height: 1.5; }
+
+/* Quyền bị khoá thì công tắc mờ VÀ không bấm được. Chỉ làm mờ mà vẫn bấm được là tệ nhất:
+   người dùng bấm, nó đổi, rồi lưu xong quay lại như cũ mà không có lời giải thích nào. */
+[data-vai="hethong"] .congtac { opacity: 0.55; pointer-events: none; }
+</style>
+
+<div class="khung">
+  <nav id="nav"></nav>
+
+  <div class="noidung" data-vai="hethong">
+    <header class="trangdau">
+      <h1>Vai trò &amp; quyền</h1>
+      <span class="trangdau__phu">5 vai trò · 12 quyền</span>
+      <div class="trangdau__day"></div>
+      <button class="nut nut--chinh" data-soon="Tạo vai trò">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
+        Tạo vai trò
+      </button>
+    </header>
+
+    <div class="hai">
+      <!-- ══════════════ DANH SÁCH VAI TRÒ ══════════════ -->
+      <aside class="dsvai" aria-label="Danh sách vai trò">
+        <div class="dsvai__cuon">
+          <div class="dsvai__nhan">Vai trò hệ thống</div>
+
+          <button class="vaimuc" aria-current="true" data-loai="hethong" data-ten="Owner"
+                  data-mota="Chủ sở hữu workspace. Có mọi quyền, kể cả chuyển nhượng quyền sở hữu." data-so="1 người" data-q="12">
+            <span class="vaimuc__giua">
+              <span class="vaimuc__ten">Owner</span>
+              <span class="vaimuc__phu">1 người · 12 quyền</span>
+            </span>
+            <svg class="vaimuc__khoa" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <rect x="3" y="6" width="8" height="6" rx="1.5"/><path d="M5 6V4.3a2 2 0 014 0V6"/>
+            </svg>
+          </button>
+
+          <button class="vaimuc" data-loai="hethong" data-ten="Admin"
+                  data-mota="Quản trị toàn workspace: nhân sự, phòng ban, vai trò." data-so="2 người" data-q="9">
+            <span class="vaimuc__giua">
+              <span class="vaimuc__ten">Admin</span>
+              <span class="vaimuc__phu">2 người · 9 quyền</span>
+            </span>
+            <svg class="vaimuc__khoa" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <rect x="3" y="6" width="8" height="6" rx="1.5"/><path d="M5 6V4.3a2 2 0 014 0V6"/>
+            </svg>
+          </button>
+
+          <button class="vaimuc" data-loai="hethong" data-ten="Manager"
+                  data-mota="Quản lý phòng ban của mình. Xem và sửa nhân sự trong phòng." data-so="4 người" data-q="6">
+            <span class="vaimuc__giua">
+              <span class="vaimuc__ten">Manager</span>
+              <span class="vaimuc__phu">4 người · 6 quyền</span>
+            </span>
+            <svg class="vaimuc__khoa" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <rect x="3" y="6" width="8" height="6" rx="1.5"/><path d="M5 6V4.3a2 2 0 014 0V6"/>
+            </svg>
+          </button>
+
+          <button class="vaimuc" data-loai="hethong" data-ten="Member"
+                  data-mota="Nhân viên thường. Xem danh bạ, phòng ban và trao đổi nội bộ." data-so="31 người" data-q="4">
+            <span class="vaimuc__giua">
+              <span class="vaimuc__ten">Member</span>
+              <span class="vaimuc__phu">31 người · 4 quyền</span>
+            </span>
+            <svg class="vaimuc__khoa" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <rect x="3" y="6" width="8" height="6" rx="1.5"/><path d="M5 6V4.3a2 2 0 014 0V6"/>
+            </svg>
+          </button>
+
+          <div class="dsvai__nhan">Vai trò của công ty</div>
+
+          <button class="vaimuc" data-loai="tuytao" data-ten="Kế toán trưởng"
+                  data-mota="Xem toàn bộ nhân sự nhưng không sửa; không vào được phần vai trò." data-so="1 người" data-q="5">
+            <span class="vaimuc__giua">
+              <span class="vaimuc__ten">Kế toán trưởng</span>
+              <span class="vaimuc__phu">1 người · 5 quyền</span>
+            </span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- ══════════════ CHI TIẾT ══════════════ -->
+      <section class="chitiet" aria-label="Chi tiết vai trò">
+        <div class="trangdau" style="min-height:52px">
+          <div style="flex:1;min-width:0">
+            <div style="font-family:Sora,system-ui,sans-serif;font-weight:600;font-size:15px" id="vTen">Owner</div>
+            <div style="font-size:12px;color:var(--ink-faint);margin-top:2px" id="vSo">1 người đang giữ vai trò này</div>
+          </div>
+          <button class="nut nut--nho mo" data-soon="Đổi tên vai trò">Đổi tên</button>
+          <button class="nut nut--nho nut--nguy mo" data-soon="Xoá vai trò">Xoá vai trò</button>
+          <button class="nut nut--chinh nut--nho mo" data-soon="Lưu thay đổi">Lưu</button>
+        </div>
+
+        <div class="chitiet__cuon">
+          <p style="margin:0 0 16px;font-size:13px;color:var(--ink-soft);line-height:1.6" id="vMota">
+            Chủ sở hữu workspace. Có mọi quyền, kể cả chuyển nhượng quyền sở hữu.
+          </p>
+
+          <div class="khoabao">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+              <rect x="3.5" y="7" width="9" height="6.5" rx="1.6"/><path d="M5.8 7V5a2.2 2.2 0 014.4 0v2"/>
+            </svg>
+            <span>
+              <b>Vai trò hệ thống — không sửa được.</b> Bốn vai này dựng lại ở mọi workspace từ
+              cùng một định nghĩa trong mã nguồn, nên sửa ở đây sẽ bị lần nâng cấp sau ghi đè mà
+              không báo. Cần bộ quyền khác thì <a class="link" href="#" data-soon="Tạo vai trò">tạo vai trò mới</a>.
+            </span>
+          </div>
+
+          <!-- ── Nhóm quyền: Workspace ── -->
+          <div class="nhomq">
+            <div class="nhomq__dau">
+              <span class="nhomq__ten">Workspace</span>
+              <span class="nhomq__dem">3 / 3</span>
+            </div>
+            <div class="nhomq__than">
+              <div class="quyen" data-ma="workspace.read">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Xem thông tin workspace</div>
+                  <div class="quyen__ma">workspace.read</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+              <div class="quyen" data-ma="workspace.manage">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Sửa thông tin workspace</div>
+                  <div class="quyen__ma">workspace.manage</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+              <div class="quyen" data-ma="workspace.transfer-ownership">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Chuyển nhượng quyền sở hữu</div>
+                  <div class="quyen__ma">workspace.transfer-ownership</div>
+                  <!-- Quyền nguy hiểm thì nói HẬU QUẢ, không chỉ nói tên. Người bật công tắc
+                       cần biết mình vừa trao đi cái gì. -->
+                  <div class="quyen__mota">Trao workspace cho người khác. Người trao mất quyền Owner ngay lập tức.</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Nhóm quyền: Nhân sự ── -->
+          <div class="nhomq">
+            <div class="nhomq__dau">
+              <span class="nhomq__ten">Nhân sự</span>
+              <span class="nhomq__dem">3 / 3</span>
+            </div>
+            <div class="nhomq__than">
+              <div class="quyen" data-ma="employee.read">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Xem danh sách nhân viên</div>
+                  <div class="quyen__ma">employee.read</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+              <div class="quyen" data-ma="employee.write">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Thêm và sửa nhân viên</div>
+                  <div class="quyen__ma">employee.write</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+              <div class="quyen" data-ma="employee.delete">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Xoá nhân viên</div>
+                  <div class="quyen__ma">employee.delete</div>
+                  <div class="quyen__mota">Xoá mềm — hồ sơ ẩn đi nhưng dữ liệu cũ vẫn còn.</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Nhóm quyền: Tài khoản & vai trò ── -->
+          <div class="nhomq">
+            <div class="nhomq__dau">
+              <span class="nhomq__ten">Tài khoản &amp; vai trò</span>
+              <span class="nhomq__dem">4 / 4</span>
+            </div>
+            <div class="nhomq__than">
+              <div class="quyen" data-ma="user.read">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Xem tài khoản</div>
+                  <div class="quyen__ma">user.read</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+              <div class="quyen" data-ma="user.manage">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Tạo tài khoản, vô hiệu hoá, đặt lại mật khẩu</div>
+                  <div class="quyen__ma">user.manage</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+              <div class="quyen" data-ma="role.read">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Xem vai trò</div>
+                  <div class="quyen__ma">role.read</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+              <div class="quyen" data-ma="role.manage">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Tạo và sửa vai trò</div>
+                  <div class="quyen__ma">role.manage</div>
+                  <div class="quyen__mota">Ai có quyền này thì tự nâng quyền cho chính mình được. Chỉ trao cho người thật sự quản trị.</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Nhóm quyền: Phòng ban ── -->
+          <div class="nhomq">
+            <div class="nhomq__dau">
+              <span class="nhomq__ten">Phòng ban</span>
+              <span class="nhomq__dem">2 / 2</span>
+            </div>
+            <div class="nhomq__than">
+              <div class="quyen" data-ma="department.read">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Xem cây phòng ban</div>
+                  <div class="quyen__ma">department.read</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+              <div class="quyen" data-ma="department.manage">
+                <div class="quyen__giua">
+                  <div class="quyen__ten">Tạo, sửa, sắp xếp phòng ban</div>
+                  <div class="quyen__ma">department.manage</div>
+                </div>
+                <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="popups" id="popups" aria-live="polite"></div>
+
+<div class="states">
+  <span>Vai trò</span>
+  <button data-loai="hethong" aria-pressed="true">Hệ thống (khoá)</button>
+  <button data-loai="tuytao" aria-pressed="false">Của công ty (sửa được)</button>
+</div>
+
+<script type="module">
+import { mountNav, mountChuaLam } from '../chung/_shell.js';
+
+mountNav(document.getElementById('nav'), 'vai-tro');
+mountChuaLam();
+
+const noidung = document.querySelector('.noidung');
+
+// Bộ quyền THẬT của từng vai trò. Bản dựng trước bật hết mọi công tắc ở mọi vai trò, tức
+// là nó nói dối đúng cái thứ mà màn này sinh ra để trả lời: "vai trò này làm được gì".
+const BO = {
+  Owner: 'tất cả',
+  Admin: ['workspace.read','employee.read','employee.write','employee.delete',
+          'user.read','user.manage','role.read','department.read','department.manage'],
+  Manager: ['workspace.read','employee.read','employee.write','user.read','role.read','department.read'],
+  Member: ['workspace.read','employee.read','user.read','department.read'],
+  'Kế toán trưởng': ['workspace.read','employee.read','user.read','role.read','department.read'],
+};
+
+function veQuyen(tenVai) {
+  const bo = BO[tenVai];
+
+  document.querySelectorAll('.quyen').forEach((q) => {
+    q.querySelector('input').checked = bo === 'tất cả' || bo.includes(q.dataset.ma);
+  });
+
+  // Đếm lại từng nhóm. Con số ở đầu nhóm phải khớp công tắc bên dưới, nếu không nó là
+  // thứ đầu tiên người duyệt bắt được.
+  document.querySelectorAll('.nhomq').forEach((n) => {
+    const o = n.querySelectorAll('.quyen input');
+    const bat = [...o].filter((x) => x.checked).length;
+    n.querySelector('.nhomq__dem').textContent = bat + ' / ' + o.length;
+  });
+}
+
+function chon(btn) {
+  document.querySelectorAll('.vaimuc').forEach(b => b.removeAttribute('aria-current'));
+  btn.setAttribute('aria-current', 'true');
+
+  noidung.dataset.vai = btn.dataset.loai;
+  document.getElementById('vTen').textContent = btn.dataset.ten;
+  document.getElementById('vMota').textContent = btn.dataset.mota;
+  document.getElementById('vSo').textContent = `${btn.dataset.so} đang giữ vai trò này`;
+
+  veQuyen(btn.dataset.ten);
+
+  document.querySelectorAll('.states button[data-loai]').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.loai === btn.dataset.loai)));
+}
+
+document.querySelectorAll('.vaimuc').forEach(b => b.addEventListener('click', () => chon(b)));
+
+// Vẽ ngay khi mở, không chờ người dùng bấm đổi vai trò.
+veQuyen(document.querySelector('.vaimuc[aria-current="true"]').dataset.ten);
+
+// Thanh duyệt: nhảy tới vai trò đầu tiên đúng loại.
+document.querySelectorAll('.states button[data-loai]').forEach(b =>
+  b.addEventListener('click', () => chon(document.querySelector(`.vaimuc[data-loai="${b.dataset.loai}"]`))));
+
+const q = new URLSearchParams(location.search);
+if (q.get('loai')) document.querySelector(`.states button[data-loai="${q.get('loai')}"]`)?.click();
+if (q.has('bare')) document.querySelector('.states')?.remove();
+</script>

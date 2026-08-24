@@ -48,6 +48,9 @@ const INDEX = `<!doctype html><meta charset="utf-8">
   <p>Mỗi màn có thanh đổi trạng thái ở đáy và bốn chấm đổi bộ màu ở góc.</p>
   <a href="/identity/dang-nhap.html">Đăng nhập <small>identity/dang-nhap.html</small></a>
   <a href="/identity/dang-ky.html">Đăng ký workspace <small>identity/dang-ky.html</small></a>
+  <a href="/org/nhan-su.html">Nhân sự <small>org/nhan-su.html</small></a>
+  <a href="/identity/tai-khoan.html">Hồ sơ &amp; cài đặt <small>identity/tai-khoan.html</small></a>
+  <a href="/identity/vai-tro.html">Vai trò &amp; quyền <small>identity/vai-tro.html</small></a>
   <a href="/comm/chat.html">Trao đổi nội bộ <small>comm/chat.html</small></a>
   <a href="/wireframes.html">Wireframe 6 màn <small>wireframes.html</small></a>
 </main>
@@ -77,5 +80,8 @@ createServer((req, res) => {
   console.log(`Bản dựng đang chạy ở  http://localhost:${PORT}`);
   console.log(`  đăng nhập  http://localhost:${PORT}/identity/dang-nhap.html`);
   console.log(`  đăng ký    http://localhost:${PORT}/identity/dang-ky.html`);
+  console.log(`  nhân sự    http://localhost:${PORT}/org/nhan-su.html`);
+  console.log(`  tài khoản  http://localhost:${PORT}/identity/tai-khoan.html`);
+  console.log(`  vai trò    http://localhost:${PORT}/identity/vai-tro.html`);
   console.log(`  trao đổi   http://localhost:${PORT}/comm/chat.html`);
 });

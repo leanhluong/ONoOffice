@@ -322,3 +322,170 @@ export function weave(canvas) {
   document.addEventListener('skinchange', paint);
   start();
 }
+
+/**
+ * Dựng cột điều hướng của khung ứng dụng.
+ *
+ * Vì sao là hàm chứ không phải chép HTML vào từng trang: bản dựng có nhiều màn, và cột này
+ * giống hệt nhau ở mọi màn. Chép tay thì thêm một mục ở màn A mà quên màn B — người duyệt
+ * thấy hai cột khác nhau và không biết cái nào mới đúng.
+ *
+ * @param host  phần tử sẽ chứa cột
+ * @param dang  mã trang đang mở, để tô mục tương ứng
+ */
+export function mountNav(host, dang) {
+  const MUC = [
+    {
+      nhan: 'Làm việc',
+      muc: [
+        { ma: 'trao-doi', ten: 'Trao đổi', href: '../comm/chat.html', dem: 4,
+          icon: '<path d="M17 11.3a3 3 0 01-3 3H8.4L4.5 17.2v-2.9H6a3 3 0 01-3-3V5.7a3 3 0 013-3h8a3 3 0 013 3z"/>' },
+        { ma: 'duyet', ten: 'Chờ duyệt', dem: 9, soon: 'Chờ duyệt',
+          icon: '<path d="M4 3.5h12v13l-3-2-3 2-3-2-3 2z"/><path d="M7 7.5h6M7 10.5h4"/>' },
+      ],
+    },
+    {
+      nhan: 'Tổ chức',
+      muc: [
+        { ma: 'nhan-su', ten: 'Nhân sự', href: '../org/nhan-su.html', dem: 38, nhat: true,
+          icon: '<circle cx="7.5" cy="6.8" r="2.9"/><path d="M2.4 16.6a5.1 5.1 0 0110.2 0"/><path d="M13.2 4.4a2.9 2.9 0 010 4.8M14.8 16.6a5.1 5.1 0 00-1.7-3.8"/>' },
+        { ma: 'phong-ban', ten: 'Phòng ban', dem: 6, nhat: true, soon: 'Phòng ban',
+          icon: '<rect x="7" y="2.5" width="6" height="4.5" rx="1.3"/><rect x="2" y="13" width="5.5" height="4.5" rx="1.3"/><rect x="12.5" y="13" width="5.5" height="4.5" rx="1.3"/><path d="M10 7v3.5M4.75 13v-2.5h10.5V13"/>' },
+        { ma: 'vai-tro', ten: 'Vai trò & quyền', href: '../identity/vai-tro.html',
+          icon: '<path d="M10 2.5 4 5v4.5c0 3.4 2.5 6.5 6 8 3.5-1.5 6-4.6 6-8V5z"/><path d="m7.6 10 1.7 1.7 3.3-3.4"/>' },
+      ],
+    },
+  ];
+
+  const bieu = (d) =>
+    `<svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+       stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+
+  const dong = (m) => {
+    const chon = m.ma === dang;
+    const the = m.href && !chon ? 'a' : 'button';
+    const thuoc = m.href && !chon ? `href="${m.href}"` : 'type="button"';
+
+    return `<${the} class="nav__muc" ${thuoc} ${chon ? 'aria-current="page"' : ''}
+       ${m.soon ? `data-soon="${m.soon}"` : ''}>
+      ${bieu(m.icon)}
+      <span class="nav__chu">${m.ten}</span>
+      ${m.dem ? `<span class="nav__dem ${m.nhat ? 'nav__dem--nhat' : ''}">${m.dem}</span>` : ''}
+      <span class="nav__meo">${m.ten}</span>
+    </${the}>`;
+  };
+
+  host.className = 'nav';
+  host.setAttribute('aria-label', 'Điều hướng chính');
+  host.innerHTML = `
+    <button class="nav__toi" id="navToi" aria-expanded="false">
+      <span class="mat mat--nho">LL<span class="online"></span></span>
+      <span class="nav__ten"><b>Lê Anh Lượng</b><span>Công ty TNHH ACME</span></span>
+    </button>
+
+    <div class="nav__tim">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/>
+      </svg>
+      <input type="search" placeholder="Tìm kiếm" aria-label="Tìm kiếm toàn hệ thống">
+      <span class="nav__phim">Ctrl K</span>
+    </div>
+
+    <div class="nav__ds">
+      ${MUC.map((n) => `<div class="nav__nhan">${n.nhan}</div>${n.muc.map(dong).join('')}`).join('')}
+    </div>
+
+    <div class="nav__duoi">
+      <button class="nuti" id="navCaidat" aria-expanded="false" aria-label="Giao diện và ngôn ngữ">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="10" cy="10" r="2.6"/>
+          <path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7"/>
+        </svg>
+      </button>
+      <button class="nuti" id="navGon" aria-label="Thu gọn thanh điều hướng">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <rect x="2.5" y="3.5" width="15" height="13" rx="2.5"/><path d="M7.5 3.5v13"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="popover" id="navMenuCaidat" hidden style="left: 8px; bottom: 52px;">
+      <div class="popover__hang">Bộ màu &amp; ngôn ngữ</div>
+      <div style="padding: 2px 10px 8px;"><div id="prefs"></div></div>
+    </div>
+
+    <div class="popover" id="navMenuToi" hidden style="left: 8px; top: 56px;">
+      <div class="popover__ai">
+        <div class="popover__ten">Lê Anh Lượng</div>
+        <div class="popover__mail">chu@congty.vn · Owner</div>
+      </div>
+      <a class="popover__nut" href="../identity/tai-khoan.html">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="5.5" r="2.4"/><path d="M3.5 13.2a4.5 4.5 0 019 0"/></svg>
+        Hồ sơ &amp; cài đặt
+      </a>
+      <button class="popover__nut" data-soon="Đổi trạng thái">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/></svg>
+        Đang trực tuyến
+      </button>
+      <div class="popover__vach"></div>
+      <button class="popover__nut" data-soon="Đăng xuất">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 14H3.5A1.5 1.5 0 012 12.5v-9A1.5 1.5 0 013.5 2H6M10.5 11 14 8l-3.5-3M14 8H6"/></svg>
+        Đăng xuất
+      </button>
+    </div>
+  `;
+
+  mountPrefs(host.querySelector('#prefs'));
+
+  const khung = host.closest('.khung');
+
+  host.querySelector('#navGon').addEventListener('click', () => khung.classList.toggle('khung--gon'));
+
+  const gan = (nutId, menuId) => {
+    const nut = host.querySelector(nutId);
+    const menu = host.querySelector(menuId);
+
+    nut.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const mo = menu.hidden;
+
+      // Đóng mọi menu khác trước: hai cái cùng mở thì chồng lên nhau.
+      host.querySelectorAll('.popover').forEach((m) => (m.hidden = true));
+      host.querySelectorAll('[aria-expanded]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+
+      menu.hidden = !mo;
+      nut.setAttribute('aria-expanded', String(mo));
+    });
+
+    menu.addEventListener('click', (e) => e.stopPropagation());
+  };
+
+  gan('#navToi', '#navMenuToi');
+  gan('#navCaidat', '#navMenuCaidat');
+
+  // Bấm ra ngoài thì đóng. Thiếu chỗ này là kiểu lỗi ai cũng gặp: menu xổ ra rồi nằm lì
+  // trên màn hình cho tới khi đổi trang.
+  const dong2 = () => {
+    host.querySelectorAll('.popover').forEach((m) => (m.hidden = true));
+    host.querySelectorAll('[aria-expanded]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+  };
+
+  document.addEventListener('click', dong2);
+  document.addEventListener('keydown', (e) => e.key === 'Escape' && dong2());
+}
+
+/**
+ * Nút nào chưa làm thì nói thẳng, đừng im lặng.
+ *
+ * Im lặng không làm gì khiến người duyệt tưởng bản dựng hỏng, rồi báo lại một lỗi không
+ * tồn tại. Gắn một lần cho cả trang.
+ */
+export function mountChuaLam() {
+  document.body.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-soon]');
+    if (!el) return;
+
+    e.preventDefault();
+    popup({ text: `${el.dataset.soon} — tính năng đang phát triển.` });
+  });
+}

@@ -1,0 +1,334 @@
+<!doctype html>
+<!--
+  Bản dựng màn HỒ SƠ & CÀI ĐẶT TÀI KHOẢN — của chính người đang đăng nhập.
+
+  Khác hẳn màn Nhân sự: ở đó quản trị viên sửa hồ sơ NGƯỜI KHÁC, ở đây mỗi người sửa của
+  chính mình. Hai màn không gộp được, vì thứ sửa được cũng khác nhau: không ai được tự đổi
+  vai trò của mình, và không quản trị viên nào được đổi mật khẩu hộ người khác.
+
+  Mở thẳng bằng trình duyệt là chạy.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hồ sơ &amp; cài đặt · ONoOffice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../chung/_shell.css">
+<link rel="stylesheet" href="../chung/_khung.css">
+<link rel="stylesheet" href="../chung/_dieukhien.css">
+
+<style>
+.dau { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+.dau__ten { margin: 0 0 3px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 20px; letter-spacing: -0.02em; }
+.dau__phu { font-size: 13px; color: var(--ink-faint); }
+.dau__anh { position: relative; }
+/* Nút đổi ảnh nằm ĐÈ lên góc ảnh, không nằm cạnh: chỗ người ta bấm để đổi ảnh đại diện là
+   chính cái ảnh đó, mọi ứng dụng đều dạy họ như vậy. */
+.dau__doi {
+  position: absolute; right: -4px; bottom: -4px;
+  width: 26px; height: 26px; display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: 50%; background: var(--surface);
+  color: var(--ink-soft); cursor: pointer;
+}
+.dau__doi:hover { border-color: var(--accent); color: var(--accent); }
+.dau__doi svg { width: 13px; height: 13px; }
+
+.khoi { display: none; }
+.khoi--hien { display: block; }
+
+.hang {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid var(--line);
+}
+.hang:last-child { border-bottom: 0; }
+.hang__giua { flex: 1; min-width: 0; }
+.hang__ten { font-size: 13.5px; color: var(--ink); }
+.hang__phu { font-size: 12px; color: var(--ink-faint); margin-top: 2px; line-height: 1.55; }
+
+.phien { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.phien:last-child { border-bottom: 0; }
+.phien__bieu {
+  width: 34px; height: 34px; flex: none; display: grid; place-items: center;
+  border-radius: 10px; background: var(--surface-2); color: var(--ink-faint);
+}
+.phien__bieu svg { width: 17px; height: 17px; }
+.phien__giua { flex: 1; min-width: 0; }
+.phien__may { font-size: 13px; color: var(--ink); }
+.phien__khi { font-size: 11.5px; color: var(--ink-faint); }
+</style>
+
+<div class="khung">
+  <nav id="nav"></nav>
+
+  <div class="noidung">
+    <header class="trangdau">
+      <h1>Hồ sơ &amp; cài đặt</h1>
+      <div class="trangdau__day"></div>
+      <button class="nut nut--chinh" data-soon="Lưu thay đổi">Lưu thay đổi</button>
+    </header>
+
+    <div class="tab" style="padding: 0 18px; flex: none">
+      <button aria-selected="true" data-tab="hoso">Hồ sơ</button>
+      <button aria-selected="false" data-tab="baomat">Bảo mật</button>
+      <button aria-selected="false" data-tab="giaodien">Giao diện</button>
+      <button aria-selected="false" data-tab="thongbao">Thông báo</button>
+    </div>
+
+    <div class="trang">
+      <div class="trang--hep">
+
+        <!-- ══════════════ HỒ SƠ ══════════════ -->
+        <div class="khoi khoi--hien" data-tab="hoso">
+          <div class="dau">
+            <div class="dau__anh">
+              <span class="mat mat--lon">LL<span class="online"></span></span>
+              <button class="dau__doi" data-soon="Đổi ảnh đại diện" aria-label="Đổi ảnh đại diện">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                  <path d="M2.5 5.5h2.2l1-1.5h4.6l1 1.5h2.2v7.5h-11z"/><circle cx="8" cy="9" r="2.3"/>
+                </svg>
+              </button>
+            </div>
+            <div>
+              <h2 class="dau__ten">Lê Anh Lượng</h2>
+              <div class="dau__phu">Giám đốc · Ban giám đốc · <span class="vai vai--chu">Owner</span></div>
+            </div>
+          </div>
+
+          <div class="the__khoi">
+            <h3>Thông tin cá nhân</h3>
+            <p class="mota">Đồng nghiệp nhìn thấy những thông tin này trong danh bạ và khi bạn nhắn tin.</p>
+
+            <div class="luoi">
+              <div class="o">
+                <label class="o__nhan" for="ten">Họ và tên <span class="o__batbuoc">*</span></label>
+                <input id="ten" type="text" value="Lê Anh Lượng">
+              </div>
+
+              <div class="o">
+                <label class="o__nhan" for="dienthoai">Điện thoại</label>
+                <input id="dienthoai" type="tel" value="0912 345 678">
+              </div>
+
+              <!-- Email và vai trò KHOÁ, và nói rõ vì sao. Hiện một ô nhập rồi từ chối lưu là
+                   cách chắc chắn nhất làm người dùng bực; khoá sẵn kèm một câu giải thích thì
+                   họ biết phải đi hỏi ai. -->
+              <div class="o">
+                <label class="o__nhan" for="mail">Email đăng nhập</label>
+                <input id="mail" type="email" value="chu@congty.vn" disabled>
+                <span class="o__meo">Đổi email đăng nhập phải qua quản trị viên — nó là định danh của tài khoản.</span>
+              </div>
+
+              <div class="o">
+                <label class="o__nhan" for="chuc">Chức danh</label>
+                <input id="chuc" type="text" value="Giám đốc" disabled>
+                <span class="o__meo">Do phòng Nhân sự đặt.</span>
+              </div>
+
+              <div class="o luoi--rong">
+                <label class="o__nhan" for="gioithieu">Giới thiệu ngắn</label>
+                <textarea id="gioithieu" placeholder="Một hai câu để đồng nghiệp biết bạn phụ trách gì."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════ BẢO MẬT ══════════════ -->
+        <div class="khoi" data-tab="baomat">
+          <div class="the__khoi">
+            <h3>Đổi mật khẩu</h3>
+            <p class="mota">
+              Dùng một câu dễ nhớ. Dài hơn là an toàn hơn — không cần ký tự đặc biệt.
+              Tối thiểu 10 ký tự.
+            </p>
+
+            <div class="luoi">
+              <div class="o luoi--rong">
+                <label class="o__nhan" for="mkCu">Mật khẩu hiện tại <span class="o__batbuoc">*</span></label>
+                <input id="mkCu" type="password" placeholder="••••••••">
+              </div>
+
+              <div class="o">
+                <label class="o__nhan" for="mkMoi">Mật khẩu mới <span class="o__batbuoc">*</span></label>
+                <input id="mkMoi" type="password" placeholder="Ít nhất 10 ký tự">
+              </div>
+
+              <div class="o o--hong">
+                <label class="o__nhan" for="mkLai">Nhập lại mật khẩu mới <span class="o__batbuoc">*</span></label>
+                <input id="mkLai" type="password" placeholder="Ít nhất 10 ký tự">
+                <span class="o__loi">Hai lần nhập chưa khớp nhau.</span>
+              </div>
+            </div>
+
+            <!-- Cảnh báo phải nói TRƯỚC khi bấm, không phải sau. -->
+            <p class="o__meo" style="margin-top:14px">
+              Đổi mật khẩu sẽ <b>đăng xuất mọi thiết bị khác</b> — kể cả điện thoại của bạn.
+            </p>
+
+            <button class="nut nut--chinh nut--nho" style="margin-top:12px" data-soon="Đổi mật khẩu">Đổi mật khẩu</button>
+          </div>
+
+          <div class="the__khoi">
+            <h3>Thiết bị đang đăng nhập</h3>
+            <p class="mota">Thấy thiết bị lạ thì thoát nó ra rồi đổi mật khẩu ngay.</p>
+
+            <div class="phien">
+              <div class="phien__bieu">
+                <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <rect x="1.5" y="3" width="15" height="10" rx="1.6"/><path d="M6 15.5h6"/>
+                </svg>
+              </div>
+              <div class="phien__giua">
+                <div class="phien__may">Chrome trên Windows · Hà Nội</div>
+                <div class="phien__khi">Thiết bị này · đang dùng</div>
+              </div>
+              <span class="the the--tot">Hiện tại</span>
+            </div>
+
+            <div class="phien">
+              <div class="phien__bieu">
+                <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <rect x="5" y="1.5" width="8" height="15" rx="1.8"/><path d="M8 14.2h2"/>
+                </svg>
+              </div>
+              <div class="phien__giua">
+                <div class="phien__may">Safari trên iPhone · Hà Nội</div>
+                <div class="phien__khi">Hoạt động cuối: hôm qua 21:40</div>
+              </div>
+              <button class="nut nut--nho nut--nguy" data-soon="Thoát thiết bị">Thoát</button>
+            </div>
+
+            <button class="nut nut--nguy nut--nho" style="margin-top:14px" data-soon="Đăng xuất mọi thiết bị khác">
+              Đăng xuất mọi thiết bị khác
+            </button>
+          </div>
+        </div>
+
+        <!-- ══════════════ GIAO DIỆN ══════════════ -->
+        <div class="khoi" data-tab="giaodien">
+          <div class="the__khoi">
+            <h3>Bộ màu &amp; ngôn ngữ</h3>
+            <p class="mota">
+              Lựa chọn này là <b>của riêng bạn</b> — nó lưu trên máy bạn và không đổi gì của
+              đồng nghiệp. Mặc định đi theo cài đặt sáng/tối của máy.
+            </p>
+            <div id="prefsTrang"></div>
+          </div>
+
+          <div class="the__khoi">
+            <h3>Hiển thị</h3>
+
+            <div class="hang">
+              <div class="hang__giua">
+                <div class="hang__ten">Thu gọn thanh điều hướng</div>
+                <div class="hang__phu">Chỉ hiện biểu tượng, lấy thêm chỗ cho nội dung.</div>
+              </div>
+              <label class="congtac"><input type="checkbox" id="tgGon"><span class="congtac__ray"></span></label>
+            </div>
+
+            <div class="hang">
+              <div class="hang__giua">
+                <div class="hang__ten">Hiện ảnh đại diện trong danh sách</div>
+                <div class="hang__phu">Tắt đi thì bảng dày hơn, thấy được nhiều dòng hơn một màn.</div>
+              </div>
+              <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+            </div>
+
+            <div class="hang">
+              <div class="hang__giua">
+                <div class="hang__ten">Giảm chuyển động</div>
+                <div class="hang__phu">Tắt hiệu ứng trượt và nhấp nháy. Mặc định đi theo cài đặt của máy.</div>
+              </div>
+              <label class="congtac"><input type="checkbox"><span class="congtac__ray"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════ THÔNG BÁO ══════════════ -->
+        <div class="khoi" data-tab="thongbao">
+          <div class="the__khoi">
+            <h3>Trong ứng dụng</h3>
+
+            <div class="hang">
+              <div class="hang__giua">
+                <div class="hang__ten">Có người nhắc tên tôi</div>
+                <div class="hang__phu">Khi ai đó gõ <b>@Lê Anh Lượng</b> trong một kênh.</div>
+              </div>
+              <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+            </div>
+
+            <div class="hang">
+              <div class="hang__giua">
+                <div class="hang__ten">Mọi tin nhắn trong kênh của tôi</div>
+                <div class="hang__phu">Tắt thì chỉ báo khi có người nhắc tên hoặc nhắn riêng.</div>
+              </div>
+              <label class="congtac"><input type="checkbox"><span class="congtac__ray"></span></label>
+            </div>
+
+            <div class="hang">
+              <div class="hang__giua">
+                <div class="hang__ten">Việc chờ tôi duyệt</div>
+                <div class="hang__phu">Đơn nghỉ phép, đề xuất chi phí.</div>
+              </div>
+              <label class="congtac"><input type="checkbox" checked><span class="congtac__ray"></span></label>
+            </div>
+          </div>
+
+          <div class="the__khoi">
+            <h3>Qua email</h3>
+            <!-- Nói thẳng là chưa có, thay vì hiện mấy cái công tắc bật được mà không làm gì.
+                 Công tắc bật được nhưng vô tác dụng là kiểu nói dối tệ nhất của giao diện. -->
+            <p class="mota">
+              <b>Chưa dùng được.</b> Hệ thống chưa nối với dịch vụ gửi email, nên mọi thông báo
+              hiện chỉ hiện trong ứng dụng. Phần này sẽ mở khi có dịch vụ gửi mail.
+            </p>
+
+            <div class="hang" style="opacity:.5;pointer-events:none">
+              <div class="hang__giua"><div class="hang__ten">Tóm tắt hằng ngày</div></div>
+              <label class="congtac"><input type="checkbox" disabled><span class="congtac__ray"></span></label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="popups" id="popups" aria-live="polite"></div>
+
+<div class="states">
+  <span>Thẻ</span>
+  <button data-tab="hoso" aria-pressed="true">Hồ sơ</button>
+  <button data-tab="baomat" aria-pressed="false">Bảo mật</button>
+  <button data-tab="giaodien" aria-pressed="false">Giao diện</button>
+  <button data-tab="thongbao" aria-pressed="false">Thông báo</button>
+</div>
+
+<script type="module">
+import { mountNav, mountChuaLam, mountPrefs } from '../chung/_shell.js';
+
+mountNav(document.getElementById('nav'), null);
+mountChuaLam();
+mountPrefs(document.getElementById('prefsTrang'));
+
+function chonThe(ma) {
+  document.querySelectorAll('.tab button').forEach(t =>
+    t.setAttribute('aria-selected', String(t.dataset.tab === ma)));
+  document.querySelectorAll('.khoi').forEach(k =>
+    k.classList.toggle('khoi--hien', k.dataset.tab === ma));
+  document.querySelectorAll('.states button[data-tab]').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.tab === ma)));
+}
+
+document.querySelectorAll('.tab button, .states button[data-tab]').forEach(b =>
+  b.addEventListener('click', () => chonThe(b.dataset.tab)));
+
+// Công tắc "thu gọn" đổi thật, để người duyệt thấy được hai kiểu cột điều hướng.
+document.getElementById('tgGon').addEventListener('change', e =>
+  document.querySelector('.khung').classList.toggle('khung--gon', e.target.checked));
+
+const q = new URLSearchParams(location.search);
+if (q.get('tab')) chonThe(q.get('tab'));
+if (q.has('bare')) document.querySelector('.states')?.remove();
+</script>

@@ -1,0 +1,547 @@
+<!doctype html>
+<!--
+  Bản dựng màn NHÂN SỰ — danh sách, bộ lọc, thêm người, xem chi tiết.
+
+  Đây là màn "xương sống" của phần quản trị: mọi màn danh sách sau này (phòng ban, đơn từ,
+  khách hàng…) sẽ dùng lại đúng bộ điều khiển ở `../chung/_dieukhien.css`. Chốt hình dáng ở
+  đây một lần thì những màn sau chỉ còn là đổi cột.
+
+  MỤC TIÊU BỐ CỤC: thanh lọc và thanh phân trang ĐỨNG YÊN, chỉ bảng cuộn. Cuộn cả trang thì
+  người xem hàng thứ 40 không còn thấy bộ lọc đang bật là gì.
+
+  Mở thẳng bằng trình duyệt là chạy.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhân sự · ONoOffice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../chung/_shell.css">
+<link rel="stylesheet" href="../chung/_khung.css">
+<link rel="stylesheet" href="../chung/_dieukhien.css">
+
+<style>
+/* Thanh lọc đứng yên, chỉ bảng cuộn. */
+.loc {
+  flex: none;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 12px 18px; border-bottom: 1px solid var(--line);
+}
+
+.loc__tim { position: relative; flex: 1; min-width: 200px; max-width: 320px; }
+.loc__tim svg {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: var(--ink-faint); pointer-events: none;
+}
+.loc__tim input {
+  width: 100%; box-sizing: border-box; padding: 8px 12px 8px 31px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 9px;
+  color: var(--ink); font-family: inherit; font-size: 13px;
+}
+.loc__tim input:focus { outline: none; border-color: var(--accent); }
+
+.loc select {
+  padding: 8px 10px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 9px;
+  color: var(--ink-soft); font-family: inherit; font-size: 12.5px; cursor: pointer;
+}
+.loc select:focus { outline: none; border-color: var(--accent); }
+
+/* Chỉ hiện khi CÓ bộ lọc đang bật. Nút "xoá lọc" lúc nào cũng hiện thì nó thành nhiễu, mà
+   khi cần thì người dùng lại không nhận ra nó có nghĩa gì. */
+.loc__xoa { display: none; }
+[data-state="loc"] .loc__xoa, [data-state="khongthay"] .loc__xoa { display: inline-flex; }
+
+.vung { flex: 1; min-height: 0; overflow: auto; padding: 0 18px 18px; }
+.chan {
+  flex: none; display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px; border-top: 1px solid var(--line);
+  font-size: 12.5px; color: var(--ink-faint);
+}
+.chan__day { flex: 1; }
+
+/* Trạng thái: chỉ một trong bốn khối được hiện. */
+.khi { display: none; }
+[data-state="idle"] .khi--bang, [data-state="loc"] .khi--bang { display: block; }
+[data-state="rong"] .khi--rong { display: flex; }
+[data-state="khongthay"] .khi--khongthay { display: flex; }
+[data-state="rong"] .chan, [data-state="khongthay"] .chan { visibility: hidden; }
+
+@media (max-width: 900px) { .an-hep { display: none; } }
+</style>
+
+<div class="khung">
+  <nav id="nav"></nav>
+
+  <div class="noidung">
+    <header class="trangdau">
+      <h1>Nhân sự</h1>
+      <span class="trangdau__phu" id="soNguoi">38 người · 34 đang hoạt động</span>
+      <div class="trangdau__day"></div>
+
+      <button class="nut" data-soon="Xuất danh sách">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M2.5 12.5v1h11v-1"/>
+        </svg>
+        Xuất Excel
+      </button>
+
+      <button class="nut nut--chinh" id="moThem">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <path d="M8 3v10M3 8h10"/>
+        </svg>
+        Thêm người
+      </button>
+    </header>
+
+    <div class="loc" id="loc">
+      <div class="loc__tim">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/>
+        </svg>
+        <input type="search" placeholder="Tìm theo tên hoặc email" aria-label="Tìm nhân viên">
+      </div>
+
+      <select aria-label="Lọc theo phòng ban">
+        <option>Mọi phòng ban</option><option>Kỹ thuật</option><option>Nhân sự</option>
+        <option>Kinh doanh</option><option>Kế toán</option>
+      </select>
+
+      <select aria-label="Lọc theo vai trò">
+        <option>Mọi vai trò</option><option>Owner</option><option>Admin</option>
+        <option>Manager</option><option>Member</option>
+      </select>
+
+      <select aria-label="Lọc theo trạng thái">
+        <option>Mọi trạng thái</option><option>Đang hoạt động</option>
+        <option>Chờ nhận tài khoản</option><option>Đã vô hiệu hoá</option>
+      </select>
+
+      <button class="nut nut--pha nut--nho loc__xoa" data-soon="Xoá bộ lọc">Xoá lọc</button>
+    </div>
+
+    <div class="vung">
+      <!-- ── Bảng ─────────────────────────────────────────────── -->
+      <div class="khi khi--bang">
+        <div class="bangbao" style="margin-top:14px">
+          <div class="bangcuon">
+            <table class="bang">
+              <thead>
+                <tr>
+                  <th class="bang__tick"><input type="checkbox" id="tickHet" aria-label="Chọn tất cả"></th>
+                  <th>Người</th>
+                  <th class="an-hep">Chức danh</th>
+                  <th>Phòng ban</th>
+                  <th>Vai trò</th>
+                  <th>Trạng thái</th>
+                  <th class="an-hep">Hoạt động</th>
+                  <th class="bang__phai"></th>
+                </tr>
+              </thead>
+              <tbody id="than">
+                <tr data-ten="Lê Anh Lượng">
+                  <td><input type="checkbox" aria-label="Chọn Lê Anh Lượng"></td>
+                  <td>
+                    <div class="bang__nguoi">
+                      <span class="mat mat--nho">LL<span class="online"></span></span>
+                      <span><span class="bang__ten">Lê Anh Lượng</span><br><span class="bang__mail">chu@congty.vn</span></span>
+                    </div>
+                  </td>
+                  <td class="an-hep">Giám đốc</td>
+                  <td>Ban giám đốc</td>
+                  <td><span class="vai vai--chu">Owner</span></td>
+                  <td><span class="the the--tot">Đang hoạt động</span></td>
+                  <td class="an-hep">Vừa xong</td>
+                  <td class="bang__phai"><button class="nuti" data-soon="Thao tác" aria-label="Thao tác"><svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="4" r="1.4"/><circle cx="9" cy="9" r="1.4"/><circle cx="9" cy="14" r="1.4"/></svg></button></td>
+                </tr>
+
+                <tr data-ten="Trần Bình">
+                  <td><input type="checkbox" aria-label="Chọn Trần Bình"></td>
+                  <td>
+                    <div class="bang__nguoi">
+                      <span class="mat mat--nho">TB<span class="online"></span></span>
+                      <span><span class="bang__ten">Trần Bình</span><br><span class="bang__mail">binh.tran@congty.vn</span></span>
+                    </div>
+                  </td>
+                  <td class="an-hep">Trưởng nhóm Kỹ thuật</td>
+                  <td>Kỹ thuật</td>
+                  <td><span class="vai">Manager</span></td>
+                  <td><span class="the the--tot">Đang hoạt động</span></td>
+                  <td class="an-hep">3 phút trước</td>
+                  <td class="bang__phai"><button class="nuti" data-soon="Thao tác" aria-label="Thao tác"><svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="4" r="1.4"/><circle cx="9" cy="9" r="1.4"/><circle cx="9" cy="14" r="1.4"/></svg></button></td>
+                </tr>
+
+                <tr data-ten="Nguyễn An">
+                  <td><input type="checkbox" aria-label="Chọn Nguyễn An"></td>
+                  <td>
+                    <div class="bang__nguoi">
+                      <span class="mat mat--nho">NA<span class="online online--xa"></span></span>
+                      <span><span class="bang__ten">Nguyễn An</span><br><span class="bang__mail">an.nguyen@congty.vn</span></span>
+                    </div>
+                  </td>
+                  <td class="an-hep">Kỹ sư phần mềm</td>
+                  <td>Kỹ thuật</td>
+                  <td><span class="vai">Member</span></td>
+                  <td><span class="the the--tot">Đang hoạt động</span></td>
+                  <td class="an-hep">Hôm qua</td>
+                  <td class="bang__phai"><button class="nuti" data-soon="Thao tác" aria-label="Thao tác"><svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="4" r="1.4"/><circle cx="9" cy="9" r="1.4"/><circle cx="9" cy="14" r="1.4"/></svg></button></td>
+                </tr>
+
+                <tr data-ten="Phạm Hà">
+                  <td><input type="checkbox" aria-label="Chọn Phạm Hà"></td>
+                  <td>
+                    <div class="bang__nguoi">
+                      <span class="mat mat--nho">PH<span class="online online--xa"></span></span>
+                      <span><span class="bang__ten">Phạm Hà</span><br><span class="bang__mail">ha.pham@congty.vn</span></span>
+                    </div>
+                  </td>
+                  <td class="an-hep">Chuyên viên Nhân sự</td>
+                  <td>Nhân sự</td>
+                  <td><span class="vai">Admin</span></td>
+                  <td><span class="the the--tot">Đang hoạt động</span></td>
+                  <td class="an-hep">2 giờ trước</td>
+                  <td class="bang__phai"><button class="nuti" data-soon="Thao tác" aria-label="Thao tác"><svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="4" r="1.4"/><circle cx="9" cy="9" r="1.4"/><circle cx="9" cy="14" r="1.4"/></svg></button></td>
+                </tr>
+
+                <tr data-ten="Đỗ Minh Khoa">
+                  <td><input type="checkbox" aria-label="Chọn Đỗ Minh Khoa"></td>
+                  <td>
+                    <div class="bang__nguoi">
+                      <span class="mat mat--nho">ĐK</span>
+                      <span><span class="bang__ten">Đỗ Minh Khoa</span><br><span class="bang__mail">khoa.do@congty.vn</span></span>
+                    </div>
+                  </td>
+                  <td class="an-hep">Nhân viên Kinh doanh</td>
+                  <td>Kinh doanh</td>
+                  <td><span class="vai">Member</span></td>
+                  <!-- Trạng thái RIÊNG cho người đã tạo tài khoản mà chưa từng đăng nhập.
+                       Gộp chung vào "đang hoạt động" thì quản trị viên tưởng họ đã vào rồi,
+                       và không ai đi hỏi vì sao người này chưa dùng. -->
+                  <td><span class="the the--canh">Chờ nhận tài khoản</span></td>
+                  <td class="an-hep">Chưa đăng nhập</td>
+                  <td class="bang__phai"><button class="nuti" data-soon="Thao tác" aria-label="Thao tác"><svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="4" r="1.4"/><circle cx="9" cy="9" r="1.4"/><circle cx="9" cy="14" r="1.4"/></svg></button></td>
+                </tr>
+
+                <tr data-ten="Vũ Thị Mai">
+                  <td><input type="checkbox" aria-label="Chọn Vũ Thị Mai"></td>
+                  <td>
+                    <div class="bang__nguoi">
+                      <span class="mat mat--nho">VM</span>
+                      <span><span class="bang__ten">Vũ Thị Mai</span><br><span class="bang__mail">mai.vu@congty.vn</span></span>
+                    </div>
+                  </td>
+                  <td class="an-hep">Kế toán</td>
+                  <td>Kế toán</td>
+                  <td><span class="vai">Member</span></td>
+                  <td><span class="the the--hong">Đã vô hiệu hoá</span></td>
+                  <td class="an-hep">14 ngày trước</td>
+                  <td class="bang__phai"><button class="nuti" data-soon="Thao tác" aria-label="Thao tác"><svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="4" r="1.4"/><circle cx="9" cy="9" r="1.4"/><circle cx="9" cy="14" r="1.4"/></svg></button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="dachon" id="dachon">
+          <b id="soDaChon">2 người</b> đã chọn
+          <button class="nut nut--nho" data-soon="Đổi phòng ban">Đổi phòng ban</button>
+          <button class="nut nut--nho" data-soon="Đổi vai trò">Đổi vai trò</button>
+          <button class="nut nut--nho nut--nguy" data-soon="Vô hiệu hoá">Vô hiệu hoá</button>
+          <button class="nuti" id="boChon" aria-label="Bỏ chọn"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg></button>
+        </div>
+      </div>
+
+      <!-- ── Chưa có ai ───────────────────────────────────────── -->
+      <div class="khi khi--rong rong">
+        <div class="rong__vong">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="7.5" cy="6.8" r="2.9"/><path d="M2.4 16.6a5.1 5.1 0 0110.2 0"/><path d="M14.5 8.5h3M16 7v3"/>
+          </svg>
+        </div>
+        <h2>Chưa có ai ngoài bạn</h2>
+        <p>Thêm đồng nghiệp vào workspace để họ đăng nhập được. Bạn chọn phòng ban và vai trò cho từng người.</p>
+        <button class="nut nut--chinh" data-soon="Thêm người">Thêm người đầu tiên</button>
+      </div>
+
+      <!-- ── Lọc không ra kết quả ─────────────────────────────── -->
+      <div class="khi khi--khongthay rong">
+        <div class="rong__vong">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="8.5" cy="8.5" r="5.5"/><path d="m12.6 12.6 4 4"/>
+          </svg>
+        </div>
+        <h2>Không tìm thấy ai khớp</h2>
+        <!-- Nói RÕ đang lọc gì. Chỉ báo "không có kết quả" thì người dùng tưởng dữ liệu
+             trống, trong khi thật ra họ quên một bộ lọc bật từ lần trước. -->
+        <p>Đang lọc: phòng <b>Kế toán</b> · vai trò <b>Admin</b> · <b>Đang hoạt động</b>.</p>
+        <button class="nut" data-soon="Xoá bộ lọc">Xoá bộ lọc</button>
+      </div>
+    </div>
+
+    <div class="chan">
+      <span>Hiện 1–6 trong 38</span>
+      <div class="chan__day"></div>
+      <button class="nut nut--nho" disabled>Trước</button>
+      <button class="nut nut--nho" data-soon="Trang sau">Sau</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ HỘP THOẠI THÊM NGƯỜI ══════════════ -->
+<div class="man" id="manThem">
+  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdThem">
+    <div class="hop__dau">
+      <h2 id="tdThem">Thêm người vào workspace</h2>
+      <button class="nuti" data-dong aria-label="Đóng"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg></button>
+    </div>
+
+    <div class="hop__than">
+      <div class="luoi">
+        <div class="o">
+          <label class="o__nhan" for="hoTen">Họ và tên <span class="o__batbuoc">*</span></label>
+          <input id="hoTen" type="text" placeholder="Nguyễn Văn An">
+        </div>
+
+        <div class="o o--hong">
+          <label class="o__nhan" for="emailMoi">Email công ty <span class="o__batbuoc">*</span></label>
+          <input id="emailMoi" type="email" value="binh.tran@congty.vn">
+          <span class="o__loi">Email này đã có tài khoản.</span>
+        </div>
+
+        <div class="o">
+          <label class="o__nhan" for="phongBan">Phòng ban</label>
+          <select id="phongBan">
+            <option>Chưa xếp phòng</option><option>Kỹ thuật</option><option>Nhân sự</option>
+            <option>Kinh doanh</option><option>Kế toán</option>
+          </select>
+        </div>
+
+        <div class="o">
+          <label class="o__nhan" for="chucDanh">Chức danh</label>
+          <input id="chucDanh" type="text" placeholder="Kỹ sư phần mềm">
+        </div>
+
+        <div class="o luoi--rong">
+          <label class="o__nhan" for="vaiTro">
+            Vai trò
+            <span class="tip" tabindex="0" role="note" aria-label="Vai trò quyết định người này làm được gì. Đổi lại sau được.">?
+              <span class="tip__bubble">Quyết định người này <b>làm được gì</b>.<br>Đổi lại sau được.</span>
+            </span>
+          </label>
+          <select id="vaiTro">
+            <option>Member — chỉ xem phần của mình</option>
+            <option>Manager — quản lý phòng ban của mình</option>
+            <option>Admin — quản trị toàn workspace</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="the__khoi" style="margin-top:18px">
+        <h3>Người này nhận tài khoản thế nào?</h3>
+        <p class="mota">
+          Chưa có dịch vụ gửi email, nên hệ thống <b>không tự gửi lời mời được</b>. Bạn sẽ nhận
+          một mật khẩu tạm và tự đưa cho họ — họ bắt buộc đổi ở lần đăng nhập đầu.
+        </p>
+
+        <label class="congtac">
+          <input type="checkbox" checked>
+          <span class="congtac__ray"></span>
+          <span style="font-size:13px">Bắt đổi mật khẩu ở lần đăng nhập đầu tiên</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="hop__chan">
+      <button class="nut nut--pha" data-dong>Huỷ</button>
+      <button class="nut" data-soon="Lưu và thêm người nữa">Lưu &amp; thêm nữa</button>
+      <button class="nut nut--chinh" data-soon="Tạo tài khoản">Tạo tài khoản</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ NGĂN KÉO CHI TIẾT ══════════════ -->
+<div class="man" id="manChiTiet">
+  <div class="keo" role="dialog" aria-modal="true" aria-labelledby="tdChiTiet">
+    <div class="keo__dau">
+      <span class="mat">TB<span class="online"></span></span>
+      <div style="flex:1;min-width:0">
+        <h2 id="tdChiTiet" style="font-size:15px">Trần Bình</h2>
+        <div style="font-size:12px;color:var(--ink-faint)">Trưởng nhóm Kỹ thuật · Kỹ thuật</div>
+      </div>
+      <button class="nuti" data-dong aria-label="Đóng"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg></button>
+    </div>
+
+    <div class="tab" style="padding:0 16px">
+      <button aria-selected="true" data-tab="tt">Thông tin</button>
+      <button aria-selected="false" data-tab="qu">Vai trò &amp; quyền</button>
+      <button aria-selected="false" data-tab="hd">Hoạt động</button>
+    </div>
+
+    <div class="keo__than">
+      <div data-tab="tt">
+        <dl class="doi">
+          <dt>Email</dt><dd>binh.tran@congty.vn</dd>
+          <dt>Điện thoại</dt><dd>0912 345 678</dd>
+          <dt>Phòng ban</dt><dd>Kỹ thuật</dd>
+          <dt>Chức danh</dt><dd>Trưởng nhóm Kỹ thuật</dd>
+          <dt>Quản lý trực tiếp</dt><dd>Lê Anh Lượng</dd>
+          <dt>Ngày vào</dt><dd>02/01/2025</dd>
+          <dt>Trạng thái</dt><dd><span class="the the--tot">Đang hoạt động</span></dd>
+        </dl>
+
+        <div class="the__khoi" style="margin-top:18px">
+          <h3>Vùng nguy hiểm</h3>
+          <p class="mota">
+            Vô hiệu hoá thì người này không đăng nhập được nữa, nhưng <b>dữ liệu và tin nhắn
+            cũ vẫn còn</b>. Đây là thứ cần làm khi có người nghỉ việc — không phải xoá.
+          </p>
+          <button class="nut nut--nguy nut--nho" data-soon="Vô hiệu hoá tài khoản">Vô hiệu hoá tài khoản</button>
+        </div>
+      </div>
+
+      <div data-tab="qu" hidden>
+        <div class="o">
+          <label class="o__nhan" for="vaiTroCt">Vai trò</label>
+          <select id="vaiTroCt"><option>Manager</option><option>Member</option><option>Admin</option></select>
+          <span class="o__meo">Đổi vai trò có hiệu lực ở lần gọi tiếp theo của người đó, không cần họ đăng nhập lại.</span>
+        </div>
+
+        <div class="ben__nhan" style="margin:18px 0 8px;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint)">
+          Quyền đang có (7)
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="vai">employee.read</span><span class="vai">employee.write</span>
+          <span class="vai">department.read</span><span class="vai">conversation.read</span>
+          <span class="vai">conversation.write</span><span class="vai">user.read</span>
+          <span class="vai">role.read</span>
+        </div>
+        <p class="o__meo" style="margin-top:10px">
+          Quyền đến TỪ vai trò, không gán lẻ cho từng người. Muốn khác đi thì tạo vai trò mới ở
+          <a class="link" href="../identity/vai-tro.html">Vai trò &amp; quyền</a>.
+        </p>
+      </div>
+
+      <div data-tab="hd" hidden>
+        <dl class="doi">
+          <dt>Đăng nhập cuối</dt><dd>Hôm nay 09:12 · Chrome trên Windows</dd>
+          <dt>Đổi mật khẩu</dt><dd>14/06/2026</dd>
+          <dt>Phiên đang mở</dt><dd>2 thiết bị</dd>
+        </dl>
+        <button class="nut nut--nho nut--nguy" style="margin-top:14px" data-soon="Đăng xuất mọi thiết bị">
+          Đăng xuất khỏi mọi thiết bị
+        </button>
+      </div>
+    </div>
+
+    <div class="keo__chan">
+      <button class="nut nut--pha" data-soon="Nhắn tin">Nhắn tin</button>
+      <button class="nut" data-dong>Đóng</button>
+      <button class="nut nut--chinh" data-soon="Lưu thay đổi">Lưu thay đổi</button>
+    </div>
+  </div>
+</div>
+
+<div class="popups" id="popups" aria-live="polite"></div>
+
+<div class="states">
+  <span>Trạng thái</span>
+  <button data-state="idle" aria-pressed="true">Mặc định</button>
+  <button data-state="loc" aria-pressed="false">Có lọc</button>
+  <button data-state="khongthay" aria-pressed="false">Lọc không ra</button>
+  <button data-state="rong" aria-pressed="false">Chưa có ai</button>
+  <span class="states__vach"></span>
+  <button data-mo="manThem">Thêm người</button>
+  <button data-mo="manChiTiet">Chi tiết</button>
+</div>
+
+<script type="module">
+import { mountNav, mountChuaLam, popup } from '../chung/_shell.js';
+
+mountNav(document.getElementById('nav'), 'nhan-su');
+mountChuaLam();
+
+const noidung = document.querySelector('.noidung');
+noidung.dataset.state = 'idle';
+
+// ── Đổi trạng thái để duyệt ─────────────────────────────────────────
+document.querySelectorAll('.states button[data-state]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    noidung.dataset.state = btn.dataset.state;
+    document.querySelectorAll('.states button[data-state]').forEach(b =>
+      b.setAttribute('aria-pressed', String(b === btn)));
+  });
+});
+
+// ── Mở / đóng hộp thoại và ngăn kéo ─────────────────────────────────
+function mo(id) { document.getElementById(id).classList.add('man--hien'); }
+function dongHet() { document.querySelectorAll('.man').forEach(m => m.classList.remove('man--hien')); }
+
+document.querySelectorAll('.states button[data-mo]').forEach(b =>
+  b.addEventListener('click', () => mo(b.dataset.mo)));
+
+document.getElementById('moThem').addEventListener('click', () => mo('manThem'));
+
+document.querySelectorAll('[data-dong]').forEach(b => b.addEventListener('click', dongHet));
+
+// Bấm ra nền tối thì đóng — nhưng CHỈ khi bấm đúng nền, không phải khi bấm bên trong hộp.
+document.querySelectorAll('.man').forEach(m =>
+  m.addEventListener('click', e => { if (e.target === m) dongHet(); }));
+
+document.addEventListener('keydown', e => e.key === 'Escape' && dongHet());
+
+// Bấm vào một dòng để xem chi tiết — nhưng không tính khi bấm ô tick hoặc nút thao tác.
+document.querySelectorAll('#than tr').forEach(tr => {
+  tr.addEventListener('click', e => {
+    if (e.target.closest('input, button')) return;
+    mo('manChiTiet');
+  });
+});
+
+// ── Thẻ tab trong ngăn kéo ──────────────────────────────────────────
+document.querySelectorAll('.tab button').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab button').forEach(t =>
+      t.setAttribute('aria-selected', String(t === tab)));
+    document.querySelectorAll('.keo__than > div').forEach(k =>
+      k.hidden = k.dataset.tab !== tab.dataset.tab);
+  });
+});
+
+// ── Chọn nhiều dòng ─────────────────────────────────────────────────
+const dachon = document.getElementById('dachon');
+const soDaChon = document.getElementById('soDaChon');
+const ticks = [...document.querySelectorAll('#than input[type="checkbox"]')];
+
+function capNhatChon() {
+  const chon = ticks.filter(t => t.checked);
+
+  ticks.forEach(t => t.closest('tr').setAttribute('aria-selected', String(t.checked)));
+  dachon.classList.toggle('dachon--hien', chon.length > 0);
+  soDaChon.textContent = `${chon.length} người`;
+
+  // Ô "chọn tất cả" phải có trạng thái THỨ BA: chọn một phần. Chỉ có tick/không tick thì
+  // nó nói dối — nhìn vào tưởng chưa chọn ai trong khi đang chọn dở.
+  const het = document.getElementById('tickHet');
+  het.checked = chon.length === ticks.length;
+  het.indeterminate = chon.length > 0 && chon.length < ticks.length;
+}
+
+ticks.forEach(t => t.addEventListener('change', capNhatChon));
+
+document.getElementById('tickHet').addEventListener('change', e => {
+  ticks.forEach(t => (t.checked = e.target.checked));
+  capNhatChon();
+});
+
+document.getElementById('boChon').addEventListener('click', () => {
+  ticks.forEach(t => (t.checked = false));
+  capNhatChon();
+});
+
+// Đặt sẵn trạng thái qua URL: ?state=rong&mo=manThem&skin=giay
+const q = new URLSearchParams(location.search);
+if (q.get('state')) document.querySelector(`.states button[data-state="${q.get('state')}"]`)?.click();
+if (q.get('mo')) mo(q.get('mo'));
+if (q.has('bare')) document.querySelector('.states')?.remove();
+</script>
