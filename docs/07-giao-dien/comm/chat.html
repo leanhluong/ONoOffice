@@ -1,12 +1,29 @@
 <!doctype html>
 <!--
-  Bản dựng màn TRAO ĐỔI NỘI BỘ — bốn bộ màu, sáu trạng thái.
+  Bản dựng màn TRAO ĐỔI NỘI BỘ — bốn bộ màu, hai kiểu hội thoại, năm trạng thái.
 
-  Ba cột: điều hướng ứng dụng · danh sách hội thoại · luồng tin nhắn.
+  ══════════════════════════════════════════════════════════════════════
+   LẤY GÌ TỪ SLACK, LẤY GÌ TỪ ZALO
+  ══════════════════════════════════════════════════════════════════════
 
-  MỤC TIÊU BỐ CỤC: không cuộn cả trang. Mỗi cột tự cuộn phần của nó, ô soạn tin luôn dính
-  đáy. Cả trang cùng cuộn là kiểu hỏng kinh điển của giao diện chat — gõ được nửa câu thì
-  ô soạn trôi mất khỏi màn hình.
+  Từ Slack:  cột biểu tượng dọc · kênh có dấu # và nhóm gập được · tin nhắn của cùng một
+             người GỘP lại không lặp tên · thanh thao tác hiện khi rê chuột · thả cảm xúc
+             · trả lời theo chuỗi · bảng thông tin bên phải · tin ghim.
+
+  Từ Zalo:   bong bóng bo tròn · danh sách hội thoại có ảnh, câu cuối và giờ · chấm trực
+             tuyến · "Đã xem" · ảnh hiện thẳng trong luồng, không phải dòng tệp đính kèm.
+
+  ⭐ CHỖ LAI QUAN TRỌNG NHẤT — hai kiểu luồng khác nhau:
+
+     · KÊNH (nhiều người)  → mọi tin xếp MỘT CỘT bên trái, kiểu Slack.
+       Kênh 12 người mà đảo tin của mình sang phải thì cột đọc bị gãy: mắt phải nhảy
+       trái–phải liên tục và không quét được ai nói câu nào.
+
+     · TIN NHẮN RIÊNG      → trái–phải, kiểu Zalo.
+       Chỉ có hai người nên trái–phải là cách đọc nhanh nhất, và đó cũng là thứ người
+       Việt đã quen tay.
+
+  MỤC TIÊU BỐ CỤC: không cuộn cả trang. Mỗi cột tự cuộn phần của nó, ô soạn dính đáy.
 
   Mở thẳng bằng trình duyệt là chạy. Nền chung: ../chung/_shell.css + _khung.css + _shell.js
 -->
@@ -20,115 +37,161 @@
 <link rel="stylesheet" href="../chung/_khung.css">
 
 <style>
-/* ══════════════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════════════
+   ẢNH ĐẠI DIỆN — dùng chung cả ba cột
+   ══════════════════════════════════════════════════════════════════════ */
+.mat {
+  position: relative; flex: none;
+  width: 36px; height: 36px;
+  display: grid; place-items: center; border-radius: 11px;
+  background: var(--surface-2); color: var(--ink-soft);
+  font-size: 12px; font-weight: 600; letter-spacing: 0.01em;
+}
+.mat--nho { width: 26px; height: 26px; border-radius: 8px; font-size: 10px; }
+.mat--xiu { width: 18px; height: 18px; border-radius: 6px; font-size: 8px; }
+
+/* Ảnh đại diện của KÊNH là dấu #, không phải chữ cái tên kênh. Hình dạng khác nhau thì
+   phân biệt được kênh với người ngay từ cái liếc, không cần đọc. */
+.mat--kenh { background: transparent; color: var(--ink-faint); font-size: 17px; font-weight: 500; }
+.ht[aria-current="true"] .mat--kenh { color: var(--accent); }
+
+/* ══════════════════════════════════════════════════════════════════════
    CỘT GIỮA — danh sách hội thoại
-   ══════════════════════════════════════════════════════════════════ */
-.rail {
-  width: 264px; flex: none;
+   ══════════════════════════════════════════════════════════════════════ */
+.ds {
+  width: 300px; flex: none;
   display: flex; flex-direction: column; min-height: 0;
   border-right: 1px solid var(--line);
 }
 
-.rail__dau {
-  flex: none; padding: 14px 14px 10px;
-  display: flex; align-items: center; gap: 8px;
-}
-.rail__dau h1 {
+.ds__dau { flex: none; display: flex; align-items: center; gap: 6px; padding: 0 8px 0 16px; height: 56px; }
+.ds__dau h1 {
   margin: 0; flex: 1;
-  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 16px;
-  letter-spacing: -0.015em;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 17px;
+  letter-spacing: -0.02em;
 }
-.rail__them {
-  width: 26px; height: 26px; flex: none;
-  display: grid; place-items: center;
-  border: 1px solid var(--line); border-radius: 7px;
-  background: transparent; color: var(--ink-soft); cursor: pointer;
-}
-.rail__them:hover { border-color: var(--accent); color: var(--accent); }
-.rail__them svg { width: 13px; height: 13px; }
 
-.tim { flex: none; position: relative; margin: 0 14px 10px; }
+.tim { flex: none; position: relative; margin: 0 12px 8px; }
 .tim svg {
-  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
   width: 14px; height: 14px; color: var(--ink-faint); pointer-events: none;
 }
 .tim input {
   width: 100%; box-sizing: border-box;
-  padding: 7px 10px 7px 29px;
-  background: var(--surface-2); border: 1px solid transparent; border-radius: 8px;
+  padding: 8px 10px 8px 31px;
+  background: var(--surface-2); border: 1px solid transparent; border-radius: 10px;
   color: var(--ink); font-family: inherit; font-size: 13px;
 }
 .tim input::placeholder { color: var(--ink-faint); }
 .tim input:focus { outline: none; border-color: var(--accent); background: var(--surface); }
 
-.rail__cuon { flex: 1; min-height: 0; overflow-y: auto; padding: 0 8px 12px; }
+.ds__cuon { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 8px 14px; }
 
+/* ── Nhóm gập được ────────────────────────────────────────────────── */
 .nhom {
-  padding: 12px 6px 5px;
-  font-size: 10.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
-  color: var(--ink-faint);
-}
-
-.hoithoai {
   width: 100%; box-sizing: border-box;
-  display: flex; align-items: center; gap: 9px;
-  padding: 8px 9px; margin-bottom: 1px;
-  border: 0; border-radius: 8px; background: transparent;
-  color: var(--ink-soft); font-family: inherit; font-size: 13.5px; text-align: left;
+  display: flex; align-items: center; gap: 5px;
+  padding: 12px 6px 5px;
+  border: 0; background: transparent;
+  color: var(--ink-faint); font-family: inherit;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
   cursor: pointer;
 }
-.hoithoai:hover { background: var(--surface-2); color: var(--ink); }
-.hoithoai[aria-current="true"] { background: var(--surface-2); color: var(--ink); font-weight: 500; }
+.nhom:hover { color: var(--ink-soft); }
+.nhom__mui { width: 9px; height: 9px; transition: transform 140ms ease; }
+.nhom[aria-expanded="false"] .nhom__mui { transform: rotate(-90deg); }
+.nhom__so { margin-left: auto; font-size: 10px; letter-spacing: 0; }
+.nhom[aria-expanded="false"] + .nhom__than { display: none; }
 
-/* Dấu # cho kênh, ảnh đại diện cho tin nhắn riêng. Hai loại hội thoại phải phân biệt được
-   bằng HÌNH DẠNG chứ không chỉ bằng chữ — người quét mắt qua danh sách 30 dòng không đọc. */
-.hoithoai__thang { width: 20px; flex: none; text-align: center; color: var(--ink-faint); font-weight: 500; }
-.hoithoai[aria-current="true"] .hoithoai__thang { color: var(--accent); }
-
-.mat {
-  width: 20px; height: 20px; flex: none;
-  display: grid; place-items: center; border-radius: 50%;
-  background: var(--surface-2); color: var(--ink-soft);
-  font-size: 9.5px; font-weight: 600; letter-spacing: 0.02em;
+/* ── Một dòng hội thoại ───────────────────────────────────────────── */
+.ht {
+  width: 100%; box-sizing: border-box;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 9px; margin-bottom: 1px;
+  border: 0; border-radius: 11px; background: transparent;
+  color: var(--ink-soft); font-family: inherit; text-align: left;
+  cursor: pointer;
 }
+.ht:hover { background: var(--surface-2); }
+.ht[aria-current="true"] { background: color-mix(in srgb, var(--accent) 13%, transparent); }
 
-.hoithoai__ten { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ht__giua { flex: 1; min-width: 0; }
+.ht__hang { display: flex; align-items: baseline; gap: 8px; }
 
-/* Số tin chưa đọc. Chỉ hiện khi > 0 — một số 0 xám nằm cạnh mọi dòng là nhiễu thuần tuý. */
+.ht__ten {
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--ink); font-size: 13.5px; font-weight: 500;
+}
+.ht[aria-current="true"] .ht__ten { color: var(--accent); font-weight: 600; }
+
+.ht__gio { flex: none; font-size: 10.5px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+
+/* Câu cuối cùng. Đây là thứ Zalo có mà Slack không — nhìn danh sách là biết chuyện gì
+   đang xảy ra ở đâu, không phải mở từng cái ra xem. */
+.ht__xem {
+  flex: 1; min-width: 0; margin-top: 1px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 12px; color: var(--ink-faint);
+}
+/* Có tin chưa đọc thì câu cuối ĐẬM lên. Chỉ dựa vào con số thì mắt phải đi tìm; đậm nhạt
+   thấy được ngay cả khi quét nhanh cả danh sách. */
+.ht--moi .ht__xem { color: var(--ink); font-weight: 500; }
+.ht--moi .ht__ten { font-weight: 700; }
+
 .chuadoc {
-  flex: none; min-width: 17px; height: 17px; padding: 0 5px;
+  flex: none; min-width: 18px; height: 18px; padding: 0 5px;
   display: grid; place-items: center;
   border-radius: 999px; background: var(--accent); color: var(--accent-ink);
-  font-size: 10.5px; font-weight: 600; font-variant-numeric: tabular-nums;
+  font-size: 10.5px; font-weight: 700; font-variant-numeric: tabular-nums;
 }
 
-/* ══════════════════════════════════════════════════════════════════
+/* Đã tắt thông báo: mờ đi và có biểu tượng chuông gạch. Không có dấu hiệu nào thì người
+   dùng tưởng kênh im, thật ra là chính họ đã tắt. */
+.ht--im { opacity: 0.55; }
+.ht__im { width: 13px; height: 13px; flex: none; color: var(--ink-faint); }
+
+/* ══════════════════════════════════════════════════════════════════════
    CỘT PHẢI — luồng tin nhắn
-   ══════════════════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════════════════════ */
 .luong { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
-.luong__dau {
-  flex: none;
-  display: flex; align-items: center; gap: 10px;
-  padding: 0 18px; height: 52px;
-  border-bottom: 1px solid var(--line);
+.luong__ten { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.luong__ten h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.luong__thang { color: var(--ink-faint); font-size: 17px; font-weight: 500; }
+.luong__chude {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--ink-faint); font-size: 12.5px;
 }
-.luong__ten {
-  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 15px;
-  display: flex; align-items: center; gap: 7px;
-}
-.luong__ten .hoithoai__thang { width: auto; }
-.luong__phu { color: var(--ink-faint); font-size: 12.5px; }
-.luong__phu::before { content: "·"; margin: 0 8px; }
+.luong__chude::before { content: "·"; margin: 0 9px; }
 
-/* Thanh báo MẤT KẾT NỐI.
-   Chat mà im lặng khi đường realtime đứt là kiểu hỏng tệ nhất của loại giao diện này:
+/* Chồng ảnh thành viên. Nói "12 người" thì trừu tượng, thấy mặt thì biết ngay ai ở trong. */
+.chong { display: flex; margin-right: 2px; }
+/* Đè ít thôi: ảnh 26px mà đè 7px thì hai chữ cái ở giữa bị che mất một nửa và cả chồng
+   biến thành một vệt nhoè. */
+.chong .mat { margin-left: -5px; box-shadow: 0 0 0 2px var(--ground); }
+.chong .mat:first-child { margin-left: 0; }
+.chong__them { background: var(--surface-2); color: var(--ink-faint); font-size: 9.5px; }
+
+/* ── Tin ghim ─────────────────────────────────────────────────────── */
+.ghim {
+  flex: none; display: flex; align-items: center; gap: 9px;
+  padding: 8px 16px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px; color: var(--ink-soft);
+}
+.ghim svg { width: 14px; height: 14px; flex: none; color: var(--accent); }
+.ghim b { color: var(--ink); font-weight: 500; }
+.ghim__dong { margin-left: auto; }
+
+/* ── Mất kết nối ──────────────────────────────────────────────────── */
+/* Chat mà im lặng khi đường realtime đứt là kiểu hỏng tệ nhất của loại giao diện này:
    màn hình trông vẫn bình thường, người dùng ngồi chờ trả lời, còn tin nhắn thì đang tới
-   một chỗ họ không nhìn thấy. Phải nói thẳng, và phải nói ở chỗ họ đang nhìn. */
+   một chỗ họ không nhìn thấy. Phải nói thẳng, ở chỗ họ đang nhìn. */
 .roimang {
-  display: none; flex: none;
-  align-items: center; gap: 9px;
-  padding: 8px 18px;
+  display: none; flex: none; align-items: center; gap: 9px;
+  padding: 8px 16px;
   background: color-mix(in srgb, var(--danger) 14%, var(--surface));
   border-bottom: 1px solid color-mix(in srgb, var(--danger) 40%, var(--line));
   color: var(--ink); font-size: 12.5px;
@@ -136,157 +199,365 @@
 [data-state="offline"] .roimang { display: flex; }
 .roimang svg { width: 15px; height: 15px; flex: none; color: var(--danger); }
 .roimang button {
-  margin-left: auto;
-  padding: 3px 10px; border: 1px solid var(--line); border-radius: 6px;
-  background: transparent; color: var(--ink-soft); font-family: inherit; font-size: 12px;
-  cursor: pointer;
+  margin-left: auto; padding: 3px 11px;
+  border: 1px solid var(--line); border-radius: 7px; background: transparent;
+  color: var(--ink-soft); font-family: inherit; font-size: 12px; cursor: pointer;
 }
 .roimang button:hover { color: var(--ink); border-color: var(--ink-faint); }
 
-.luong__cuon {
-  flex: 1; min-height: 0; overflow-y: auto;
-  padding: 18px 18px 8px;
-  display: flex; flex-direction: column; gap: 3px;
-}
-/* Ít tin thì dồn xuống ĐÁY, không treo ở đỉnh: kênh mới có ba câu mà chúng nằm tít trên
-   cùng thì trông như phần dưới bị mất. Dùng "margin-top: auto" ở phần tử ĐẦU chứ không
-   phải "justify-content: flex-end" trên vùng cuộn — cách kia cắt mất phần trên của luồng
-   và không cuộn ngược lên tới được khi tin đã nhiều. */
+/* ── Vùng cuộn ────────────────────────────────────────────────────── */
+.luong__cuon { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 16px 6px; }
+
+/* Ít tin thì dồn xuống ĐÁY: kênh mới có ba câu mà chúng treo tít trên cùng thì trông như
+   phần dưới bị mất. Dùng "margin-top: auto" ở phần tử ĐẦU chứ không phải
+   "justify-content: flex-end" trên vùng cuộn — cách kia cắt mất phần trên của luồng và
+   không cuộn ngược lên tới được khi tin đã nhiều. */
 .luong__cuon > :first-child { margin-top: auto; }
 
-/* Vạch ngày. Không có nó thì "09:12" của hôm nay và của thứ Ba tuần trước trông y hệt. */
-.ngay { display: flex; align-items: center; gap: 12px; margin: 14px 0 10px; }
+/* Mỗi ngày một khối riêng. Nhiều phần tử dính (sticky) trong CÙNG một khối thì chúng
+   chồng đè lên nhau; tách khối thì vạch ngày cũ bị vạch ngày mới đẩy ra khỏi màn hình,
+   đúng như mọi ứng dụng chat. */
+.ngaykhoi { display: flex; flex-direction: column; }
+.luong__cuon { display: flex; flex-direction: column; }
+
+/* Vạch ngày dính lại khi cuộn: cuộn ngược lên xa thì vẫn luôn biết đang đọc ngày nào. */
+.ngay {
+  position: sticky; top: -16px; z-index: 5;
+  display: flex; align-items: center; gap: 12px;
+  margin: 10px 0; padding: 6px 0;
+  background: var(--ground);
+}
 .ngay::before, .ngay::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-.ngay span { font-size: 11.5px; color: var(--ink-faint); }
+.ngay span {
+  padding: 3px 11px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--surface);
+  font-size: 11px; color: var(--ink-soft);
+}
 
-.tin { display: flex; gap: 10px; padding: 3px 0; }
-.tin__than { min-width: 0; max-width: 620px; }
+/* Vạch "tin chưa đọc" — khác vạch ngày ở chỗ nó màu nhấn và có chữ ở bên phải. Mở lại app
+   sau hai tiếng, đây là dòng người dùng tìm đầu tiên. */
+.vachmoi { display: flex; align-items: center; gap: 10px; margin: 12px 0 6px; }
+.vachmoi::before { content: ""; flex: 1; height: 1px; background: var(--accent); }
+.vachmoi span { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
 
-.tin__dau { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+/* ── Một tin nhắn ─────────────────────────────────────────────────── */
+.tin { position: relative; display: flex; gap: 10px; padding: 3px 0; }
+.tin:hover { background: color-mix(in srgb, var(--ink) 3.5%, transparent); border-radius: 10px; }
+.tin__than { min-width: 0; max-width: 640px; }
+
+.tin__dau { display: flex; align-items: baseline; gap: 8px; margin-bottom: 3px; }
 .tin__ai { font-size: 13px; font-weight: 600; color: var(--ink); }
-.tin__gio { font-size: 11px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
-.tin__sua { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+.tin__gio { font-size: 10.5px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.tin__sua { font-size: 10.5px; color: var(--ink-faint); font-style: italic; }
 
 .tin__chu {
-  margin: 0; padding: 8px 12px;
-  background: var(--surface-2); border-radius: 4px 12px 12px 12px;
+  margin: 0; padding: 9px 13px;
+  width: fit-content; max-width: 100%;
+  background: var(--surface-2); border-radius: 5px 14px 14px 14px;
   color: var(--ink); font-size: 13.5px; line-height: 1.55;
   overflow-wrap: anywhere;
 }
 
-/* Tin của CHÍNH MÌNH: đảo về phải và đổi màu. Chỉ đảo bên thôi thì ở luồng một-một, hai
-   người nhắn xen kẽ trông như một cột thẳng — không phân biệt được ai nói câu nào. */
-.tin--minh { flex-direction: row-reverse; }
-.tin--minh .tin__dau { flex-direction: row-reverse; }
-.tin--minh .tin__chu {
-  background: color-mix(in srgb, var(--accent) 17%, var(--surface));
-  border-radius: 12px 4px 12px 12px;
+/* Tin liền nhau của CÙNG một người: bỏ ảnh và bỏ tên, chỉ chừa chỗ trống.
+   Không gộp thì một người gửi năm câu liên tiếp sẽ thấy tên họ năm lần — luồng biến thành
+   danh bạ. Giờ hiện khi rê chuột, để vẫn tra được mà không chiếm chỗ. */
+.tin--noi { padding-top: 1px; }
+.tin--noi .mat { visibility: hidden; height: 0; }
+.tin--noi .tin__dau { display: none; }
+.tin--noi .tin__chu { border-radius: 14px; }
+.tin--noi .tin__gio--le {
+  position: absolute; left: -2px; top: 8px;
+  font-size: 10px; color: var(--ink-faint); opacity: 0;
+}
+.tin--noi:hover .tin__gio--le { opacity: 1; }
+
+/* ── Nhắc tên ─────────────────────────────────────────────────────── */
+.nhac {
+  padding: 1px 5px; border-radius: 5px;
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent); font-weight: 500;
 }
 
-/* Đang gửi: mờ đi, KHÔNG bỏ khỏi luồng. Người vừa gõ xong cần thấy câu của mình ở đúng
-   chỗ nó sẽ nằm — biến mất rồi hiện lại là cảm giác tin bị mất. */
+/* ── Thanh thao tác hiện khi rê chuột ─────────────────────────────── */
+/* Đặt NỔI LÊN TRÊN thay vì chiếm một hàng riêng: chừa sẵn chỗ cho ba nút dưới mỗi tin thì
+   luồng dài thêm một phần ba mà 99% thời gian chỗ đó trống. */
+.thaotac {
+  position: absolute; top: -12px; right: 8px; z-index: 6;
+  display: none; gap: 1px; padding: 2px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+.tin:hover .thaotac { display: flex; }
+.thaotac button {
+  width: 28px; height: 28px; display: grid; place-items: center;
+  border: 0; border-radius: 7px; background: transparent;
+  color: var(--ink-faint); font-size: 14px; cursor: pointer;
+}
+.thaotac button:hover { background: var(--surface-2); color: var(--ink); }
+.thaotac svg { width: 15px; height: 15px; }
+
+/* ── Cảm xúc đã thả ───────────────────────────────────────────────── */
+.phanung { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+.phanung button {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--surface);
+  color: var(--ink-soft); font-family: inherit; font-size: 12px; cursor: pointer;
+}
+.phanung button:hover { border-color: var(--ink-faint); }
+/* Mình đã thả rồi thì viền màu nhấn — bấm lần nữa là gỡ. Không phân biệt thì người dùng
+   thả trùng, hoặc không biết mình đã thả chưa. */
+.phanung button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  color: var(--accent);
+}
+.phanung__so { font-variant-numeric: tabular-nums; font-weight: 600; }
+.phanung__them { color: var(--ink-faint); padding: 2px 7px; }
+
+/* ── Chuỗi trả lời ────────────────────────────────────────────────── */
+.chuoi {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 6px; padding: 4px 10px 4px 4px;
+  border: 1px solid transparent; border-radius: 999px; background: transparent;
+  color: var(--accent); font-family: inherit; font-size: 12px; font-weight: 500;
+  cursor: pointer;
+}
+.chuoi:hover { border-color: var(--line); background: var(--surface); }
+.chuoi .mat { box-shadow: 0 0 0 2px var(--ground); }
+.chuoi .mat + .mat { margin-left: -6px; }
+.chuoi__gio { color: var(--ink-faint); font-weight: 400; }
+
+/* ── Tệp và ảnh ───────────────────────────────────────────────────── */
+.tep {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: 6px; padding: 9px 13px 9px 10px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+  color: var(--ink); text-decoration: none; font-size: 12.5px;
+}
+.tep:hover { border-color: var(--accent); }
+.tep__bieu {
+  width: 32px; height: 32px; flex: none;
+  display: grid; place-items: center; border-radius: 9px;
+  background: color-mix(in srgb, var(--danger) 16%, var(--surface)); color: var(--danger);
+  font-size: 9px; font-weight: 700; letter-spacing: 0.04em;
+}
+.tep__co { color: var(--ink-faint); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; }
+
+/* Ảnh hiện THẲNG trong luồng, không phải một dòng "anh-nhom.jpg 1,2 MB". Ảnh là thứ người
+   ta gửi để NHÌN — bắt bấm mở mới xem được là thêm một bước vô nghĩa. */
+.anhluoi { display: grid; grid-template-columns: repeat(2, 132px); gap: 4px; margin-top: 6px; }
+.anhluoi a {
+  aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden;
+  display: grid; place-items: center;
+  background: var(--surface-2); color: var(--ink-faint); font-size: 11px;
+}
+.anhluoi a:hover { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* ── Trạng thái gửi ───────────────────────────────────────────────── */
+/* Đang gửi: mờ đi nhưng GIỮ NGUYÊN chỗ. Người vừa gõ xong cần thấy câu của mình ở đúng vị
+   trí nó sẽ nằm — cho biến mất rồi hiện lại là cảm giác tin bị mất. */
 .tin--dang .tin__chu { opacity: 0.55; }
 .tin--dang .tin__gio::after { content: " · đang gửi…"; }
 
 .tin--hong .tin__chu { border: 1px solid var(--danger); }
-.tin__hong { display: none; margin: 4px 0 0; font-size: 12px; color: var(--danger); }
+.tin__hong { display: none; margin: 5px 0 0; font-size: 12px; color: var(--danger); }
 .tin--hong .tin__hong { display: block; }
 .tin__hong button {
   margin-left: 8px; padding: 0; border: 0; background: none;
   color: var(--danger); font: inherit; text-decoration: underline; cursor: pointer;
 }
 
-/* ── Tệp đính kèm ─────────────────────────────────────────────────── */
-.dinhkem {
-  display: inline-flex; align-items: center; gap: 9px;
-  margin-top: 5px; padding: 8px 12px 8px 10px;
-  border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
-  color: var(--ink); text-decoration: none; font-size: 12.5px;
-}
-.dinhkem:hover { border-color: var(--accent); }
-.dinhkem svg { width: 17px; height: 17px; flex: none; color: var(--ink-faint); }
-.dinhkem__co { color: var(--ink-faint); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; }
+/* ── Đã xem ───────────────────────────────────────────────────────── */
+/* Kiểu Zalo: mấy ảnh tí xíu nép dưới tin CUỐI CÙNG của mình. Không làm "đã xem" cho từng
+   tin — xem mục "Bốn quyết định" trong chat.md. */
+.daxem { display: flex; align-items: center; gap: 5px; margin-top: 5px; }
+.daxem span { font-size: 10.5px; color: var(--ink-faint); }
 
-/* ── Ô soạn tin ───────────────────────────────────────────────────── */
+/* ── Ai đó đang gõ ────────────────────────────────────────────────── */
+.danggo {
+  flex: none; height: 20px;
+  display: none; align-items: center; gap: 8px;
+  padding: 0 18px;
+  font-size: 11.5px; color: var(--ink-faint);
+}
+[data-state="idle"] .danggo, [data-state="offline"] .danggo { display: flex; }
+.danggo__cham { display: flex; gap: 3px; }
+.danggo__cham i {
+  width: 4px; height: 4px; border-radius: 50%; background: var(--ink-faint);
+  animation: nhun 1.25s infinite ease-in-out;
+}
+.danggo__cham i:nth-child(2) { animation-delay: 0.16s; }
+.danggo__cham i:nth-child(3) { animation-delay: 0.32s; }
+@keyframes nhun { 0%, 60%, 100% { opacity: 0.3; } 30% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .danggo__cham i { animation: none; opacity: 0.7; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Ô SOẠN TIN
+   ══════════════════════════════════════════════════════════════════════ */
 .soan {
-  flex: none; margin: 8px 18px 18px;
-  display: flex; align-items: flex-end; gap: 8px;
-  padding: 7px 7px 7px 10px;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  flex: none; margin: 4px 16px 8px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  overflow: hidden;
 }
 .soan:focus-within { border-color: var(--accent); }
 
-.soan__kep {
-  width: 32px; height: 32px; flex: none;
-  display: grid; place-items: center;
-  border: 0; border-radius: 8px; background: transparent; color: var(--ink-faint);
-  cursor: pointer;
+/* Thanh định dạng nằm TRÊN ô gõ, không phải dưới. Trên thì nó không nhảy chỗ khi ô gõ cao
+   dần — nút đang định bấm mà tự trôi đi là lỗi khó chịu bậc nhất. */
+.soan__dinh {
+  display: flex; align-items: center; gap: 1px;
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--line);
 }
-.soan__kep:hover { background: var(--surface-2); color: var(--ink); }
-.soan__kep svg { width: 17px; height: 17px; }
+.soan__dinh button {
+  width: 27px; height: 27px; display: grid; place-items: center;
+  border: 0; border-radius: 7px; background: transparent;
+  color: var(--ink-faint); font-family: inherit; font-size: 12px; cursor: pointer;
+}
+.soan__dinh button:hover { background: var(--surface-2); color: var(--ink); }
+.soan__dinh svg { width: 15px; height: 15px; }
+.soan__vach { width: 1px; height: 16px; margin: 0 4px; background: var(--line); }
 
-/* `textarea` chứ không phải `input`: tin nhắn nội bộ hay dài hai ba dòng, và một dòng đơn
-   cuộn ngang thì không đọc lại được câu mình vừa viết. Cao tối đa 5 dòng rồi tự cuộn. */
+/* `textarea` chứ không phải `input`: tin nội bộ hay dài hai ba dòng, và một dòng đơn cuộn
+   ngang thì không đọc lại được câu mình vừa viết. Cao tối đa 5 dòng rồi tự cuộn. */
 .soan textarea {
-  flex: 1; min-width: 0;
-  padding: 7px 0; max-height: 108px;
+  display: block; width: 100%; box-sizing: border-box;
+  padding: 10px 13px; max-height: 112px;
   border: 0; background: transparent; resize: none;
-  color: var(--ink); font-family: inherit; font-size: 13.5px; line-height: 1.5;
+  color: var(--ink); font-family: inherit; font-size: 13.5px; line-height: 1.55;
 }
 .soan textarea:focus { outline: none; }
 .soan textarea::placeholder { color: var(--ink-faint); }
 
+.soan__day { display: flex; align-items: center; gap: 2px; padding: 4px 6px 6px; }
+.soan__day button {
+  width: 30px; height: 30px; display: grid; place-items: center;
+  border: 0; border-radius: 8px; background: transparent;
+  color: var(--ink-faint); font-size: 15px; cursor: pointer;
+}
+.soan__day button:hover { background: var(--surface-2); color: var(--ink); }
+.soan__day svg { width: 16px; height: 16px; }
+
 .soan__gui {
-  width: 32px; height: 32px; flex: none;
-  display: grid; place-items: center;
-  border: 0; border-radius: 8px;
-  background: var(--accent); color: var(--accent-ink); cursor: pointer;
+  margin-left: auto !important;
+  width: 30px !important; height: 30px;
+  background: var(--accent) !important; color: var(--accent-ink) !important;
 }
-.soan__gui:disabled { opacity: 0.35; cursor: default; }
-.soan__gui svg { width: 16px; height: 16px; }
+.soan__gui:disabled { opacity: 0.32; cursor: default; }
+.soan__gui:disabled:hover { background: var(--accent) !important; color: var(--accent-ink) !important; }
 
-.soan__meo {
-  flex: none; margin: 0 18px 12px;
-  font-size: 11.5px; color: var(--ink-faint);
-}
-.soan__meo kbd {
+.meo { flex: none; margin: 0 18px 12px; font-size: 11px; color: var(--ink-faint); }
+.meo kbd {
   padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px;
-  background: var(--surface-2); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10.5px;
+  background: var(--surface-2);
+  font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10px;
 }
 
-/* ── Trạng thái rỗng ──────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════
+   BẢNG THÔNG TIN BÊN PHẢI
+   ══════════════════════════════════════════════════════════════════════ */
+.ben {
+  width: 276px; flex: none;
+  display: none; flex-direction: column; min-height: 0;
+  border-left: 1px solid var(--line);
+}
+.khung--ben .ben { display: flex; }
+
+.ben__the { flex: none; display: flex; gap: 2px; padding: 0 8px; border-bottom: 1px solid var(--line); }
+.ben__the button {
+  padding: 0 10px; height: 55px;
+  border: 0; border-bottom: 2px solid transparent; background: transparent;
+  color: var(--ink-faint); font-family: inherit; font-size: 12.5px; cursor: pointer;
+}
+.ben__the button:hover { color: var(--ink); }
+.ben__the button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+
+.ben__cuon { flex: 1; min-height: 0; overflow-y: auto; padding: 12px; }
+.ben__cuon > div[hidden] { display: none; }
+
+.ben__nhan {
+  margin: 14px 0 7px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.ben__nhan:first-child { margin-top: 0; }
+.ben__mota { margin: 0 0 4px; font-size: 12.5px; line-height: 1.6; color: var(--ink-soft); }
+
+.nguoi { display: flex; align-items: center; gap: 9px; padding: 6px 6px; border-radius: 9px; }
+.nguoi:hover { background: var(--surface-2); }
+.nguoi__ten { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--ink); }
+.nguoi__vai { flex: none; font-size: 10.5px; color: var(--ink-faint); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   HAI KIỂU LUỒNG — chỗ lai then chốt
+   ══════════════════════════════════════════════════════════════════════ */
+/* TIN NHẮN RIÊNG: đảo tin của mình sang phải, kiểu Zalo. Chỉ có hai người nên trái–phải là
+   cách đọc nhanh nhất. Ở KÊNH thì KHÔNG đảo — 12 người mà đảo thì cột đọc gãy làm đôi. */
+.luong--rieng .tin--minh { flex-direction: row-reverse; }
+.luong--rieng .tin--minh .tin__dau { flex-direction: row-reverse; }
+.luong--rieng .tin--minh .tin__than { display: flex; flex-direction: column; align-items: flex-end; }
+.luong--rieng .tin--minh .tin__chu {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  border-radius: 14px 5px 14px 14px;
+}
+.luong--rieng .tin--minh.tin--noi .tin__chu { border-radius: 14px; }
+.luong--rieng .tin--minh .thaotac { right: auto; left: 8px; }
+.luong--rieng .tin--minh .phanung,
+.luong--rieng .tin--minh .daxem { justify-content: flex-end; }
+
+/* Ở kênh, tin của mình chỉ khác bằng MÀU chứ không đổi bên. Đủ để nhận ra, không phá cột. */
+.luong--kenh .tin--minh .tin__chu { background: color-mix(in srgb, var(--accent) 13%, var(--surface)); }
+
+/* Kênh có # và tin ghim; tin nhắn riêng thì không. */
+.luong--rieng .luong__thang, .luong--rieng .ghim { display: none; }
+
+/* Bảng bên phải phải nói về ĐÚNG thứ đang mở: kênh thì nói về kênh, tin nhắn riêng thì
+   nói về người. Để nguyên "Gắn với phòng ban" khi đang chat riêng là thông tin SAI,
+   không phải thông tin thừa. */
+[data-kieu="rieng"] .chi-kenh { display: none; }
+[data-kieu="kenh"] .chi-rieng { display: none; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   TRẠNG THÁI RỖNG
+   ══════════════════════════════════════════════════════════════════════ */
 .rong {
   flex: 1; display: none;
   flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px; padding: 40px; text-align: center;
+  gap: 12px; padding: 40px; text-align: center;
 }
-.rong svg { width: 34px; height: 34px; color: var(--ink-faint); }
+.rong__vong {
+  width: 56px; height: 56px; display: grid; place-items: center; border-radius: 18px;
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface)); color: var(--accent);
+}
+.rong svg { width: 26px; height: 26px; }
 .rong h2 { margin: 0; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 17px; }
-.rong p { margin: 0; max-width: 34ch; color: var(--ink-soft); font-size: 13.5px; line-height: 1.6; }
+.rong p { margin: 0; max-width: 36ch; color: var(--ink-soft); font-size: 13.5px; line-height: 1.6; }
 
-/* Chỉ giấu luồng tin, GIỮ NGUYÊN ô soạn: kênh chưa có tin nhắn nào chính là lúc người
-   dùng cần gõ câu đầu tiên nhất. Giấu ô soạn ở đây là khoá cửa đúng lúc có người muốn vào. */
-[data-state="empty"] .luong__cuon { display: none; }
+/* Chỉ giấu luồng tin, GIỮ NGUYÊN ô soạn: kênh chưa có tin nhắn nào chính là lúc người dùng
+   cần gõ câu đầu tiên nhất. Giấu ô soạn ở đây là khoá cửa đúng lúc có người muốn vào. */
+[data-state="empty"] .luong__cuon, [data-state="empty"] .ghim { display: none; }
 [data-state="empty"] .rong { display: flex; }
 
-/* ── Màn hẹp ──────────────────────────────────────────────────────── */
-/* Dưới 1100px chỉ đủ chỗ cho MỘT cột. Giữ cột danh sách hay cột tin nhắn là tuỳ người dùng
-   vừa bấm gì — ở sản phẩm sẽ là hai route con. Bản dựng này giữ cột tin nhắn. */
-@media (max-width: 1100px) {
-  .nav { display: none; }
-  .rail { width: 216px; }
-}
-@media (max-width: 820px) {
-  .rail { display: none; }
-}
+/* ══════════════════════════════════════════════════════════════════════
+   MÀN HẸP
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1280px) { .khung--ben .ben { display: none; } }
+@media (max-width: 1000px) { .ds { width: 260px; } }
+/* Dưới 820px chỉ đủ một cột. Ở sản phẩm đây là HAI route thật (/trao-doi và
+   /trao-doi/{id}) chứ không phải ẩn hiện bằng CSS — nút Back của điện thoại phải quay về
+   danh sách, đó là thứ người dùng mong đợi nhất. */
+@media (max-width: 820px) { .ds { display: none; } }
 
 /* Bảng đổi trạng thái — KHUNG ĐỂ DUYỆT, không ship. */
 .states {
   position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
   display: flex; gap: 6px; align-items: center;
-  padding: 7px 10px; z-index: 40;
+  padding: 7px 10px; z-index: 80;
   background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 .states span { font-size: 11px; color: var(--ink-faint); padding: 0 4px; }
 .states button {
@@ -295,211 +566,509 @@
   cursor: pointer;
 }
 .states button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.states__vach { width: 1px; height: 18px; background: var(--line); margin: 0 3px; }
 </style>
 
-<div class="khung" id="khung">
-  <header class="topbar">
-    <button class="topbar__toggle" id="gon" aria-label="Đóng/mở thanh điều hướng">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
-        <path d="M2 4h12M2 8h12M2 12h12"/>
-      </svg>
-    </button>
+<div class="khung khung--ben" id="khung" data-kieu="kenh">
+  <!-- ══════════════ CỘT BIỂU TƯỢNG ══════════════ -->
+  <nav class="rail" aria-label="Điều hướng chính">
+    <button class="rail__mark" data-soon="Về trang chủ" aria-label="ONoOffice — về trang chủ">O</button>
 
-    <div class="topbar__brand"><span class="topbar__mark">O</span>ONoOffice</div>
+    <div class="rail__nav">
+      <button class="rail__nut" data-soon="Bảng điều khiển">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <rect x="2.5" y="2.5" width="6" height="6" rx="1.8"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.8"/>
+          <rect x="2.5" y="11.5" width="6" height="6" rx="1.8"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.8"/>
+        </svg>
+        <span class="rail__chu">Bảng điều khiển</span>
+      </button>
 
-    <div class="topbar__spacer"></div>
+      <button class="rail__nut" aria-current="page">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M17 11.3a3 3 0 01-3 3H8.4L4.5 17.2v-2.9H6a3 3 0 01-3-3V5.7a3 3 0 013-3h8a3 3 0 013 3z"/>
+        </svg>
+        <span class="rail__cham"></span>
+        <span class="rail__chu">Trao đổi · 4 tin mới</span>
+      </button>
 
-    <div class="topbar__user">
-      <span class="topbar__name">Lê Anh Lượng</span>
-      <span class="topbar__mail">chu@congty.vn</span>
+      <button class="rail__nut" data-soon="Nhân sự">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="7.5" cy="6.8" r="2.9"/><path d="M2.4 16.6a5.1 5.1 0 0110.2 0"/>
+          <path d="M13.2 4.4a2.9 2.9 0 010 4.8M14.8 16.6a5.1 5.1 0 00-1.7-3.8"/>
+        </svg>
+        <span class="rail__chu">Nhân sự</span>
+      </button>
+
+      <button class="rail__nut" data-soon="Phòng ban">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <rect x="7" y="2.5" width="6" height="4.5" rx="1.3"/><rect x="2" y="13" width="5.5" height="4.5" rx="1.3"/>
+          <rect x="12.5" y="13" width="5.5" height="4.5" rx="1.3"/><path d="M10 7v3.5M4.75 13v-2.5h10.5V13"/>
+        </svg>
+        <span class="rail__chu">Phòng ban</span>
+      </button>
     </div>
 
-    <div id="prefs"></div>
+    <div class="rail__day"></div>
 
-    <button class="topbar__out" data-soon="Đăng xuất">Đăng xuất</button>
-  </header>
+    <button class="rail__nut" id="nutCaidat" aria-expanded="false">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <circle cx="10" cy="10" r="2.6"/>
+        <path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7"/>
+      </svg>
+      <span class="rail__chu">Giao diện &amp; ngôn ngữ</span>
+    </button>
 
-  <div class="khung__than">
-    <nav class="nav" aria-label="Điều hướng chính">
-      <a class="nav__muc" href="#" data-soon="Bảng điều khiển">
-        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-          <rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/>
-          <rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/>
-        </svg>
-        <span class="nav__chu">Bảng điều khiển</span>
-      </a>
+    <button class="rail__toi" id="nutToi" aria-expanded="false" aria-label="Tài khoản của bạn">
+      LL<span class="online"></span>
+    </button>
 
-      <a class="nav__muc" href="#" data-soon="Nhân sự">
-        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-          <circle cx="7.5" cy="7" r="2.8"/><path d="M2.5 16.5a5 5 0 0110 0"/><path d="M13 4.6a2.8 2.8 0 010 4.8M14.5 16.5a5 5 0 00-1.6-3.7"/>
-        </svg>
-        <span class="nav__chu">Nhân sự</span>
-      </a>
+    <!-- Menu giao diện & ngôn ngữ -->
+    <div class="popover" id="menuCaidat" hidden style="bottom: 52px;">
+      <div class="popover__hang">
+        <span>Bộ màu &amp; ngôn ngữ</span>
+      </div>
+      <div style="padding: 4px 10px 8px;"><div id="prefs"></div></div>
+    </div>
 
-      <a class="nav__muc nav__muc--dang" href="#" aria-current="page">
-        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-          <path d="M17 11.5a3 3 0 01-3 3H8l-4 3v-3H6a3 3 0 01-3-3v-6a3 3 0 013-3h8a3 3 0 013 3z"/>
-        </svg>
-        <span class="nav__chu">Trao đổi</span>
-        <span class="nav__dem">4</span>
-      </a>
-    </nav>
+    <!-- Menu tài khoản -->
+    <div class="popover" id="menuToi" hidden>
+      <div class="popover__ai">
+        <div class="popover__ten">Lê Anh Lượng</div>
+        <div class="popover__mail">chu@congty.vn</div>
+      </div>
 
-    <div class="noidung">
-      <!-- ── Cột giữa: danh sách hội thoại ───────────────────────── -->
-      <aside class="rail" aria-label="Danh sách hội thoại">
-        <div class="rail__dau">
-          <h1>Trao đổi</h1>
-          <button class="rail__them" data-soon="Tạo hội thoại" aria-label="Tạo hội thoại mới">
-            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <path d="M7 2v10M2 7h10"/>
-            </svg>
-          </button>
-        </div>
+      <button class="popover__nut" data-soon="Đổi trạng thái">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/></svg>
+        Đang trực tuyến
+      </button>
+      <button class="popover__nut" data-soon="Hồ sơ của tôi">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="5.5" r="2.4"/><path d="M3.5 13.2a4.5 4.5 0 019 0"/></svg>
+        Hồ sơ của tôi
+      </button>
+      <button class="popover__nut" data-soon="Đăng xuất">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 14H3.5A1.5 1.5 0 012 12.5v-9A1.5 1.5 0 013.5 2H6M10.5 11 14 8l-3.5-3M14 8H6"/></svg>
+        Đăng xuất
+      </button>
+    </div>
+  </nav>
 
-        <div class="tim">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-            <circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/>
+  <div class="noidung">
+    <!-- ══════════════ DANH SÁCH HỘI THOẠI ══════════════ -->
+    <aside class="ds" aria-label="Danh sách hội thoại">
+      <div class="ds__dau">
+        <h1>Trao đổi</h1>
+        <button class="nuti" data-soon="Soạn tin mới" aria-label="Soạn tin mới">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="M12.4 2.6a1.7 1.7 0 012.4 2.4l-8 8-3.2.8.8-3.2z"/>
           </svg>
-          <input type="search" placeholder="Tìm người hoặc kênh" aria-label="Tìm người hoặc kênh">
-        </div>
-
-        <div class="rail__cuon">
-          <div class="nhom">Phòng ban</div>
-
-          <button class="hoithoai" aria-current="true">
-            <span class="hoithoai__thang">#</span>
-            <span class="hoithoai__ten">Kỹ thuật</span>
-          </button>
-          <button class="hoithoai">
-            <span class="hoithoai__thang">#</span>
-            <span class="hoithoai__ten">Nhân sự</span>
-            <span class="chuadoc">3</span>
-          </button>
-          <button class="hoithoai">
-            <span class="hoithoai__thang">#</span>
-            <span class="hoithoai__ten">Kinh doanh</span>
-          </button>
-          <button class="hoithoai">
-            <span class="hoithoai__thang">#</span>
-            <span class="hoithoai__ten">Toàn công ty</span>
-          </button>
-
-          <div class="nhom">Tin nhắn riêng</div>
-
-          <button class="hoithoai">
-            <span class="mat">TB</span>
-            <span class="hoithoai__ten">Trần Bình</span>
-            <span class="chuadoc">1</span>
-          </button>
-          <button class="hoithoai">
-            <span class="mat">NA</span>
-            <span class="hoithoai__ten">Nguyễn An</span>
-          </button>
-          <button class="hoithoai">
-            <span class="mat">PH</span>
-            <span class="hoithoai__ten">Phạm Hà</span>
-          </button>
-        </div>
-      </aside>
-
-      <!-- ── Cột phải: luồng tin nhắn ────────────────────────────── -->
-      <section class="luong" id="luong" data-state="idle" aria-label="Tin nhắn">
-        <div class="luong__dau">
-          <div class="luong__ten"><span class="hoithoai__thang">#</span>Kỹ thuật</div>
-          <div class="luong__phu">12 người</div>
-        </div>
-
-        <div class="roimang">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-            <path d="M8 1.5 15 14H1z"/><path d="M8 6v3.5"/><circle cx="8" cy="11.8" r=".7" fill="currentColor" stroke="none"/>
+        </button>
+        <button class="nuti" data-soon="Lọc hội thoại" aria-label="Lọc hội thoại">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="M2.5 4h13M4.8 9h8.4M7.2 14h3.6"/>
           </svg>
-          Mất kết nối — tin nhắn mới sẽ không tự hiện.
-          <button data-soon="Kết nối lại">Kết nối lại</button>
-        </div>
+        </button>
+      </div>
 
-        <div class="luong__cuon">
-          <div class="ngay"><span>Hôm nay</span></div>
+      <div class="tim">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/>
+        </svg>
+        <input type="search" placeholder="Tìm người hoặc kênh" aria-label="Tìm người hoặc kênh">
+      </div>
 
-          <div class="tin">
-            <span class="mat">TB</span>
-            <div class="tin__than">
-              <div class="tin__dau"><span class="tin__ai">Trần Bình</span><span class="tin__gio">09:12</span></div>
-              <p class="tin__chu">Sáng nay họp giao ban lúc mấy giờ vậy mọi người?</p>
-            </div>
-          </div>
+      <div class="ds__cuon">
+        <button class="nhom" aria-expanded="true">
+          <svg class="nhom__mui" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m2 4 3 3 3-3"/></svg>
+          Kênh phòng ban
+          <span class="nhom__so">4</span>
+        </button>
 
-          <div class="tin tin--minh">
-            <span class="mat">LL</span>
-            <div class="tin__than">
-              <div class="tin__dau"><span class="tin__ai">Bạn</span><span class="tin__gio">09:14</span></div>
-              <p class="tin__chu">10h nhé, phòng A2. Bình mang theo bản vẽ tuần trước giúp mình.</p>
-            </div>
-          </div>
+        <div class="nhom__than">
+          <button class="ht" aria-current="true" data-kieu="kenh" data-ten="ky-thuat" data-chude="Bàn kỹ thuật, sự cố, triển khai">
+            <span class="mat mat--kenh">#</span>
+            <span class="ht__giua">
+              <span class="ht__hang"><span class="ht__ten">ky-thuat</span><span class="ht__gio">09:16</span></span>
+              <span class="ht__hang"><span class="ht__xem">Bạn: Cảm ơn An, mình xem rồi sẽ phản…</span></span>
+            </span>
+          </button>
 
-          <div class="tin">
-            <span class="mat">NA</span>
-            <div class="tin__than">
-              <div class="tin__dau">
-                <span class="tin__ai">Nguyễn An</span><span class="tin__gio">09:15</span>
-                <span class="tin__sua">đã sửa</span>
-              </div>
-              <p class="tin__chu">Mình gửi trước báo cáo quý 3 để cả nhà xem qua.</p>
-              <a class="dinhkem" href="#" data-soon="Tải tệp">
-                <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                  <path d="M10.5 2.5H5a1.5 1.5 0 00-1.5 1.5v10A1.5 1.5 0 005 15.5h8a1.5 1.5 0 001.5-1.5V6.5z"/>
-                  <path d="M10.5 2.5v4h4"/>
+          <button class="ht ht--moi" data-kieu="kenh" data-ten="nhan-su" data-chude="Thông báo nhân sự, nghỉ phép">
+            <span class="mat mat--kenh">#</span>
+            <span class="ht__giua">
+              <span class="ht__hang"><span class="ht__ten">nhan-su</span><span class="ht__gio">08:41</span></span>
+              <span class="ht__hang"><span class="ht__xem">Phạm Hà: Nhắc cả nhà chốt ngày nghỉ…</span><span class="chuadoc">3</span></span>
+            </span>
+          </button>
+
+          <button class="ht" data-kieu="kenh" data-ten="kinh-doanh" data-chude="Cơ hội, hợp đồng, khách hàng">
+            <span class="mat mat--kenh">#</span>
+            <span class="ht__giua">
+              <span class="ht__hang"><span class="ht__ten">kinh-doanh</span><span class="ht__gio">Hôm qua</span></span>
+              <span class="ht__hang"><span class="ht__xem">Nguyễn An: Chốt xong hợp đồng ACME 🎉</span></span>
+            </span>
+          </button>
+
+          <button class="ht ht--im" data-kieu="kenh" data-ten="toan-cong-ty" data-chude="Thông báo chung toàn công ty">
+            <span class="mat mat--kenh">#</span>
+            <span class="ht__giua">
+              <span class="ht__hang"><span class="ht__ten">toan-cong-ty</span><span class="ht__gio">T2</span></span>
+              <span class="ht__hang">
+                <span class="ht__xem">Lê Anh Lượng: Chào mừng ba bạn mới…</span>
+                <svg class="ht__im" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path d="M4.5 6.5a3.5 3.5 0 017 0c0 3 1.5 4 1.5 4H3s1.5-1 1.5-4M6.5 13h3M2 2l12 12"/>
                 </svg>
-                bao-cao-quy-3.pdf
-                <span class="dinhkem__co">240 KB</span>
-              </a>
+              </span>
+            </span>
+          </button>
+        </div>
+
+        <button class="nhom" aria-expanded="true">
+          <svg class="nhom__mui" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m2 4 3 3 3-3"/></svg>
+          Tin nhắn riêng
+          <span class="nhom__so">3</span>
+        </button>
+
+        <div class="nhom__than">
+          <button class="ht ht--moi" data-kieu="rieng" data-ten="Trần Bình" data-chude="">
+            <span class="mat">TB<span class="online"></span></span>
+            <span class="ht__giua">
+              <span class="ht__hang"><span class="ht__ten">Trần Bình</span><span class="ht__gio">09:22</span></span>
+              <span class="ht__hang"><span class="ht__xem">Bản vẽ mình để trong kênh rồi nhé</span><span class="chuadoc">1</span></span>
+            </span>
+          </button>
+
+          <button class="ht" data-kieu="rieng" data-ten="Nguyễn An" data-chude="">
+            <span class="mat">NA<span class="online online--xa"></span></span>
+            <span class="ht__giua">
+              <span class="ht__hang"><span class="ht__ten">Nguyễn An</span><span class="ht__gio">Hôm qua</span></span>
+              <span class="ht__hang"><span class="ht__xem">Bạn: Ok em, mai mình xem lại</span></span>
+            </span>
+          </button>
+
+          <button class="ht" data-kieu="rieng" data-ten="Phạm Hà" data-chude="">
+            <span class="mat">PH<span class="online online--xa"></span></span>
+            <span class="ht__giua">
+              <span class="ht__hang"><span class="ht__ten">Phạm Hà</span><span class="ht__gio">T6</span></span>
+              <span class="ht__hang"><span class="ht__xem">Chị gửi em mẫu đơn nghỉ phép</span></span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ══════════════ LUỒNG TIN NHẮN ══════════════ -->
+    <section class="luong luong--kenh" id="luong" data-state="idle" aria-label="Tin nhắn">
+      <header class="trangdau">
+        <div class="luong__ten">
+          <span class="luong__thang">#</span>
+          <h1 id="tenLuong">ky-thuat</h1>
+        </div>
+        <div class="luong__chude" id="chudeLuong">Bàn kỹ thuật, sự cố, triển khai</div>
+
+        <div style="flex:1"></div>
+
+        <div class="chong" id="chongMat">
+          <span class="mat mat--nho">TB</span>
+          <span class="mat mat--nho">NA</span>
+          <span class="mat mat--nho">PH</span>
+          <span class="mat mat--nho chong__them">+9</span>
+        </div>
+
+        <button class="nuti" data-soon="Tìm trong hội thoại" aria-label="Tìm trong hội thoại">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="8" cy="8" r="5"/><path d="m11.8 11.8 3.2 3.2"/></svg>
+        </button>
+        <button class="nuti" id="nutBen" aria-pressed="true" aria-label="Thông tin hội thoại">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="9" r="6.6"/><path d="M9 8.2v4M9 5.9v.1"/></svg>
+        </button>
+        <button class="nuti" data-soon="Thêm" aria-label="Thêm">
+          <svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="4" cy="9" r="1.4"/><circle cx="9" cy="9" r="1.4"/><circle cx="14" cy="9" r="1.4"/></svg>
+        </button>
+      </header>
+
+      <div class="ghim">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M6 2h4l-.5 4 2.5 2v1.5H4V8l2.5-2zM8 9.5V14"/>
+        </svg>
+        Đã ghim: <b>Họp giao ban thứ Hai 10h, phòng A2.</b>
+        <button class="nuti ghim__dong" data-soon="Bỏ ghim" aria-label="Bỏ ghim">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg>
+        </button>
+      </div>
+
+      <div class="roimang">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M8 1.5 15 14H1z"/><path d="M8 6v3.5"/><circle cx="8" cy="11.8" r=".7" fill="currentColor" stroke="none"/>
+        </svg>
+        Mất kết nối — tin nhắn mới sẽ không tự hiện.
+        <button data-soon="Kết nối lại">Kết nối lại</button>
+      </div>
+
+      <div class="luong__cuon" id="cuon">
+        <div class="ngaykhoi">
+        <div class="ngay"><span>Thứ Hai, 22 tháng 8</span></div>
+
+        <div class="tin">
+          <span class="mat">PH</span>
+          <div class="tin__than">
+            <div class="tin__dau"><span class="tin__ai">Phạm Hà</span><span class="tin__gio">16:40</span></div>
+            <p class="tin__chu">Cả nhà nhớ cập nhật tiến độ lên bảng trước thứ Sáu nhé.</p>
+            <div class="phanung">
+              <button aria-pressed="true">👍 <span class="phanung__so">4</span></button>
+              <button class="phanung__them" data-soon="Thả cảm xúc" aria-label="Thả cảm xúc">＋</button>
             </div>
           </div>
-
-          <div class="tin tin--minh" id="tinCuoi">
-            <span class="mat">LL</span>
-            <div class="tin__than">
-              <div class="tin__dau"><span class="tin__ai">Bạn</span><span class="tin__gio">09:16</span></div>
-              <p class="tin__chu">Cảm ơn An, mình xem rồi sẽ phản hồi trong sáng nay.</p>
-              <p class="tin__hong">Không gửi được. <button data-soon="Gửi lại">Thử lại</button></p>
-            </div>
+          <div class="thaotac">
+            <button data-soon="Thả cảm xúc" aria-label="Thả cảm xúc">😊</button>
+            <button data-soon="Trả lời theo chuỗi" aria-label="Trả lời theo chuỗi">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3 2 6.5 6 10"/><path d="M2 6.5h7A4.5 4.5 0 0113.5 11v2"/></svg>
+            </button>
+            <button data-soon="Thêm" aria-label="Thêm">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="3.5" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="12.5" cy="8" r="1.2"/></svg>
+            </button>
           </div>
         </div>
 
-        <div class="rong">
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-            <path d="M17 11.5a3 3 0 01-3 3H8l-4 3v-3H6a3 3 0 01-3-3v-6a3 3 0 013-3h8a3 3 0 013 3z"/>
+        </div>
+
+        <div class="vachmoi"><span>Tin chưa đọc</span></div>
+
+        <div class="ngaykhoi">
+        <div class="ngay"><span>Hôm nay</span></div>
+
+        <div class="tin">
+          <span class="mat">TB<span class="online"></span></span>
+          <div class="tin__than">
+            <div class="tin__dau"><span class="tin__ai">Trần Bình</span><span class="tin__gio">09:12</span></div>
+            <p class="tin__chu">Sáng nay họp giao ban lúc mấy giờ vậy mọi người?</p>
+          </div>
+          <div class="thaotac">
+            <button data-soon="Thả cảm xúc" aria-label="Thả cảm xúc">😊</button>
+            <button data-soon="Trả lời theo chuỗi" aria-label="Trả lời theo chuỗi">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3 2 6.5 6 10"/><path d="M2 6.5h7A4.5 4.5 0 0113.5 11v2"/></svg>
+            </button>
+            <button data-soon="Thêm" aria-label="Thêm">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="3.5" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="12.5" cy="8" r="1.2"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="tin tin--minh">
+          <span class="mat">LL</span>
+          <div class="tin__than">
+            <div class="tin__dau"><span class="tin__ai">Bạn</span><span class="tin__gio">09:14</span></div>
+            <p class="tin__chu">10h nhé, phòng A2. <span class="nhac">@Trần Bình</span> mang theo bản vẽ tuần trước giúp mình.</p>
+            <button class="chuoi" data-soon="Mở chuỗi trả lời">
+              <span class="mat mat--xiu">NA</span><span class="mat mat--xiu">PH</span>
+              3 trả lời <span class="chuoi__gio">· mới nhất 10:02</span>
+            </button>
+          </div>
+          <div class="thaotac">
+            <button data-soon="Thả cảm xúc" aria-label="Thả cảm xúc">😊</button>
+            <button data-soon="Sửa tin" aria-label="Sửa tin">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M11 2.2a1.5 1.5 0 012.1 2.1l-7.1 7.1-2.8.7.7-2.8z"/></svg>
+            </button>
+            <button data-soon="Thêm" aria-label="Thêm">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="3.5" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="12.5" cy="8" r="1.2"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="tin">
+          <span class="mat">NA<span class="online online--xa"></span></span>
+          <div class="tin__than">
+            <div class="tin__dau">
+              <span class="tin__ai">Nguyễn An</span><span class="tin__gio">09:15</span>
+              <span class="tin__sua">đã sửa</span>
+            </div>
+            <p class="tin__chu">Mình gửi trước báo cáo quý 3 để cả nhà xem qua.</p>
+            <a class="tep" href="#" data-soon="Tải tệp">
+              <span class="tep__bieu">PDF</span>
+              bao-cao-quy-3.pdf
+              <span class="tep__co">240 KB</span>
+            </a>
+          </div>
+          <div class="thaotac">
+            <button data-soon="Thả cảm xúc" aria-label="Thả cảm xúc">😊</button>
+            <button data-soon="Trả lời theo chuỗi" aria-label="Trả lời theo chuỗi">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3 2 6.5 6 10"/><path d="M2 6.5h7A4.5 4.5 0 0113.5 11v2"/></svg>
+            </button>
+            <button data-soon="Thêm" aria-label="Thêm">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="3.5" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="12.5" cy="8" r="1.2"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="tin tin--noi">
+          <span class="mat">NA</span>
+          <span class="tin__gio tin__gio--le">09:15</span>
+          <div class="tin__than">
+            <p class="tin__chu">Kèm mấy ảnh hiện trường hôm qua nữa.</p>
+            <div class="anhluoi">
+              <a href="#" data-soon="Xem ảnh">hien-truong-1.jpg</a>
+              <a href="#" data-soon="Xem ảnh">hien-truong-2.jpg</a>
+            </div>
+            <div class="phanung">
+              <button aria-pressed="false">❤️ <span class="phanung__so">2</span></button>
+              <button aria-pressed="false">👀 <span class="phanung__so">1</span></button>
+              <button class="phanung__them" data-soon="Thả cảm xúc" aria-label="Thả cảm xúc">＋</button>
+            </div>
+          </div>
+          <div class="thaotac">
+            <button data-soon="Thả cảm xúc" aria-label="Thả cảm xúc">😊</button>
+            <button data-soon="Trả lời theo chuỗi" aria-label="Trả lời theo chuỗi">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3 2 6.5 6 10"/><path d="M2 6.5h7A4.5 4.5 0 0113.5 11v2"/></svg>
+            </button>
+            <button data-soon="Thêm" aria-label="Thêm">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="3.5" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="12.5" cy="8" r="1.2"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="tin tin--minh" id="tinCuoi">
+          <span class="mat">LL</span>
+          <div class="tin__than">
+            <div class="tin__dau"><span class="tin__ai">Bạn</span><span class="tin__gio">09:16</span></div>
+            <p class="tin__chu">Cảm ơn An, mình xem rồi sẽ phản hồi trong sáng nay.</p>
+            <p class="tin__hong">Không gửi được. <button data-soon="Gửi lại">Thử lại</button></p>
+            <div class="daxem">
+              <span class="mat mat--xiu">TB</span><span class="mat mat--xiu">NA</span><span class="mat mat--xiu">PH</span>
+              <span>Đã xem</span>
+            </div>
+          </div>
+          <div class="thaotac">
+            <button data-soon="Thả cảm xúc" aria-label="Thả cảm xúc">😊</button>
+            <button data-soon="Sửa tin" aria-label="Sửa tin">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M11 2.2a1.5 1.5 0 012.1 2.1l-7.1 7.1-2.8.7.7-2.8z"/></svg>
+            </button>
+            <button data-soon="Thêm" aria-label="Thêm">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="3.5" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="12.5" cy="8" r="1.2"/></svg>
+            </button>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <div class="rong">
+        <div class="rong__vong">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M17 11.3a3 3 0 01-3 3H8.4L4.5 17.2v-2.9H6a3 3 0 01-3-3V5.7a3 3 0 013-3h8a3 3 0 013 3z"/>
           </svg>
-          <h2>Chưa có tin nhắn nào</h2>
-          <p>Đây là kênh của phòng Kỹ thuật. Hãy nói câu đầu tiên — mọi người trong phòng đều thấy.</p>
+        </div>
+        <h2>Chưa có tin nhắn nào</h2>
+        <p>Đây là kênh của phòng Kỹ thuật. Hãy nói câu đầu tiên — mọi người trong phòng đều thấy.</p>
+      </div>
+
+      <div class="danggo">
+        <span class="danggo__cham"><i></i><i></i><i></i></span>
+        Trần Bình đang nhập…
+      </div>
+
+      <form class="soan" id="soan" novalidate>
+        <div class="soan__dinh">
+          <button type="button" data-soon="Đậm" aria-label="Đậm"><b>B</b></button>
+          <button type="button" data-soon="Nghiêng" aria-label="Nghiêng"><i>I</i></button>
+          <button type="button" data-soon="Gạch ngang" aria-label="Gạch ngang"><s>S</s></button>
+          <span class="soan__vach"></span>
+          <button type="button" data-soon="Chèn liên kết" aria-label="Chèn liên kết">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6.5 9.5a2.5 2.5 0 003.5 0l2-2a2.5 2.5 0 00-3.5-3.5l-.8.8"/><path d="M9.5 6.5a2.5 2.5 0 00-3.5 0l-2 2a2.5 2.5 0 003.5 3.5l.8-.8"/></svg>
+          </button>
+          <button type="button" data-soon="Khối mã" aria-label="Khối mã">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5.5 5 2.5 8l3 3M10.5 5l3 3-3 3"/></svg>
+          </button>
+          <button type="button" data-soon="Danh sách" aria-label="Danh sách">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 4.5h8M6 8h8M6 11.5h8M2.6 4.5h.01M2.6 8h.01M2.6 11.5h.01"/></svg>
+          </button>
         </div>
 
-        <form class="soan" id="soan" novalidate>
-          <button type="button" class="soan__kep" data-soon="Đính kèm tệp" aria-label="Đính kèm tệp">
+        <textarea id="oSoan" rows="1" placeholder="Nhắn cho #ky-thuat…" aria-label="Nội dung tin nhắn"></textarea>
+
+        <div class="soan__day">
+          <button type="button" data-soon="Đính kèm tệp" aria-label="Đính kèm tệp">
             <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
               <path d="M13 8.5 8.2 13.3a2.9 2.9 0 11-4.1-4.1l5.4-5.4a1.9 1.9 0 112.7 2.7l-5.4 5.4a.9.9 0 11-1.3-1.3l4.8-4.8"/>
             </svg>
           </button>
-
-          <textarea id="oSoan" rows="1" placeholder="Nhắn cho #Kỹ thuật…" aria-label="Nội dung tin nhắn"></textarea>
+          <button type="button" data-soon="Biểu tượng cảm xúc" aria-label="Biểu tượng cảm xúc">😊</button>
+          <button type="button" data-soon="Nhắc tên ai đó" aria-label="Nhắc tên ai đó">@</button>
 
           <button type="submit" class="soan__gui" id="nutGui" disabled aria-label="Gửi tin nhắn">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+              <path d="M8 13.5V3M3.6 7.4 8 3l4.4 4.4"/>
             </svg>
           </button>
-        </form>
+        </div>
+      </form>
 
-        <p class="soan__meo"><kbd>Enter</kbd> gửi · <kbd>Shift</kbd>+<kbd>Enter</kbd> xuống dòng</p>
-      </section>
-    </div>
+      <p class="meo"><kbd>Enter</kbd> gửi · <kbd>Shift</kbd>+<kbd>Enter</kbd> xuống dòng · <kbd>@</kbd> nhắc tên</p>
+    </section>
+
+    <!-- ══════════════ BẢNG THÔNG TIN ══════════════ -->
+    <aside class="ben" aria-label="Thông tin hội thoại">
+      <div class="ben__the" role="tablist">
+        <button role="tab" aria-selected="true" data-the="gioithieu">Giới thiệu</button>
+        <button class="chi-kenh" role="tab" aria-selected="false" data-the="thanhvien">Thành viên</button>
+        <button role="tab" aria-selected="false" data-the="tep">Tệp</button>
+      </div>
+
+      <div class="ben__cuon">
+        <div data-the="gioithieu">
+          <div class="chi-kenh">
+          <div class="ben__nhan">Chủ đề</div>
+          <p class="ben__mota">Bàn kỹ thuật, sự cố, triển khai.</p>
+
+          <div class="ben__nhan">Gắn với phòng ban</div>
+          <p class="ben__mota">Phòng Kỹ thuật — thành viên tự đồng bộ theo phòng.</p>
+
+          <div class="ben__nhan">Tạo ngày</div>
+          <p class="ben__mota">14 tháng 3, 2026</p>
+          </div>
+
+          <div class="chi-rieng">
+          <div class="ben__nhan">Chức danh</div>
+          <p class="ben__mota">Trưởng nhóm Kỹ thuật</p>
+
+          <div class="ben__nhan">Phòng ban</div>
+          <p class="ben__mota">Phòng Kỹ thuật</p>
+
+          <div class="ben__nhan">Email</div>
+          <p class="ben__mota">binh.tran@congty.vn</p>
+
+          <div class="ben__nhan">Trạng thái</div>
+          <p class="ben__mota">Đang trực tuyến</p>
+          </div>
+        </div>
+
+        <div data-the="thanhvien" hidden>
+          <div class="ben__nhan">12 thành viên</div>
+          <div class="nguoi"><span class="mat mat--nho">LL<span class="online"></span></span><span class="nguoi__ten">Lê Anh Lượng</span><span class="nguoi__vai">Owner</span></div>
+          <div class="nguoi"><span class="mat mat--nho">TB<span class="online"></span></span><span class="nguoi__ten">Trần Bình</span><span class="nguoi__vai">Manager</span></div>
+          <div class="nguoi"><span class="mat mat--nho">NA<span class="online online--xa"></span></span><span class="nguoi__ten">Nguyễn An</span><span class="nguoi__vai">Member</span></div>
+          <div class="nguoi"><span class="mat mat--nho">PH<span class="online online--xa"></span></span><span class="nguoi__ten">Phạm Hà</span><span class="nguoi__vai">Member</span></div>
+        </div>
+
+        <div data-the="tep" hidden>
+          <div class="ben__nhan">Gần đây</div>
+          <a class="tep" href="#" data-soon="Tải tệp" style="width:100%;box-sizing:border-box;margin-bottom:6px">
+            <span class="tep__bieu">PDF</span> bao-cao-quy-3.pdf <span class="tep__co">240 KB</span>
+          </a>
+          <div class="anhluoi" style="grid-template-columns:repeat(2,1fr)">
+            <a href="#" data-soon="Xem ảnh">hien-truong-1.jpg</a>
+            <a href="#" data-soon="Xem ảnh">hien-truong-2.jpg</a>
+          </div>
+        </div>
+      </div>
+    </aside>
   </div>
 </div>
 
 <div class="popups" id="popups" aria-live="polite"></div>
 
 <div class="states">
-  <span>Duyệt</span>
+  <span>Kiểu</span>
+  <button data-kieu="kenh" aria-pressed="true">Kênh</button>
+  <button data-kieu="rieng" aria-pressed="false">Tin riêng</button>
+  <span class="states__vach"></span>
+  <span>Trạng thái</span>
   <button data-state="idle" aria-pressed="true">Mặc định</button>
   <button data-state="empty" aria-pressed="false">Chưa có tin</button>
   <button data-state="sending" aria-pressed="false">Đang gửi</button>
@@ -512,16 +1081,18 @@ import { mountPrefs, popup } from '../chung/_shell.js';
 
 mountPrefs(document.getElementById('prefs'));
 
+const khung = document.getElementById('khung');
 const luong = document.getElementById('luong');
 const tinCuoi = document.getElementById('tinCuoi');
+const oSoan = document.getElementById('oSoan');
 
 // ── Đổi trạng thái để duyệt ─────────────────────────────────────────
-document.querySelectorAll('.states button').forEach(btn => {
+document.querySelectorAll('.states button[data-state]').forEach(btn => {
   btn.addEventListener('click', () => {
     const state = btn.dataset.state;
     luong.dataset.state = state;
 
-    document.querySelectorAll('.states button').forEach(b =>
+    document.querySelectorAll('.states button[data-state]').forEach(b =>
       b.setAttribute('aria-pressed', String(b === btn)));
 
     // Hai trạng thái này gắn vào MỘT tin cụ thể, không phải cả màn — đúng như sản phẩm:
@@ -531,34 +1102,125 @@ document.querySelectorAll('.states button').forEach(btn => {
   });
 });
 
-// ── Chọn hội thoại ──────────────────────────────────────────────────
-document.querySelectorAll('.hoithoai').forEach(btn => {
+// ── Đổi kiểu luồng: kênh ↔ tin nhắn riêng ───────────────────────────
+function datKieu(kieu) {
+  luong.classList.toggle('luong--kenh', kieu === 'kenh');
+  luong.classList.toggle('luong--rieng', kieu === 'rieng');
+
+  // Gắn cả lên khung: bảng thông tin bên phải nằm NGOÀI .luong nhưng nội dung của nó
+  // phụ thuộc vào kiểu hội thoại đang mở.
+  khung.dataset.kieu = kieu;
+
+  // Đang mở thẻ 'Thành viên' rồi chuyển sang tin nhắn riêng thì thẻ đó biến mất — phải
+  // đưa về thẻ đầu, nếu không bảng bên phải trống trơn mà không hiểu vì sao.
+  if (kieu === 'rieng' && document.querySelector('.ben__the button[data-the="thanhvien"]')?.getAttribute('aria-selected') === 'true') {
+    document.querySelector('.ben__the button[data-the="gioithieu"]').click();
+  }
+
+  document.querySelectorAll('.states button[data-kieu]').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.kieu === kieu)));
+}
+
+document.querySelectorAll('.states button[data-kieu]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.hoithoai').forEach(b => b.removeAttribute('aria-current'));
-    btn.setAttribute('aria-current', 'true');
+    datKieu(btn.dataset.kieu);
 
-    const ten = btn.querySelector('.hoithoai__ten').textContent;
-    const laKenh = btn.querySelector('.hoithoai__thang') !== null;
-
-    luong.querySelector('.luong__ten').innerHTML =
-      (laKenh ? '<span class="hoithoai__thang">#</span>' : '') + ten;
-    luong.querySelector('.luong__phu').textContent = laKenh ? '12 người' : 'Tin nhắn riêng';
-    document.getElementById('oSoan').placeholder = `Nhắn cho ${laKenh ? '#' : ''}${ten}…`;
-
-    // Mở hội thoại là đã đọc hết. Để lại con số sau khi người dùng vừa đọc xong là nói dối.
-    btn.querySelector('.chuadoc')?.remove();
+    // Chọn hộ một hội thoại đúng kiểu, để phần đầu và ô soạn khớp với luồng bên dưới.
+    document.querySelector(`.ht[data-kieu="${btn.dataset.kieu}"]`)?.click();
   });
 });
 
+// ── Chọn hội thoại ──────────────────────────────────────────────────
+document.querySelectorAll('.ht').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ht').forEach(b => b.removeAttribute('aria-current'));
+    btn.setAttribute('aria-current', 'true');
+
+    const { kieu, ten, chude } = btn.dataset;
+    datKieu(kieu);
+
+    document.getElementById('tenLuong').textContent = ten;
+    // Với một người thì thứ đáng nói là họ có đang trực tuyến không, chứ 'Tin nhắn riêng'
+    // thì nhìn cột bên trái đã biết rồi.
+    document.getElementById('chudeLuong').textContent =
+      chude || (btn.querySelector('.online:not(.online--xa)') ? 'Đang trực tuyến' : 'Ngoại tuyến');
+    document.getElementById('chongMat').style.display = kieu === 'kenh' ? 'flex' : 'none';
+    oSoan.placeholder = `Nhắn cho ${kieu === 'kenh' ? '#' : ''}${ten}…`;
+
+    // Mở hội thoại là đã đọc hết. Để lại con số sau khi người dùng vừa đọc xong là nói dối.
+    btn.querySelector('.chuadoc')?.remove();
+    btn.classList.remove('ht--moi');
+  });
+});
+
+// ── Gập nhóm ────────────────────────────────────────────────────────
+document.querySelectorAll('.nhom').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.setAttribute('aria-expanded', btn.getAttribute('aria-expanded') === 'false' ? 'true' : 'false');
+  });
+});
+
+// ── Bảng thông tin bên phải ─────────────────────────────────────────
+const nutBen = document.getElementById('nutBen');
+nutBen.addEventListener('click', () => {
+  const mo = khung.classList.toggle('khung--ben');
+  nutBen.setAttribute('aria-pressed', String(mo));
+});
+
+document.querySelectorAll('.ben__the button').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.ben__the button').forEach(t =>
+      t.setAttribute('aria-selected', String(t === tab)));
+    document.querySelectorAll('.ben__cuon > div').forEach(khoi =>
+      khoi.hidden = khoi.dataset.the !== tab.dataset.the);
+  });
+});
+
+// ── Menu bật ra từ cột biểu tượng ───────────────────────────────────
+function gan(nutId, menuId) {
+  const nut = document.getElementById(nutId);
+  const menu = document.getElementById(menuId);
+
+  nut.addEventListener('click', e => {
+    e.stopPropagation();
+    const mo = menu.hidden;
+
+    // Đóng mọi menu khác trước: hai cái cùng mở thì chồng lên nhau.
+    document.querySelectorAll('.popover').forEach(m => (m.hidden = true));
+    document.querySelectorAll('.rail__nut, .rail__toi').forEach(b =>
+      b.hasAttribute('aria-expanded') && b.setAttribute('aria-expanded', 'false'));
+
+    menu.hidden = !mo;
+    nut.setAttribute('aria-expanded', String(mo));
+  });
+
+  menu.addEventListener('click', e => e.stopPropagation());
+}
+
+gan('nutCaidat', 'menuCaidat');
+gan('nutToi', 'menuToi');
+
+// Bấm ra ngoài thì đóng. Thiếu chỗ này là kiểu lỗi ai cũng gặp: menu xổ ra rồi nằm lì
+// trên màn hình cho tới khi đổi trang.
+document.addEventListener('click', () => {
+  document.querySelectorAll('.popover').forEach(m => (m.hidden = true));
+  document.querySelectorAll('[aria-expanded="true"]').forEach(b => {
+    if (b.closest('.rail')) b.setAttribute('aria-expanded', 'false');
+  });
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.popover').forEach(m => (m.hidden = true));
+});
+
 // ── Ô soạn tin ──────────────────────────────────────────────────────
-const oSoan = document.getElementById('oSoan');
 const nutGui = document.getElementById('nutGui');
 
-// Cao dần theo nội dung. Đặt về 'auto' trước khi đo, nếu không nó chỉ phình ra mà
-// không bao giờ co lại khi người dùng xoá bớt chữ.
+// Cao dần theo nội dung. Đặt về 'auto' trước khi đo, nếu không nó chỉ phình ra mà không
+// bao giờ co lại khi người dùng xoá bớt chữ.
 function doCao() {
   oSoan.style.height = 'auto';
-  oSoan.style.height = Math.min(oSoan.scrollHeight, 108) + 'px';
+  oSoan.style.height = Math.min(oSoan.scrollHeight, 112) + 'px';
 }
 
 oSoan.addEventListener('input', () => {
@@ -585,11 +1247,6 @@ document.getElementById('soan').addEventListener('submit', e => {
   nutGui.disabled = true;
 });
 
-// ── Thu gọn thanh điều hướng ────────────────────────────────────────
-document.getElementById('gon').addEventListener('click', () => {
-  document.getElementById('khung').classList.toggle('khung--gon');
-});
-
 // ── Nút chưa làm ────────────────────────────────────────────────────
 document.body.addEventListener('click', e => {
   const el = e.target.closest('[data-soon]');
@@ -598,13 +1255,15 @@ document.body.addEventListener('click', e => {
   popup({ text: `${el.dataset.soon} — tính năng đang phát triển.` });
 });
 
-// Đặt sẵn trạng thái qua URL để chụp ảnh và gửi link duyệt: ?state=offline
+// Cuộn xuống đáy khi mở, đúng như một ứng dụng chat thật.
+document.getElementById('cuon').scrollTop = 9e9;
+
+// Đặt sẵn trạng thái qua URL để chụp ảnh và gửi link duyệt: ?state=offline&kieu=rieng
 // KHUNG ĐỂ DUYỆT — không có trong sản phẩm.
-const preset = new URLSearchParams(location.search).get('state');
-if (preset) document.querySelector('.states button[data-state="' + preset + '"]')?.click();
+const q = new URLSearchParams(location.search);
+if (q.get('kieu')) document.querySelector(`.states button[data-kieu="${q.get('kieu')}"]`)?.click();
+if (q.get('state')) document.querySelector(`.states button[data-state="${q.get('state')}"]`)?.click();
 
 // ?bare=1 — giấu thanh duyệt để bộ so ảnh chụp được đúng phần sẽ ship.
-if (new URLSearchParams(location.search).has('bare')) {
-  document.querySelector('.states')?.remove();
-}
+if (q.has('bare')) document.querySelector('.states')?.remove();
 </script>

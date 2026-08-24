@@ -1,115 +1,199 @@
 /*
-  KHUNG ỨNG DỤNG — thanh trên + thanh điều hướng + vùng nội dung.
+  KHUNG ỨNG DỤNG v2 — cột biểu tượng dọc bên trái, không còn thanh ngang toàn chiều rộng.
 
-  Đây là thứ bọc quanh MỌI màn sau khi đăng nhập. Màn đăng nhập và đăng ký không có nó
-  (chúng chiếm trọn màn hình), nên khung nằm riêng ở đây chứ không nằm trong `_shell.css`.
+  ══════════════════════════════════════════════════════════════════════
+   VÌ SAO BỎ THANH NGANG
+  ══════════════════════════════════════════════════════════════════════
+
+  Bản v1 là khuôn "trang quản trị" quen thuộc: một thanh ngang 52px chạy hết bề rộng, dưới
+  nó là thanh dọc 216px. Ba vấn đề:
+
+  1. **Ăn mất chiều cao ở đúng chỗ thiếu nhất.** Màn hình laptop 13" cao 700–800px. Thanh
+     ngang lấy 52px của MỌI màn, kể cả màn chat vốn cần chiều cao hơn bất cứ thứ gì.
+  2. **Hai vùng điều hướng cho một việc.** Tên sản phẩm, người dùng, đăng xuất ở trên;
+     danh sách trang ở trái. Mắt phải quét hai nơi.
+  3. **Chữ trong thanh dọc chiếm 216px vĩnh viễn** để hiển thị bốn từ.
+
+  v2 gộp lại thành MỘT cột 60px chạy suốt chiều cao: dấu sản phẩm trên cùng, biểu tượng
+  trang ở giữa, người dùng và tuỳ chọn dưới đáy. Mỗi trang tự dựng tiêu đề riêng bên trong
+  vùng nội dung — tiêu đề của màn chat nói về kênh đang mở, không phải về sản phẩm.
+
+  Đổi lại: điều hướng chỉ còn biểu tượng, nên **bắt buộc** có nhãn hiện khi rê chuột và
+  nhãn cho trình đọc màn hình. Biểu tượng không kèm tên là chỗ người dùng mới đoán sai.
 
   Dùng cùng bộ token với `_shell.css` — nạp file đó TRƯỚC file này.
 
-  ⚠️ Vì sao file này ra đời: bản đầu của khung viết bằng một bộ tên biến cũ
-  (`--color-surface-strong`, `--color-text`…) đã bị xoá khi chốt bốn bộ màu. CSS không báo
-  lỗi khi gọi một biến không tồn tại — nó lặng lẽ bỏ qua cả dòng khai báo. Kết quả là thanh
-  trên mất nền, mục đang mở mất màu nhấn, mà build, lint và test đều xanh. Nay khung được
-  SINH ra từ file này nên nó không thể lạc khỏi bảng màu nữa.
+  ⚠️ Vì sao khung phải nằm trong hệ thống bản dựng: bản đầu viết bằng một bộ tên biến cũ
+  (`--color-surface-strong`, `--color-text`…) đã bị xoá khi chốt bốn bộ màu. CSS gọi biến
+  không tồn tại thì lặng lẽ bỏ luôn cả dòng khai báo — không lỗi, không cảnh báo. Thanh
+  trên mất nền, mục đang mở mất màu nhấn, mà build, lint và test đều xanh.
 */
 
-/* ── Bộ khung ─────────────────────────────────────────────────────── */
-.khung { display: flex; flex-direction: column; height: 100vh; }
-.khung__than { display: flex; flex: 1; min-height: 0; }
+.khung { display: flex; height: 100vh; overflow: hidden; }
 
-/* ── Thanh trên ───────────────────────────────────────────────────── */
-.topbar {
-  display: flex; align-items: center; gap: 12px;
-  height: 52px; flex: none;
-  padding: 0 14px 0 10px;
+/* ══════════════════════════════════════════════════════════════════════
+   CỘT BIỂU TƯỢNG
+   ══════════════════════════════════════════════════════════════════════ */
+.rail {
+  width: 60px; flex: none;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; padding: 10px 0 8px;
   background: var(--surface);
+  border-right: 1px solid var(--line);
+}
+
+/* Dấu sản phẩm. Cũng là nút về trang chủ — góc trên trái là chỗ mọi người bấm theo phản xạ. */
+.rail__mark {
+  width: 34px; height: 34px; flex: none; margin-bottom: 6px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 10px;
+  background: var(--accent); color: var(--accent-ink);
+  font-family: "Sora", system-ui, sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer;
+}
+
+.rail__nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.rail__day { flex: 1; }
+
+.rail__nut {
+  position: relative;
+  width: 42px; height: 42px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 12px;
+  background: transparent; color: var(--ink-faint);
+  cursor: pointer;
+  transition: background 130ms ease, color 130ms ease;
+}
+.rail__nut:hover { background: var(--surface-2); color: var(--ink); }
+.rail__nut svg { width: 20px; height: 20px; }
+
+.rail__nut[aria-current="page"] {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+/* Vạch dọc bên trái ô đang mở. Ở bộ Giấy, nền pha 16% gần như trùng với nền trắng — chỉ
+   dựa vào màu nền thì mục đang mở biến mất ở đúng một bộ màu trong bốn. */
+.rail__nut[aria-current="page"]::before {
+  content: ""; position: absolute; left: -9px; top: 10px; bottom: 10px;
+  width: 3px; border-radius: 0 3px 3px 0; background: var(--accent);
+}
+
+/* Chấm báo có việc mới. Cố ý KHÔNG hiện con số ở đây: cột chỉ rộng 60px, một số hai chữ
+   số phải thu nhỏ tới mức không đọc nổi. Con số nằm trong trang, chấm chỉ để kéo mắt. */
+.rail__cham {
+  position: absolute; top: 7px; right: 7px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* Nhãn hiện khi rê chuột. Bắt buộc, không phải trang trí: cột chỉ có biểu tượng. */
+.rail__chu {
+  position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%);
+  padding: 5px 10px; z-index: 60;
+  background: var(--ink); color: var(--ground);
+  border-radius: 7px; font-size: 12px; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity 120ms ease;
+}
+.rail__nut:hover .rail__chu,
+.rail__nut:focus-visible .rail__chu { opacity: 1; }
+
+/* Ảnh đại diện dưới đáy — cũng là cửa vào menu tài khoản. */
+.rail__toi {
+  position: relative;
+  width: 34px; height: 34px; padding: 0;
+  border: 0; border-radius: 50%; cursor: pointer;
+  background: var(--surface-2); color: var(--ink);
+  font-size: 11.5px; font-weight: 600;
+}
+.rail__toi:hover { box-shadow: 0 0 0 2px var(--accent); }
+
+/* Chấm đang trực tuyến. Viền cùng màu nền để nó tách khỏi ảnh đại diện. */
+.online {
+  position: absolute; right: -1px; bottom: -1px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #3FB950; box-shadow: 0 0 0 2px var(--surface);
+}
+.online--xa { background: var(--ink-faint); }
+
+/* ── Menu bật ra từ cột ───────────────────────────────────────────── */
+.popover {
+  position: absolute; left: 54px; bottom: 8px; z-index: 70;
+  min-width: 236px; padding: 8px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+}
+.popover[hidden] { display: none; }
+
+.popover__ai { padding: 8px 10px 10px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.popover__ten { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.popover__mail { font-size: 12px; color: var(--ink-faint); }
+
+.popover__hang {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 7px 10px;
+  font-size: 12.5px; color: var(--ink-soft);
+}
+
+.popover__nut {
+  width: 100%; box-sizing: border-box;
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; margin-top: 4px;
+  border: 0; border-radius: 9px; background: transparent;
+  color: var(--ink-soft); font-family: inherit; font-size: 13px; text-align: left;
+  cursor: pointer;
+}
+.popover__nut:hover { background: var(--surface-2); color: var(--ink); }
+.popover__nut svg { width: 15px; height: 15px; flex: none; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   VÙNG NỘI DUNG
+   ══════════════════════════════════════════════════════════════════════ */
+/* KHÔNG có lề: màn chat chiếm trọn khung và tự cuộn từng cột. Màn nào cần lề thì tự đặt —
+   ngược lại thì mọi màn toàn khung phải đi gỡ lề của cha. */
+.noidung { flex: 1; min-width: 0; min-height: 0; display: flex; }
+
+/* Tiêu đề của TRANG, không phải của sản phẩm. Mỗi màn tự dựng. */
+.trangdau {
+  flex: none; height: 56px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 16px;
   border-bottom: 1px solid var(--line);
 }
+.trangdau h1 {
+  margin: 0;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 15.5px;
+  letter-spacing: -0.015em;
+}
 
-.topbar__toggle {
+/* Nút biểu tượng dùng chung ở mọi thanh tiêu đề. */
+.nuti {
   width: 32px; height: 32px; flex: none;
   display: grid; place-items: center;
-  background: transparent; border: 0; border-radius: 8px;
-  color: var(--ink-soft); cursor: pointer;
+  border: 0; border-radius: 9px;
+  background: transparent; color: var(--ink-faint); cursor: pointer;
 }
-.topbar__toggle:hover { background: var(--surface-2); color: var(--ink); }
-.topbar__toggle svg { width: 16px; height: 16px; }
+.nuti:hover { background: var(--surface-2); color: var(--ink); }
+.nuti[aria-pressed="true"] { background: var(--surface-2); color: var(--accent); }
+.nuti svg { width: 17px; height: 17px; }
 
-.topbar__brand {
-  display: flex; align-items: center; gap: 9px;
-  font-family: "Sora", system-ui, sans-serif; font-weight: 700; font-size: 15px;
-  letter-spacing: -0.01em; color: var(--ink);
+/* ── Màn hẹp ──────────────────────────────────────────────────────── */
+/* Dưới 720px cột dọc thành thanh NGANG dưới đáy — ngón cái với tới được, và đó là chỗ mọi
+   ứng dụng điện thoại đặt điều hướng. Giữ nguyên cột dọc trên điện thoại thì nó ăn mất
+   1/6 bề ngang màn hình. */
+@media (max-width: 720px) {
+  .khung { flex-direction: column-reverse; }
+  .rail {
+    width: auto; height: 56px;
+    flex-direction: row; justify-content: space-around;
+    padding: 0 8px; gap: 0;
+    border-right: 0; border-top: 1px solid var(--line);
+  }
+  .rail__mark, .rail__day { display: none; }
+  .rail__nav { flex-direction: row; flex: 1; justify-content: space-around; align-items: center; }
+  .rail__nut[aria-current="page"]::before {
+    left: 50%; right: auto; top: -1px; bottom: auto;
+    width: 22px; height: 3px; transform: translateX(-50%); border-radius: 0 0 3px 3px;
+  }
+  .rail__chu { display: none; }
+  .popover { left: 8px; right: 8px; bottom: 62px; min-width: 0; }
 }
-.topbar__mark {
-  width: 23px; height: 23px; display: grid; place-items: center;
-  border-radius: 6px; background: var(--accent); color: var(--accent-ink);
-  font-size: 12px; font-weight: 700;
-}
-
-.topbar__spacer { flex: 1; }
-
-.topbar__user { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.25; }
-.topbar__name { font-size: 13px; color: var(--ink); }
-.topbar__mail { font-size: 11.5px; color: var(--ink-faint); }
-
-.topbar__out {
-  padding: 6px 12px;
-  background: transparent; border: 1px solid var(--line); border-radius: 8px;
-  color: var(--ink-soft); font-size: 13px; font-family: inherit; cursor: pointer;
-}
-.topbar__out:hover { border-color: var(--ink-faint); color: var(--ink); }
-
-/* ── Thanh điều hướng ─────────────────────────────────────────────── */
-.nav {
-  width: 216px; flex: none;
-  display: flex; flex-direction: column;
-  padding: 10px 8px;
-  border-right: 1px solid var(--line);
-  transition: width 150ms ease;
-}
-
-/* Thu gọn còn ĐÚNG bề rộng của biểu tượng. Người dùng ở màn hẹp cần chỗ cho nội dung,
-   nhưng bỏ hẳn thanh điều hướng thì họ mất đường đi. */
-.khung--gon .nav { width: 52px; }
-.khung--gon .nav__chu { display: none; }
-
-.nav__muc {
-  position: relative;
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 10px; margin-bottom: 2px;
-  border-radius: 8px;
-  color: var(--ink-soft); text-decoration: none; font-size: 13.5px;
-  white-space: nowrap;
-}
-.nav__muc:hover { background: var(--surface-2); color: var(--ink); }
-
-.nav__muc--dang {
-  background: color-mix(in srgb, var(--accent) 13%, transparent);
-  color: var(--accent); font-weight: 500;
-}
-/* Vạch dọc bên trái: ở bộ Giấy, nền pha 13% gần như không phân biệt được với nền trắng.
-   Chỉ dựa vào màu nền là mục đang mở biến mất ở đúng một bộ màu. */
-.nav__muc--dang::before {
-  content: ""; position: absolute; left: 0; top: 7px; bottom: 7px;
-  width: 2.5px; border-radius: 0 3px 3px 0; background: var(--accent);
-}
-
-.nav__icon { width: 18px; height: 18px; flex: none; }
-
-/* Số việc chưa xử lý. Đẩy về cuối hàng để mắt quét dọc một cột. */
-.nav__dem {
-  margin-left: auto;
-  min-width: 18px; height: 18px; padding: 0 5px;
-  display: grid; place-items: center;
-  border-radius: 999px; background: var(--accent); color: var(--accent-ink);
-  font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums;
-}
-.khung--gon .nav__dem {
-  position: absolute; top: 4px; right: 4px;
-  min-width: 15px; height: 15px; padding: 0 3px; font-size: 9.5px;
-}
-
-/* ── Vùng nội dung ────────────────────────────────────────────────── */
-/* KHÔNG có padding: màn chat cần chiếm trọn khung và tự cuộn từng cột. Màn nào cần lề
-   thì tự đặt lấy — ngược lại thì mọi màn toàn khung phải đi gỡ padding của cha. */
-.noidung { flex: 1; min-width: 0; min-height: 0; display: flex; }

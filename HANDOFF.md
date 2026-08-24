@@ -327,6 +327,7 @@ người dùng sẽ tưởng app hỏng. Màn đăng nhập phải có trạng t
 docs/07-giao-dien/wireframes.html             · bố cục 6 màn (đơn sắc, có chú thích)
 docs/07-giao-dien/identity/dang-nhap.html     · bản dựng màu — 4 bộ, 5 trạng thái
 docs/07-giao-dien/identity/dang-ky.html       · bản dựng màu — 4 bộ, 5 trạng thái
+docs/07-giao-dien/comm/chat.html              · trao đổi nội bộ — 4 bộ, 2 kiểu luồng, 5 trạng thái
 ```
 
 Mở thẳng bằng trình duyệt là chạy, hoặc bật máy chủ để xem cả danh sách:
@@ -335,7 +336,8 @@ Mở thẳng bằng trình duyệt là chạy, hoặc bật máy chủ để xem
 node tools/serve-mockups.mjs        # http://localhost:4300
 ```
 
-Thêm `?state=invalid` để xem một trạng thái, `?bare=1` để giấu thanh duyệt.
+Thêm `?state=invalid` để xem một trạng thái, `?kieu=rieng` đổi kiểu luồng chat,
+`?skin=giay` mở thẳng một bộ màu, `?bare=1` giấu thanh duyệt.
 
 ### 🔒 Bản dựng và code KHÔNG được lệch — đây là luật user đặt
 

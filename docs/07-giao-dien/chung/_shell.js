@@ -76,7 +76,10 @@ const save = (key, value) => {
 
 /** Dựng thanh tuỳ chọn vào một phần tử có sẵn. */
 export function mountPrefs(host) {
-  let skin = read(STORAGE_SKIN, 'muc');
+  // `?skin=giay` để mở thẳng một bộ màu. Có nó thì gửi được link duyệt đúng bộ đang bàn,
+  // và bộ chụp ảnh xem được cả bốn bộ mà không phải bấm tay. Chỉ có ở bản dựng.
+  const skinTrenUrl = new URLSearchParams(location.search).get('skin');
+  let skin = SKINS.some((s) => s.id === skinTrenUrl) ? skinTrenUrl : read(STORAGE_SKIN, 'muc');
   let lang = read(STORAGE_LANG, 'vi');
 
   host.classList.add('prefs');
