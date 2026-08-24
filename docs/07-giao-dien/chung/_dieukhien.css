@@ -225,6 +225,18 @@
 }
 .man--hien { display: block; }
 
+/* Nền tối là một NÚT THẬT, không phải một div có (click).
+   Bấm ra ngoài để đóng là thói quen của người dùng chuột. Nhưng một div bắt sự kiện bấm
+   thì người dùng bàn phím và trình đọc màn hình không chạm tới được — họ không biết là có
+   cách đóng nào ở đó. Một <button> phủ kín thì Tab tới được, Enter bấm được, và trình đọc
+   màn hình đọc đúng là "Đóng". */
+.man__nen {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  border: 0; padding: 0; background: transparent; cursor: default;
+}
+.man__nen:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+
 .hop {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 64px);

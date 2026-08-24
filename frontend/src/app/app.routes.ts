@@ -40,10 +40,13 @@ export const routes: Routes = [
       },
       {
         // Ví dụ thật của chặn route theo permission (không theo role).
-        path: 'employees',
-        canActivate: [permissionGuard('employee.read')],
-        loadComponent: () =>
-          import('./features/employees/employee-list').then((m) => m.EmployeeList),
+        //
+        // Quyền là user.read chứ không phải employee.read: màn này quản lý TÀI KHOẢN
+        // đăng nhập, thuộc module Identity. Hồ sơ nhân sự (chức danh, phòng ban) là của
+        // module Org và sẽ có màn riêng.
+        path: 'nhan-su',
+        canActivate: [permissionGuard('user.read')],
+        loadComponent: () => import('./features/users/user-list').then((m) => m.UserList),
       },
       {
         path: 'forbidden',

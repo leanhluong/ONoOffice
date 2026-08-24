@@ -114,5 +114,90 @@
       "passwordTooShort": "Mật khẩu phải có ít nhất 10 ký tự.",
       "termsRequired": "Bạn cần đồng ý với điều khoản để tiếp tục."
     }
+  },
+  "users": {
+    "count": "{{count}} người",
+    "add": "Thêm người",
+    "searchPlaceholder": "Tìm theo tên, hoặc dán email",
+    "filterRole": "Lọc theo vai trò",
+    "filterStatus": "Lọc theo trạng thái",
+    "allRoles": "Mọi vai trò",
+    "allStatuses": "Mọi trạng thái",
+    "clearFilter": "Xoá lọc",
+    "selectAll": "Chọn tất cả",
+    "selectedCount": "Đã chọn {{count}} người",
+    "clearSelection": "Bỏ chọn",
+    "openDetail": "Xem chi tiết",
+    "showing": "Hiện {{from}}–{{to}} trong {{total}}",
+    "previous": "Trước",
+    "next": "Sau",
+    "creating": "Đang tạo…",
+    "saved": "Đã lưu thay đổi.",
+    "disabled": "Đã vô hiệu hoá tài khoản.",
+    "enabled": "Đã bật lại tài khoản.",
+    "copied": "Đã chép mật khẩu tạm.",
+    "copyFailed": "Trình duyệt không cho chép tự động. Hãy bôi đen rồi chép tay.",
+    "roleTip": "Vai trò quyết định người này làm được gì. Đổi lại sau được.",
+    "roleEffect": "Đổi vai trò có hiệu lực ở lần gọi tiếp theo của người đó, không cần họ đăng nhập lại.",
+    "permissionCount": "Quyền của vai trò này ({{count}})",
+    "permissionNote": "Quyền đến TỪ vai trò, không gán lẻ cho từng người. Muốn khác đi thì tạo một vai trò mới.",
+    "column": {
+      "person": "Người",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo"
+    },
+    "status": {
+      "active": "Đang hoạt động",
+      "pending": "Chờ nhận tài khoản",
+      "disabled": "Đã vô hiệu hoá"
+    },
+    "field": {
+      "fullName": "Họ và tên",
+      "email": "Email công ty",
+      "role": "Vai trò"
+    },
+    "validation": {
+      "nameRequired": "Vui lòng nhập họ tên.",
+      "emailRequired": "Vui lòng nhập email.",
+      "emailInvalid": "Email không đúng định dạng."
+    },
+    "dialog": {
+      "title": "Thêm người vào workspace",
+      "submit": "Tạo tài khoản"
+    },
+    "handover": {
+      "title": "Người này nhận tài khoản thế nào?",
+      "text": "Chưa có dịch vụ gửi email, nên hệ thống không tự gửi lời mời được. Bạn sẽ nhận một mật khẩu tạm và tự đưa cho họ.",
+      "force": "Bắt đổi mật khẩu ở lần đăng nhập đầu tiên"
+    },
+    "done": {
+      "title": "Đã tạo tài khoản cho {{name}}",
+      "password": "Mật khẩu tạm",
+      "copy": "Chép",
+      "warning": "Đây là lần duy nhất bạn thấy mật khẩu này. Đóng hộp thoại là nó biến mất — quên thì phải đặt lại mật khẩu. Hãy đưa tận tay hoặc nhắn riêng cho {{name}} ngay bây giờ.",
+      "another": "Thêm người nữa",
+      "finish": "Xong"
+    },
+    "empty": {
+      "title": "Chưa có ai ngoài bạn",
+      "text": "Thêm đồng nghiệp vào workspace để họ đăng nhập được. Bạn chọn vai trò cho từng người.",
+      "action": "Thêm người đầu tiên"
+    },
+    "noMatch": {
+      "title": "Không tìm thấy ai khớp",
+      "text": "Thử xoá bớt bộ lọc, hoặc kiểm tra lại từ khoá."
+    },
+    "tab": {
+      "info": "Thông tin",
+      "role": "Vai trò & quyền"
+    },
+    "danger": {
+      "title": "Vùng nguy hiểm",
+      "text": "Vô hiệu hoá thì người này không đăng nhập được nữa, nhưng dữ liệu và tin nhắn cũ vẫn còn. Đây là thứ cần làm khi có người nghỉ việc — không phải xoá.",
+      "disable": "Vô hiệu hoá tài khoản",
+      "enable": "Bật lại tài khoản",
+      "locked": "Không thể vô hiệu hoá chính mình hay chủ sở hữu. Chuyển nhượng quyền sở hữu trước, nếu cần."
+    }
   }
 }

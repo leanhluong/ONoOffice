@@ -1,0 +1,576 @@
+<!--
+  Đánh dấu chép từ `docs/07-giao-dien/org/nhan-su.html`.
+
+  CSS thì KHÔNG chép — `user-list.scss` sinh tự động từ chính file đó
+  (`node tools/sync-shell.mjs`). Chỗ duy nhất phải giữ đồng bộ bằng tay là đánh dấu.
+-->
+<header class="trangdau">
+  <h1>{{ 'nav.employees' | translate }}</h1>
+
+  @if (page(); as list) {
+    <span class="trangdau__phu">{{ 'users.count' | translate: { count: list.totalCount } }}</span>
+  }
+
+  <div class="trangdau__day"></div>
+
+  <button class="nut nut--chinh" type="button" (click)="openCreate()">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      aria-hidden="true"
+    >
+      <path d="M8 3v10M3 8h10" />
+    </svg>
+    {{ 'users.add' | translate }}
+  </button>
+</header>
+
+<div class="loc">
+  <div class="loc__tim">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.6"
+      aria-hidden="true"
+    >
+      <circle cx="7" cy="7" r="4.5" />
+      <path d="m10.5 10.5 3 3" />
+    </svg>
+    <input
+      type="search"
+      [placeholder]="'users.searchPlaceholder' | translate"
+      [attr.aria-label]="'users.searchPlaceholder' | translate"
+      [value]="search()"
+      (input)="onSearchInput($event)"
+    />
+  </div>
+
+  <select [attr.aria-label]="'users.filterRole' | translate" (change)="onRoleChange($event)">
+    <option value="" [selected]="roleId() === ''">{{ 'users.allRoles' | translate }}</option>
+    @for (role of roles(); track role.id) {
+      <option [value]="role.id" [selected]="roleId() === role.id">{{ role.name }}</option>
+    }
+  </select>
+
+  <select [attr.aria-label]="'users.filterStatus' | translate" (change)="onStatusChange($event)">
+    <option [value]="StatusFilter.Any" [selected]="status() === StatusFilter.Any">
+      {{ 'users.allStatuses' | translate }}
+    </option>
+    <option [value]="StatusFilter.Active" [selected]="status() === StatusFilter.Active">
+      {{ 'users.status.active' | translate }}
+    </option>
+    <option
+      [value]="StatusFilter.PendingFirstLogin"
+      [selected]="status() === StatusFilter.PendingFirstLogin"
+    >
+      {{ 'users.status.pending' | translate }}
+    </option>
+    <option [value]="StatusFilter.Disabled" [selected]="status() === StatusFilter.Disabled">
+      {{ 'users.status.disabled' | translate }}
+    </option>
+  </select>
+
+  @if (hasFilter()) {
+    <button class="nut nut--pha nut--nho" type="button" (click)="clearFilters()">
+      {{ 'users.clearFilter' | translate }}
+    </button>
+  }
+</div>
+
+<div class="vung">
+  @switch (state()) {
+    <!-- ── Bảng ─────────────────────────────────────────────── -->
+    @case ('rong') {
+      <div class="rong">
+        <div class="rong__vong">
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+          >
+            <circle cx="7.5" cy="6.8" r="2.9" />
+            <path d="M2.4 16.6a5.1 5.1 0 0110.2 0" />
+            <path d="M14.5 8.5h3M16 7v3" />
+          </svg>
+        </div>
+        <h2>{{ 'users.empty.title' | translate }}</h2>
+        <p>{{ 'users.empty.text' | translate }}</p>
+        <button class="nut nut--chinh" type="button" (click)="openCreate()">
+          {{ 'users.empty.action' | translate }}
+        </button>
+      </div>
+    }
+
+    @case ('khongthay') {
+      <div class="rong">
+        <div class="rong__vong">
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+          >
+            <circle cx="8.5" cy="8.5" r="5.5" />
+            <path d="m12.6 12.6 4 4" />
+          </svg>
+        </div>
+        <h2>{{ 'users.noMatch.title' | translate }}</h2>
+        <!-- Nói RÕ đang lọc gì. Chỉ báo "không có kết quả" thì người dùng tưởng dữ liệu
+             trống, trong khi thật ra họ quên một bộ lọc bật từ lần trước. -->
+        <p>{{ 'users.noMatch.text' | translate }}</p>
+        <button class="nut" type="button" (click)="clearFilters()">
+          {{ 'users.clearFilter' | translate }}
+        </button>
+      </div>
+    }
+
+    @default {
+      <div class="bangbao" style="margin-top: 14px">
+        <div class="bangcuon">
+          <table class="bang">
+            <thead>
+              <tr>
+                <th class="bang__tick">
+                  <input
+                    type="checkbox"
+                    [attr.aria-label]="'users.selectAll' | translate"
+                    [checked]="allSelected()"
+                    [indeterminate]="someSelected()"
+                    (change)="toggleAll()"
+                  />
+                </th>
+                <th>{{ 'users.column.person' | translate }}</th>
+                <th>{{ 'users.column.role' | translate }}</th>
+                <th>{{ 'users.column.status' | translate }}</th>
+                <th class="an-hep">{{ 'users.column.createdAt' | translate }}</th>
+                <th class="bang__phai"></th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (user of page()?.items ?? []; track user.id) {
+                <tr [attr.aria-selected]="isSelected(user.id)" (click)="openDetail(user)">
+                  <!-- Chặn nổi bọt: bấm ô tick là CHỌN, không phải mở chi tiết. -->
+                  <td (click)="$event.stopPropagation()">
+                    <input
+                      type="checkbox"
+                      [attr.aria-label]="user.fullName"
+                      [checked]="isSelected(user.id)"
+                      (change)="toggleRow(user.id)"
+                    />
+                  </td>
+
+                  <td>
+                    <div class="bang__nguoi">
+                      <span class="mat mat--nho">{{ initials(user.fullName) }}</span>
+                      <span>
+                        <span class="bang__ten">{{ user.fullName }}</span
+                        ><br />
+                        <span class="bang__mail">{{ user.email }}</span>
+                      </span>
+                    </div>
+                  </td>
+
+                  <td>
+                    <span class="vai">{{ user.roleName }}</span>
+                  </td>
+
+                  <td>
+                    <span
+                      class="the"
+                      [class.the--tot]="user.isActive && !user.mustChangePassword"
+                      [class.the--canh]="user.isActive && user.mustChangePassword"
+                      [class.the--hong]="!user.isActive"
+                      >{{ statusKey(user) | translate }}</span
+                    >
+                  </td>
+
+                  <td class="an-hep">{{ user.createdAtUtc | date: 'dd/MM/yyyy' }}</td>
+
+                  <td class="bang__phai">
+                    <button
+                      class="nuti"
+                      type="button"
+                      [attr.aria-label]="'users.openDetail' | translate"
+                    >
+                      <svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+                        <circle cx="9" cy="4" r="1.4" />
+                        <circle cx="9" cy="9" r="1.4" />
+                        <circle cx="9" cy="14" r="1.4" />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="dachon" [class.dachon--hien]="selected().size > 0">
+        <b>{{ 'users.selectedCount' | translate: { count: selected().size } }}</b>
+        <button
+          class="nuti"
+          type="button"
+          [attr.aria-label]="'users.clearSelection' | translate"
+          (click)="clearSelection()"
+        >
+          <svg
+            viewBox="0 0 18 18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path d="m5 5 8 8M13 5l-8 8" />
+          </svg>
+        </button>
+      </div>
+    }
+  }
+</div>
+
+@if (page(); as list) {
+  <div class="chan">
+    <span>{{
+      'users.showing'
+        | translate
+          : {
+              from: (list.page - 1) * list.pageSize + 1,
+              to: (list.page - 1) * list.pageSize + list.items.length,
+              total: list.totalCount,
+            }
+    }}</span>
+    <div class="chan__day"></div>
+    <button
+      class="nut nut--nho"
+      type="button"
+      [disabled]="!list.hasPreviousPage"
+      (click)="goToPage(-1)"
+    >
+      {{ 'users.previous' | translate }}
+    </button>
+    <button class="nut nut--nho" type="button" [disabled]="!list.hasNextPage" (click)="goToPage(1)">
+      {{ 'users.next' | translate }}
+    </button>
+  </div>
+}
+
+<!-- ══════════════ HỘP THOẠI THÊM NGƯỜI ══════════════ -->
+<div class="man" [class.man--hien]="showCreate()">
+  <!--
+    Nền tối là một NÚT THẬT, không phải một div bắt sự kiện bấm. Div thì người dùng bàn
+    phím và trình đọc màn hình không chạm tới được — họ không biết là có cách đóng ở đó.
+    Nó cũng bỏ được đoạn `stopPropagation` trên hộp, vì nút và hộp nay là anh em.
+  -->
+  <button
+    type="button"
+    class="man__nen"
+    [attr.aria-label]="'action.close' | translate"
+    (click)="closeCreate()"
+  ></button>
+
+  <div class="hop" role="dialog" aria-modal="true" [attr.data-buoc]="createStep()">
+    <div class="hop__dau">
+      <h2>{{ 'users.dialog.title' | translate }}</h2>
+      <button
+        class="nuti"
+        type="button"
+        [attr.aria-label]="'action.close' | translate"
+        (click)="closeCreate()"
+      >
+        <svg
+          viewBox="0 0 18 18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path d="m5 5 8 8M13 5l-8 8" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="hop__than">
+      <!-- ── Bước 1: nhập ── -->
+      <div class="buoc buoc--nhap">
+        <form [formGroup]="createForm">
+          <div class="luoi">
+            <div class="o" [class.o--hong]="nameError() !== null">
+              <label class="o__nhan" for="hoTen">
+                {{ 'users.field.fullName' | translate }} <span class="o__batbuoc">*</span>
+              </label>
+              <input
+                id="hoTen"
+                type="text"
+                formControlName="fullName"
+                placeholder="Nguyễn Văn An"
+              />
+              <span class="o__loi">{{ nameError() }}</span>
+            </div>
+
+            <div class="o" [class.o--hong]="emailError() !== null">
+              <label class="o__nhan" for="emailMoi">
+                {{ 'users.field.email' | translate }} <span class="o__batbuoc">*</span>
+              </label>
+              <input
+                id="emailMoi"
+                type="email"
+                formControlName="email"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="an@congty.vn"
+              />
+              <span class="o__loi">{{ emailError() }}</span>
+            </div>
+
+            <div class="o luoi--rong">
+              <label class="o__nhan" for="vaiTro">
+                {{ 'users.field.role' | translate }}
+                <app-tip [text]="'users.roleTip' | translate">{{
+                  'users.roleTip' | translate
+                }}</app-tip>
+              </label>
+              <select id="vaiTro" formControlName="roleId">
+                @for (role of roles(); track role.id) {
+                  <option [value]="role.id">{{ role.name }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="the__khoi" style="margin-top: 18px">
+            <h3>{{ 'users.handover.title' | translate }}</h3>
+            <p class="mota">{{ 'users.handover.text' | translate }}</p>
+
+            <label class="congtac">
+              <input type="checkbox" formControlName="mustChangePassword" />
+              <span class="congtac__ray"></span>
+              <span style="font-size: 13px">{{ 'users.handover.force' | translate }}</span>
+            </label>
+          </div>
+        </form>
+      </div>
+
+      <!-- ── Bước 2: đã tạo xong ── -->
+      <div class="buoc buoc--xong">
+        @if (created(); as result) {
+          <div class="xong__dau">
+            <div class="xong__vong">
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path d="m4 10.5 4 4 8-9" />
+              </svg>
+            </div>
+            <div>
+              <div class="xong__ten">
+                {{ 'users.done.title' | translate: { name: result.fullName } }}
+              </div>
+              <div class="xong__mail">{{ result.email }} · {{ result.roleName }}</div>
+            </div>
+          </div>
+
+          <div class="o" style="margin-bottom: 14px">
+            <span class="o__nhan">{{ 'users.done.password' | translate }}</span>
+            <div class="matkhau">
+              <code>{{ result.temporaryPassword }}</code>
+              <button class="nut nut--nho" type="button" (click)="copyPassword()">
+                {{ 'users.done.copy' | translate }}
+              </button>
+            </div>
+          </div>
+
+          <p class="o__meo" style="line-height: 1.6">
+            {{ 'users.done.warning' | translate: { name: result.fullName } }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <div class="hop__chan chan--nhap">
+      <button class="nut nut--pha" type="button" (click)="closeCreate()">
+        {{ 'action.cancel' | translate }}
+      </button>
+      <button class="nut nut--chinh" type="button" [disabled]="saving()" (click)="submitCreate()">
+        {{ (saving() ? 'users.creating' : 'users.dialog.submit') | translate }}
+      </button>
+    </div>
+
+    <div class="hop__chan chan--xong">
+      <button class="nut" type="button" (click)="createAnother()">
+        {{ 'users.done.another' | translate }}
+      </button>
+      <button class="nut nut--chinh" type="button" (click)="closeCreate()">
+        {{ 'users.done.finish' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ NGĂN KÉO CHI TIẾT ══════════════ -->
+<div class="man" [class.man--hien]="detail() !== null">
+  <button
+    type="button"
+    class="man__nen"
+    [attr.aria-label]="'action.close' | translate"
+    (click)="closeDetail()"
+  ></button>
+
+  <div class="keo" role="dialog" aria-modal="true">
+    @if (detail(); as user) {
+      <div class="keo__dau">
+        <span class="mat">{{ initials(user.fullName) }}</span>
+        <div style="flex: 1; min-width: 0">
+          <h2 style="font-size: 15px">{{ user.fullName }}</h2>
+          <div style="font-size: 12px; color: var(--ink-faint)">{{ user.email }}</div>
+        </div>
+        <button
+          class="nuti"
+          type="button"
+          [attr.aria-label]="'action.close' | translate"
+          (click)="closeDetail()"
+        >
+          <svg
+            viewBox="0 0 18 18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path d="m5 5 8 8M13 5l-8 8" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="tab" style="padding: 0 16px">
+        <button
+          type="button"
+          [attr.aria-selected]="detailTab() === 'tt'"
+          (click)="detailTab.set('tt')"
+        >
+          {{ 'users.tab.info' | translate }}
+        </button>
+        <button
+          type="button"
+          [attr.aria-selected]="detailTab() === 'qu'"
+          (click)="detailTab.set('qu')"
+        >
+          {{ 'users.tab.role' | translate }}
+        </button>
+      </div>
+
+      <div class="keo__than" [formGroup]="detailForm">
+        @if (detailTab() === 'tt') {
+          <div class="o" style="margin-bottom: 16px">
+            <label class="o__nhan" for="ctTen">{{ 'users.field.fullName' | translate }}</label>
+            <input id="ctTen" type="text" formControlName="fullName" />
+          </div>
+
+          <dl class="doi">
+            <dt>{{ 'users.field.email' | translate }}</dt>
+            <dd>{{ user.email }}</dd>
+            <dt>{{ 'users.column.createdAt' | translate }}</dt>
+            <dd>{{ user.createdAtUtc | date: 'dd/MM/yyyy' }}</dd>
+            <dt>{{ 'users.column.status' | translate }}</dt>
+            <dd>
+              <span
+                class="the"
+                [class.the--tot]="user.isActive && !user.mustChangePassword"
+                [class.the--canh]="user.isActive && user.mustChangePassword"
+                [class.the--hong]="!user.isActive"
+                >{{ statusKey(user) | translate }}</span
+              >
+            </dd>
+          </dl>
+
+          <div class="the__khoi" style="margin-top: 18px">
+            <h3>{{ 'users.danger.title' | translate }}</h3>
+            <p class="mota">{{ 'users.danger.text' | translate }}</p>
+
+            @if (!canDisable(user)) {
+              <p class="o__meo" style="margin: 0">{{ 'users.danger.locked' | translate }}</p>
+            } @else if (user.isActive) {
+              <button
+                class="nut nut--nguy nut--nho"
+                type="button"
+                [disabled]="saving()"
+                (click)="setActive(user, false)"
+              >
+                {{ 'users.danger.disable' | translate }}
+              </button>
+            } @else {
+              <button
+                class="nut nut--nho"
+                type="button"
+                [disabled]="saving()"
+                (click)="setActive(user, true)"
+              >
+                {{ 'users.danger.enable' | translate }}
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="o">
+            <label class="o__nhan" for="ctVai">{{ 'users.field.role' | translate }}</label>
+            <select id="ctVai" formControlName="roleId">
+              @for (role of roles(); track role.id) {
+                <option [value]="role.id">{{ role.name }}</option>
+              }
+            </select>
+            <span class="o__meo">{{ 'users.roleEffect' | translate }}</span>
+          </div>
+
+          @for (role of roles(); track role.id) {
+            @if (role.id === detailForm.controls.roleId.value) {
+              <div style="margin-top: 18px">
+                <div
+                  class="ben__nhan"
+                  style="
+                    font-size: 10.5px;
+                    font-weight: 700;
+                    letter-spacing: 0.09em;
+                    text-transform: uppercase;
+                    color: var(--ink-faint);
+                    margin-bottom: 8px;
+                  "
+                >
+                  {{ 'users.permissionCount' | translate: { count: role.permissions.length } }}
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px">
+                  @for (permission of role.permissions; track permission) {
+                    <span class="vai">{{ permission }}</span>
+                  }
+                </div>
+              </div>
+            }
+          }
+
+          <p class="o__meo" style="margin-top: 12px; line-height: 1.6">
+            {{ 'users.permissionNote' | translate }}
+          </p>
+        }
+      </div>
+
+      <div class="keo__chan">
+        <button class="nut" type="button" (click)="closeDetail()">
+          {{ 'action.close' | translate }}
+        </button>
+        <button class="nut nut--chinh" type="button" [disabled]="saving()" (click)="saveDetail()">
+          {{ 'action.save' | translate }}
+        </button>
+      </div>
+    }
+  </div>
+</div>

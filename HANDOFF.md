@@ -51,17 +51,18 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Test kiến trúc + i18n + luật Controller | 🟢 | 14 |
 | **Database** | 🟢 Postgres 16 · 2 migration · dữ liệu mồi — đã chạy THẬT | **52** |
 | **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
-| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **75** |
-| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 75)* |
-| **Khung ứng dụng v3** | 🟢 Cột điều hướng có chữ, sinh từ `_khung.css` · 18 biến màu chết đã sửa | *(trong 75)* |
-| Bản dựng nhân sự · tài khoản · vai trò | 🟡 Đã duyệt, **chưa nối Angular** | — |
-| Frontend · các màn còn lại | ⬜ Dashboard và danh sách nhân viên vẫn là khung rỗng | — |
+| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **91** |
+| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 91)* |
+| **Khung ứng dụng v3** | 🟢 Cột điều hướng có chữ, sinh từ `_khung.css` · 18 biến màu chết đã sửa | *(trong 91)* |
+| **Frontend · Nhân sự** | 🟢 **Đã chạy thật**: lọc, phân trang, thêm người hai bước, ngăn kéo chi tiết | *(trong 91)* |
+| Bản dựng tài khoản · vai trò | 🟡 Đã duyệt, **chưa nối Angular** | — |
+| Frontend · các màn còn lại | ⬜ Dashboard vẫn là khung rỗng | — |
 | Tài liệu | 🟢 7 thư mục · 4 ADR · `05-api` · wireframe · bản dựng màu | — |
 
 ```bash
 docker compose up -d                          # Postgres 16 ở cổng 5433
 cd backend && dotnet build && dotnet test     # 345 xanh, 0 warning
-cd frontend && npm test && npm run parity     # 75 xanh · hai màn lệch 0,02%
+cd frontend && npm test && npm run parity     # 91 xanh · hai màn lệch 0,02%
 ```
 
 ### Đã kiểm chứng tới đâu (2026-08-24) — và chỗ nào thì CHƯA
@@ -80,10 +81,11 @@ cd frontend && npm test && npm run parity     # 75 xanh · hai màn lệch 0,02%
 | Không ai vô hiệu hoá được chủ sở hữu | Test database dựng thêm một Admin rồi thử; đã phá lại luật để chứng minh nó đỏ |
 | Đăng ký → thẻ xác nhận → dashboard, **bấm tay qua giao diện thật** | Ảnh chụp trình duyệt, kèm ca trùng mã (ô đỏ) và ca chưa tick điều khoản (popup) |
 | Quản trị tạo tài khoản → **đăng nhập bằng chính mật khẩu tạm đó** | `UserManagementFlowTests` trên Postgres thật, đi qua Argon2 và UNIQUE thật |
+| Màn Nhân sự chạy thật: lọc, thêm người, xem chi tiết | Ảnh chụp app đang chạy — điền biểu mẫu, API tạo thật, nhận mật khẩu tạm, bảng tự cập nhật |
 | Danh sách nhân sự **không rò sang workspace khác** | Test dựng hai workspace rồi kiểm chéo; đã cố ý gỡ bộ lọc tenant để chứng minh nó đỏ |
 
-⬜ **Chưa bấm tay qua: màn Nhân sự, Hồ sơ, Vai trò.** Ba màn đó mới có bản dựng, chưa có
-Angular. Luồng đăng ký và đăng nhập thì đã bấm tay qua rồi — xem bảng trên.
+⬜ **Chưa bấm tay qua: màn Hồ sơ và Vai trò.** Hai màn đó mới có bản dựng, chưa có Angular.
+Đăng ký, đăng nhập và Nhân sự thì đã bấm qua rồi — xem bảng trên.
 
 ```bash
 curl -X POST http://localhost:5000/api/auth/login \
@@ -103,7 +105,8 @@ thật — việc còn lại chỉ là nối giao diện.
 Sau đó:
 
 ```
-⬜ Angular: màn Nhân sự (bản dựng org/nhan-su.html đã duyệt, backend đã có API)
+⬜ Angular: màn Hồ sơ & cài đặt (identity/tai-khoan.html — backend đã có /api/me)
+⬜ Angular: màn Vai trò & quyền (identity/vai-tro.html — backend đã có /api/roles)
 ⬜ GET /api/me/sessions · DELETE — màn "thiết bị đang đăng nhập" trong bản dựng.
      RefreshToken chưa lưu user-agent nên chưa nói được "Chrome trên Windows".
      Cần thêm cột + migration, HOẶC sửa bản dựng cho khớp thực tế.
@@ -160,7 +163,7 @@ docker compose down -v      # xoá sạch dữ liệu, lần sau gieo lại từ
 | `ArchitectureTests` | 14 | không | Ranh giới tầng và luật Controller có bị phá không |
 | `Api.IntegrationTests` | 29 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
 | `Api.DatabaseTests` | 52 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập/đăng ký/tạo tài khoản có chạy THẬT không |
-| `frontend` (vitest) | 75 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
+| `frontend` (vitest) | 91 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
 | `npm run parity` | 2 màn | **Chrome** | Bản Angular trông có **giống hệt bản dựng đã duyệt** không |
 
 Bộ thứ tư tự dựng Postgres bằng **Testcontainers**, không nối vào `docker compose`. Cố ý:

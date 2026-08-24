@@ -1,0 +1,89 @@
+/**
+ * ⚠️ FILE NÀY ĐƯỢC SINH TỰ ĐỘNG — ĐỪNG SỬA TAY.
+ *
+ * Nguồn:    docs/07-giao-dien/org/nhan-su.html
+ * Sinh lại: node tools/sync-shell.mjs
+ *
+ * Sửa ở đây thì lần chạy bộ sinh tiếp theo sẽ xoá mất, và tệ hơn: bản dựng mà người
+ * duyệt nhìn sẽ khác thứ đang chạy thật. Muốn đổi giao diện thì sửa bản dựng rồi chạy
+ * lại bộ sinh.
+ */
+
+/* Thanh lọc đứng yên, chỉ bảng cuộn. */
+.loc {
+  flex: none;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 12px 18px; border-bottom: 1px solid var(--line);
+}
+
+.loc__tim { position: relative; flex: 1; min-width: 200px; max-width: 320px; }
+.loc__tim svg {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: var(--ink-faint); pointer-events: none;
+}
+.loc__tim input {
+  width: 100%; box-sizing: border-box; padding: 8px 12px 8px 31px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 9px;
+  color: var(--ink); font-family: inherit; font-size: 13px;
+}
+.loc__tim input:focus { outline: none; border-color: var(--accent); }
+
+.loc select {
+  padding: 8px 10px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 9px;
+  color: var(--ink-soft); font-family: inherit; font-size: 12.5px; cursor: pointer;
+}
+.loc select:focus { outline: none; border-color: var(--accent); }
+
+/* Chỉ hiện khi CÓ bộ lọc đang bật. Nút "xoá lọc" lúc nào cũng hiện thì nó thành nhiễu, mà
+   khi cần thì người dùng lại không nhận ra nó có nghĩa gì. */
+.loc__xoa { display: none; }
+[data-state="loc"] .loc__xoa, [data-state="khongthay"] .loc__xoa { display: inline-flex; }
+
+.vung { flex: 1; min-height: 0; overflow: auto; padding: 0 18px 18px; }
+.chan {
+  flex: none; display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px; border-top: 1px solid var(--line);
+  font-size: 12.5px; color: var(--ink-faint);
+}
+.chan__day { flex: 1; }
+
+/* Trạng thái: chỉ một trong bốn khối được hiện. */
+.khi { display: none; }
+[data-state="idle"] .khi--bang, [data-state="loc"] .khi--bang { display: block; }
+[data-state="rong"] .khi--rong { display: flex; }
+[data-state="khongthay"] .khi--khongthay { display: flex; }
+[data-state="rong"] .chan, [data-state="khongthay"] .chan { visibility: hidden; }
+
+/* ── Hộp thoại thêm người có HAI BƯỚC ──────────────────────────────
+   Bước hai bắt buộc phải có: mật khẩu tạm chỉ tồn tại ĐÚNG MỘT LẦN, ngay tại phản hồi
+   của lời gọi tạo. Đóng hộp thoại mà chưa chép nó thì không có đường nào lấy lại —
+   phải đặt lại mật khẩu cho người ta. */
+.buoc { display: none; }
+[data-buoc="nhap"] .buoc--nhap { display: block; }
+[data-buoc="xong"] .buoc--xong { display: block; }
+[data-buoc="nhap"] .chan--xong, [data-buoc="xong"] .chan--nhap { display: none; }
+
+.xong__dau { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.xong__vong {
+  width: 40px; height: 40px; flex: none; display: grid; place-items: center;
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--tot) 16%, var(--surface)); color: var(--tot);
+}
+.xong__vong svg { width: 20px; height: 20px; }
+.xong__ten { font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 15px; }
+.xong__mail { font-size: 12.5px; color: var(--ink-faint); }
+
+.matkhau {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 12px 12px 16px;
+  border: 1px solid var(--accent); border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+.matkhau code {
+  flex: 1; font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 17px; letter-spacing: 0.06em; color: var(--ink);
+  user-select: all;
+}
+
+@media (max-width: 900px) { .an-hep { display: none; } }

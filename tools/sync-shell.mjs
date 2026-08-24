@@ -153,6 +153,10 @@ const SCREENS = [
     source: 'docs/07-giao-dien/identity/dang-ky.html',
     target: 'frontend/src/app/features/auth/register/register.scss',
   },
+  {
+    source: 'docs/07-giao-dien/org/nhan-su.html',
+    target: 'frontend/src/app/features/users/user-list.scss',
+  },
 ];
 
 for (const { source, target } of SCREENS) {

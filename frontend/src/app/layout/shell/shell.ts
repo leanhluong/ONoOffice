@@ -92,8 +92,8 @@ export class Shell {
       items: [
         {
           labelKey: 'nav.employees',
-          path: '/employees',
-          permissions: ['employee.read'],
+          path: '/nhan-su',
+          permissions: ['user.read'],
           quiet: true,
         },
       ],

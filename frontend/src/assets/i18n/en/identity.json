@@ -114,5 +114,90 @@
       "passwordTooShort": "The password must be at least 10 characters.",
       "termsRequired": "You need to accept the terms to continue."
     }
+  },
+  "users": {
+    "count": "{{count}} people",
+    "add": "Add person",
+    "searchPlaceholder": "Search by name, or paste an email",
+    "filterRole": "Filter by role",
+    "filterStatus": "Filter by status",
+    "allRoles": "All roles",
+    "allStatuses": "All statuses",
+    "clearFilter": "Clear filters",
+    "selectAll": "Select all",
+    "selectedCount": "{{count}} selected",
+    "clearSelection": "Clear selection",
+    "openDetail": "Open details",
+    "showing": "Showing {{from}}–{{to}} of {{total}}",
+    "previous": "Previous",
+    "next": "Next",
+    "creating": "Creating…",
+    "saved": "Changes saved.",
+    "disabled": "Account disabled.",
+    "enabled": "Account enabled.",
+    "copied": "Temporary password copied.",
+    "copyFailed": "Your browser blocked copying. Select the text and copy it by hand.",
+    "roleTip": "The role decides what this person can do. You can change it later.",
+    "roleEffect": "A role change takes effect on their next request; they do not need to sign in again.",
+    "permissionCount": "Permissions in this role ({{count}})",
+    "permissionNote": "Permissions come from the ROLE, never from an individual grant. If you need a different set, create a new role.",
+    "column": {
+      "person": "Person",
+      "role": "Role",
+      "status": "Status",
+      "createdAt": "Created"
+    },
+    "status": {
+      "active": "Active",
+      "pending": "Awaiting first sign-in",
+      "disabled": "Disabled"
+    },
+    "field": {
+      "fullName": "Full name",
+      "email": "Work email",
+      "role": "Role"
+    },
+    "validation": {
+      "nameRequired": "Please enter a full name.",
+      "emailRequired": "Please enter an email.",
+      "emailInvalid": "That is not a valid email address."
+    },
+    "dialog": {
+      "title": "Add someone to the workspace",
+      "submit": "Create account"
+    },
+    "handover": {
+      "title": "How will they get their account?",
+      "text": "There is no mail service yet, so no invitation can be sent. You will get a temporary password to hand over yourself.",
+      "force": "Require a password change on first sign-in"
+    },
+    "done": {
+      "title": "Account created for {{name}}",
+      "password": "Temporary password",
+      "copy": "Copy",
+      "warning": "This is the only time you will see this password. Closing this dialog loses it — you would have to reset it. Give it to {{name}} now.",
+      "another": "Add another",
+      "finish": "Done"
+    },
+    "empty": {
+      "title": "Nobody here but you",
+      "text": "Add colleagues so they can sign in. You choose the role for each of them.",
+      "action": "Add the first person"
+    },
+    "noMatch": {
+      "title": "No one matches",
+      "text": "Try removing a filter, or check the search term."
+    },
+    "tab": {
+      "info": "Details",
+      "role": "Role & permissions"
+    },
+    "danger": {
+      "title": "Danger zone",
+      "text": "A disabled person can no longer sign in, but their data and past messages stay. This is what to do when someone leaves — not deletion.",
+      "disable": "Disable account",
+      "enable": "Enable account",
+      "locked": "You cannot disable yourself or the owner. Transfer ownership first if you need to."
+    }
   }
 }

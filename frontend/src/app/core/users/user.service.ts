@@ -1,0 +1,85 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import type { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import type {
+  CreateUserRequest,
+  CreateUserResponse,
+  PagedList,
+  RoleListItem,
+  UpdateUserRequest,
+  UserListItem,
+  UserQuery,
+} from '../models/user.model';
+import { UserStatusFilter } from '../models/user.model';
+
+/**
+ * Cầu nối tới `/api/users` và `/api/roles`.
+ *
+ * Cùng ranh giới trách nhiệm với <c>AuthService</c>: gọi HTTP, không điều hướng, không giữ
+ * trạng thái màn hình. Trạng thái của bảng (đang lọc gì, trang mấy) thuộc về component —
+ * để service còn dùng lại được ở chỗ khác mà không kéo theo bộ lọc của màn Nhân sự.
+ */
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private readonly http = inject(HttpClient);
+
+  list(query: UserQuery): Observable<PagedList<UserListItem>> {
+    let params = new HttpParams();
+
+    // Chỉ gửi tham số CÓ giá trị. Gửi `search=` rỗng hay `status=0` thì URL dài thêm mà
+    // không đổi kết quả — và nó làm người dùng tưởng đang có bộ lọc bật khi nhìn thanh
+    // địa chỉ.
+    if (query.search) {
+      params = params.set('search', query.search);
+    }
+
+    if (query.status !== undefined && query.status !== UserStatusFilter.Any) {
+      params = params.set('status', String(query.status));
+    }
+
+    if (query.roleId) {
+      params = params.set('roleId', query.roleId);
+    }
+
+    if (query.page && query.page > 1) {
+      params = params.set('page', String(query.page));
+    }
+
+    if (query.pageSize) {
+      params = params.set('pageSize', String(query.pageSize));
+    }
+
+    return this.http.get<PagedList<UserListItem>>(this.url('/api/users'), { params });
+  }
+
+  create(request: CreateUserRequest): Observable<CreateUserResponse> {
+    return this.http.post<CreateUserResponse>(this.url('/api/users'), request);
+  }
+
+  update(id: string, request: UpdateUserRequest): Observable<void> {
+    return this.http.patch<void>(this.url(`/api/users/${id}`), request);
+  }
+
+  /**
+   * Vô hiệu hoá hoặc bật lại.
+   *
+   * Hai đường dẫn khác nhau chứ không phải một `PATCH { isActive }`: đây là hai HÀNH ĐỘNG
+   * có hậu quả khác nhau, và backend chặn chúng bằng những luật khác nhau (không tự khoá
+   * mình, không khoá chủ sở hữu). Một endpoint nhận cờ boolean thì hai luật đó nằm chung
+   * một chỗ và dễ thiếu một nhánh.
+   */
+  setActive(id: string, isActive: boolean): Observable<void> {
+    const action = isActive ? 'enable' : 'disable';
+
+    return this.http.post<void>(this.url(`/api/users/${id}/${action}`), {});
+  }
+
+  roles(): Observable<RoleListItem[]> {
+    return this.http.get<RoleListItem[]>(this.url('/api/roles'));
+  }
+
+  private url(path: string): string {
+    return `${environment.apiBaseUrl}${path}`;
+  }
+}
