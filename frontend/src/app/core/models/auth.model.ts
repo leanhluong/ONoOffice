@@ -86,3 +86,37 @@ export interface AuthSession {
   readonly user: AuthUser;
   readonly permissions: readonly string[];
 }
+
+/**
+ * Thân request `POST /api/auth/register-workspace`.
+ *
+ * Tên trường khớp <c>RegisterWorkspaceCommand</c> ở backend (camelCase do
+ * System.Text.Json đổi). Đây là lời gọi DUY NHẤT tạo ra một workspace mới.
+ */
+export interface RegisterWorkspaceRequest {
+  companyName: string;
+  workspaceCode: string;
+  fullName: string;
+  email: string;
+  password: string;
+}
+
+/** Workspace vừa được tạo, đúng như backend trả về. */
+export interface RegisteredWorkspace {
+  id: string;
+  code: string;
+  name: string;
+}
+
+/**
+ * `POST /api/auth/register-workspace` → 200.
+ *
+ * <b>Kèm luôn cặp token.</b> Đăng ký xong là đã đăng nhập — bắt người vừa tạo workspace
+ * gõ lại chính mật khẩu họ vừa đặt là một bước thừa, và là chỗ dễ bỏ dở nhất của luồng.
+ *
+ * Vì vậy nó là một <c>LoginResponse</c> có thêm `workspace`, và dùng lại được nguyên
+ * <c>AuthStore.startSession</c>.
+ */
+export interface RegisterWorkspaceResponse extends LoginResponse {
+  workspace: RegisteredWorkspace;
+}

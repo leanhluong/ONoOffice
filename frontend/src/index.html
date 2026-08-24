@@ -6,6 +6,37 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+
+    <!--
+      Phông nạp từ Google Fonts, đúng danh sách và trọng lượng của bản dựng
+      (docs/07-giao-dien). Lệch một trọng lượng thì chữ rơi về bản giả lập của trình
+      duyệt và nét dày mỏng khác hẳn — bộ so ảnh `npm run parity` sẽ bắt được.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+
+    <!--
+      Đặt nền TRƯỚC khi Angular khởi động.
+
+      `styles.scss` chỉ được áp sau khi trình duyệt tải xong nó; trong khoảng giữa, trang
+      là màu trắng mặc định. Người dùng chọn giao diện tối sẽ thấy một nháy trắng loá mắt
+      ở mỗi lần mở app — kiểu lỗi ai cũng gặp mà ít ai đi sửa. Hai giá trị dưới đây là
+      `--ground` của bộ Mực và bộ Giấy.
+    -->
+    <style>
+      html {
+        background: #0b0c0e;
+      }
+      @media (prefers-color-scheme: light) {
+        html {
+          background: #fafaf8;
+        }
+      }
+    </style>
   </head>
   <body>
     <app-root></app-root>

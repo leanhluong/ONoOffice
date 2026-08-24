@@ -71,6 +71,8 @@ public static class IdentityModuleRegistration
 
         services.AddScoped<IdentityDataSeeder>();
 
+        services.AddScoped<ITenantRepository, EfTenantRepository>();
+        services.AddScoped<IRoleRepository, EfRoleRepository>();
         services.AddScoped<IUserRepository, EfUserRepository>();
         services.AddScoped<IRefreshTokenRepository, EfRefreshTokenRepository>();
 

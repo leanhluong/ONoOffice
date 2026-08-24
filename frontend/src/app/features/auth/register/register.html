@@ -1,0 +1,322 @@
+<!--
+  Đánh dấu chép từ `docs/07-giao-dien/identity/dang-ky.html`.
+
+  CSS thì KHÔNG chép — `register.scss` được sinh tự động từ chính file đó
+  (`node tools/sync-shell.mjs`). Chỗ duy nhất còn phải giữ đồng bộ bằng tay là đánh dấu,
+  và `npm run parity` canh nó bằng cách chụp cả hai rồi so từng điểm ảnh.
+-->
+<div class="stage">
+  <section class="brand">
+    <app-org-weave id="weave" />
+
+    <div class="wordmark">
+      <span class="wordmark__mark" aria-hidden="true">O</span>{{ 'app.name' | translate }}
+    </div>
+
+    <div>
+      <div class="pitch">
+        <h1>{{ 'register.pitch' | translate }}</h1>
+      </div>
+
+      <ul class="gets">
+        <li>
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path d="m4 10.5 4 4 8-9" />
+          </svg>
+          <span
+            >{{ 'register.gets.isolatedA' | translate
+            }}<b>{{ 'register.gets.isolatedB' | translate }}</b
+            >{{ 'register.gets.isolatedC' | translate }}</span
+          >
+        </li>
+        <li>
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path d="m4 10.5 4 4 8-9" />
+          </svg>
+          <span
+            >{{ 'register.gets.rolesA' | translate }}<b>{{ 'register.gets.rolesB' | translate }}</b
+            >.</span
+          >
+        </li>
+        <li>
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path d="m4 10.5 4 4 8-9" />
+          </svg>
+          <span
+            >{{ 'register.gets.ownerA' | translate }}<b>{{ 'register.gets.ownerB' | translate }}</b
+            >{{ 'register.gets.ownerC' | translate }}</span
+          >
+        </li>
+      </ul>
+    </div>
+
+    <div class="brandfoot">
+      <span>{{ 'register.brandfoot.free' | translate }}</span>
+      <span>{{ 'register.brandfoot.noCard' | translate }}</span>
+      <span>{{ 'register.brandfoot.vietnam' | translate }}</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel__prefs"><app-prefs /></div>
+
+    <form
+      class="form"
+      [formGroup]="form"
+      [attr.data-state]="state()"
+      (ngSubmit)="submit()"
+      novalidate
+    >
+      <div class="form__body">
+        <div class="form__head">
+          <h2>{{ 'register.heading' | translate }}</h2>
+          <p>{{ 'register.subheading' | translate }}</p>
+        </div>
+
+        <div class="grid">
+          <div class="field" [class.field--bad]="errorOf('companyName') !== null">
+            <div class="field__head">
+              <label for="companyName">{{ 'register.company' | translate }}</label>
+            </div>
+            <div class="control">
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                aria-hidden="true"
+              >
+                <rect x="3" y="6" width="9" height="11" rx="1.5" />
+                <path d="M12 9h5v8h-5M6 9h3M6 12h3M6 15h3" />
+              </svg>
+              <input
+                id="companyName"
+                type="text"
+                formControlName="companyName"
+                autocomplete="organization"
+                [placeholder]="'register.companyPlaceholder' | translate"
+                [attr.aria-invalid]="errorOf('companyName') !== null"
+                [attr.aria-describedby]="errorOf('companyName') ? 'companyName-hint' : null"
+              />
+            </div>
+            <span class="hint" id="companyName-hint">{{ errorOf('companyName') }}</span>
+          </div>
+
+          <div class="field" [class.field--bad]="errorOf('workspaceCode') !== null">
+            <div class="field__head">
+              <label for="workspaceCode">{{ 'register.code' | translate }}</label>
+              <app-tip [text]="'register.codeTip' | translate">
+                {{ 'register.codeTipA' | translate }}<br /><b>{{
+                  'register.codeTipB' | translate
+                }}</b
+                >{{ 'register.codeTipC' | translate }}
+              </app-tip>
+            </div>
+            <div class="control">
+              <span class="control__suffix">{{ 'register.codePrefix' | translate }}</span>
+              <input
+                id="workspaceCode"
+                type="text"
+                formControlName="workspaceCode"
+                inputmode="url"
+                autocapitalize="off"
+                spellcheck="false"
+                [placeholder]="'register.codePlaceholder' | translate"
+                (input)="onCodeTyped()"
+                [attr.aria-invalid]="errorOf('workspaceCode') !== null"
+                [attr.aria-describedby]="errorOf('workspaceCode') ? 'workspaceCode-hint' : null"
+              />
+            </div>
+            <span class="hint" id="workspaceCode-hint">{{ errorOf('workspaceCode') }}</span>
+          </div>
+
+          <div class="field" [class.field--bad]="errorOf('fullName') !== null">
+            <div class="field__head">
+              <label for="fullName">{{ 'register.fullName' | translate }}</label>
+            </div>
+            <div class="control">
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                aria-hidden="true"
+              >
+                <circle cx="10" cy="7" r="3" />
+                <path d="M4 16.5a6 6 0 0112 0" />
+              </svg>
+              <input
+                id="fullName"
+                type="text"
+                formControlName="fullName"
+                autocomplete="name"
+                [placeholder]="'register.fullNamePlaceholder' | translate"
+                [attr.aria-invalid]="errorOf('fullName') !== null"
+                [attr.aria-describedby]="errorOf('fullName') ? 'fullName-hint' : null"
+              />
+            </div>
+            <span class="hint" id="fullName-hint">{{ errorOf('fullName') }}</span>
+          </div>
+
+          <div class="field" [class.field--bad]="errorOf('email') !== null">
+            <div class="field__head">
+              <label for="email">{{ 'register.email' | translate }}</label>
+              <app-tip [text]="'register.emailTip' | translate">{{
+                'register.emailTip' | translate
+              }}</app-tip>
+            </div>
+            <div class="control">
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                aria-hidden="true"
+              >
+                <rect x="2.5" y="4.5" width="15" height="11" rx="2" />
+                <path d="m3 6 7 5 7-5" />
+              </svg>
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                inputmode="email"
+                autocomplete="username"
+                autocapitalize="off"
+                spellcheck="false"
+                [placeholder]="'register.emailPlaceholder' | translate"
+                [attr.aria-invalid]="errorOf('email') !== null"
+                [attr.aria-describedby]="errorOf('email') ? 'email-hint' : null"
+              />
+            </div>
+            <span class="hint" id="email-hint">{{ errorOf('email') }}</span>
+          </div>
+
+          <div class="field field--wide" [class.field--bad]="errorOf('password') !== null">
+            <div class="field__head">
+              <label for="password">{{ 'register.password' | translate }}</label>
+              <app-tip [text]="'register.passwordTip' | translate">
+                {{ 'register.passwordTipA' | translate }}<br />{{
+                  'register.passwordTipB' | translate
+                }}
+              </app-tip>
+            </div>
+            <div class="control">
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                aria-hidden="true"
+              >
+                <rect x="4" y="8.5" width="12" height="8" rx="2" />
+                <path d="M7 8.5V6a3 3 0 016 0v2.5" />
+              </svg>
+              <input
+                id="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                autocomplete="new-password"
+                [placeholder]="'register.passwordPlaceholder' | translate"
+                [attr.aria-invalid]="errorOf('password') !== null"
+                [attr.aria-describedby]="errorOf('password') ? 'password-hint' : null"
+              />
+              <button
+                type="button"
+                class="peek"
+                (click)="togglePassword()"
+                [attr.aria-label]="
+                  (showPassword() ? 'register.hidePassword' : 'register.showPassword') | translate
+                "
+              >
+                {{ (showPassword() ? 'register.hide' : 'register.show') | translate }}
+              </button>
+            </div>
+
+            <div class="meter" [attr.data-score]="strength()" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <p class="meter__label">{{ strengthLabel() }}</p>
+            <span class="hint" id="password-hint">{{ errorOf('password') }}</span>
+          </div>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" formControlName="terms" />
+          <span
+            >{{ 'register.termsA' | translate }}
+            <a class="link" href="#" (click)="notBuiltYet($event, 'register.terms')">{{
+              'register.terms' | translate
+            }}</a>
+            {{ 'register.termsAnd' | translate }}
+            <a class="link" href="#" (click)="notBuiltYet($event, 'register.privacy')">{{
+              'register.privacy' | translate
+            }}</a
+            >.</span
+          >
+        </label>
+
+        <button class="submit" type="submit" [disabled]="state() === 'sending'">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>{{
+            (state() === 'sending' ? 'register.submitting' : 'register.submit') | translate
+          }}</span>
+        </button>
+
+        <p class="footnote">
+          {{ 'register.haveAccount' | translate }}
+          <a class="link" routerLink="/login">{{ 'register.signIn' | translate }}</a>
+        </p>
+      </div>
+
+      <div class="done">
+        <div class="done__mark">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            aria-hidden="true"
+          >
+            <path d="m5 12.5 4.5 4.5L19 7" />
+          </svg>
+        </div>
+        <h3>{{ 'register.done.heading' | translate }}</h3>
+        <p>{{ 'register.done.text' | translate }}</p>
+
+        <div class="done__card">
+          <span>{{ 'register.done.workspace' | translate }}</span>
+          <b>{{ 'register.codePrefix' | translate }}{{ created()?.workspace?.code }}</b>
+          <span>{{ 'register.done.login' | translate }}</span>
+          <b>{{ created()?.user?.email }}</b>
+          <span>{{ 'register.done.role' | translate }}</span>
+          <b>{{ 'register.done.owner' | translate }}</b>
+        </div>
+
+        <button class="submit" type="button" (click)="enterWorkspace()">
+          {{ 'register.done.enter' | translate }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<app-popup-host />

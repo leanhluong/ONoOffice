@@ -27,6 +27,14 @@ public static class IdentityErrors
 
         public static readonly Error TooLong =
             Error.Validation("Email.TooLong", "Email không được dài quá 254 ký tự.");
+
+        /// <summary>
+        /// Email là danh tính, unique TOÀN hệ thống (ADR-0002) — nên trùng là chặn ngay
+        /// ở khâu đăng ký, chứ không để tới lúc INSERT rồi nhận một lỗi ràng buộc thô.
+        /// </summary>
+        public static readonly Error Taken = Error.Conflict(
+            "Email.Taken",
+            "Email này đã có tài khoản. Bạn có muốn đăng nhập không?");
     }
 
     public static class TenantCodes
@@ -40,6 +48,10 @@ public static class IdentityErrors
         public static readonly Error Invalid = Error.Validation(
             "TenantCode.Invalid",
             "Mã workspace chỉ gồm chữ thường, số và gạch nối; phải bắt đầu bằng chữ cái và kết thúc bằng chữ hoặc số.");
+
+        public static readonly Error Taken = Error.Conflict(
+            "TenantCode.Taken",
+            "Mã workspace này đã có người dùng.");
     }
 
     public static class Tenants

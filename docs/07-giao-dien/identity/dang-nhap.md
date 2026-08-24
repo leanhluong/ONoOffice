@@ -1,7 +1,7 @@
 # Đăng nhập
 
 > Module `identity` · Trạng thái: 🟢 **Đã dựng bằng Angular** (2026-08-24) — nối API thật, bốn bộ màu
-> Bản dựng: [`dang-nhap.html`](./dang-nhap.html) · [xem trên web](https://claude.ai/code/artifact/0aaa520d-04b3-46a4-b297-c04a88482ded) *(đăng lại 24/08)*
+> Bản dựng: [`dang-nhap.html`](./dang-nhap.html) · [xem trên web](https://claude.ai/code/artifact/16254c6d-ec14-48e7-a2bc-f3389d4fcf4f) *(đăng lại 24/08)*
 > Wireframe: [`../wireframes.html`](../wireframes.html)
 
 ---

@@ -41,7 +41,7 @@ function palettesFromMockup(): Map<string, Map<string, string>> {
 function palettesFromStyles(): Map<string, Map<string, string>> {
   const scss = readFileSync(STYLES, 'utf8');
 
-  const blocks = [...scss.matchAll(/:root\[data-theme='(\w+)'\]\s*\{([^}]*)\}/g)];
+  const blocks = [...scss.matchAll(/:root\[data-theme=["'](\w+)["']\]\s*\{([^}]*)\}/g)];
 
   return new Map(
     blocks.map(([, theme, body]) => [

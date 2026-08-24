@@ -6,6 +6,30 @@ namespace ONoOffice.Identity.Infrastructure.Persistence.Repositories;
 
 internal sealed class EfUserRepository(IdentityDbContext context) : IUserRepository
 {
+    public void Add(Domain.Entities.User user) => context.Users.Add(user);
+
+    /// <summary>
+    /// ⚠️ IgnoreQueryFilters — ngoại lệ có chủ đích, cùng lý do với hai chỗ kia: đăng ký
+    /// chạy khi CHƯA có workspace nào, nên bộ lọc tenant sẽ không khớp hàng nào và mọi
+    /// email đều trông như còn trống. Để lọt thì ràng buộc UNIQUE ở database chặn, nhưng
+    /// người dùng nhận một lỗi 500 thay vì một câu tiếng Việt.
+    ///
+    /// Và email vốn unique TOÀN hệ thống (ADR-0002) — hỏi theo phạm vi workspace là hỏi sai.
+    /// </summary>
+    public async Task<bool> IsEmailTakenAsync(string email, CancellationToken cancellationToken = default)
+    {
+        var parsed = Email.Create(email);
+
+        if (parsed.IsFailure)
+        {
+            return false;
+        }
+
+        return await context.Users
+            .IgnoreQueryFilters()
+            .AnyAsync(u => u.Email == parsed.Value, cancellationToken);
+    }
+
     /// <summary>
     /// Gom quyền của nhiều vai trò thành một tập.
     ///

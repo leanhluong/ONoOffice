@@ -71,7 +71,8 @@ export class OrgWeave implements AfterViewInit {
    * gây chóng mặt. Hình vẫn còn đó, chỉ là không nhúc nhích.
    */
   private readonly still = computed(
-    () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches,
+    () =>
+      typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
 
   constructor() {
@@ -168,7 +169,10 @@ export class OrgWeave implements AfterViewInit {
     // tổ chức" hiện ra: các cụm tự gom lại và tự tan ra khi chấm trôi.
     for (let i = 0; i < this.nodes.length; i++) {
       for (let j = i + 1; j < this.nodes.length; j++) {
-        const distance = Math.hypot(this.nodes[i].x - this.nodes[j].x, this.nodes[i].y - this.nodes[j].y);
+        const distance = Math.hypot(
+          this.nodes[i].x - this.nodes[j].x,
+          this.nodes[i].y - this.nodes[j].y,
+        );
 
         if (distance > 168) {
           continue;

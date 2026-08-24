@@ -6,7 +6,7 @@
   ra bằng mắt.
 
   ⚠️ Bảng màu ở đây là NGUỒN GỐC của cả sản phẩm: `frontend/src/styles.scss` được sinh
-  tự động từ nó bằng `tools/sync-palette.mjs`, và `palette-parity.spec.ts` đối chiếu hai
+  tự động từ nó bằng `tools/sync-shell.mjs`, và `palette-parity.spec.ts` đối chiếu hai
   chiều mỗi lần chạy test. Sửa màu thì sửa ở đây, rồi chạy lại bộ sinh.
 */
 

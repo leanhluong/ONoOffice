@@ -17,7 +17,7 @@
     "google": "Sign in with Google",
     "facebook": "Sign in with Facebook",
     "contactAdmin": "Contact an administrator",
-    "noAccount": "No account yet? Ask",
+    "noAccount": "No account yet?",
     "admin": "an administrator",
     "ofYourCompany": "at your company.",
     "sessionExpired": "Your session has ended. Please sign in again.",
@@ -26,10 +26,93 @@
       "emailRequired": "Please enter your email.",
       "emailInvalid": "That is not a valid email address.",
       "passwordRequired": "Please enter your password."
-    }
+    },
+    "registerWorkspace": "Create a new workspace",
+    "orContact": "or ask"
   },
   "session": {
     "signedInAs": "Signed in as",
     "workspace": "Workspace"
+  },
+  "register": {
+    "heading": "Create a workspace",
+    "subheading": "It takes about a minute. You will be the owner.",
+    "pitch": "Set up a workspace for your company.",
+    "gets": {
+      "isolatedA": "Your own workspace — your company data ",
+      "isolatedB": "is never mixed",
+      "isolatedC": " with anyone else's.",
+      "rolesA": "Four roles ready to go: ",
+      "rolesB": "Owner · Admin · Manager · Member",
+      "ownerA": "The owner account is ",
+      "ownerB": "yours",
+      "ownerC": " — and can be handed over."
+    },
+    "brandfoot": {
+      "free": "Free",
+      "noCard": "No card needed",
+      "vietnam": "Vietnam"
+    },
+    "company": "Company name",
+    "companyPlaceholder": "ACME Co., Ltd",
+    "code": "Workspace code",
+    "codePrefix": "onooffice.vn/",
+    "codePlaceholder": "acme",
+    "codeTip": "Lowercase letters, digits and hyphens only. Cannot be changed later.",
+    "codeTipA": "Lowercase letters, digits and hyphens only.",
+    "codeTipB": "Cannot be changed",
+    "codeTipC": " once created.",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "Alex Nguyen",
+    "email": "Work email",
+    "emailPlaceholder": "your.name@company.com",
+    "emailTip": "This will be your sign-in email.",
+    "password": "Password",
+    "passwordPlaceholder": "At least 10 characters",
+    "passwordTip": "Use a sentence you can remember. Longer is safer — no special characters needed.",
+    "passwordTipA": "Use a sentence you can remember.",
+    "passwordTipB": "Longer is safer — no special characters needed.",
+    "show": "Show",
+    "hide": "Hide",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "strength": {
+      "weak": "Too short — easy to guess.",
+      "fair": "Acceptable, but go longer.",
+      "good": "Pretty good.",
+      "strong": "Very good."
+    },
+    "termsA": "I agree to the",
+    "terms": "Terms",
+    "termsAnd": "and the",
+    "privacy": "Privacy Policy",
+    "submit": "Create workspace",
+    "submitting": "Creating workspace…",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "comingSoon": "this feature is not built yet.",
+    "done": {
+      "heading": "Your workspace is ready",
+      "text": "You are the owner. Next step: invite your colleagues.",
+      "workspace": "Workspace",
+      "login": "Sign-in",
+      "role": "Role",
+      "owner": "Owner · all 12 permissions",
+      "enter": "Enter workspace"
+    },
+    "validation": {
+      "companyRequired": "Please enter your company name.",
+      "companyTooLong": "Company name cannot exceed 200 characters.",
+      "codeRequired": "Please enter a workspace code.",
+      "codeInvalid": "Use lowercase letters, digits and hyphens; start with a letter.",
+      "codeLength": "The code must be 3 to 30 characters long.",
+      "fullNameRequired": "Please enter your full name.",
+      "fullNameTooLong": "Full name cannot exceed 200 characters.",
+      "emailRequired": "Please enter your email.",
+      "emailInvalid": "That is not a valid email address.",
+      "passwordRequired": "Please enter a password.",
+      "passwordTooShort": "The password must be at least 10 characters.",
+      "termsRequired": "You need to accept the terms to continue."
+    }
   }
 }

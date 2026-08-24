@@ -161,12 +161,10 @@ describe('Chuỗi interceptor', () => {
     });
 
     // Lần một: token hết hạn.
-    httpMock
-      .expectOne('/api/employees')
-      .flush(problem('Auth.InvalidCredentials', 'Hết hạn'), {
-        status: 401,
-        statusText: 'Unauthorized',
-      });
+    httpMock.expectOne('/api/employees').flush(problem('Auth.InvalidCredentials', 'Hết hạn'), {
+      status: 401,
+      statusText: 'Unauthorized',
+    });
 
     // Interceptor tự gọi gia hạn, gửi đúng vé đang giữ.
     const giaHan = httpMock.expectOne(REFRESH_URL);
@@ -201,12 +199,10 @@ describe('Chuỗi interceptor', () => {
     ]);
 
     for (const url of ['/api/a', '/api/b', '/api/c']) {
-      httpMock
-        .expectOne(url)
-        .flush(problem('Auth.InvalidCredentials', 'Hết hạn'), {
-          status: 401,
-          statusText: 'Unauthorized',
-        });
+      httpMock.expectOne(url).flush(problem('Auth.InvalidCredentials', 'Hết hạn'), {
+        status: 401,
+        statusText: 'Unauthorized',
+      });
     }
 
     // expectOne sẽ NÉM nếu có hai lời gọi gia hạn — đó chính là phép kiểm.
@@ -236,23 +232,19 @@ describe('Chuỗi interceptor', () => {
 
     http.get('/api/employees').subscribe({ error: () => undefined });
 
-    httpMock
-      .expectOne('/api/employees')
-      .flush(problem('Auth.InvalidCredentials', 'Hết hạn'), {
-        status: 401,
-        statusText: 'Unauthorized',
-      });
+    httpMock.expectOne('/api/employees').flush(problem('Auth.InvalidCredentials', 'Hết hạn'), {
+      status: 401,
+      statusText: 'Unauthorized',
+    });
 
     httpMock
       .expectOne(REFRESH_URL)
       .flush({ accessToken: token(), refreshToken: 've-moi', expiresInSeconds: 900 });
 
-    httpMock
-      .expectOne('/api/employees')
-      .flush(problem('Auth.InvalidCredentials', 'Vẫn hết hạn'), {
-        status: 401,
-        statusText: 'Unauthorized',
-      });
+    httpMock.expectOne('/api/employees').flush(problem('Auth.InvalidCredentials', 'Vẫn hết hạn'), {
+      status: 401,
+      statusText: 'Unauthorized',
+    });
 
     expect(await dieuHuong).toEqual(['/login']);
     expect(store.isAuthenticated()).toBe(false);
@@ -273,19 +265,15 @@ describe('Chuỗi interceptor', () => {
 
     http.get('/api/employees').subscribe({ error: () => undefined });
 
-    httpMock
-      .expectOne('/api/employees')
-      .flush(problem('Auth.InvalidCredentials', 'Hết hạn'), {
-        status: 401,
-        statusText: 'Unauthorized',
-      });
+    httpMock.expectOne('/api/employees').flush(problem('Auth.InvalidCredentials', 'Hết hạn'), {
+      status: 401,
+      statusText: 'Unauthorized',
+    });
 
-    httpMock
-      .expectOne(REFRESH_URL)
-      .flush(problem('Auth.InvalidRefreshToken', 'Vé chết'), {
-        status: 401,
-        statusText: 'Unauthorized',
-      });
+    httpMock.expectOne(REFRESH_URL).flush(problem('Auth.InvalidRefreshToken', 'Vé chết'), {
+      status: 401,
+      statusText: 'Unauthorized',
+    });
 
     expect(await dieuHuong).toEqual(['/login']);
     expect(store.isAuthenticated()).toBe(false);

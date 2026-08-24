@@ -1,3 +1,4 @@
+<!doctype html>
 <!--
   Bản dựng màn ĐĂNG NHẬP — bốn bộ màu, bốn trạng thái.
 
@@ -116,8 +117,11 @@
 /* Dòng nhắc dưới ô nhập: ngắn, một câu, không trang trí gì thêm.
    Trước có gạch "—" đầu dòng — nó chẳng nói gì mà làm dòng chữ trông dài hơn. */
 .hint { display: none; font-size: 12.5px; color: var(--danger); }
-[data-state="invalid"] .hint { display: flex; }
-[data-state="invalid"] .control { border-color: var(--danger); }
+/* Bật theo TỪNG Ô, không phải cả biểu mẫu: gõ thiếu email thì ô mật khẩu
+   không việc gì phải đỏ. Bản dựng gắn `.field--bad` cho mọi ô khi duyệt
+   trạng thái này; sản phẩm gắn đúng ô sai. */
+.field--bad .hint { display: block; }
+.field--bad .control { border-color: var(--danger); }
 
 .row {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -308,6 +312,10 @@ document.querySelectorAll('.states button').forEach(btn => {
 
     document.querySelectorAll('.states button').forEach(b =>
       b.setAttribute('aria-pressed', String(b === btn)));
+
+    // Khung duyệt bật lỗi cho MỌI ô một lúc; sản phẩm gắn đúng ô sai.
+    document.querySelectorAll('.field').forEach(f =>
+      f.classList.toggle('field--bad', state === 'invalid'));
 
     // Lỗi từ server giờ là POPUP nổi ở đầu màn hình, không còn là khối cố định
     // trong biểu mẫu — xem ghi chú dài ở dang-nhap.md.

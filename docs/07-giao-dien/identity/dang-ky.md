@@ -1,7 +1,7 @@
 # Đăng ký workspace
 
 > Module `identity` · Trạng thái: 🟡 **Đã dựng bản mẫu, chờ duyệt** (2026-08-24)
-> Bản dựng: [`dang-ky.html`](./dang-ky.html) · [xem trên web](https://claude.ai/code/artifact/cb00b878-30b0-40b8-bd30-93602186bd64)
+> Bản dựng: [`dang-ky.html`](./dang-ky.html) · [xem trên web](https://claude.ai/code/artifact/a88aab53-a6ae-437d-b108-cd0854f219f3)
 
 ---
 
@@ -55,8 +55,22 @@ phẩm bằng **ba thứ người dùng sắp nhận được**.
 └─────────────────────────────┴───────────────────────────┘
 ```
 
-**Vì sao chia hai nhóm có tiêu đề:** sáu ô nhập liền một mạch trông như một bức tường, và
-người dùng không biết mình đang ở đoạn nào. Nhóm lại thì họ thấy "còn một nhóm nữa".
+> **Ràng buộc số một: vừa ĐÚNG MỘT MÀN, không phải cuộn.** Người đăng ký muốn điền cho
+> nhanh; bắt họ cuộn giữa chừng là chỗ dễ bỏ dở nhất của cả luồng.
+
+**Bản đầu xếp năm ô dọc một mạch**, cộng hai tiêu đề nhóm `CÔNG TY` / `TÀI KHOẢN CHỦ SỞ
+HỮU` — cao hơn một màn laptop. Bốn chỗ đã cắt:
+
+| Bỏ / đổi | Tiết kiệm |
+|---|---|
+| Hai tiêu đề nhóm | ~60px — với ba hàng thì không còn là "bức tường" để cần chia nhóm |
+| Năm ô dọc → **lưới tự co hai cột** | ~150px |
+| Siết nhịp dọc, ô nhập thấp hơn 2px | ~40px |
+| Màn hẹp: cột trái thu thành dải mỏng chỉ còn tên sản phẩm | ~130px |
+
+Lưới dùng `repeat(auto-fit, minmax(210px, 1fr))` nên **không cần một điểm ngắt nào**: đủ
+rộng thì hai cột, hẹp thì tự xuống một cột. Vừa cả khung xem hẹp của artifact lẫn màn
+hình đầy đủ.
 
 **Vì sao nói trước ba thứ sắp nhận được:** màn đăng ký nào cũng phải trả lời câu *"bấm
 xong thì có gì?"* **trước** khi bấm, chứ không phải sau.
@@ -76,9 +90,9 @@ Không có trạng thái "rỗng" — màn này không tải dữ liệu gì.
 ## 6. Dữ liệu cần
 
 ```
-POST /api/auth/register-workspace          ← CHƯA CÓ, sẽ làm sau khi duyệt bản dựng
+POST /api/auth/register-workspace          ← ĐÃ CÓ, chạy thật từ 2026-08-24
      { companyName, workspaceCode, fullName, email, password }
-  → 201 { accessToken, refreshToken, expiresInSeconds, user{…}, workspace{ id, code, name } }
+  → 200 { accessToken, refreshToken, expiresInSeconds, user{…}, workspace{ id, code, name } }
 ```
 
 Backend làm đúng bốn việc, **trong một transaction**:
@@ -95,6 +109,11 @@ Thứ tự không đảo được — xem `IdentityDataSeeder`, nó đã làm đ
 **Đăng ký xong thì đăng nhập luôn**, không bắt gõ lại mật khẩu vừa đặt: phản hồi trả về
 cặp token y như `/login`.
 
+> **200 chứ không phải 201.** 201 buộc phải kèm header `Location` trỏ tới tài nguyên vừa
+> tạo, mà chưa có endpoint nào đọc một workspace. Trả 201 với `Location` rỗng là nói dối về
+> hợp đồng — sửa lại về sau còn dễ hơn gỡ một lời hứa đã ship. Ghi ở
+> [`05-api/README.md`](../../05-api/README.md).
+
 ## 7. Lỗi hiện thế nào
 
 | Mã lỗi | HTTP | Hiện cho người dùng |
@@ -102,11 +121,18 @@ cặp token y như `/login`.
 | `TenantCode.Invalid` | 400 | Mã workspace chỉ gồm chữ thường, số và gạch nối. |
 | `TenantCode.Taken` | 409 | Mã này đã có công ty khác dùng. Hãy chọn mã khác. |
 | `Email.Taken` | 409 | Email này đã có tài khoản. Bạn muốn [đăng nhập](./dang-nhap.md)? |
-| `Password.TooWeak` | 400 | Mật khẩu phải có ít nhất 10 ký tự. |
+| `Validation.Multiple` | 400 | Mật khẩu phải có ít nhất 10 ký tự. |
 | *(mất mạng)* | — | Không kết nối được máy chủ. |
 
-Hai mã `TenantCode.Taken` và `Email.Taken` **chưa tồn tại ở backend** — sẽ thêm cùng lúc
-với endpoint.
+Cả hai mã `TenantCode.Taken` và `Email.Taken` **đã có ở backend**, kèm bản dịch vi/en trong
+`Messages.*.resx`.
+
+Hai lỗi 409 hiện **theo hai cách cùng lúc**: một popup nổi ở đầu màn, và ô gây ra nó
+được tô đỏ. Chỉ có popup thì người dùng biết *có gì đó sai* mà không biết sửa **ô nào** —
+biểu mẫu này có năm ô.
+
+Mã workspace được kiểm **trước** email. Trùng cả hai thì chỉ hiện được một lỗi, nên hiện
+cái dễ sửa trước: đổi mã workspace là gõ lại một từ, đổi email là chuyện khác hẳn.
 
 ## 8. Trên điện thoại
 
@@ -153,6 +179,6 @@ cũ chết. Nói thẳng ngay dưới ô nhập, lúc họ còn đang gõ — ch
 | Việc | Vì sao chưa |
 |---|---|
 | **Xác minh email** | Cần dịch vụ gửi mail — hoãn sang lát 2. Hiện đăng ký xong là vào được luôn |
-| **Chặn đăng ký hàng loạt** | Cần Redis để đếm theo IP. Đếm trong bộ nhớ thì chạy nhiều pod là vô dụng |
+| **Chặn đăng ký hàng loạt** | Cần Redis để đếm theo IP. Đếm trong bộ nhớ thì chạy nhiều pod là vô dụng. ⚠️ Endpoint đang **mở cho Internet**, mỗi lần gọi thành công là một công ty mới trong database |
 | **Điều khoản / Chính sách riêng tư** | Hai link đã có, bấm hiện *"đang phát triển"*. Cần người viết nội dung pháp lý |
 | **Mời đồng nghiệp ngay sau khi tạo** | Màn "Xong" mới chỉ có nút vào workspace |

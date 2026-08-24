@@ -17,7 +17,7 @@
     "google": "Đăng nhập bằng Google",
     "facebook": "Đăng nhập bằng Facebook",
     "contactAdmin": "Liên hệ quản trị viên",
-    "noAccount": "Chưa có tài khoản? Liên hệ",
+    "noAccount": "Chưa có tài khoản?",
     "admin": "quản trị viên",
     "ofYourCompany": "của công ty bạn.",
     "sessionExpired": "Phiên làm việc đã kết thúc. Vui lòng đăng nhập lại.",
@@ -26,10 +26,93 @@
       "emailRequired": "Vui lòng nhập email.",
       "emailInvalid": "Email không đúng định dạng.",
       "passwordRequired": "Vui lòng nhập mật khẩu."
-    }
+    },
+    "registerWorkspace": "Đăng ký workspace mới",
+    "orContact": "hoặc liên hệ"
   },
   "session": {
     "signedInAs": "Đang đăng nhập bằng",
     "workspace": "Workspace"
+  },
+  "register": {
+    "heading": "Đăng ký workspace",
+    "subheading": "Mất khoảng một phút. Bạn sẽ là chủ sở hữu.",
+    "pitch": "Dựng không gian làm việc cho công ty bạn.",
+    "gets": {
+      "isolatedA": "Workspace riêng — dữ liệu công ty bạn ",
+      "isolatedB": "không nằm chung",
+      "isolatedC": " với ai.",
+      "rolesA": "Bốn vai trò sẵn sàng: ",
+      "rolesB": "Owner · Admin · Manager · Member",
+      "ownerA": "Tài khoản chủ sở hữu là ",
+      "ownerB": "của bạn",
+      "ownerC": " — chuyển nhượng được."
+    },
+    "brandfoot": {
+      "free": "Miễn phí",
+      "noCard": "Không cần thẻ",
+      "vietnam": "Việt Nam"
+    },
+    "company": "Tên công ty",
+    "companyPlaceholder": "Công ty TNHH ACME",
+    "code": "Mã workspace",
+    "codePrefix": "onooffice.vn/",
+    "codePlaceholder": "acme",
+    "codeTip": "Chỉ chữ thường, số và gạch nối. Không đổi được sau khi tạo.",
+    "codeTipA": "Chỉ chữ thường, số và gạch nối.",
+    "codeTipB": "Không đổi được",
+    "codeTipC": " sau khi tạo.",
+    "fullName": "Họ và tên",
+    "fullNamePlaceholder": "Lê Anh Lượng",
+    "email": "Email công ty",
+    "emailPlaceholder": "ten.ban@congty.com",
+    "emailTip": "Đây sẽ là email đăng nhập của bạn.",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "Ít nhất 10 ký tự",
+    "passwordTip": "Dùng một câu dễ nhớ. Dài hơn là an toàn hơn — không cần ký tự đặc biệt.",
+    "passwordTipA": "Dùng một câu dễ nhớ.",
+    "passwordTipB": "Dài hơn là an toàn hơn — không cần ký tự đặc biệt.",
+    "show": "Hiện",
+    "hide": "Ẩn",
+    "showPassword": "Hiện mật khẩu",
+    "hidePassword": "Ẩn mật khẩu",
+    "strength": {
+      "weak": "Quá ngắn — dễ đoán.",
+      "fair": "Tạm được, nên dài hơn.",
+      "good": "Khá tốt.",
+      "strong": "Rất tốt."
+    },
+    "termsA": "Tôi đồng ý với",
+    "terms": "Điều khoản",
+    "termsAnd": "và",
+    "privacy": "Chính sách riêng tư",
+    "submit": "Tạo workspace",
+    "submitting": "Đang tạo workspace…",
+    "haveAccount": "Đã có tài khoản?",
+    "signIn": "Đăng nhập",
+    "comingSoon": "tính năng đang phát triển.",
+    "done": {
+      "heading": "Workspace đã sẵn sàng",
+      "text": "Bạn đã là chủ sở hữu. Việc tiếp theo là mời đồng nghiệp vào.",
+      "workspace": "Workspace",
+      "login": "Đăng nhập",
+      "role": "Vai trò",
+      "owner": "Owner · đủ 12 quyền",
+      "enter": "Vào workspace"
+    },
+    "validation": {
+      "companyRequired": "Vui lòng nhập tên công ty.",
+      "companyTooLong": "Tên công ty không được dài quá 200 ký tự.",
+      "codeRequired": "Vui lòng nhập mã workspace.",
+      "codeInvalid": "Mã chỉ gồm chữ thường, số và gạch nối; bắt đầu bằng chữ cái.",
+      "codeLength": "Mã phải dài từ 3 đến 30 ký tự.",
+      "fullNameRequired": "Vui lòng nhập họ tên.",
+      "fullNameTooLong": "Họ tên không được dài quá 200 ký tự.",
+      "emailRequired": "Vui lòng nhập email.",
+      "emailInvalid": "Email không đúng định dạng.",
+      "passwordRequired": "Vui lòng nhập mật khẩu.",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 10 ký tự.",
+      "termsRequired": "Bạn cần đồng ý với điều khoản để tiếp tục."
+    }
   }
 }

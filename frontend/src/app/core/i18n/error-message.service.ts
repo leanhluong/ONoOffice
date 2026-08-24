@@ -45,10 +45,13 @@ export class ErrorMessageService {
   }
 
   /**
-   * Dòng phụ hiện dưới thông báo lỗi: mã tham chiếu để tra log.
+   * Mã tham chiếu để tra log — <b>chỉ khi ta KHÔNG giải thích được</b> chuyện gì đã xảy ra.
    *
-   * Chỉ hiện khi backend KHÔNG nói được gì cụ thể. Với "sai mật khẩu" thì mã lần vết chỉ
-   * làm người dùng hoang mang — họ biết chính xác chuyện gì xảy ra rồi.
+   * Với "sai mật khẩu" thì mã kỹ thuật chẳng giúp gì: người dùng biết chính xác phải làm
+   * gì rồi, và một dãy ký tự lạ chỉ khiến câu thông báo trông như lỗi hệ thống.
+   *
+   * Cắt còn SÁU ký tự đầu. Đủ để tìm trong log của một ngày, mà đọc qua điện thoại cho bộ
+   * phận hỗ trợ thì không phải đánh vần ba mươi hai ký tự.
    */
   reference(error: AppError): string | null {
     if (error.correlationId === null) {
@@ -57,6 +60,6 @@ export class ErrorMessageService {
 
     const coBanDich = this.translate.instant(error.code) !== error.code;
 
-    return coBanDich ? null : error.correlationId;
+    return coBanDich ? null : error.correlationId.slice(0, 6);
   }
 }

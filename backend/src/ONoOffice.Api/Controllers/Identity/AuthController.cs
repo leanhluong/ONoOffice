@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using ONoOffice.Identity.Application.Authentication.Login;
 using ONoOffice.Identity.Application.Authentication.Logout;
 using ONoOffice.Identity.Application.Authentication.Refresh;
+using ONoOffice.Identity.Application.Authentication.Register;
 
 namespace ONoOffice.Api.Controllers.Identity;
 
@@ -28,6 +29,20 @@ namespace ONoOffice.Api.Controllers.Identity;
 [AllowAnonymous]
 public sealed class AuthController(ISender sender) : ControllerBase
 {
+    /// <summary>
+    /// Dựng workspace mới cùng người chủ của nó, rồi <b>đăng nhập luôn</b>.
+    ///
+    /// Trả <c>200</c> chứ không phải <c>201</c>, dù đây rõ ràng là một hành động tạo.
+    /// Lý do rất cụ thể: <c>201</c> đi kèm header <c>Location</c> trỏ tới tài nguyên vừa
+    /// tạo, mà ở lát 1 chưa có endpoint nào để trỏ tới. Một <c>Location</c> trỏ vào chỗ
+    /// trống còn tệ hơn không có — công cụ sinh code từ OpenAPI sẽ tin nó.
+    /// </summary>
+    [HttpPost("register-workspace")]
+    public async Task<IActionResult> RegisterWorkspace(
+        RegisterWorkspaceCommand command,
+        CancellationToken cancellationToken)
+        => (await sender.Send(command, cancellationToken)).ToActionResult();
+
     /// <summary>Đổi email + mật khẩu lấy cặp access token và refresh token.</summary>
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginCommand command, CancellationToken cancellationToken)

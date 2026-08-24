@@ -12,6 +12,15 @@ internal sealed class FakeUserRepository : IUserRepository
 {
     public AuthUserData? Data { get; set; }
 
+    // Hai cổng dành cho luồng ĐĂNG KÝ. Đăng nhập không đụng tới, nhưng interface thì
+    // vẫn phải cài đủ — và để nguyên như thế này là đúng: nếu một ngày luồng đăng nhập
+    // lỡ gọi chúng, test sẽ nổ ngay thay vì âm thầm chạy tiếp.
+    public void Add(ONoOffice.Identity.Domain.Entities.User user) =>
+        throw new NotSupportedException("Đăng nhập không tạo tài khoản.");
+
+    public Task<bool> IsEmailTakenAsync(string email, CancellationToken ct = default) =>
+        throw new NotSupportedException("Đăng nhập không kiểm trùng email.");
+
     public string? EmailDaHoi { get; private set; }
 
     public Task<AuthUserData?> GetByIdAsync(Guid userId, CancellationToken ct = default) => Task.FromResult(Data);

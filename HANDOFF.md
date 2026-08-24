@@ -44,21 +44,22 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Phần | Trạng thái | Số test |
 |---|---|---|
 | `Luong.Kernel` (8 gói) | 🟢 Đủ dùng cho lát 1 | **202** |
-| ONoOffice · Domain | 🟢 Xong | 158 |
-| ONoOffice · Application | 🟢 Login · Refresh · Logout | *(trong 158)* |
+| ONoOffice · Domain | 🟢 Identity xong · **Org xong** | 172 + 36 |
+| ONoOffice · Application | 🟢 Login · Refresh · Logout · **RegisterWorkspace** | *(trong 172)* |
 | ONoOffice · Infrastructure | 🟢 EF · Argon2id · JWT · repository · seeder | *(trong 158)* |
-| ONoOffice · Api | 🟢 3 endpoint · phân quyền động · CORS · i18n · header an toàn | 29 |
+| ONoOffice · Api | 🟢 **4 endpoint** · phân quyền động · CORS · i18n · header an toàn | 29 |
 | Test kiến trúc + i18n + luật Controller | 🟢 | 14 |
-| **Database** | 🟢 **Postgres 16 · migration · dữ liệu mồi — đã chạy THẬT** | **26** |
+| **Database** | 🟢 **Postgres 16 · migration · dữ liệu mồi — đã chạy THẬT** | **36** |
 | **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
-| **Frontend · đăng nhập** | 🟢 **Đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **31** |
+| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **72** |
+| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 72)* |
 | Frontend · các màn còn lại | ⬜ Dashboard và danh sách nhân viên vẫn là khung rỗng | — |
 | Tài liệu | 🟢 7 thư mục · 4 ADR · `05-api` · wireframe · bản dựng màu | — |
 
 ```bash
 docker compose up -d                          # Postgres 16 ở cổng 5433
-cd backend && dotnet build && dotnet test     # 227 xanh, 0 warning
-cd frontend && npm run build && npm test      # 31 xanh · npm run lint sạch
+cd backend && dotnet build && dotnet test     # 287 xanh, 0 warning
+cd frontend && npm test && npm run parity     # 72 xanh · hai màn lệch 0,02%
 ```
 
 ### Đã kiểm chứng tới đâu (2026-08-24) — và chỗ nào thì CHƯA
@@ -70,6 +71,9 @@ cd frontend && npm run build && npm test      # 31 xanh · npm run lint sạch
 | Đăng nhập trả token đủ 12 quyền | `curl` → 200, giữ nguyên `X-Correlation-Id` gửi lên |
 | Vé gia hạn xoay vòng, dùng lại thì **thu hồi cả chuỗi** | `curl` ba lần: vé cũ 401, và vé MỚI cũng 401 |
 | Luồng gia hạn của FE (gộp một lần, gửi lại một lần) | 31 test đơn vị, có cố ý phá thứ tự để chứng minh |
+| Đăng ký workspace tạo đủ công ty + 4 vai + chủ sở hữu | `curl` → 200, token có đủ 12 quyền; gọi lại cùng mã → 409 `TenantCode.Taken` |
+| Đăng ký xong đăng nhập được bằng chính mật khẩu vừa đặt | `curl` → 200, và test `DangKyXong_ThiDangNhapDuocBangMatKhauVuaDat` trên Postgres thật |
+| Hai màn Angular **giống hệt bản dựng đã duyệt** | `npm run parity` — chụp cả hai ở 1440×940, lệch 0,02% (ngưỡng 0,40%) |
 
 ⬜ **CHƯA làm được: bấm tay qua giao diện.** Extension trình duyệt rớt kết nối giữa chừng
 nên chưa có ai gõ mật khẩu vào form thật rồi xem nó nhảy sang dashboard. Việc đầu tiên
@@ -92,17 +96,24 @@ duy nhất trong toàn hệ thống chưa ai bấm tay qua — xem bảng "Đã 
 Sau đó:
 
 ```
-⬜ Module Org — phòng ban, nhân viên (backend: Domain → Application → Infrastructure → Api)
+⬜ Màn quản lý chat — user đã chọn đây là đích tiếp theo
+⬜ Module Org — Application → Infrastructure → Api (Domain đã XONG, 36 test)
 ⬜ docs/04-database — sơ đồ bảng, quan hệ, chỉ mục
 ⬜ GET /api/auth/me — để mở lại tab lấy được tên người dùng từ server thay vì từ localStorage
-⬜ Màn danh bạ + cây phòng ban (FE)
+⬜ Giới hạn tần suất cho /api/auth/register-workspace — nó đang mở cho Internet
 ```
+
+> **Trước khi vẽ màn mới:** làm bản dựng HTML trong `docs/07-giao-dien/` và chờ user duyệt — đây là luật user đặt, không phải gợi ý. Bật xem bằng
+> `node tools/serve-mockups.mjs` (cổng 4300). Duyệt xong mới sang Angular, và sang bằng
+> `node tools/sync-shell.mjs` + `npm run parity`.
 
 Ba việc nhỏ đang nợ, đã ghi rõ trong code:
 
 | Nợ | Ở đâu |
 |---|---|
 | Ô "Ghi nhớ tôi" có mặt nhưng **chưa nối gì** | `login.html` |
+| Điều khoản / Chính sách riêng tư chỉ là link rỗng | `register.html` |
+| Nút "Vào workspace" sau đăng ký đi thẳng `/dashboard` — chưa có màn mời đồng nghiệp | `register.ts` |
 | Quên mật khẩu / Google / Facebook đều hiện *"đang phát triển"* | `login.ts` — `notBuiltYet()` |
 | `Manager` trùng khít `Member` cho tới khi có `leave.approve` | `SystemRoles.cs`, có test canh |
 
@@ -132,19 +143,21 @@ docker compose down -v      # xoá sạch dữ liệu, lần sau gieo lại từ
 
 | Bộ | Số test | Cần gì | Trả lời câu hỏi |
 |---|---|---|---|
-| `Identity.UnitTests` | 158 | không | Luật nghiệp vụ có đúng không |
+| `Identity.UnitTests` | 172 | không | Luật nghiệp vụ của Identity có đúng không |
+| `Org.UnitTests` | 36 | không | Luật nghiệp vụ của Org (phòng ban, nhân viên) |
 | `ArchitectureTests` | 14 | không | Ranh giới tầng và luật Controller có bị phá không |
 | `Api.IntegrationTests` | 29 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
-| `Api.DatabaseTests` | 26 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập có chạy THẬT không |
-| `frontend` (vitest) | 31 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch có lệch không |
+| `Api.DatabaseTests` | 36 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập/đăng ký có chạy THẬT không |
+| `frontend` (vitest) | 72 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch và bảng màu có lệch không |
+| `npm run parity` | 2 màn | **Chrome** | Bản Angular trông có **giống hệt bản dựng đã duyệt** không |
 
 Bộ thứ tư tự dựng Postgres bằng **Testcontainers**, không nối vào `docker compose`. Cố ý:
 test nối vào compose sẽ im lặng bỏ qua trên máy chưa `up` và trên CI — mà test không chạy
 thì tệ hơn cả không có, vì nhìn danh sách vẫn thấy nó nằm đó.
 
 ```bash
-cd backend  && dotnet build && dotnet test      # 227 xanh, 0 warning
-cd frontend && npm test && npm run build && npm run lint
+cd backend  && dotnet build && dotnet test      # 287 xanh, 0 warning
+cd frontend && npm test && npm run build && npm run lint && npm run parity
 ```
 
 ---
@@ -179,7 +192,15 @@ cd frontend && npm test && npm run build && npm run lint
 
 ---
 
-## ⚠️ Mười lăm cái bẫy đã gặp — đừng dẫm lại
+## ⚠️ Mười tám cái bẫy đã gặp — đừng dẫm lại
+
+### Ba cái gặp khi bắt bản dựng và code phải giống nhau (2026-08-24)
+
+**Dựng giao diện theo file `.md` mô tả, không mở `.html` ra đối chiếu → 17 giá trị màu sai, mà build, lint, test đều xanh.** Văn xuôi nói "xanh mực" thì không ai dựng lại đúng `#0b0c0e`. Nay CSS được **sinh** từ chính bản dựng (`tools/sync-shell.mjs`): không có hai file thì không lệch được. Nhưng sinh tự động chỉ bảo đảm cho lần sinh — nó không ngăn ai mở `styles.scss` ra sửa tay, nên còn hai test đối chiếu chạy mỗi lần `npm test`.
+
+**Sinh CSS vẫn KHÔNG bắt được lệch về bố cục.** Màu đúng hết mà lề lệch 4px, thiếu một icon, hay cả một khối đặt nhầm chỗ thì mọi test vẫn xanh. Chỉ có một cách canh "trông giống nhau": nhìn cả hai rồi so. Đó là `npm run parity` — chụp bản dựng và bản Angular ở 1440×940 rồi so từng điểm ảnh, ngưỡng 0,4%.
+
+**Bản dựng thiếu `<!doctype html>` → trình duyệt chạy chế độ *quirks* và cả trang lệch xuống 8 điểm ảnh.** Đây là lỗi đầu tiên bộ so ảnh bắt được, và nó nằm ở chính bản dựng chứ không ở code. Bài học lớn hơn con số 8px: **thứ người duyệt nhìn không phải thứ sẽ chạy**, trừ khi có cái gì đó chứng minh ngược lại.
 
 ### Ba cái gặp khi nối frontend vào API thật (2026-08-24)
 
@@ -304,10 +325,30 @@ người dùng sẽ tưởng app hỏng. Màn đăng nhập phải có trạng t
 
 ```
 docs/07-giao-dien/wireframes.html             · bố cục 6 màn (đơn sắc, có chú thích)
-docs/07-giao-dien/identity/dang-nhap.html     · bản dựng màu — 4 bộ, 4 trạng thái
+docs/07-giao-dien/identity/dang-nhap.html     · bản dựng màu — 4 bộ, 5 trạng thái
+docs/07-giao-dien/identity/dang-ky.html       · bản dựng màu — 4 bộ, 5 trạng thái
 ```
 
-Cả hai **mở thẳng bằng trình duyệt** là chạy.
+Mở thẳng bằng trình duyệt là chạy, hoặc bật máy chủ để xem cả danh sách:
+
+```bash
+node tools/serve-mockups.mjs        # http://localhost:4300
+```
+
+Thêm `?state=invalid` để xem một trạng thái, `?bare=1` để giấu thanh duyệt.
+
+### 🔒 Bản dựng và code KHÔNG được lệch — đây là luật user đặt
+
+Ba công cụ giữ chúng dính nhau. Đổi giao diện thì **sửa bản dựng trước**, rồi chạy lại bộ sinh —
+sửa thẳng vào `.scss` sẽ bị lần chạy sau xoá mất.
+
+```bash
+node tools/sync-shell.mjs           # bản dựng → styles.scss, login.scss, register.scss
+node tools/sync-error-messages.mjs  # .resx của backend → errors.json của FE
+cd frontend && npm run parity       # chụp cả hai rồi so từng điểm ảnh
+```
+
+Lệch thì `parity` ghi ba ảnh vào `frontend/.shots/parity/` — ảnh thứ ba tô đỏ đúng chỗ khác nhau.
 
 ---
 
@@ -344,19 +385,28 @@ LUẬT BẮT BUỘC:
 Cách giảng: đừng dùng thuật ngữ chưa định nghĩa; ví von đời thường + số liệu cụ thể;
 mở đầu bằng sự cố thật rồi mới tới lý thuyết.
 
-VIỆC ĐẦU TIÊN, mất năm phút: chạy cả hệ thống (docker compose up -d, dotnet run,
-npm start) rồi ĐĂNG NHẬP BẰNG TAY ở http://localhost:4200/login với
-chu@demo.vn / MatKhauDemo!2026. Đó là mắt xích duy nhất chưa ai bấm qua.
+LUẬT SỐ 8 — GIAO DIỆN: mọi màn mới phải làm thành bản dựng HTML trong
+ONoOffice/docs/07-giao-dien/ để tôi duyệt TRƯỚC, rồi mới viết Angular. Và bản dựng
+với code phải Y HỆT nhau để lần sau tôi kiểm không bị lệch — CSS sinh bằng
+node tools/sync-shell.mjs, kiểm bằng npm run parity (so từng điểm ảnh).
 
-Sau đó: module Org (phòng ban, nhân viên) và docs/04-database.
-Chưa duyệt thiết kế — trình bày trước theo luật 1.
+VIỆC ĐẦU TIÊN, mất năm phút: chạy cả hệ thống (docker compose up -d, dotnet run,
+npm start) rồi ĐĂNG KÝ MỘT WORKSPACE BẰNG TAY ở http://localhost:4200/dang-ky,
+xem nó có nhảy sang thẻ xác nhận không. Hai màn đã kiểm bằng curl và bằng ảnh
+chụp máy, nhưng chưa ai gõ tay qua giao diện thật.
+
+Sau đó: màn quản lý chat (tôi đã chọn đây là đích tiếp theo), rồi module Org
+từ tầng Application trở lên — Domain đã xong. Chưa duyệt thiết kế cái nào:
+trình bày trước theo luật 1, và vẽ bản dựng theo luật 8.
 
 Bắt đầu bằng việc chạy `cd ONoOffice/backend && dotnet build && dotnet test`
-và `cd ONoOffice/frontend && npm test` để xác nhận 227 + 31 test còn xanh
-(cần `docker compose up -d` trước), rồi báo tôi trạng thái trước khi làm gì.
+và `cd ONoOffice/frontend && npm test && npm run parity` để xác nhận
+287 + 72 test còn xanh và hai màn vẫn khớp bản dựng (cần `docker compose up -d`
+trước), rồi báo tôi trạng thái trước khi làm gì.
 ```
 
-**Vì sao đoạn prompt này dài như vậy:** session mới không nhớ gì cả. Ba thứ nó **không thể
-tự đoán ra** là (a) luật phải trình bày thiết kế trước, (b) TDD phải thấy đỏ thật, và
-(c) commit tiếng Anh nhưng hội thoại tiếng Việt. Thiếu chúng thì session mới sẽ lao vào
-code ngay và viết commit tiếng Việt.
+**Vì sao đoạn prompt này dài như vậy:** session mới không nhớ gì cả. Bốn thứ nó **không thể
+tự đoán ra** là (a) luật phải trình bày thiết kế trước, (b) TDD phải thấy đỏ thật,
+(c) commit tiếng Anh nhưng hội thoại tiếng Việt, và (d) giao diện phải qua bản dựng
+trong `docs/07-giao-dien` rồi mới tới Angular. Thiếu chúng thì session mới sẽ lao vào
+code ngay, viết commit tiếng Việt, và vẽ lại một giao diện khác thứ đã duyệt.

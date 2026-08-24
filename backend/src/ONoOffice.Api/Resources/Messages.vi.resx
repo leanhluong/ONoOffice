@@ -137,4 +137,10 @@
   <data name="Validation.Multiple" xml:space="preserve">
     <value>Dữ liệu gửi lên có nhiều chỗ không hợp lệ.</value>
   </data>
+  <data name="Email.Taken" xml:space="preserve">
+    <value>Email này đã có tài khoản. Bạn có muốn đăng nhập không?</value>
+  </data>
+  <data name="TenantCode.Taken" xml:space="preserve">
+    <value>Mã workspace này đã có người dùng.</value>
+  </data>
 </root>

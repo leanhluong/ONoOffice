@@ -22,6 +22,13 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
   {
+    // Đường dẫn tiếng Việt vì đây là màn người NGOÀI công ty nhìn thấy đầu tiên; phần
+    // bên trong app vẫn dùng đường dẫn tiếng Anh cho khớp tên module.
+    path: 'dang-ky',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./layout/shell/shell').then((m) => m.Shell),

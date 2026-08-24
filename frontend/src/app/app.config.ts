@@ -88,7 +88,11 @@ export const appConfig: ApplicationConfig = {
         return;
       }
 
-      return firstValueFrom(inject(AuthService).refresh().pipe(catchError(() => of(undefined))));
+      return firstValueFrom(
+        inject(AuthService)
+          .refresh()
+          .pipe(catchError(() => of(undefined))),
+      );
     }),
   ],
 };

@@ -1,10 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import type {
-  AuthSession,
-  AuthUser,
-  LoginResponse,
-  RefreshResponse,
-} from '../models/auth.model';
+import type { AuthSession, AuthUser, LoginResponse, RefreshResponse } from '../models/auth.model';
 import { decodeJwtPayload, hasRequiredClaims, readExpiry, readPermissions } from './jwt.util';
 import { TokenStorage } from './token.storage';
 

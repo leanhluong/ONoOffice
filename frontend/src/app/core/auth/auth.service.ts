@@ -2,13 +2,20 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, finalize, map, of, shareReplay, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import type { LoginRequest, LoginResponse, RefreshResponse } from '../models/auth.model';
+import type {
+  LoginRequest,
+  LoginResponse,
+  RefreshResponse,
+  RegisterWorkspaceRequest,
+  RegisterWorkspaceResponse,
+} from '../models/auth.model';
 import type { AppError } from '../models/api-error.model';
 import { AuthStore } from './auth.store';
 
 /** Các endpoint xác thực. Interceptor cũng dùng hằng này nên phải export. */
 export const AUTH_ENDPOINTS = {
   login: '/api/auth/login',
+  registerWorkspace: '/api/auth/register-workspace',
   refresh: '/api/auth/refresh',
   logout: '/api/auth/logout',
 } as const;
@@ -56,6 +63,30 @@ export class AuthService {
         }
       }),
     );
+  }
+
+  /**
+   * Tạo workspace mới cùng tài khoản chủ sở hữu.
+   *
+   * Backend trả về CẢ cặp token, nên hàm này mở luôn phiên: người vừa đặt mật khẩu xong
+   * không phải gõ lại nó ở màn đăng nhập.
+   *
+   * Trả về cả phản hồi chứ không phải <c>void</c> như <c>login</c> — màn đăng ký cần
+   * <c>workspace.code</c> để hiện thẻ xác nhận, và đó là lần DUY NHẤT ta có nó: mã
+   * workspace không nằm trong access token.
+   */
+  registerWorkspace(request: RegisterWorkspaceRequest): Observable<RegisterWorkspaceResponse> {
+    return this.http
+      .post<RegisterWorkspaceResponse>(this.url(AUTH_ENDPOINTS.registerWorkspace), request)
+      .pipe(
+        map((response) => {
+          if (!this.store.startSession(response)) {
+            throw this.invalidTokenError();
+          }
+
+          return response;
+        }),
+      );
   }
 
   /**

@@ -8,7 +8,8 @@
     "signIn": "Đăng nhập",
     "signOut": "Đăng xuất",
     "cancel": "Huỷ",
-    "retry": "Thử lại"
+    "retry": "Thử lại",
+    "close": "Đóng"
   },
   "theme": {
     "label": "Bộ màu",
@@ -20,7 +21,9 @@
   "language": {
     "label": "Ngôn ngữ",
     "vi": "Tiếng Việt",
-    "en": "English"
+    "en": "English",
+    "soon": "sắp có",
+    "notReady": "bản dịch chưa có, sẽ thêm sau."
   },
   "state": {
     "loading": "Đang tải…",

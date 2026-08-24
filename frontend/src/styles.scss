@@ -1,120 +1,421 @@
 /**
- * Style toàn cục.
+ * ⚠️ FILE NÀY ĐƯỢC SINH TỰ ĐỘNG — ĐỪNG SỬA TAY.
  *
- * Chỉ chứa ba thứ: nạp chữ, khai token của bốn bộ màu, và một reset tối thiểu.
- * Mọi thứ khác thuộc về SCSS của từng component (Angular tự bọc scope).
+ * Nguồn:    docs/07-giao-dien/chung/_shell.css
+ * Sinh lại: node tools/sync-shell.mjs
  *
- * LUẬT BẤT DI BẤT DỊCH: component chỉ được dùng `var(--token)`, không bao giờ viết mã
- * màu trực tiếp. Đó là toàn bộ lý do ship được bốn bộ màu mà không tốn gì thêm — bốn bộ
- * chỉ là bốn lần khai lại đúng mười một biến bên dưới.
+ * Sửa ở đây thì lần chạy bộ sinh tiếp theo sẽ xoá mất, và tệ hơn: bản dựng mà người
+ * duyệt nhìn sẽ khác thứ đang chạy thật. Muốn đổi giao diện thì sửa bản dựng rồi chạy
+ * lại bộ sinh.
  */
 
-/* Chữ chọn theo TIẾNG VIỆT trước, không phải theo thẩm mỹ trước — xem he-thong-thiet-ke.md.
-   Danh sách và trọng lượng chép đúng từ bản dựng mockup. */
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+/*
+  Nền chung cho MỌI bản dựng trong 07-giao-dien.
+
+  Vì sao tách ra một file: bốn bộ màu và bộ chữ phải giống hệt nhau ở mọi màn. Chép đi
+  chép lại vào từng file HTML thì sớm muộn hai màn lệch nhau một token, và không ai nhìn
+  ra bằng mắt.
+
+  ⚠️ Bảng màu ở đây là NGUỒN GỐC của cả sản phẩm: `frontend/src/styles.scss` được sinh
+  tự động từ nó bằng `tools/sync-shell.mjs`, và `palette-parity.spec.ts` đối chiếu hai
+  chiều mỗi lần chạy test. Sửa màu thì sửa ở đây, rồi chạy lại bộ sinh.
+*/
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BỐN BỘ MÀU — mỗi bộ là một thế giới hoàn chỉnh, không đảo sáng/tối.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root,
+:root[data-theme="muc"] {
+  --ground:      #0B0C0E;
+  --surface:     #131417;
+  --surface-2:   #1B1D21;
+  --line:        #26282D;
+  --ink:         #EDEAE4;
+  --ink-soft:    #9B9891;
+  --ink-faint:   #6A6862;
+  --accent:      #D9A441;
+  --accent-ink:  #1A1408;
+  --danger:      #E0644F;
+  --glow:        217, 164, 65;
+}
+:root[data-theme="haidang"] {
+  --ground:      #0A1220;
+  --surface:     #101A2B;
+  --surface-2:   #16233A;
+  --line:        #223148;
+  --ink:         #DCE4F0;
+  --ink-soft:    #8A9AB4;
+  --ink-faint:   #5C6B84;
+  --accent:      #FF7A5C;
+  --accent-ink:  #2A0D06;
+  --danger:      #FF9E8C;
+  --glow:        255, 122, 92;
+}
+:root[data-theme="giay"] {
+  --ground:      #FAFAF8;
+  --surface:     #FFFFFF;
+  --surface-2:   #F1F1EE;
+  --line:        #DEDEDA;
+  --ink:         #16181C;
+  --ink-soft:    #5A5D64;
+  --ink-faint:   #8B8E95;
+  --accent:      #8C2F39;
+  --accent-ink:  #FFF6F2;
+  --danger:      #B3261E;
+  --glow:        140, 47, 57;
+}
+:root[data-theme="reu"] {
+  --ground:      #12160F;
+  --surface:     #191E15;
+  --surface-2:   #22281C;
+  --line:        #2F3728;
+  --ink:         #E4E8DC;
+  --ink-soft:    #9AA48C;
+  --ink-faint:   #6B7461;
+  --accent:      #A3B18A;
+  --accent-ink:  #141A0D;
+  --danger:      #D98E7A;
+  --glow:        163, 177, 138;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 320ms ease, color 320ms ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   THANH TUỲ CHỌN — bộ màu + ngôn ngữ
+
+   Đây là thứ SẼ SHIP, không phải khung để duyệt. Nó nằm góc trên phải của
+   cột biểu mẫu ở mọi màn công khai.
+   ═══════════════════════════════════════════════════════════════════════ */
+.prefs {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Chỉ CHẤM MÀU, không kèm tên bộ.
+   Tên bộ ("Mực", "Hải đăng"…) chẳng nói được gì mà một ô màu không nói rõ hơn, lại
+   chiếm gấp bốn lần chỗ và phải dịch sang mọi ngôn ngữ. Tên vẫn còn trong `title` và
+   nhãn cho trình đọc màn hình, nên người dùng bàn phím không mất gì. */
+.skins { display: flex; align-items: center; gap: 7px; }
+
+.skin {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid rgb(128 128 128 / 0.35);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.skin:hover { transform: scale(1.14); }
+.skin[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--ground), 0 0 0 4px var(--accent);
+}
+
+/* Chọn ngôn ngữ: danh sách xổ TỰ VIẾT, không phải thẻ <select> gốc.
+
+   Vì sao: <select> không cho đặt hình vào <option> — không có cách nào hiện lá cờ. Và
+   emoji cờ (🇻🇳) thì Windows KHÔNG có phông cho chúng, nó hiện ra thành hai chữ cái
+   "VN". Nghĩa là trên đúng hệ điều hành mà phần lớn người dùng đang chạy, giải pháp
+   emoji hỏng.
+
+   Đổi lại phải tự lo bàn phím và ARIA — đã làm ở dưới. */
+.lang { position: relative; }
+
+.lang__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 9px 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+.lang__button:hover { border-color: var(--ink-faint); color: var(--ink); }
+.lang__button[aria-expanded="true"] { border-color: var(--accent); color: var(--ink); }
+
+.flag {
+  width: 20px;
+  height: 14px;
+  flex: none;
+  border-radius: 2px;
+  /* Cờ nền trắng (Nhật, Hàn) sẽ biến mất trên nền sáng nếu không có viền. */
+  box-shadow: 0 0 0 1px rgb(128 128 128 / 0.3);
+}
+
+.lang__caret { width: 10px; height: 10px; color: var(--ink-faint); }
+
+.lang__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 30;
+  min-width: 190px;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 14px 34px rgb(0 0 0 / 0.32);
+}
+.lang__menu[hidden] { display: none; }
+
+.lang__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.lang__option:hover, .lang__option:focus-visible { background: var(--surface-2); color: var(--ink); }
+.lang__option[aria-selected="true"] { color: var(--ink); font-weight: 500; }
+.lang__option .tick { margin-left: auto; color: var(--accent); }
+.lang__option[aria-selected="false"] .tick { visibility: hidden; }
+
+/* Ngôn ngữ chưa có bản dịch — hiện xám, bấm được nhưng báo "chưa có". Thà nói thẳng
+   còn hơn giấu đi rồi người dùng tưởng sản phẩm không hỗ trợ tiếng của họ. */
+.lang__option[data-soon] { color: var(--ink-faint); }
+.lang__option[data-soon] .soon {
+  margin-left: auto;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   POPUP THÔNG BÁO — nổi ở ĐẦU màn hình, tự biến mất
+
+   Một dòng, một câu, một nút đóng. KHÔNG có mã lỗi kỹ thuật:
+   "TenantCode.Taken · HTTP 409" chẳng giúp người dùng làm được gì, mà lại
+   biến một câu dễ hiểu thành một khối trông như lỗi hệ thống.
+
+   Mã tham chiếu CHỈ hiện khi ta không giải thích được chuyện gì đã xảy ra —
+   xem `popup({ ref })`. Lúc đó nó là thứ duy nhất giúp bộ phận hỗ trợ tìm
+   ra dòng log, nên đáng hiện; còn "sai mật khẩu" thì không.
+   ═══════════════════════════════════════════════════════════════════════ */
+.popups {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  pointer-events: none;
+}
+
+.popup {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 9px 10px 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.26);
+  font-size: 13.5px;
+  white-space: nowrap;
+  pointer-events: auto;
+  animation: popup-in 200ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+.popup--leaving { animation: popup-out 160ms ease forwards; }
+
+/* Câu dài thì cho xuống dòng thay vì tràn ra ngoài màn hình. */
+@media (max-width: 560px) {
+  .popup { white-space: normal; border-radius: 12px; align-items: flex-start; }
+}
+
+.popup--error {
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--line));
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+}
+
+.popup__dot {
+  width: 7px; height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ink-faint);
+}
+.popup--error .popup__dot { background: var(--danger); }
+
+.popup__body { flex: 1; min-width: 0; }
+
+/* Mã tham chiếu — chỉ hiện với lỗi không giải thích được. Sáu ký tự là đủ để
+   tìm trong log mà không biến popup thành một khối chữ kỹ thuật. */
+.popup__ref {
+  margin-left: 8px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  user-select: all;
+}
+
+.popup__close {
+  flex: none;
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--ink-faint);
+  font: inherit; font-size: 15px; line-height: 1;
+  cursor: pointer;
+}
+.popup__close:hover { background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); }
+
+/* Vạch đếm ngược: người dùng THẤY nó sắp biến mất thay vì bị bất ngờ. */
+.popup__timer {
+  position: absolute;
+  left: 0; bottom: 0;
+  height: 2px; width: 100%;
+  transform-origin: left;
+  background: color-mix(in srgb, var(--ink-faint) 45%, transparent);
+  animation: popup-timer linear forwards;
+}
+.popup--error .popup__timer { background: color-mix(in srgb, var(--danger) 45%, transparent); }
+
+/* Rê chuột vào thì dừng đồng hồ — người đang đọc dở không bị cướp mất câu chữ. */
+.popup:hover .popup__timer { animation-play-state: paused; }
+
+@keyframes popup-in {
+  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes popup-out {
+  to { opacity: 0; transform: translateY(-8px) scale(0.98); }
+}
+@keyframes popup-timer {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TOOLTIP — dấu ? cạnh nhãn
+
+   Thay cho những dòng chú thích nằm cố định dưới ô nhập. Một dòng chữ xám
+   dưới mỗi ô làm biểu mẫu dài gấp rưỡi và người dùng đọc lướt qua hết — chỗ
+   nào cũng có chữ thì không chỗ nào đáng đọc. Cất vào dấu ? thì ai cần mới mở.
+
+   Dùng `tabindex="0"` để mở được bằng bàn phím: chỉ hiện khi rê chuột nghĩa
+   là người dùng bàn phím không bao giờ đọc được nội dung đó.
+   ═══════════════════════════════════════════════════════════════════════ */
+.tip {
+  position: relative;
+  width: 15px; height: 15px;
+  display: inline-grid; place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--ink-faint);
+  font-size: 10px;
+  line-height: 1;
+  cursor: help;
+}
+.tip:hover, .tip:focus-visible { border-color: var(--ink-faint); color: var(--ink); }
+
+.tip__bubble {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  z-index: 10;
+  width: max-content;
+  max-width: 220px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: normal;
+  text-align: left;
+  box-shadow: 0 8px 22px rgb(0 0 0 / 0.26);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+.tip:hover .tip__bubble,
+.tip:focus-visible .tip__bubble {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  /* Tắt animation thì vạch đếm ngược đứng yên — ẩn hẳn cho khỏi hiểu nhầm là bị treo. */
+  .popup__timer { display: none; }
+}
+
+/* Chỉ trình đọc màn hình thấy. Nút chỉ có màu (chọn bộ màu) vẫn phải có tên đọc được —
+   `display:none` thì trình đọc màn hình cũng bỏ qua, tức là nút đó câm. */
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   BỐN BỘ MÀU
+   Ba khối dưới đây CHỈ có ở sản phẩm, không có trong bản dựng.
 
-   ⚠️ KHỐI DƯỚI ĐÂY ĐƯỢC SINH TỰ ĐỘNG — đừng sửa tay.
-
-   Nguồn: docs/07-giao-dien/chung/_shell.css (nền chung của mọi bản dựng).
-   Sinh lại:  node tools/sync-palette.mjs
-
-   Vì sao sinh máy: 4 bộ × 11 token = 44 giá trị hex. Chép tay là 44 cơ hội gõ sai một
-   ký tự, và sai một ký tự thì không ai nhìn ra bằng mắt — nó chỉ làm giao diện "hơi
-   khác mockup" theo cách không ai chỉ ra được.
-
-   --ground      nền ngoài cùng          --ink-faint   chữ mờ, gợi ý
-   --surface     nền thẻ, ô nhập         --accent      điểm nhấn — CHỈ cho hành động chính
-   --surface-2   nền chìm hơn một bậc    --accent-ink  chữ nằm trên nền accent
-   --line        đường kẻ, viền          --danger      lỗi
-   --ink         chữ chính               --glow        accent dạng R,G,B — cho vòng sáng focus
-   --ink-soft    chữ phụ, nhãn
+   Bản dựng luôn mở ở bộ Mực và luôn dùng phông tải từ Google Fonts, nên nó không
+   cần chúng. Sản phẩm thì cần: nó phải đoán bộ màu theo cài đặt máy người dùng, và
+   phải có tên biến cho thang đo mà component gọi tới.
    ══════════════════════════════════════════════════════════════════════════════ */
-
-/* Mực — nền đen ám xanh, điểm nhấn hổ phách */
-:root,
-:root[data-theme='muc'] {
-  --ground: #0B0C0E;
-  --surface: #131417;
-  --surface-2: #1B1D21;
-  --line: #26282D;
-  --ink: #EDEAE4;
-  --ink-soft: #9B9891;
-  --ink-faint: #6A6862;
-  --accent: #D9A441;
-  --accent-ink: #1A1408;
-  --danger: #E0644F;
-  --glow: 217, 164, 65;
-}
-
-/* Hải đăng — nền xanh mực sâu, điểm nhấn san hô */
-:root[data-theme='haidang'] {
-  --ground: #0A1220;
-  --surface: #101A2B;
-  --surface-2: #16233A;
-  --line: #223148;
-  --ink: #DCE4F0;
-  --ink-soft: #8A9AB4;
-  --ink-faint: #5C6B84;
-  --accent: #FF7A5C;
-  --accent-ink: #2A0D06;
-  --danger: #FF9E8C;
-  --glow: 255, 122, 92;
-}
-
-/* Giấy — nền trắng ngà, điểm nhấn đỏ rượu */
-:root[data-theme='giay'] {
-  --ground: #FAFAF8;
-  --surface: #FFFFFF;
-  --surface-2: #F1F1EE;
-  --line: #DEDEDA;
-  --ink: #16181C;
-  --ink-soft: #5A5D64;
-  --ink-faint: #8B8E95;
-  --accent: #8C2F39;
-  --accent-ink: #FFF6F2;
-  --danger: #B3261E;
-  --glow: 140, 47, 57;
-}
-
-/* Rêu — nền xanh rêu tối, điểm nhấn xanh xô thơm */
-:root[data-theme='reu'] {
-  --ground: #12160F;
-  --surface: #191E15;
-  --surface-2: #22281C;
-  --line: #2F3728;
-  --ink: #E4E8DC;
-  --ink-soft: #9AA48C;
-  --ink-faint: #6B7461;
-  --accent: #A3B18A;
-  --accent-ink: #141A0D;
-  --danger: #D98E7A;
-  --glow: 163, 177, 138;
-}
 
 /* Máy để chế độ SÁNG mà người dùng chưa chọn gì → Giấy.
    `:not([data-theme])` nên lựa chọn tay của người dùng luôn thắng. */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
-    --ground: #FAFAF8;
-    --surface: #FFFFFF;
-    --surface-2: #F1F1EE;
-    --line: #DEDEDA;
-    --ink: #16181C;
-    --ink-soft: #5A5D64;
-    --ink-faint: #8B8E95;
-    --accent: #8C2F39;
-    --accent-ink: #FFF6F2;
-    --danger: #B3261E;
-    --glow: 140, 47, 57;
+  --ground:      #FAFAF8;
+  --surface:     #FFFFFF;
+  --surface-2:   #F1F1EE;
+  --line:        #DEDEDA;
+  --ink:         #16181C;
+  --ink-soft:    #5A5D64;
+  --ink-faint:   #8B8E95;
+  --accent:      #8C2F39;
+  --accent-ink:  #FFF6F2;
+  --danger:      #B3261E;
+  --glow:        140, 47, 57;
   }
 }
-
-/* ══════════════════════════════════════════════════════════════════════════════
-   Thang đo — bội số của 4px, không có ngoại lệ
-   ══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
   --radius: 10px;
@@ -125,67 +426,5 @@
   --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+html, body { height: 100%; }
 
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  background: var(--ground);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-
-  /* Đổi bộ màu thì chuyển mượt, không giật một nhát. */
-  transition:
-    background 320ms ease,
-    color 320ms ease;
-}
-
-code,
-kbd,
-.mono {
-  font-family: var(--font-mono);
-}
-
-/* Viền focus nhìn thấy được ở CẢ BỐN bộ màu. Bỏ outline mà không thay bằng gì là cắt
-   đường đi của người dùng bàn phím — họ không còn biết mình đang đứng ở đâu. */
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* Máy đã xin giảm chuyển động thì tắt hẳn, không "giảm bớt". Với người bị rối loạn tiền
-   đình, một chuyển động nhỏ vẫn đủ gây chóng mặt. */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-}
-
-/* Chỉ trình đọc màn hình thấy. Dùng cho nhãn của nút chỉ có biểu tượng — `display:none`
-   thì trình đọc màn hình cũng không đọc, tức là nút đó câm với người khiếm thị. */
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}

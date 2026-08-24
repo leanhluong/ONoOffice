@@ -17,11 +17,13 @@
     @if (store.user(); as user) {
       <div class="topbar__user">
         <span class="topbar__name">{{ user.displayName || user.email || user.userId }}</span>
-        <span class="topbar__tenant" [title]="'session.workspace' | translate">{{ user.email }}</span>
+        <span class="topbar__tenant" [title]="'session.workspace' | translate">{{
+          user.email
+        }}</span>
       </div>
     }
 
-    <app-theme-picker />
+    <app-prefs />
 
     <button type="button" class="topbar__logout" (click)="logout()">
       {{ 'action.signOut' | translate }}

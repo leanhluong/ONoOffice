@@ -1,29 +1,26 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, type AbstractControl } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ErrorMessageService } from '../../../core/i18n/error-message.service';
 import { isAppError, type AppError } from '../../../core/models/api-error.model';
-import { Alert } from '../../../shared/ui/alert/alert';
+import { PopupService } from '../../../core/ui/popup.service';
 import { OrgWeave } from '../../../shared/ui/org-weave/org-weave';
-import { ThemePicker } from '../../../shared/ui/theme-picker/theme-picker';
-import { Toast } from '../../../shared/ui/toast/toast';
+import { PopupHost } from '../../../shared/ui/popup-host/popup-host';
+import { Prefs } from '../../../shared/ui/prefs/prefs';
 
 /**
  * Màn đăng nhập.
  *
  * Đây là màn DUY NHẤT ai cũng vào được mà chưa cần token, nên cũng là màn bị dò nhiều
- * nhất. Mọi lựa chọn dưới đây xoay quanh chuyện đó — xem
- * `docs/07-giao-dien/identity/dang-nhap.md`, và bản dựng màu `dang-nhap.html` là nguồn
- * duy nhất cho mọi con số về giao diện.
- *
- * Đã chạy thật với backend ngày 2026-08-24.
+ * nhất. Nguồn thiết kế: `docs/07-giao-dien/identity/dang-nhap.html` — mọi con số về giao
+ * diện lấy từ đó, và `login.scss` được sinh tự động từ nó.
  */
 @Component({
   selector: 'app-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, TranslatePipe, Alert, OrgWeave, ThemePicker, Toast],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, OrgWeave, PopupHost, Prefs],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -34,27 +31,10 @@ export class Login {
   private readonly route = inject(ActivatedRoute);
   private readonly errorMessages = inject(ErrorMessageService);
   private readonly translate = inject(TranslateService);
-
-  private readonly toast = viewChild.required(Toast);
+  private readonly popups = inject(PopupService);
 
   protected readonly submitting = signal(false);
   protected readonly showPassword = signal(false);
-
-  /** Lỗi chung hiện trên đầu form: sai mật khẩu, tài khoản bị khoá, mất mạng. */
-  protected readonly formError = signal<AppError | null>(null);
-
-  protected readonly errorText = computed(() => {
-    const error = this.formError();
-    return error === null ? null : this.errorMessages.resolve(error);
-  });
-
-  /**
-   * Bị đá về đây vì phiên hết hạn, chứ không phải tự bấm vào.
-   *
-   * Phân biệt hai ca này là chuyện nhỏ nhưng thật: người đang làm dở mà bị văng ra cần
-   * biết VÌ SAO, nếu không họ tưởng mình bấm nhầm hoặc app hỏng.
-   */
-  protected readonly sessionExpired = this.route.snapshot.queryParamMap.get('lyDo') === 'het-phien';
 
   protected readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -62,16 +42,23 @@ export class Login {
     /**
      * CHỈ kiểm "không được rỗng".
      *
-     * Cố ý không kiểm độ dài tối thiểu ở màn ĐĂNG NHẬP: mật khẩu đã tồn tại rồi, luật độ
-     * mạnh thuộc về màn đăng ký và màn đổi mật khẩu. Kiểm ở đây thì người có mật khẩu cũ
-     * ngắn hơn luật mới sẽ không vào được chính tài khoản của họ — và thông báo lỗi sẽ
-     * nói cho kẻ đang dò biết luật mật khẩu của hệ thống.
+     * Cố ý không kiểm độ dài ở màn ĐĂNG NHẬP: mật khẩu đã tồn tại rồi, luật độ mạnh thuộc
+     * về màn đăng ký. Kiểm ở đây thì người có mật khẩu cũ ngắn hơn luật mới không vào
+     * được chính tài khoản của họ — và thông báo lỗi nói cho kẻ đang dò biết luật mật khẩu.
      */
     password: ['', [Validators.required]],
 
     /** CHƯA NỐI GÌ. Sẽ quyết định hạn refresh token dài/ngắn — xem dang-nhap.md. */
     remember: [true],
   });
+
+  constructor() {
+    // Bị đá về đây vì phiên hết hạn, chứ không phải tự bấm vào. Người đang làm dở mà bị
+    // văng ra cần biết VÌ SAO, nếu không họ tưởng mình bấm nhầm hoặc app hỏng.
+    if (this.route.snapshot.queryParamMap.get('lyDo') === 'het-phien') {
+      this.popups.show(this.translate.instant('login.sessionExpired') as string);
+    }
+  }
 
   protected get emailControl(): AbstractControl {
     return this.form.controls.email;
@@ -96,15 +83,13 @@ export class Login {
       return null;
     }
 
-    const errors = control.errors;
-
-    if (errors['required']) {
+    if (control.errors['required']) {
       return this.translate.instant(
         field === 'email' ? 'login.validation.emailRequired' : 'login.validation.passwordRequired',
       ) as string;
     }
 
-    if (errors['email']) {
+    if (control.errors['email']) {
       return this.translate.instant('login.validation.emailInvalid') as string;
     }
 
@@ -112,8 +97,6 @@ export class Login {
   }
 
   protected submit(): void {
-    this.formError.set(null);
-
     if (this.form.invalid) {
       // Đánh dấu touched hết để mọi lỗi hiện cùng lúc, thay vì người dùng sửa xong ô này
       // lại lòi ra lỗi ô khác.
@@ -138,32 +121,27 @@ export class Login {
       },
       error: (error: unknown) => {
         this.submitting.set(false);
-        this.formError.set(this.toAppError(error));
+        this.showError(error);
       },
     });
   }
 
-  /**
-   * Nút chưa làm: hiện một thông báo thoáng qua ở đáy màn hình.
-   *
-   * KHÔNG dùng khối cảnh báo trong form — khối đó dành cho lý do người dùng không vào
-   * được. Nhét "tính năng đang phát triển" vào đó khiến một tin vô hại trông như lỗi.
-   */
+  /** Nút chưa làm: một thông báo thoáng qua, không phải khối lỗi trong biểu mẫu. */
   protected notBuiltYet(event: Event, labelKey: string): void {
     event.preventDefault();
 
     const label = this.translate.instant(labelKey) as string;
     const suffix = this.translate.instant('login.comingSoon') as string;
 
-    this.toast().show(`${label} — ${suffix}`);
+    this.popups.show(`${label} — ${suffix}`);
   }
 
   /**
    * Quay lại trang người dùng định vào trước khi bị guard đá ra.
    *
-   * CHỈ nhận đường dẫn nội bộ. Không chặn thì một link
-   * `?returnUrl=https://trang-gia-mao` sẽ đưa người vừa đăng nhập sang trang của kẻ xấu,
-   * và họ tin nó vì vừa đăng nhập xong ở trang thật.
+   * CHỈ nhận đường dẫn nội bộ. Không chặn thì một link `?returnUrl=https://trang-gia-mao`
+   * sẽ đưa người vừa đăng nhập sang trang của kẻ xấu, và họ tin nó vì vừa đăng nhập xong
+   * ở trang thật.
    */
   private returnUrl(): string {
     const raw = this.route.snapshot.queryParamMap.get('returnUrl');
@@ -175,19 +153,22 @@ export class Login {
     return '/dashboard';
   }
 
-  private toAppError(error: unknown): AppError {
-    if (isAppError(error)) {
-      return error;
-    }
+  private showError(error: unknown): void {
+    const appError: AppError = isAppError(error)
+      ? error
+      : {
+          kind: 'unknown',
+          status: 0,
+          code: 'Client.Unexpected',
+          message: '',
+          details: [],
+          fieldErrors: {},
+          correlationId: null,
+        };
 
-    return {
-      kind: 'unknown',
-      status: 0,
-      code: 'Client.Unexpected',
-      message: '',
-      details: [],
-      fieldErrors: {},
-      correlationId: null,
-    };
+    this.popups.error(
+      this.errorMessages.resolve(appError),
+      this.errorMessages.reference(appError) ?? undefined,
+    );
   }
 }

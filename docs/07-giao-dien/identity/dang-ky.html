@@ -1,9 +1,13 @@
+<!doctype html>
 <!--
-  Bản dựng màn ĐĂNG KÝ WORKSPACE — bốn bộ màu, bốn trạng thái.
+  Bản dựng màn ĐĂNG KÝ WORKSPACE — bốn bộ màu, năm trạng thái.
 
   Màn này tạo MỘT LÚC ba thứ: workspace, bốn vai trò hệ thống, và tài khoản chủ sở hữu.
   Đó chính là việc mà `IdentityDataSeeder` đang làm bằng tay ở môi trường phát triển —
-  nay biến thành một use case thật, có giao diện.
+  nay biến thành một use case thật.
+
+  MỤC TIÊU BỐ CỤC: vừa ĐÚNG MỘT MÀN, không phải cuộn. Người đăng ký muốn điền nhanh cho
+  xong; bắt họ cuộn giữa chừng là chỗ dễ bỏ dở nhất của cả luồng.
 
   Mở thẳng bằng trình duyệt là chạy. Nền chung: ../chung/_shell.css + _shell.js
 -->
@@ -17,113 +21,131 @@
 
 <style>
 .stage { display: grid; grid-template-columns: 1.15fr 1fr; min-height: 100vh; }
-@media (max-width: 900px) { .stage { grid-template-columns: 1fr; } }
+@media (max-width: 1000px) { .stage { grid-template-columns: 1fr; } }
 
 /* ── Cột trái ─────────────────────────────────────────────────────── */
 .brand {
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; justify-content: space-between;
-  padding: clamp(28px, 5vw, 56px);
+  padding: clamp(24px, 4vw, 52px);
   border-right: 1px solid var(--line);
 }
-@media (max-width: 900px) { .brand { min-height: 200px; border-right: 0; border-bottom: 1px solid var(--line); } }
 #weave { position: absolute; inset: 0; width: 100%; height: 100%; }
 .brand > *:not(#weave) { position: relative; z-index: 1; }
+
+/* Màn hẹp: cột trái thu thành một DẢI MỎNG chỉ có tên sản phẩm.
+   Trước nó cao 200px và đẩy biểu mẫu xuống dưới màn hình — đúng thứ cần tránh. */
+@media (max-width: 1000px) {
+  .brand {
+    flex-direction: row; align-items: center;
+    padding: 12px 20px;
+    border-right: 0; border-bottom: 1px solid var(--line);
+  }
+  .brand .pitch, .brand .gets, .brand .brandfoot { display: none; }
+}
+
+/* Màn thấp (laptop 13", cửa sổ chia đôi): bỏ bớt chữ ở cột trái để nó không ép chiều
+   cao — biểu mẫu bên phải mới là thứ bắt buộc phải vừa màn. */
+@media (max-height: 720px) {
+  .brand .gets { display: none; }
+}
 
 .wordmark { display: flex; align-items: center; gap: 10px; font-family: "Sora", system-ui, sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
 .wordmark__mark { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 7px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; }
 
-/* Lưu ý: đơn vị ch tính theo phông của CHÍNH .pitch (15px), không theo cỡ chữ của h1.
-   Nên 32ch ở đây là khoảng 256px, không phải 32 ký tự của tiêu đề. */
 .pitch { max-width: 32ch; }
 .pitch h1 {
-  margin: 0 0 16px;
+  margin: 0 0 14px;
   font-family: "Sora", system-ui, sans-serif; font-weight: 600;
   font-size: clamp(26px, 3.1vw, 34px); line-height: 1.16; letter-spacing: -0.025em;
   text-wrap: balance;
 }
 
-/* Ba thứ được tạo ra — nói trước cho người dùng biết họ sắp nhận được gì.
-   Màn đăng ký nào cũng nên trả lời câu "bấm xong thì có gì?" TRƯỚC khi bấm. */
-.gets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
-.gets li { display: flex; gap: 11px; align-items: flex-start; color: var(--ink-soft); font-size: 14px; }
-.gets svg { width: 17px; height: 17px; flex: none; margin-top: 3px; color: var(--accent); }
+/* Ba thứ được tạo ra — trả lời câu "bấm xong thì có gì?" TRƯỚC khi bấm. */
+.gets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.gets li { display: flex; gap: 11px; align-items: flex-start; color: var(--ink-soft); font-size: 13.5px; }
+.gets svg { width: 16px; height: 16px; flex: none; margin-top: 3px; color: var(--accent); }
 
-.brandfoot { display: flex; gap: 26px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-faint); }
+.brandfoot { display: flex; gap: 24px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-faint); }
 
 /* ── Cột phải ─────────────────────────────────────────────────────── */
 .panel {
   position: relative;
   display: flex; align-items: center; justify-content: center;
-  padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 48px);
+  padding: clamp(56px, 6vw, 64px) clamp(20px, 4vw, 44px) clamp(24px, 4vw, 44px);
 }
-.panel__prefs { position: absolute; top: clamp(20px, 3vw, 28px); right: clamp(20px, 4vw, 48px); }
+.panel__prefs { position: absolute; top: clamp(16px, 2.4vw, 24px); right: clamp(20px, 4vw, 44px); }
 
-.form { width: 100%; max-width: 400px; }
-.form__head { margin-bottom: 24px; }
-.form__head h2 { margin: 0 0 6px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 25px; letter-spacing: -0.02em; }
-.form__head p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+/* Rộng hơn màn đăng nhập (384px) vì ở đây có lưới hai cột. */
+.form { width: 100%; max-width: 440px; }
 
-/* Chia hai nhóm có tiêu đề: sáu ô liền một mạch trông như một bức tường.
-   Nhóm lại thì người dùng biết mình đang ở đoạn nào và còn bao nhiêu. */
-.group { margin-bottom: 18px; }
-.group__title {
-  display: flex; align-items: center; gap: 10px;
-  margin: 18px 0 12px;
-  font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-faint);
+.form__head { margin-bottom: 18px; }
+.form__head h2 { margin: 0 0 4px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 24px; letter-spacing: -0.02em; }
+.form__head p { margin: 0; color: var(--ink-soft); font-size: 13.5px; }
+
+/*
+  LƯỚI TỰ CO — hai cột khi đủ rộng, một cột khi hẹp.
+
+  `auto-fit` + `minmax` làm việc đó mà KHÔNG cần một điểm ngắt nào: ô nào không còn đủ
+  210px thì tự xuống dòng. Nhờ vậy biểu mẫu vừa màn cả khi nằm trong khung xem hẹp của
+  artifact lẫn khi mở toàn màn hình.
+
+  Trước đây năm ô xếp dọc một mạch, cộng hai tiêu đề nhóm — cao hơn một màn laptop, phải
+  cuộn giữa chừng. Bỏ nhóm vì với ba hàng thì không còn là "bức tường" nữa; chính chiều
+  cao mới là vấn đề, và người đăng ký thì muốn điền cho nhanh.
+*/
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px 14px;
 }
-.group__title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.field--wide { grid-column: 1 / -1; }
 
-.field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
-.field label { font-size: 12.5px; font-weight: 500; letter-spacing: 0.01em; color: var(--ink-soft); }
-/* Nhãn và dấu ? nằm cùng hàng. Chú thích cất vào tooltip thay vì để một dòng chữ xám
-   cố định dưới mỗi ô — chỗ nào cũng có chữ thì không chỗ nào đáng đọc. */
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .field__head { display: flex; align-items: center; gap: 6px; }
-
+.field label { font-size: 12.5px; font-weight: 500; letter-spacing: 0.01em; color: var(--ink-soft); }
 
 .control {
-  display: flex; align-items: center; gap: 10px;
-  padding: 0 13px;
+  display: flex; align-items: center; gap: 9px;
+  padding: 0 12px;
   border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 .control:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgb(var(--glow) / 0.18); }
-.control input { flex: 1; min-width: 0; padding: 12px 0; border: 0; background: none; outline: none; color: var(--ink); font: inherit; }
+.control input { flex: 1; min-width: 0; padding: 10px 0; border: 0; background: none; outline: none; color: var(--ink); font: inherit; font-size: 14.5px; }
 .control input::placeholder { color: var(--ink-faint); }
 .control > svg { width: 16px; height: 16px; flex: none; color: var(--ink-faint); }
-.control__suffix { flex: none; color: var(--ink-faint); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; }
+.control__suffix { flex: none; color: var(--ink-faint); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; }
 .peek { padding: 4px; border: 0; background: none; color: var(--ink-faint); cursor: pointer; font: inherit; font-size: 12px; }
 .peek:hover { color: var(--ink); }
 
-/* Dòng nhắc dưới ô nhập: ngắn, một câu, không trang trí gì thêm.
-   Trước có gạch "—" đầu dòng — nó chẳng nói gì mà làm dòng chữ trông dài hơn. */
 .hint { display: none; font-size: 12.5px; color: var(--danger); }
-[data-state="invalid"] .hint { display: flex; }
-[data-state="invalid"] .control--check { border-color: var(--danger); }
+/* Bật theo TỪNG Ô, không phải cả biểu mẫu: gõ thiếu email thì ô mật khẩu
+   không việc gì phải đỏ. Bản dựng gắn `.field--bad` cho mọi ô khi duyệt
+   trạng thái này; sản phẩm gắn đúng ô sai. */
+.field--bad .hint { display: block; }
+.field--bad .control { border-color: var(--danger); }
 
-/* ── Thước độ mạnh mật khẩu ───────────────────────────────────────── */
-/* Bốn vạch chứ không phải một thanh liền: một thanh liền gợi ý "càng đầy càng tốt" và
-   người dùng cố nhồi cho đầy. Bốn vạch nói rõ đây là bốn nấc rời rạc. */
-.meter { display: flex; gap: 4px; margin-top: 2px; }
+/* Thước độ mạnh: bốn vạch rời, im lặng cho tới khi người dùng bắt đầu gõ. */
+.meter { display: flex; gap: 4px; margin-top: 3px; }
 .meter[data-score="0"] { visibility: hidden; }
 .meter span { flex: 1; height: 3px; border-radius: 999px; background: var(--line); transition: background 200ms ease; }
 .meter[data-score="1"] span:nth-child(-n+1),
 .meter[data-score="2"] span:nth-child(-n+2) { background: var(--danger); }
 .meter[data-score="3"] span:nth-child(-n+3) { background: color-mix(in srgb, var(--accent) 70%, var(--ink-faint)); }
 .meter[data-score="4"] span { background: var(--accent); }
-.meter__label { margin: 6px 0 0; font-size: 12px; color: var(--ink-faint); }
+.meter__label { margin: 5px 0 0; font-size: 12px; color: var(--ink-faint); }
 .meter__label:empty { display: none; }
 
-.check { display: flex; align-items: flex-start; gap: 9px; color: var(--ink-soft); font-size: 13px; cursor: pointer; margin-bottom: 18px; }
-.check input { margin-top: 3px; width: 15px; height: 15px; flex: none; accent-color: var(--accent); }
+.check { display: flex; align-items: flex-start; gap: 9px; margin: 16px 0 14px; color: var(--ink-soft); font-size: 12.5px; cursor: pointer; }
+.check input { margin-top: 2px; width: 15px; height: 15px; flex: none; accent-color: var(--accent); }
 .link { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid transparent; }
 .link:hover { color: var(--ink); border-bottom-color: var(--ink-faint); }
 
 .submit {
   width: 100%;
   display: flex; align-items: center; justify-content: center; gap: 9px;
-  padding: 13px 18px; border: 0; border-radius: 10px;
+  padding: 12px 18px; border: 0; border-radius: 10px;
   background: var(--accent); color: var(--accent-ink);
   font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 14.5px;
   cursor: pointer;
@@ -137,7 +159,7 @@
 [data-state="sending"] .spinner { display: block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.footnote { margin-top: 20px; font-size: 13px; color: var(--ink-faint); text-align: center; }
+.footnote { margin: 14px 0 0; font-size: 12.5px; color: var(--ink-faint); text-align: center; }
 .footnote a { color: var(--ink-soft); }
 
 /* ── Trạng thái XONG ──────────────────────────────────────────────── */
@@ -145,30 +167,32 @@
 [data-state="done"] .form__body { display: none; }
 [data-state="done"] .done { display: block; }
 .done__mark {
-  width: 52px; height: 52px; margin: 0 auto 18px;
-  display: grid; place-items: center;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
-  color: var(--accent);
+  width: 48px; height: 48px; margin: 0 auto 16px;
+  display: grid; place-items: center; border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--accent);
 }
-.done__mark svg { width: 26px; height: 26px; }
-.done h3 { margin: 0 0 8px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 21px; }
-.done p { margin: 0 0 22px; color: var(--ink-soft); font-size: 14px; }
+.done__mark svg { width: 24px; height: 24px; }
+.done h3 { margin: 0 0 6px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 20px; }
+.done p { margin: 0 0 18px; color: var(--ink-soft); font-size: 13.5px; }
+/* Lưới hai cột thay vì canh bằng dấu cách cứng: nhãn dịch sang tiếng khác dài
+   ngắn khác nhau, canh tay là hỏng ngay ở ngôn ngữ thứ hai. */
 .done__card {
-  margin-bottom: 22px; padding: 13px 15px; text-align: left;
+  margin-bottom: 18px; padding: 12px 14px; text-align: left;
+  display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; align-items: baseline;
   border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2);
-  font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--ink-soft);
+  font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; color: var(--ink-soft);
 }
 .done__card b { color: var(--ink); font-weight: 500; }
 
+/* Thanh duyệt — KHUNG ĐỂ DUYỆT, không ship. `?bare=1` gỡ nó đi. */
 .states {
-  position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 50;
-  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
-  padding: 8px 10px; border: 1px dashed var(--line); border-radius: 999px;
+  position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 50;
+  display: flex; flex-wrap: wrap; gap: 7px; justify-content: center;
+  padding: 7px 9px; border: 1px dashed var(--line); border-radius: 999px;
   background: color-mix(in srgb, var(--ground) 86%, transparent); backdrop-filter: blur(14px);
 }
-.states span { align-self: center; padding-left: 6px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-faint); }
-.states button { padding: 5px 11px; border: 1px solid var(--line); border-radius: 999px; background: none; color: var(--ink-soft); font: inherit; font-size: 12px; cursor: pointer; }
+.states span { align-self: center; padding-left: 5px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-faint); }
+.states button { padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: none; color: var(--ink-soft); font: inherit; font-size: 11.5px; cursor: pointer; }
 .states button:hover { color: var(--ink); border-color: var(--ink-faint); }
 .states button[aria-pressed="true"] { border-color: var(--accent); color: var(--ink); }
 </style>
@@ -185,15 +209,15 @@
       <ul class="gets">
         <li>
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg>
-          <span>Một workspace riêng — dữ liệu công ty bạn <b>không nằm chung</b> với bất kỳ công ty nào khác.</span>
+          <span>Workspace riêng — dữ liệu công ty bạn <b>không nằm chung</b> với ai.</span>
         </li>
         <li>
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg>
-          <span>Bốn vai trò sẵn sàng: <b>Owner · Admin · Manager · Member</b>. Sửa được, thêm được.</span>
+          <span>Bốn vai trò sẵn sàng: <b>Owner · Admin · Manager · Member</b>.</span>
         </li>
         <li>
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg>
-          <span>Tài khoản chủ sở hữu là <b>của bạn</b> — chuyển nhượng được, không ai lấy mất.</span>
+          <span>Tài khoản chủ sở hữu là <b>của bạn</b> — chuyển nhượng được.</span>
         </li>
       </ul>
     </div>
@@ -211,13 +235,10 @@
           <p>Mất khoảng một phút. Bạn sẽ là chủ sở hữu.</p>
         </div>
 
-        <!-- ── Nhóm 1: công ty ── -->
-        <div class="group">
-          <p class="group__title">Công ty</p>
-
+        <div class="grid">
           <div class="field">
-            <label for="company">Tên công ty</label>
-            <div class="control control--check">
+            <div class="field__head"><label for="company">Tên công ty</label></div>
+            <div class="control">
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <rect x="3" y="6" width="9" height="11" rx="1.5"/><path d="M12 9h5v8h-5M6 9h3M6 12h3M6 15h3"/>
               </svg>
@@ -234,26 +255,16 @@
                 <span class="tip__bubble">Chỉ chữ thường, số và gạch nối.<br><b>Không đổi được</b> sau khi tạo.</span>
               </span>
             </div>
-            <div class="control control--check">
+            <div class="control">
               <span class="control__suffix">onooffice.vn/</span>
               <input id="slug" type="text" placeholder="acme" inputmode="url" autocapitalize="off" spellcheck="false">
             </div>
-            <!--
-              Tự gợi ý từ tên công ty, nhưng vẫn cho sửa. Sinh xong khoá cứng thì công ty
-              tên dài sẽ nhận một mã xấu mà không sửa được; bắt gõ tay từ đầu thì phần lớn
-              người dùng gõ luôn tên công ty có dấu, rồi nhận lỗi.
-            -->
-            <span class="hint">Mã này đã có công ty khác dùng.</span>
+            <span class="hint">Mã này đã có người dùng.</span>
           </div>
-        </div>
-
-        <!-- ── Nhóm 2: tài khoản chủ sở hữu ── -->
-        <div class="group">
-          <p class="group__title">Tài khoản chủ sở hữu</p>
 
           <div class="field">
-            <label for="fullname">Họ và tên</label>
-            <div class="control control--check">
+            <div class="field__head"><label for="fullname">Họ và tên</label></div>
+            <div class="control">
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <circle cx="10" cy="7" r="3"/><path d="M4 16.5a6 6 0 0112 0"/>
               </svg>
@@ -269,7 +280,7 @@
                 <span class="tip__bubble">Đây sẽ là email đăng nhập của bạn.</span>
               </span>
             </div>
-            <div class="control control--check">
+            <div class="control">
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="m3 6 7 5 7-5"/>
               </svg>
@@ -278,7 +289,7 @@
             <span class="hint">Email này đã có tài khoản.</span>
           </div>
 
-          <div class="field">
+          <div class="field field--wide">
             <div class="field__head">
               <label for="password">Mật khẩu</label>
               <span class="tip" tabindex="0" role="note"
@@ -286,7 +297,7 @@
                 <span class="tip__bubble">Dùng một câu dễ nhớ.<br>Dài hơn là an toàn hơn — không cần ký tự đặc biệt.</span>
               </span>
             </div>
-            <div class="control control--check">
+            <div class="control">
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <rect x="4" y="8.5" width="12" height="8" rx="2"/><path d="M7 8.5V6a3 3 0 016 0v2.5"/>
               </svg>
@@ -304,7 +315,7 @@
 
         <label class="check">
           <input type="checkbox" id="terms">
-          <span>Tôi đồng ý với <a class="link" href="#" data-soon="Điều khoản sử dụng">Điều khoản sử dụng</a>
+          <span>Tôi đồng ý với <a class="link" href="#" data-soon="Điều khoản sử dụng">Điều khoản</a>
           và <a class="link" href="#" data-soon="Chính sách riêng tư">Chính sách riêng tư</a>.</span>
         </label>
 
@@ -316,7 +327,6 @@
         <p class="footnote">Đã có tài khoản? <a class="link" href="./dang-nhap.html">Đăng nhập</a></p>
       </div>
 
-      <!-- ── Xong ── -->
       <div class="done">
         <div class="done__mark">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7"/></svg>
@@ -325,9 +335,9 @@
         <p>Bạn đã là chủ sở hữu. Việc tiếp theo là mời đồng nghiệp vào.</p>
 
         <div class="done__card">
-          Workspace &nbsp;<b>onooffice.vn/acme</b><br>
-          Đăng nhập &nbsp;&nbsp;<b>ten.ban@congty.com</b><br>
-          Vai trò &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Owner · đủ 12 quyền</b>
+          <span>Workspace</span><b>onooffice.vn/acme</b>
+          <span>Đăng nhập</span><b>ten.ban@congty.com</b>
+          <span>Vai trò</span><b>Owner · đủ 12 quyền</b>
         </div>
 
         <button class="submit" type="button" data-soon="Vào workspace">Vào workspace</button>
@@ -368,9 +378,12 @@ document.querySelectorAll('.states button').forEach(btn => {
     document.querySelectorAll('.states button').forEach(b =>
       b.setAttribute('aria-pressed', String(b === btn)));
 
+    // Khung duyệt bật lỗi cho MỌI ô một lúc; sản phẩm gắn đúng ô sai.
+    document.querySelectorAll('.field').forEach(f =>
+      f.classList.toggle('field--bad', state === 'invalid'));
+
     if (state === 'rejected') {
-      // Câu ngắn, không mã kỹ thuật. Người dùng cần biết phải LÀM GÌ, không cần biết
-      // backend gọi lỗi đó là gì.
+      // Câu ngắn, không mã kỹ thuật. Người dùng cần biết phải LÀM GÌ.
       popup({ tone: 'error', text: 'Mã workspace này đã có người dùng.' });
     }
   });
@@ -399,12 +412,11 @@ company.addEventListener('input', () => {
 
 // ── Độ mạnh mật khẩu ────────────────────────────────────────────────
 // Đếm theo ĐỘ DÀI và sự đa dạng, không bắt buộc "phải có ký tự đặc biệt". Luật bắt buộc
-// ký tự đặc biệt đẻ ra toàn "Matkhau@123" — dài mà đoán được. Câu dài dễ nhớ thì an toàn
-// hơn nhiều mà người dùng không phải dán vào file ghi chú.
+// ký tự đặc biệt đẻ ra toàn "Matkhau@123" — dài mà đoán được.
 const meter = document.getElementById('meter');
 const meterLabel = document.getElementById('meterLabel');
-// Nấc 0 để TRỐNG: lúc người dùng chưa gõ gì thì không có gì để nhận xét, và một dòng
-// chữ xám nằm sẵn ở đó chỉ làm biểu mẫu dài thêm. Lời khuyên đã nằm trong tooltip.
+
+// Nấc 0 để TRỐNG: chưa gõ gì thì không có gì để nhận xét.
 const LABELS = ['', 'Quá ngắn — dễ đoán.', 'Tạm được, nên dài hơn.', 'Khá tốt.', 'Rất tốt.'];
 
 document.getElementById('password').addEventListener('input', (e) => {
@@ -438,15 +450,13 @@ document.body.addEventListener('click', e => {
 
 form.addEventListener('submit', e => e.preventDefault());
 
-// ?bare=1 — giấu thanh duyệt để bộ so ảnh chụp được đúng phần sẽ ship.
-if (new URLSearchParams(location.search).has('bare')) {
-  document.querySelector('.states')?.remove();
-}
-
-
 // Đặt sẵn trạng thái qua URL để chụp ảnh và gửi link duyệt: ?state=rejected
 // KHUNG ĐỂ DUYỆT — không có trong sản phẩm.
 const preset = new URLSearchParams(location.search).get('state');
 if (preset) document.querySelector('.states button[data-state="' + preset + '"]')?.click();
 
+// ?bare=1 — giấu thanh duyệt để bộ so ảnh chụp được đúng phần sẽ ship.
+if (new URLSearchParams(location.search).has('bare')) {
+  document.querySelector('.states')?.remove();
+}
 </script>

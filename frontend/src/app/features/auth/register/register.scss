@@ -1,0 +1,174 @@
+/**
+ * ⚠️ FILE NÀY ĐƯỢC SINH TỰ ĐỘNG — ĐỪNG SỬA TAY.
+ *
+ * Nguồn:    docs/07-giao-dien/identity/dang-ky.html
+ * Sinh lại: node tools/sync-shell.mjs
+ *
+ * Sửa ở đây thì lần chạy bộ sinh tiếp theo sẽ xoá mất, và tệ hơn: bản dựng mà người
+ * duyệt nhìn sẽ khác thứ đang chạy thật. Muốn đổi giao diện thì sửa bản dựng rồi chạy
+ * lại bộ sinh.
+ */
+
+.stage { display: grid; grid-template-columns: 1.15fr 1fr; min-height: 100vh; }
+@media (max-width: 1000px) { .stage { grid-template-columns: 1fr; } }
+
+/* ── Cột trái ─────────────────────────────────────────────────────── */
+.brand {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: clamp(24px, 4vw, 52px);
+  border-right: 1px solid var(--line);
+}
+#weave { position: absolute; inset: 0; width: 100%; height: 100%; }
+.brand > *:not(#weave) { position: relative; z-index: 1; }
+
+/* Màn hẹp: cột trái thu thành một DẢI MỎNG chỉ có tên sản phẩm.
+   Trước nó cao 200px và đẩy biểu mẫu xuống dưới màn hình — đúng thứ cần tránh. */
+@media (max-width: 1000px) {
+  .brand {
+    flex-direction: row; align-items: center;
+    padding: 12px 20px;
+    border-right: 0; border-bottom: 1px solid var(--line);
+  }
+  .brand .pitch, .brand .gets, .brand .brandfoot { display: none; }
+}
+
+/* Màn thấp (laptop 13", cửa sổ chia đôi): bỏ bớt chữ ở cột trái để nó không ép chiều
+   cao — biểu mẫu bên phải mới là thứ bắt buộc phải vừa màn. */
+@media (max-height: 720px) {
+  .brand .gets { display: none; }
+}
+
+.wordmark { display: flex; align-items: center; gap: 10px; font-family: "Sora", system-ui, sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+.wordmark__mark { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 7px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; }
+
+.pitch { max-width: 32ch; }
+.pitch h1 {
+  margin: 0 0 14px;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600;
+  font-size: clamp(26px, 3.1vw, 34px); line-height: 1.16; letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+/* Ba thứ được tạo ra — trả lời câu "bấm xong thì có gì?" TRƯỚC khi bấm. */
+.gets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.gets li { display: flex; gap: 11px; align-items: flex-start; color: var(--ink-soft); font-size: 13.5px; }
+.gets svg { width: 16px; height: 16px; flex: none; margin-top: 3px; color: var(--accent); }
+
+.brandfoot { display: flex; gap: 24px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-faint); }
+
+/* ── Cột phải ─────────────────────────────────────────────────────── */
+.panel {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  padding: clamp(56px, 6vw, 64px) clamp(20px, 4vw, 44px) clamp(24px, 4vw, 44px);
+}
+.panel__prefs { position: absolute; top: clamp(16px, 2.4vw, 24px); right: clamp(20px, 4vw, 44px); }
+
+/* Rộng hơn màn đăng nhập (384px) vì ở đây có lưới hai cột. */
+.form { width: 100%; max-width: 440px; }
+
+.form__head { margin-bottom: 18px; }
+.form__head h2 { margin: 0 0 4px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 24px; letter-spacing: -0.02em; }
+.form__head p { margin: 0; color: var(--ink-soft); font-size: 13.5px; }
+
+/*
+  LƯỚI TỰ CO — hai cột khi đủ rộng, một cột khi hẹp.
+
+  `auto-fit` + `minmax` làm việc đó mà KHÔNG cần một điểm ngắt nào: ô nào không còn đủ
+  210px thì tự xuống dòng. Nhờ vậy biểu mẫu vừa màn cả khi nằm trong khung xem hẹp của
+  artifact lẫn khi mở toàn màn hình.
+
+  Trước đây năm ô xếp dọc một mạch, cộng hai tiêu đề nhóm — cao hơn một màn laptop, phải
+  cuộn giữa chừng. Bỏ nhóm vì với ba hàng thì không còn là "bức tường" nữa; chính chiều
+  cao mới là vấn đề, và người đăng ký thì muốn điền cho nhanh.
+*/
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px 14px;
+}
+.field--wide { grid-column: 1 / -1; }
+
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field__head { display: flex; align-items: center; gap: 6px; }
+.field label { font-size: 12.5px; font-weight: 500; letter-spacing: 0.01em; color: var(--ink-soft); }
+
+.control {
+  display: flex; align-items: center; gap: 9px;
+  padding: 0 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.control:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgb(var(--glow) / 0.18); }
+.control input { flex: 1; min-width: 0; padding: 10px 0; border: 0; background: none; outline: none; color: var(--ink); font: inherit; font-size: 14.5px; }
+.control input::placeholder { color: var(--ink-faint); }
+.control > svg { width: 16px; height: 16px; flex: none; color: var(--ink-faint); }
+.control__suffix { flex: none; color: var(--ink-faint); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; }
+.peek { padding: 4px; border: 0; background: none; color: var(--ink-faint); cursor: pointer; font: inherit; font-size: 12px; }
+.peek:hover { color: var(--ink); }
+
+.hint { display: none; font-size: 12.5px; color: var(--danger); }
+/* Bật theo TỪNG Ô, không phải cả biểu mẫu: gõ thiếu email thì ô mật khẩu
+   không việc gì phải đỏ. Bản dựng gắn `.field--bad` cho mọi ô khi duyệt
+   trạng thái này; sản phẩm gắn đúng ô sai. */
+.field--bad .hint { display: block; }
+.field--bad .control { border-color: var(--danger); }
+
+/* Thước độ mạnh: bốn vạch rời, im lặng cho tới khi người dùng bắt đầu gõ. */
+.meter { display: flex; gap: 4px; margin-top: 3px; }
+.meter[data-score="0"] { visibility: hidden; }
+.meter span { flex: 1; height: 3px; border-radius: 999px; background: var(--line); transition: background 200ms ease; }
+.meter[data-score="1"] span:nth-child(-n+1),
+.meter[data-score="2"] span:nth-child(-n+2) { background: var(--danger); }
+.meter[data-score="3"] span:nth-child(-n+3) { background: color-mix(in srgb, var(--accent) 70%, var(--ink-faint)); }
+.meter[data-score="4"] span { background: var(--accent); }
+.meter__label { margin: 5px 0 0; font-size: 12px; color: var(--ink-faint); }
+.meter__label:empty { display: none; }
+
+.check { display: flex; align-items: flex-start; gap: 9px; margin: 16px 0 14px; color: var(--ink-soft); font-size: 12.5px; cursor: pointer; }
+.check input { margin-top: 2px; width: 15px; height: 15px; flex: none; accent-color: var(--accent); }
+.link { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid transparent; }
+.link:hover { color: var(--ink); border-bottom-color: var(--ink-faint); }
+
+.submit {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  padding: 12px 18px; border: 0; border-radius: 10px;
+  background: var(--accent); color: var(--accent-ink);
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 14.5px;
+  cursor: pointer;
+  transition: filter 160ms ease, transform 120ms ease;
+}
+.submit:hover { filter: brightness(1.08); }
+.submit:active { transform: translateY(1px); }
+.submit[disabled] { opacity: 0.72; cursor: progress; }
+
+.spinner { display: none; width: 15px; height: 15px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 700ms linear infinite; }
+[data-state="sending"] .spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.footnote { margin: 14px 0 0; font-size: 12.5px; color: var(--ink-faint); text-align: center; }
+.footnote a { color: var(--ink-soft); }
+
+/* ── Trạng thái XONG ──────────────────────────────────────────────── */
+.done { display: none; text-align: center; }
+[data-state="done"] .form__body { display: none; }
+[data-state="done"] .done { display: block; }
+.done__mark {
+  width: 48px; height: 48px; margin: 0 auto 16px;
+  display: grid; place-items: center; border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--accent);
+}
+.done__mark svg { width: 24px; height: 24px; }
+.done h3 { margin: 0 0 6px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 20px; }
+.done p { margin: 0 0 18px; color: var(--ink-soft); font-size: 13.5px; }
+/* Lưới hai cột thay vì canh bằng dấu cách cứng: nhãn dịch sang tiếng khác dài
+   ngắn khác nhau, canh tay là hỏng ngay ở ngôn ngữ thứ hai. */
+.done__card {
+  margin-bottom: 18px; padding: 12px 14px; text-align: left;
+  display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; align-items: baseline;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2);
+  font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; color: var(--ink-soft);
+}
+.done__card b { color: var(--ink); font-weight: 500; }

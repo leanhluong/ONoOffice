@@ -103,6 +103,71 @@ token đi trong thân phản hồi và do frontend tự gắn vào header ([ADR-
 
 ---
 
+## Identity — Đăng ký workspace
+
+### `POST /api/auth/register-workspace`
+
+Endpoint **tạo ra một workspace mới** cùng người chủ của nó. Không cần token — người gọi
+nó chính là người chưa có gì cả.
+
+Một lần gọi tạo **ba thứ trong một transaction**: `Tenant`, bốn `Role` hệ thống
+(Owner · Admin · Manager · Member), và `User` được gán vai trò Owner. Hỏng giữa chừng thì
+không có gì được ghi — nếu không, một lần lỗi để lại một công ty không ai vào được.
+
+```jsonc
+// Request
+{
+  "companyName": "Công ty TNHH ACME",
+  "workspaceCode": "acme",
+  "fullName": "Lê Anh Lượng",
+  "email": "chu@congty.vn",
+  "password": "con meo ngoi tren mai nha"
+}
+```
+
+```jsonc
+// 200 OK — kèm luôn cặp token: đăng ký xong là đã đăng nhập
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs…",
+  "refreshToken": "kR7n…",
+  "expiresInSeconds": 900,
+  "user": {
+    "id": "0198e2f1-…",
+    "tenantId": "0198e2f0-…",
+    "email": "chu@congty.vn",
+    "fullName": "Lê Anh Lượng"
+  },
+  "workspace": {
+    "id": "0198e2f0-…",
+    "code": "acme",
+    "name": "Công ty TNHH ACME"
+  }
+}
+```
+
+| Ca hỏng | HTTP | `code` |
+|---|---|---|
+| Thiếu trường bắt buộc, hoặc mật khẩu ngắn hơn 10 ký tự | 400 | `Validation.Multiple` |
+| Mã workspace sai định dạng | 400 | `TenantCode.Invalid` |
+| Mã workspace không dài 3–30 ký tự | 400 | `TenantCode.WrongLength` |
+| Email sai định dạng | 400 | `Email.Invalid` |
+| **Mã workspace đã có người dùng** | 409 | `TenantCode.Taken` |
+| **Email đã có tài khoản** | 409 | `Email.Taken` |
+
+> **Trả 200 chứ không phải 201.** 201 phải kèm header `Location` trỏ tới tài nguyên vừa
+> tạo, mà hiện chưa có endpoint nào đọc một workspace. Trả 201 với `Location` rỗng là nói
+> dối về hợp đồng; sửa lại về sau còn dễ hơn gỡ một lời hứa đã ship.
+
+> **Mã workspace được kiểm TRƯỚC email.** Trùng cả hai thì người dùng chỉ thấy một lỗi —
+> nên cho họ thấy cái dễ sửa trước. Đổi mã workspace là gõ lại một từ; đổi email là chuyện
+> khác hẳn.
+
+> ⚠️ Endpoint này **để mở cho Internet** và mỗi lần gọi thành công là một công ty mới trong
+> database. Chưa có giới hạn tần suất — xem [tien-do.md](../01-tong-quan/tien-do.md), mục
+> "Chưa làm".
+
+---
+
 ## Identity — Đăng nhập
 
 Cả ba endpoint dưới đây **không cần token**: người gọi chúng chính là người chưa có, hoặc

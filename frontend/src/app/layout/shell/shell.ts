@@ -4,7 +4,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { AuthStore } from '../../core/auth/auth.store';
 import { TranslatePipe } from '@ngx-translate/core';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
-import { ThemePicker } from '../../shared/ui/theme-picker/theme-picker';
+import { Prefs } from '../../shared/ui/prefs/prefs';
 
 /** Một mục trên thanh điều hướng trái. */
 interface NavItem {
@@ -31,7 +31,14 @@ interface NavItem {
 @Component({
   selector: 'app-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, HasPermissionDirective, TranslatePipe, ThemePicker],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    HasPermissionDirective,
+    TranslatePipe,
+    Prefs,
+  ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })

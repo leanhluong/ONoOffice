@@ -1,15 +1,16 @@
+<!--
+  Đánh dấu chép từ `docs/07-giao-dien/identity/dang-nhap.html`.
+
+  CSS thì KHÔNG chép — `login.scss` được sinh tự động từ chính file đó
+  (`node tools/sync-shell.mjs`). Chỗ duy nhất còn phải giữ đồng bộ bằng tay là đánh dấu,
+  và `npm run parity` canh nó bằng cách chụp cả hai rồi so từng điểm ảnh.
+-->
 <div class="stage">
-  <!--
-    Cột trái: thương hiệu + sơ đồ tổ chức trôi.
-    Ba khối xếp cách đều nhau theo chiều dọc — wordmark trên, lời định vị giữa, ba nhãn
-    dưới. Bố cục chép đúng `.brand` của bản dựng.
-  -->
   <section class="brand">
-    <app-org-weave />
+    <app-org-weave id="weave" />
 
     <div class="wordmark">
-      <span class="wordmark__mark" aria-hidden="true">O</span>
-      {{ 'app.name' | translate }}
+      <span class="wordmark__mark" aria-hidden="true">O</span>{{ 'app.name' | translate }}
     </div>
 
     <div class="pitch">
@@ -24,37 +25,37 @@
     </div>
   </section>
 
-  <!-- Cột phải: biểu mẫu. Trên điện thoại nó chiếm hết bề ngang. -->
   <section class="panel">
-    <div class="panel__prefs">
-      <app-theme-picker />
-    </div>
+    <div class="panel__prefs"><app-prefs /></div>
 
-    <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <form
+      class="form"
+      [formGroup]="form"
+      [attr.data-state]="submitting() ? 'sending' : 'idle'"
+      (ngSubmit)="submit()"
+      novalidate
+    >
       <div class="form__head">
         <h2>{{ 'login.heading' | translate }}</h2>
         <p>{{ 'login.subheading' | translate }}</p>
       </div>
 
-      @if (sessionExpired && !formError()) {
-        <app-alert>{{ 'login.sessionExpired' | translate }}</app-alert>
-      }
+      <div class="field" [class.field--bad]="errorFor(emailControl, 'email') !== null">
+        <div class="field__head">
+          <label for="email">{{ 'login.email' | translate }}</label>
+        </div>
 
-      @if (errorText(); as message) {
-        <app-alert [code]="formError()!.code" [status]="formError()!.status || null">
-          {{ message }}
-        </app-alert>
-      }
-
-      <div class="field">
-        <label for="email">{{ 'login.email' | translate }}</label>
-
-        <div class="control" [class.control--bad]="errorFor(emailControl, 'email') !== null">
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <div class="control">
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            aria-hidden="true"
+          >
             <rect x="2.5" y="4.5" width="15" height="11" rx="2" />
             <path d="m3 6 7 5 7-5" />
           </svg>
-
           <input
             id="email"
             type="email"
@@ -69,20 +70,25 @@
           />
         </div>
 
-        @if (errorFor(emailControl, 'email'); as message) {
-          <span class="hint" id="email-hint">{{ message }}</span>
-        }
+        <span class="hint" id="email-hint">{{ errorFor(emailControl, 'email') }}</span>
       </div>
 
-      <div class="field">
-        <label for="password">{{ 'login.password' | translate }}</label>
+      <div class="field" [class.field--bad]="errorFor(passwordControl, 'password') !== null">
+        <div class="field__head">
+          <label for="password">{{ 'login.password' | translate }}</label>
+        </div>
 
-        <div class="control" [class.control--bad]="errorFor(passwordControl, 'password') !== null">
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <div class="control">
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            aria-hidden="true"
+          >
             <rect x="4" y="8.5" width="12" height="8" rx="2" />
             <path d="M7 8.5V6a3 3 0 016 0v2.5" />
           </svg>
-
           <input
             id="password"
             [type]="showPassword() ? 'text' : 'password'"
@@ -92,7 +98,6 @@
             [attr.aria-invalid]="errorFor(passwordControl, 'password') !== null"
             [attr.aria-describedby]="errorFor(passwordControl, 'password') ? 'password-hint' : null"
           />
-
           <!--
             Người gõ sai vài lần cần nhìn thấy mình đang gõ gì. Không có nút này thì họ
             dán mật khẩu vào ô email để đọc — và nó nằm lại trong lịch sử tự điền.
@@ -101,15 +106,15 @@
             type="button"
             class="peek"
             (click)="togglePassword()"
-            [attr.aria-label]="(showPassword() ? 'login.hidePassword' : 'login.showPassword') | translate"
+            [attr.aria-label]="
+              (showPassword() ? 'login.hidePassword' : 'login.showPassword') | translate
+            "
           >
             {{ (showPassword() ? 'login.hide' : 'login.show') | translate }}
           </button>
         </div>
 
-        @if (errorFor(passwordControl, 'password'); as message) {
-          <span class="hint" id="password-hint">{{ message }}</span>
-        }
+        <span class="hint" id="password-hint">{{ errorFor(passwordControl, 'password') }}</span>
       </div>
 
       <div class="row">
@@ -125,9 +130,7 @@
       </div>
 
       <button class="submit" type="submit" [disabled]="submitting()">
-        @if (submitting()) {
-          <span class="spinner" aria-hidden="true"></span>
-        }
+        <span class="spinner" aria-hidden="true"></span>
         <span>{{ (submitting() ? 'login.submitting' : 'login.submit') | translate }}</span>
       </button>
 
@@ -169,6 +172,8 @@
 
       <p class="footnote">
         {{ 'login.noAccount' | translate }}
+        <a class="link" routerLink="/dang-ky">{{ 'login.registerWorkspace' | translate }}</a>
+        {{ 'login.orContact' | translate }}
         <a class="link" href="#" (click)="notBuiltYet($event, 'login.contactAdmin')">{{
           'login.admin' | translate
         }}</a>
@@ -178,4 +183,4 @@
   </section>
 </div>
 
-<app-toast />
+<app-popup-host />

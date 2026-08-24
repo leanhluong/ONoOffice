@@ -1,3 +1,5 @@
+using ONoOffice.Identity.Domain.Entities;
+
 namespace ONoOffice.Identity.Application.Abstractions;
 
 /// <summary>
@@ -22,6 +24,17 @@ public sealed record AuthUserData(
 
 public interface IUserRepository
 {
+    /// <summary>Chỉ ghi vào bộ theo dõi thay đổi — xem <see cref="ITenantRepository.Add"/>.</summary>
+    void Add(User user);
+
+    /// <summary>
+    /// Email unique TOÀN hệ thống, không phải unique trong một workspace (ADR-0002).
+    ///
+    /// Cùng cảnh báo với <see cref="ITenantRepository.IsCodeTakenAsync"/>: đây là phép
+    /// kiểm để BÁO LỖI CHO ĐẸP, còn lớp chặn thật là chỉ mục UNIQUE ở database.
+    /// </summary>
+    Task<bool> IsEmailTakenAsync(string email, CancellationToken cancellationToken = default);
+
     /// <summary>Trả <c>null</c> khi không có tài khoản nào mang email này.</summary>
     Task<AuthUserData?> GetForLoginAsync(string email, CancellationToken cancellationToken = default);
 

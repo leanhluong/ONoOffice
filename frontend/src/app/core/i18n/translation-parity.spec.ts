@@ -21,14 +21,7 @@ import { join } from 'node:path';
  */
 
 const I18N_DIR = join(process.cwd(), 'src', 'assets', 'i18n');
-const RESX_DIR = join(
-  process.cwd(),
-  '..',
-  'backend',
-  'src',
-  'ONoOffice.Api',
-  'Resources',
-);
+const RESX_DIR = join(process.cwd(), '..', 'backend', 'src', 'ONoOffice.Api', 'Resources');
 
 function readJson(language: string, file: string): Record<string, unknown> {
   return JSON.parse(readFileSync(join(I18N_DIR, language, file), 'utf8')) as Record<
@@ -78,9 +71,7 @@ describe('Bản dịch', () => {
     const codes = new Set(backendCodes());
 
     for (const language of languages()) {
-      const extra = Object.keys(readJson(language, 'errors.json')).filter(
-        (key) => !codes.has(key),
-      );
+      const extra = Object.keys(readJson(language, 'errors.json')).filter((key) => !codes.has(key));
 
       expect(extra, `${language} có bản dịch thừa: ${extra.join(', ')}`).toEqual([]);
     }
