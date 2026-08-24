@@ -1,0 +1,28 @@
+{
+  "login": {
+    "heading": "Đăng nhập",
+    "subheading": "Dùng email công ty của bạn.",
+    "email": "Email công ty",
+    "password": "Mật khẩu",
+    "showPassword": "Hiện mật khẩu",
+    "hidePassword": "Ẩn mật khẩu",
+    "remember": "Ghi nhớ tôi",
+    "forgot": "Quên mật khẩu?",
+    "submit": "Đăng nhập",
+    "submitting": "Đang kiểm tra…",
+    "orContinueWith": "hoặc tiếp tục với",
+    "failed": "Không đăng nhập được",
+    "sessionExpired": "Phiên làm việc đã kết thúc. Vui lòng đăng nhập lại.",
+    "notice": "Nội bộ · riêng từng công ty",
+    "comingSoon": "Tính năng đang phát triển.",
+    "validation": {
+      "emailRequired": "Vui lòng nhập email.",
+      "emailInvalid": "Email không đúng định dạng.",
+      "passwordRequired": "Vui lòng nhập mật khẩu."
+    }
+  },
+  "session": {
+    "signedInAs": "Đang đăng nhập bằng",
+    "workspace": "Workspace"
+  }
+}

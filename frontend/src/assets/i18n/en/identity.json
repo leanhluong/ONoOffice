@@ -1,0 +1,28 @@
+{
+  "login": {
+    "heading": "Sign in",
+    "subheading": "Use your work email.",
+    "email": "Work email",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "remember": "Remember me",
+    "forgot": "Forgot password?",
+    "submit": "Sign in",
+    "submitting": "Checking…",
+    "orContinueWith": "or continue with",
+    "failed": "Could not sign you in",
+    "sessionExpired": "Your session has ended. Please sign in again.",
+    "notice": "Internal · one workspace per company",
+    "comingSoon": "This feature is not built yet.",
+    "validation": {
+      "emailRequired": "Please enter your email.",
+      "emailInvalid": "That is not a valid email address.",
+      "passwordRequired": "Please enter your password."
+    }
+  },
+  "session": {
+    "signedInAs": "Signed in as",
+    "workspace": "Workspace"
+  }
+}

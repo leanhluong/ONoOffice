@@ -1,6 +1,8 @@
 /**
- * Hợp đồng dữ liệu với `POST /api/auth/login` và nội dung access token.
- * Đặt ở `core/models` vì cả AuthService, AuthStore lẫn TokenStorage đều dùng.
+ * Hợp đồng dữ liệu với `POST /api/auth/{login,refresh,logout}`.
+ *
+ * Nguồn sự thật là `docs/05-api/README.md`. Đã đối chiếu với backend đang chạy thật
+ * ngày 2026-08-24 — không còn chỗ nào là phỏng đoán.
  */
 
 /** Thân request đăng nhập. */
@@ -9,41 +11,73 @@ export interface LoginRequest {
   password: string;
 }
 
-/** Thân response đăng nhập do backend trả về. */
+/**
+ * Người dùng, đúng như backend trả trong thân phản hồi đăng nhập.
+ *
+ * Cố ý KHÔNG nằm trong access token: token đi kèm mọi request, mà tên với email thì
+ * không phục vụ quyết định bảo mật nào — nhét vào chỉ làm mỗi request nặng thêm và rò
+ * thông tin cá nhân vào mọi log có ghi header.
+ */
+export interface LoginUser {
+  id: string;
+  tenantId: string;
+  email: string;
+  fullName: string;
+}
+
+/** `POST /api/auth/login` → 200. */
 export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-  /** Số giây còn sống của access token (backend đang đặt 900 = 15 phút). */
-  expiresIn: number;
+  /** Backend đặt tên đúng như vậy — KHÔNG phải `expiresIn`. Hiện là 900 (15 phút). */
+  expiresInSeconds: number;
+  user: LoginUser;
 }
 
-/** Các claim mà backend nhét vào access token. */
+/**
+ * `POST /api/auth/refresh` → 200.
+ *
+ * <b>Không có `user`.</b> Gia hạn phiên chỉ đổi cặp token; thông tin người dùng phải
+ * được giữ lại từ phiên cũ — xem `AuthStore.renewSession`.
+ */
+export interface RefreshResponse {
+  accessToken: string;
+  refreshToken: string;
+  expiresInSeconds: number;
+}
+
+/**
+ * Các claim backend thật sự nhét vào access token.
+ *
+ * Chỉ có ba, và cả ba đều phục vụ một quyết định bảo mật:
+ * `sub` là ai, `tenant_id` thuộc workspace nào, `permission` được làm gì.
+ */
 export interface AccessTokenClaims {
-  /** Id nhân viên đang đăng nhập. */
   sub: string;
-  /** Tenant hiện tại — app là multi-tenant nên claim này bắt buộc phải có. */
   tenant_id: string;
   /**
-   * Danh sách permission dạng `employee.read`.
-   * JWT chuẩn cho phép claim lặp lại bị gom thành chuỗi đơn khi chỉ có 1 phần tử,
-   * nên kiểu phải nhận cả `string` lẫn `string[]`.
+   * Danh sách quyền dạng `employee.read`.
+   * JWT gom claim lặp lại thành chuỗi đơn khi chỉ có một phần tử, nên phải nhận cả hai kiểu.
    */
   permission?: string | string[];
-  /** Thời điểm hết hạn, tính bằng giây kể từ epoch. */
+  /** Thời điểm hết hạn, giây kể từ epoch. */
   exp?: number;
-  email?: string;
-  name?: string;
 }
 
-/** Thông tin người dùng mà UI cần hiển thị. */
+/** Thông tin người dùng mà giao diện cần hiển thị. */
 export interface AuthUser {
   readonly userId: string;
   readonly tenantId: string;
-  readonly email: string | null;
-  readonly displayName: string | null;
+  readonly email: string;
+  readonly displayName: string;
 }
 
-/** Phiên đăng nhập đầy đủ, lưu trong AuthStore và TokenStorage. */
+/**
+ * Phiên đăng nhập đang sống.
+ *
+ * ⚠️ Object này **chỉ tồn tại trong bộ nhớ**. Thứ duy nhất được ghi xuống đĩa là
+ * `refreshToken` — xem `TokenStorage` và `ADR-0004`.
+ */
 export interface AuthSession {
   readonly accessToken: string;
   readonly refreshToken: string;

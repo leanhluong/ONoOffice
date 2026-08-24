@@ -1,57 +1,89 @@
 import { Injectable } from '@angular/core';
-import type { AuthSession } from '../models/auth.model';
+import type { AuthUser } from '../models/auth.model';
 
-const STORAGE_KEY = 'onooffice.session';
+const REFRESH_TOKEN_KEY = 'onooffice.refresh-token';
+const USER_KEY = 'onooffice.user';
 
 /**
- * Nơi DUY NHẤT trong app đụng tới `localStorage`.
+ * Nơi DUY NHẤT trong app đụng tới `localStorage` cho việc đăng nhập.
  *
- * Vì sao tách riêng: nếu sau này đổi sang `sessionStorage`, sang cookie
- * HttpOnly, hay sang IndexedDB thì chỉ sửa đúng file này. AuthStore và
- * AuthService không biết token nằm ở đâu.
+ * <b>Chỉ giữ refresh token. Access token KHÔNG bao giờ được ghi xuống đây</b> — luật của
+ * `ADR-0004`, và lý do rất cụ thể chứ không phải nguyên tắc suông:
  *
- * Vì sao localStorage: refresh token sống 30 ngày và yêu cầu là mở lại tab
- * vẫn còn đăng nhập. Đánh đổi là token đọc được bằng JavaScript (rủi ro XSS).
- * Cách chặn XSS triệt để là dùng cookie HttpOnly, nhưng việc đó cần backend
- * đổi cách trả token — chưa nằm trong phạm vi hiện tại.
+ * <ul>
+ * <li><b>Access token</b> cầm được là gọi API tuỳ ý suốt 15 phút, không để lại dấu vết
+ * nào ở phía server. Nó sống trong biến của <c>AuthStore</c> và chết theo tab.</li>
+ * <li><b>Refresh token</b> cũng nguy hiểm nếu bị đọc, nhưng nó <b>dùng được đúng một
+ * lần</b>: backend xoay vòng nó ở mỗi lần gia hạn, và lần dùng thứ hai kích hoạt phát
+ * hiện trộm — thu hồi cả chuỗi. Kẻ trộm dùng nó là tự tố cáo, và nạn nhân bị đăng xuất
+ * chứ không bị chiếm phiên im lặng.</li>
+ * </ul>
+ *
+ * Cái giá của việc access token chết theo tab: mở lại tab thì phải gia hạn một lần trước
+ * khi vào được. Đó là một request thêm, đổi lấy việc thứ nguy hiểm nhất không nằm trên đĩa.
+ *
+ * Vì sao gói vào một service thay vì gọi thẳng: hôm nào FE và API về chung một tên miền
+ * thì chuyển sang cookie HttpOnly chỉ phải sửa đúng file này.
  */
 @Injectable({ providedIn: 'root' })
 export class TokenStorage {
-  read(): AuthSession | null {
-    const raw = this.safeGet();
-    if (!raw) {
-      return null;
-    }
+  readRefreshToken(): string | null {
     try {
-      return JSON.parse(raw) as AuthSession;
+      return localStorage.getItem(REFRESH_TOKEN_KEY);
     } catch {
-      // Dữ liệu hỏng thì dọn luôn cho sạch, tránh lặp lại lỗi mỗi lần khởi động.
-      this.clear();
+      // Chế độ ẩn danh của một số trình duyệt ném lỗi ngay ở getItem.
       return null;
     }
   }
 
-  write(session: AuthSession): void {
+  writeRefreshToken(token: string): void {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+      localStorage.setItem(REFRESH_TOKEN_KEY, token);
     } catch {
-      // Chế độ ẩn danh hoặc hết quota: bỏ qua, phiên chỉ sống trong bộ nhớ.
+      // Hết quota hoặc bị chặn: phiên vẫn chạy được, chỉ là đóng tab thì mất.
+    }
+  }
+
+  /**
+   * Tên và email của chính người đang dùng máy này — <b>không phải bí mật</b>.
+   *
+   * Ghi xuống để mở lại tab là thanh điều hướng hiện đúng tên ngay, thay vì trống một
+   * lúc rồi mới có. Cần nó vì access token cố ý KHÔNG mang tên với email (xem
+   * <c>LoginUser</c>), và lát 1 chưa có <c>GET /api/auth/me</c> để hỏi lại.
+   *
+   * Vì sao ghi cái này mà không ghi access token: đây là dữ liệu người dùng vốn đã nhìn
+   * thấy trên màn hình của họ. Đọc được nó không cho ai làm được gì — trong khi access
+   * token thì cho gọi mọi API suốt 15 phút. Hai thứ khác hẳn nhau về hậu quả.
+   */
+  readUser(): AuthUser | null {
+    try {
+      const raw = localStorage.getItem(USER_KEY);
+      return raw ? (JSON.parse(raw) as AuthUser) : null;
+    } catch {
+      // JSON hỏng (người dùng sửa tay) — coi như không có, đừng làm hỏng lúc khởi động.
+      return null;
+    }
+  }
+
+  writeUser(user: AuthUser): void {
+    try {
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    } catch {
+      // Không ghi được thì tên chỉ trống một lúc, không ảnh hưởng chức năng.
     }
   }
 
   clear(): void {
     try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // Không có gì để làm — đọc lại sẽ tự trả null.
-    }
-  }
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
 
-  private safeGet(): string | null {
-    try {
-      return localStorage.getItem(STORAGE_KEY);
+      // Dọn khoá của bản cũ, khi access token còn bị ghi chung vào đây. Không dọn thì
+      // nó nằm lại trên máy người dùng vô thời hạn — một access token cũ thì vô hại,
+      // nhưng để rác bảo mật nằm đó là thói quen xấu.
+      localStorage.removeItem('onooffice.session');
     } catch {
-      return null;
+      // Đọc lại sẽ tự trả null.
     }
   }
 }

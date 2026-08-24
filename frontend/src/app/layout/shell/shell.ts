@@ -2,11 +2,14 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { AuthStore } from '../../core/auth/auth.store';
+import { TranslatePipe } from '@ngx-translate/core';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
+import { ThemePicker } from '../../shared/ui/theme-picker/theme-picker';
 
 /** Một mục trên thanh điều hướng trái. */
 interface NavItem {
-  readonly label: string;
+  /** Khoá dịch, KHÔNG phải câu chữ — nếu không thì menu vĩnh viễn một thứ tiếng. */
+  readonly labelKey: string;
   readonly path: string;
   readonly icon: string;
   /** Quyền cần có để thấy mục này. Rỗng = ai đăng nhập cũng thấy. */
@@ -28,7 +31,7 @@ interface NavItem {
 @Component({
   selector: 'app-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, HasPermissionDirective],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, HasPermissionDirective, TranslatePipe, ThemePicker],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
@@ -40,8 +43,8 @@ export class Shell {
   protected readonly sidebarOpen = signal(true);
 
   protected readonly navItems: readonly NavItem[] = [
-    { label: 'Bảng điều khiển', path: '/dashboard', icon: '▦', permissions: [] },
-    { label: 'Nhân sự', path: '/employees', icon: '☺', permissions: ['employee.read'] },
+    { labelKey: 'nav.dashboard', path: '/dashboard', icon: '▦', permissions: [] },
+    { labelKey: 'nav.employees', path: '/employees', icon: '☺', permissions: ['employee.read'] },
   ];
 
   protected toggleSidebar(): void {

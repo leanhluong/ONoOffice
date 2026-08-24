@@ -5,27 +5,31 @@
       class="topbar__toggle"
       (click)="toggleSidebar()"
       [attr.aria-expanded]="sidebarOpen()"
-      aria-label="Đóng/mở thanh điều hướng"
+      [attr.aria-label]="'nav.toggle' | translate"
     >
       ☰
     </button>
 
-    <span class="topbar__brand">ONoOffice</span>
+    <span class="topbar__brand">{{ 'app.name' | translate }}</span>
 
     <div class="topbar__spacer"></div>
 
     @if (store.user(); as user) {
       <div class="topbar__user">
-        <span class="topbar__name">{{ user.displayName ?? user.email ?? user.userId }}</span>
-        <span class="topbar__tenant" title="Tenant hiện tại">{{ user.tenantId }}</span>
+        <span class="topbar__name">{{ user.displayName || user.email || user.userId }}</span>
+        <span class="topbar__tenant" [title]="'session.workspace' | translate">{{ user.email }}</span>
       </div>
     }
 
-    <button type="button" class="topbar__logout" (click)="logout()">Đăng xuất</button>
+    <app-theme-picker />
+
+    <button type="button" class="topbar__logout" (click)="logout()">
+      {{ 'action.signOut' | translate }}
+    </button>
   </header>
 
   <div class="shell__body">
-    <nav class="sidebar" aria-label="Điều hướng chính">
+    <nav class="sidebar" [attr.aria-label]="'nav.main' | translate">
       <ul class="sidebar__list">
         @for (item of navItems; track item.path) {
           @if (item.permissions.length === 0) {
@@ -36,7 +40,7 @@
                 routerLinkActive="sidebar__link--active"
               >
                 <span class="sidebar__icon" aria-hidden="true">{{ item.icon }}</span>
-                <span class="sidebar__label">{{ item.label }}</span>
+                <span class="sidebar__label">{{ item.labelKey | translate }}</span>
               </a>
             </li>
           } @else {
@@ -47,7 +51,7 @@
                 routerLinkActive="sidebar__link--active"
               >
                 <span class="sidebar__icon" aria-hidden="true">{{ item.icon }}</span>
-                <span class="sidebar__label">{{ item.label }}</span>
+                <span class="sidebar__label">{{ item.labelKey | translate }}</span>
               </a>
             </li>
           }

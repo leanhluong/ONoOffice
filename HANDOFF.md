@@ -51,16 +51,29 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Test kiến trúc + i18n + luật Controller | 🟢 | 14 |
 | **Database** | 🟢 **Postgres 16 · migration · dữ liệu mồi — đã chạy THẬT** | **26** |
 | **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
-| Frontend | 🟡 Khung Angular chạy được, **chưa nối API — việc tiếp theo** | 8 |
+| **Frontend · đăng nhập** | 🟢 **Đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **31** |
+| Frontend · các màn còn lại | ⬜ Dashboard và danh sách nhân viên vẫn là khung rỗng | — |
 | Tài liệu | 🟢 7 thư mục · 4 ADR · `05-api` · wireframe · bản dựng màu | — |
 
 ```bash
 docker compose up -d                          # Postgres 16 ở cổng 5433
 cd backend && dotnet build && dotnet test     # 227 xanh, 0 warning
-cd frontend && npm run build && npm test      # 8 xanh
+cd frontend && npm run build && npm test      # 31 xanh · npm run lint sạch
 ```
 
-Đã gọi thật bằng curl và nhận về token đủ 12 quyền:
+### Đã kiểm chứng tới đâu (2026-08-24) — và chỗ nào thì CHƯA
+
+| Việc | Bằng chứng |
+|---|---|
+| Màn đăng nhập vẽ đúng thiết kế | Ảnh chụp trình duyệt thật ở `localhost:4200` |
+| Preflight + CORS từ đúng origin `:4200` | `curl -X OPTIONS` → 204, đủ header cho phép |
+| Đăng nhập trả token đủ 12 quyền | `curl` → 200, giữ nguyên `X-Correlation-Id` gửi lên |
+| Vé gia hạn xoay vòng, dùng lại thì **thu hồi cả chuỗi** | `curl` ba lần: vé cũ 401, và vé MỚI cũng 401 |
+| Luồng gia hạn của FE (gộp một lần, gửi lại một lần) | 31 test đơn vị, có cố ý phá thứ tự để chứng minh |
+
+⬜ **CHƯA làm được: bấm tay qua giao diện.** Extension trình duyệt rớt kết nối giữa chừng
+nên chưa có ai gõ mật khẩu vào form thật rồi xem nó nhảy sang dashboard. Việc đầu tiên
+của session sau là làm đúng chuyện đó.
 
 ```bash
 curl -X POST http://localhost:5000/api/auth/login \
@@ -70,60 +83,68 @@ curl -X POST http://localhost:5000/api/auth/login \
 
 ---
 
-## ⏭️ VIỆC TIẾP THEO — frontend nối vào API thật
+## ⏭️ VIỆC TIẾP THEO
 
-Backend đã **chạy được đầu-tới-cuối**: `POST /api/auth/login` trả token thật từ Postgres thật.
+**Việc số 0, mất năm phút:** mở `http://localhost:4200/login`, gõ
+`chu@demo.vn` / `MatKhauDemo!2026`, xem nó có vào được dashboard không. Đây là thứ
+duy nhất trong toàn hệ thống chưa ai bấm tay qua — xem bảng "Đã kiểm chứng tới đâu".
+
+Sau đó:
 
 ```
-⬜ Màn đăng nhập thật — gọi POST /api/auth/login, giữ access token TRONG BIẾN,
-   refresh token trong localStorage (ADR-0004)
-⬜ Interceptor tự gia hạn khi 401, và xử lý ca "vé bị thu hồi cả chuỗi" → về màn đăng nhập
-⬜ 4 bộ màu + ngx-translate, khoá dịch trùng khít mã lỗi backend
-⬜ Trạng thái chờ NÓI RÕ ĐANG LÀM GÌ — hạ tầng miễn phí ngủ dậy mất 30–60 giây
+⬜ Module Org — phòng ban, nhân viên (backend: Domain → Application → Infrastructure → Api)
+⬜ docs/04-database — sơ đồ bảng, quan hệ, chỉ mục
+⬜ GET /api/auth/me — để mở lại tab lấy được tên người dùng từ server thay vì từ localStorage
+⬜ Màn danh bạ + cây phòng ban (FE)
 ```
 
-Sau đó mới tới module `Org` (phòng ban, nhân viên) và `04-database`.
+Ba việc nhỏ đang nợ, đã ghi rõ trong code:
 
-### Chạy backend ở máy mình
+| Nợ | Ở đâu |
+|---|---|
+| Ô "Ghi nhớ tôi" có mặt nhưng **chưa nối gì** | `login.html` |
+| Quên mật khẩu / Google / Facebook đều hiện *"đang phát triển"* | `login.ts` — `notBuiltYet()` |
+| `Manager` trùng khít `Member` cho tới khi có `leave.approve` | `SystemRoles.cs`, có test canh |
+
+### Chạy cả hệ thống
 
 ```bash
-docker compose up -d                        # Postgres 16 ở cổng 5433
-cd backend && dotnet run --project src/ONoOffice.Api
+docker compose up -d                                   # Postgres 16, cổng 5433
+cd backend  && dotnet run --project src/ONoOffice.Api  # http://localhost:5000
+cd frontend && npm start                               # http://localhost:4200
 ```
 
-Lần khởi động đầu tiên với database trống sẽ tự chạy migration và gieo dữ liệu mồi:
+Lần chạy đầu với database trống tự chạy migration và gieo dữ liệu mồi:
 
 ```
 Workspace  demo · Công ty Demo
 Đăng nhập  chu@demo.vn  /  MatKhauDemo!2026
 ```
 
-Cấu hình ở `appsettings.Development.json`. **`Seed:Enabled` mặc định là TẮT** trong
-`SeedOptions` — máy chủ thật không tự sinh tài khoản nào.
-
 ```bash
-docker compose down -v      # xoá sạch dữ liệu, lần chạy sau gieo lại từ đầu
+docker compose down -v      # xoá sạch dữ liệu, lần sau gieo lại từ đầu
 ```
 
 ⚠️ **Cổng 5433, không phải 5432.** Máy này đã có một Postgres cài thẳng vào Windows giữ
 5432. Trỏ nhầm thì migration chạy vào nhầm database — và nó sẽ *thành công*.
 
-### Bốn bộ test, bốn mục đích khác nhau
+### Năm bộ test, năm mục đích khác nhau
 
 | Bộ | Số test | Cần gì | Trả lời câu hỏi |
 |---|---|---|---|
 | `Identity.UnitTests` | 158 | không | Luật nghiệp vụ có đúng không |
 | `ArchitectureTests` | 14 | không | Ranh giới tầng và luật Controller có bị phá không |
 | `Api.IntegrationTests` | 29 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
-| **`Api.DatabaseTests`** | **26** | **Docker** | **EF ánh xạ, cô lập tenant, luồng đăng nhập có chạy THẬT không** |
+| `Api.DatabaseTests` | 26 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập có chạy THẬT không |
+| `frontend` (vitest) | 31 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch có lệch không |
 
 Bộ thứ tư tự dựng Postgres bằng **Testcontainers**, không nối vào `docker compose`. Cố ý:
 test nối vào compose sẽ im lặng bỏ qua trên máy chưa `up` và trên CI — mà test không chạy
 thì tệ hơn cả không có, vì nhìn danh sách vẫn thấy nó nằm đó.
 
 ```bash
-cd backend && dotnet build && dotnet test     # 227 xanh, 0 warning
-cd frontend && npm run build && npm test      # 8 xanh
+cd backend  && dotnet build && dotnet test      # 227 xanh, 0 warning
+cd frontend && npm test && npm run build && npm run lint
 ```
 
 ---
@@ -158,7 +179,28 @@ cd frontend && npm run build && npm test      # 8 xanh
 
 ---
 
-## ⚠️ Mười hai cái bẫy đã gặp — đừng dẫm lại
+## ⚠️ Mười lăm cái bẫy đã gặp — đừng dẫm lại
+
+### Ba cái gặp khi nối frontend vào API thật (2026-08-24)
+
+**Khung FE viết trước khi có backend thì mọi tên trường đều là phỏng đoán.** Bốn chỗ lệch,
+không chỗ nào gây lỗi biên dịch: `expiresIn` thật ra là `expiresInSeconds`; tên và email
+được đọc từ claim trong token nhưng backend cố ý không nhét chúng vào đó; `/refresh` không
+trả `user` nên gia hạn xong là mất tên; và `TokenStorage` ghi cả access token xuống
+`localStorage`, trái thẳng `ADR-0004`. Bài học: khung viết trước backend phải ghi to
+"CHƯA KIỂM CHỨNG" và **đối chiếu lại từng trường** ở ngày nối thật.
+
+**`refreshInterceptor` phải đứng TRƯỚC `authInterceptor`.** Lần gửi lại sau khi gia hạn
+phải đi qua `auth` một lần nữa để gắn token MỚI. Đặt sau thì request gửi lại vẫn mang
+đúng cái token vừa hết hạn — 401 lần nữa, và lần này không ai cứu. Đã cố ý đảo một lần:
+test đỏ và chỉ thẳng vào chỗ token cũ.
+
+**Mọi lời gọi gia hạn phải gộp làm MỘT, nếu không sẽ tự đá người dùng ra.** Một màn hình
+mở ra bắn 5–6 request; token vừa hết hạn thì cả 5–6 cùng nhận 401. Mỗi cái tự gọi
+`/refresh` thì cái thứ hai cầm vé đã tiêu — backend coi là **bị trộm** và thu hồi cả
+chuỗi. Đây không phải suy đoán: đã dựng lại bằng curl trên server thật, vé cũ 401 và vé
+MỚI cũng 401 theo.
+
 
 ### Bốn cái gặp khi chạm database lần đầu (2026-08-24)
 
@@ -302,14 +344,16 @@ LUẬT BẮT BUỘC:
 Cách giảng: đừng dùng thuật ngữ chưa định nghĩa; ví von đời thường + số liệu cụ thể;
 mở đầu bằng sự cố thật rồi mới tới lý thuyết.
 
-VIỆC TIẾP THEO: frontend nối vào API thật — màn đăng nhập gọi POST /api/auth/login,
-interceptor tự gia hạn khi 401, 4 bộ màu, ngx-translate. Backend đã chạy được
-đầu-tới-cuối. Xem mục "VIỆC TIẾP THEO" trong HANDOFF.md.
-Chưa duyệt thiết kế bước này — trình bày trước theo luật 1.
+VIỆC ĐẦU TIÊN, mất năm phút: chạy cả hệ thống (docker compose up -d, dotnet run,
+npm start) rồi ĐĂNG NHẬP BẰNG TAY ở http://localhost:4200/login với
+chu@demo.vn / MatKhauDemo!2026. Đó là mắt xích duy nhất chưa ai bấm qua.
+
+Sau đó: module Org (phòng ban, nhân viên) và docs/04-database.
+Chưa duyệt thiết kế — trình bày trước theo luật 1.
 
 Bắt đầu bằng việc chạy `cd ONoOffice/backend && dotnet build && dotnet test`
-để xác nhận 227 test còn xanh (cần `docker compose up -d` trước), rồi báo
-tôi trạng thái trước khi làm gì.
+và `cd ONoOffice/frontend && npm test` để xác nhận 227 + 31 test còn xanh
+(cần `docker compose up -d` trước), rồi báo tôi trạng thái trước khi làm gì.
 ```
 
 **Vì sao đoạn prompt này dài như vậy:** session mới không nhớ gì cả. Ba thứ nó **không thể

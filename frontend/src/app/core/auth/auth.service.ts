@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, of, throwError } from 'rxjs';
+import { Observable, catchError, finalize, map, of, shareReplay, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import type { LoginRequest, LoginResponse } from '../models/auth.model';
+import type { LoginRequest, LoginResponse, RefreshResponse } from '../models/auth.model';
 import type { AppError } from '../models/api-error.model';
 import { AuthStore } from './auth.store';
 
@@ -13,25 +13,19 @@ export const AUTH_ENDPOINTS = {
   logout: '/api/auth/logout',
 } as const;
 
-/** True nếu URL đang gọi là một endpoint xác thực (không cần gắn Bearer). */
+/** True nếu URL đang gọi là một endpoint xác thực (không gắn Bearer, không tự gia hạn). */
 export function isAuthEndpoint(url: string): boolean {
   return Object.values(AUTH_ENDPOINTS).some((path) => url.includes(path));
 }
 
 /**
- * Cầu nối duy nhất tới các endpoint xác thực của backend.
+ * Cầu nối duy nhất tới các endpoint xác thực.
  *
- * Ranh giới trách nhiệm: service này gọi HTTP và ghi kết quả vào AuthStore.
- * Nó KHÔNG điều hướng trang — chuyển trang là việc của component/guard,
- * để service còn dùng lại được ở chỗ khác mà không kéo theo Router.
+ * Ranh giới trách nhiệm: service này gọi HTTP và ghi kết quả vào <c>AuthStore</c>. Nó
+ * KHÔNG điều hướng trang — chuyển trang là việc của component và guard, để service còn
+ * dùng lại được ở chỗ khác mà không kéo theo Router.
  *
- * !!! CHƯA KIỂM CHỨNG VỚI BACKEND THẬT !!!
- * Tại thời điểm viết, backend .NET chưa có `POST /api/auth/login`.
- * URL, tên trường request/response ở đây dựng theo mô tả hợp đồng API.
- * Khi backend lên, phải chạy lại luồng đăng nhập thật và đối chiếu:
- *   - tên trường: accessToken / refreshToken / expiresIn
- *   - tên claim trong token: sub / tenant_id / permission
- *   - mã lỗi khi sai mật khẩu (dự kiến 401 kèm Problem Details)
+ * Đã đối chiếu với backend chạy thật ngày 2026-08-24.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -39,56 +33,95 @@ export class AuthService {
   private readonly store = inject(AuthStore);
 
   /**
-   * Đăng nhập bằng email + mật khẩu.
-   * Lỗi phát ra từ đây đã được `error.interceptor` chuẩn hoá thành `AppError`.
+   * Lời gọi gia hạn đang bay, nếu có.
+   *
+   * ⭐ <b>Đây là thứ chống "bão gia hạn".</b> Một màn hình mở ra thường bắn 5–6 request
+   * cùng lúc. Access token vừa hết hạn thì cả 5–6 cùng nhận 401, và nếu mỗi cái tự gọi
+   * <c>/refresh</c> thì có 5–6 lời gọi gia hạn chạy song song.
+   *
+   * Hậu quả không phải là chậm, mà là <b>mất phiên</b>: refresh token xoay vòng và chỉ
+   * dùng được một lần. Lời gọi thứ nhất tiêu vé và nhận vé mới; lời gọi thứ hai vẫn cầm
+   * vé cũ — backend thấy vé đã thu hồi được dùng lại, kết luận là bị trộm, và
+   * <b>thu hồi toàn bộ chuỗi</b>. Người dùng bị đá ra vì chính app của mình.
+   *
+   * Giữ một Observable dùng chung là cách rẻ nhất để chỉ có đúng một lời gọi.
    */
+  private inFlightRefresh: Observable<void> | null = null;
+
   login(credentials: LoginRequest): Observable<void> {
-    return this.http
-      .post<LoginResponse>(this.url(AUTH_ENDPOINTS.login), credentials)
-      .pipe(map((response) => this.applySession(response)));
+    return this.http.post<LoginResponse>(this.url(AUTH_ENDPOINTS.login), credentials).pipe(
+      map((response) => {
+        if (!this.store.startSession(response)) {
+          throw this.invalidTokenError();
+        }
+      }),
+    );
   }
 
   /**
-   * Đổi refresh token lấy access token mới.
-   * CHƯA ĐƯỢC GỌI Ở ĐÂU: việc tự động refresh khi gặp 401 sẽ làm sau, khi đã
-   * chốt được hành vi thật của backend (mã lỗi, có xoay vòng refresh token
-   * hay không). Viết sẵn để chỗ nối vào đã có sẵn.
+   * Đổi vé gia hạn lấy cặp token mới.
+   *
+   * Gọi nhiều lần cùng lúc chỉ sinh ra MỘT request — xem <c>inFlightRefresh</c>.
    */
   refresh(): Observable<void> {
+    if (this.inFlightRefresh) {
+      return this.inFlightRefresh;
+    }
+
     const refreshToken = this.store.refreshToken();
+
     if (!refreshToken) {
       return throwError(() => this.noSessionError());
     }
-    return this.http
-      .post<LoginResponse>(this.url(AUTH_ENDPOINTS.refresh), { refreshToken })
-      .pipe(map((response) => this.applySession(response)));
+
+    this.inFlightRefresh = this.http
+      .post<RefreshResponse>(this.url(AUTH_ENDPOINTS.refresh), { refreshToken })
+      .pipe(
+        map((response) => {
+          // Có phiên trong bộ nhớ thì giữ nguyên người dùng; không có (vừa mở lại tab)
+          // thì lấy lại từ bản đã ghi cạnh vé gia hạn.
+          const accepted = this.store.session()
+            ? this.store.renewSession(response)
+            : this.store.restoreSession(response);
+
+          if (!accepted) {
+            throw this.invalidTokenError();
+          }
+        }),
+
+        // Dọn chỗ trước khi phát kết quả, để lời gọi TIẾP THEO bắt đầu một request mới
+        // chứ không dùng lại kết quả cũ đã nguội.
+        finalize(() => {
+          this.inFlightRefresh = null;
+        }),
+
+        // refCount: false — người đến muộn vẫn nhận được kết quả (hoặc lỗi) đã có,
+        // không kích hoạt thêm request nào.
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
+
+    return this.inFlightRefresh;
   }
 
   /**
-   * Đăng xuất. Xoá phiên ở client TRƯỚC rồi mới báo server, vì với người dùng
-   * thì "đã thoát" phải là chắc chắn — server có lỗi cũng không được kẹt lại
-   * trong trạng thái còn đăng nhập.
+   * Đăng xuất.
+   *
+   * Xoá phiên ở client TRƯỚC rồi mới báo server: với người dùng thì "đã thoát" phải là
+   * chắc chắn. Server lỗi cũng không được để họ kẹt lại trong trạng thái còn đăng nhập.
    */
   logout(): Observable<void> {
     const refreshToken = this.store.refreshToken();
     this.store.clear();
+
     if (!refreshToken) {
       return of(undefined);
     }
+
     return this.http.post<void>(this.url(AUTH_ENDPOINTS.logout), { refreshToken }).pipe(
       map(() => undefined),
-      // Server thu hồi token thất bại cũng mặc kệ: client đã sạch rồi.
+      // Thu hồi vé thất bại cũng mặc kệ — client đã sạch rồi.
       catchError(() => of(undefined)),
     );
-  }
-
-  private applySession(response: LoginResponse): void {
-    const accepted = this.store.setSessionFromResponse(response);
-    if (!accepted) {
-      // Token trả về không giải mã được hoặc thiếu `sub`/`tenant_id`.
-      // Đây là lỗi hợp đồng giữa FE và BE, không phải lỗi người dùng.
-      throw this.invalidTokenError();
-    }
   }
 
   private url(path: string): string {

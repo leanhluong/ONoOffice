@@ -1,28 +1,26 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, type AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ErrorMessageService } from '../../../core/i18n/error-message.service';
 import { isAppError, type AppError } from '../../../core/models/api-error.model';
 import { Alert } from '../../../shared/ui/alert/alert';
+import { ThemePicker } from '../../../shared/ui/theme-picker/theme-picker';
 
 /**
  * Màn đăng nhập.
  *
- * Vì sao reactive form chứ không template-driven: form này cần nhận thêm lỗi
- * từ server gắn vào từng ô (`setErrors({ server: '...' })`), cần khoá toàn bộ
- * form khi đang gửi, và cần kiểm tra trạng thái trong code. Template-driven
- * làm được nhưng phải luồn `@ViewChild` lòng vòng.
+ * Đây là màn DUY NHẤT ai cũng vào được mà chưa cần token, nên cũng là màn bị dò nhiều
+ * nhất. Mọi lựa chọn dưới đây xoay quanh chuyện đó — xem
+ * `docs/07-giao-dien/identity/dang-nhap.md`.
  *
- * !!! CHƯA GỌI ĐƯỢC API THẬT: backend chưa có `POST /api/auth/login`.
- * Luồng ở đây đã nối đầy đủ tới `AuthService.login()`, nhưng chưa ai chạy thử
- * với server thật. Khi backend lên, phải kiểm lại hai điểm:
- *   1. Sai mật khẩu trả mã lỗi gì → đối chiếu với `mapServerError` bên dưới.
- *   2. Access token có đủ claim `sub`/`tenant_id`/`permission` chưa.
+ * Đã chạy thật với backend ngày 2026-08-24.
  */
 @Component({
   selector: 'app-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, Alert],
+  imports: [ReactiveFormsModule, TranslatePipe, Alert, ThemePicker],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -31,14 +29,45 @@ export class Login {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly errorMessages = inject(ErrorMessageService);
+  private readonly translate = inject(TranslateService);
 
   protected readonly submitting = signal(false);
-  /** Lỗi chung hiển thị trên đầu form (sai mật khẩu, mất mạng, server lỗi...). */
+  protected readonly showPassword = signal(false);
+
+  /** Lỗi chung hiện trên đầu form: sai mật khẩu, tài khoản bị khoá, mất mạng. */
   protected readonly formError = signal<AppError | null>(null);
+
+  protected readonly errorText = computed(() => {
+    const error = this.formError();
+    return error === null ? null : this.errorMessages.resolve(error);
+  });
+
+  protected readonly errorReference = computed(() => {
+    const error = this.formError();
+    return error === null ? null : this.errorMessages.reference(error);
+  });
+
+  /**
+   * Bị đá về đây vì phiên hết hạn, chứ không phải tự bấm vào.
+   *
+   * Phân biệt hai ca này là chuyện nhỏ nhưng thật: người đang làm dở mà bị văng ra cần
+   * biết VÌ SAO, nếu không họ tưởng mình bấm nhầm hoặc app hỏng.
+   */
+  protected readonly sessionExpired = this.route.snapshot.queryParamMap.get('lyDo') === 'het-phien';
 
   protected readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+
+    /**
+     * CHỈ kiểm "không được rỗng".
+     *
+     * Cố ý không kiểm độ dài tối thiểu ở màn ĐĂNG NHẬP: mật khẩu đã tồn tại rồi, luật độ
+     * mạnh thuộc về màn đăng ký và màn đổi mật khẩu. Kiểm ở đây thì người có mật khẩu cũ
+     * ngắn hơn luật mới sẽ không đăng nhập được vào chính tài khoản của họ — và thông
+     * báo lỗi sẽ nói cho kẻ đang dò biết luật mật khẩu của hệ thống.
+     */
+    password: ['', [Validators.required]],
   });
 
   protected get emailControl(): AbstractControl {
@@ -49,44 +78,56 @@ export class Login {
     return this.form.controls.password;
   }
 
+  protected togglePassword(): void {
+    this.showPassword.update((shown) => !shown);
+  }
+
   /**
-   * Sinh câu lỗi cho một ô nhập.
-   * Chỉ hiện khi người dùng đã chạm vào ô đó (`touched`) — hiện lỗi ngay lúc
-   * form vừa mở, khi họ còn chưa gõ chữ nào, là kiểu trải nghiệm khó chịu.
+   * Câu lỗi cho một ô nhập. Chỉ hiện khi người dùng đã RỜI ô đó.
+   *
+   * Kiểm khi đang gõ là gào lên "email không hợp lệ" ngay từ chữ cái đầu tiên — đúng về
+   * kỹ thuật, khó chịu về cảm giác.
    */
   protected errorFor(control: AbstractControl, field: 'email' | 'password'): string | null {
     if (!control.touched || !control.errors) {
       return null;
     }
+
     const errors = control.errors;
-    if (errors['server']) {
-      return String(errors['server']);
-    }
+
     if (errors['required']) {
-      return field === 'email' ? 'Vui lòng nhập email.' : 'Vui lòng nhập mật khẩu.';
+      return this.translate.instant(
+        field === 'email'
+          ? 'login.validation.emailRequired'
+          : 'login.validation.passwordRequired',
+      ) as string;
     }
+
     if (errors['email']) {
-      return 'Email không đúng định dạng.';
+      return this.translate.instant('login.validation.emailInvalid') as string;
     }
-    if (errors['minlength']) {
-      return 'Mật khẩu phải có ít nhất 6 ký tự.';
-    }
-    return 'Giá trị không hợp lệ.';
+
+    return null;
   }
 
   protected submit(): void {
     this.formError.set(null);
 
     if (this.form.invalid) {
-      // Đánh dấu touched hết để mọi lỗi hiện ra cùng lúc, thay vì người dùng
-      // sửa xong ô này lại lòi ra lỗi ô khác.
+      // Đánh dấu touched hết để mọi lỗi hiện cùng lúc, thay vì người dùng sửa xong ô này
+      // lại lòi ra lỗi ô khác.
       this.form.markAllAsTouched();
       return;
     }
 
     this.submitting.set(true);
-    this.form.disable({ emitEvent: false });
 
+    /**
+     * CỐ Ý không khoá hai ô nhập khi đang gửi — chỉ khoá nút.
+     *
+     * Khoá cả form thì người vừa nhận ra mình gõ nhầm email phải ngồi chờ hết một vòng
+     * mạng mới sửa được. Với hạ tầng miễn phí đang ngủ, vòng đó có thể là 30–60 giây.
+     */
     this.auth.login(this.form.getRawValue()).subscribe({
       next: () => {
         this.submitting.set(false);
@@ -94,80 +135,54 @@ export class Login {
       },
       error: (error: unknown) => {
         this.submitting.set(false);
-        this.form.enable({ emitEvent: false });
-        this.handleError(error);
+        this.formError.set(this.toAppError(error));
       },
     });
   }
 
-  /** Quay lại trang người dùng định vào trước khi bị guard đá ra. */
-  private returnUrl(): string {
-    const raw = this.route.snapshot.queryParamMap.get('returnUrl');
-    // Chỉ nhận đường dẫn nội bộ. Nếu không chặn, kẻ xấu có thể gửi link
-    // `?returnUrl=https://site-gia-mao` để lừa chuyển hướng sau khi đăng nhập.
-    if (raw && raw.startsWith('/') && !raw.startsWith('//')) {
-      return raw;
-    }
-    return '/dashboard';
-  }
-
-  private handleError(error: unknown): void {
-    if (!isAppError(error)) {
-      this.formError.set({
-        kind: 'unknown',
-        status: 0,
-        code: 'Client.Unexpected',
-        message: 'Đã có lỗi không mong muốn. Vui lòng thử lại.',
-        details: [],
-        fieldErrors: {},
-        correlationId: null,
-      });
-      return;
-    }
-
-    this.applyFieldErrors(error);
-    this.formError.set(error);
+  /** Nút Google/Facebook: đã có chỗ, chưa có gì phía sau. Nói thẳng thay vì im lặng. */
+  protected notBuiltYet(): void {
+    this.formError.set({
+      kind: 'unknown',
+      status: 0,
+      code: 'Client.NotBuiltYet',
+      message: this.translate.instant('login.comingSoon') as string,
+      details: [],
+      fieldErrors: {},
+      correlationId: null,
+    });
   }
 
   /**
-   * Gắn lỗi do server trả về vào đúng ô nhập.
-   * Ưu tiên `fieldErrors` (dictionary ModelState); nếu không có thì đoán theo
-   * mã lỗi nghiệp vụ — backend dùng mã có cấu trúc `Namespace.Reason` nên
-   * đoán được khá chắc chắn.
+   * Quay lại trang người dùng định vào trước khi bị guard đá ra.
+   *
+   * CHỈ nhận đường dẫn nội bộ. Không chặn thì một link
+   * `?returnUrl=https://trang-gia-mao` sẽ đưa người vừa đăng nhập sang trang của kẻ xấu,
+   * và họ tin nó vì vừa đăng nhập xong ở trang thật.
    */
-  private applyFieldErrors(error: AppError): void {
-    const emailMessages = error.fieldErrors['email'];
-    const passwordMessages = error.fieldErrors['password'];
+  private returnUrl(): string {
+    const raw = this.route.snapshot.queryParamMap.get('returnUrl');
 
-    if (emailMessages?.[0]) {
-      this.setServerError(this.emailControl, emailMessages[0]);
-    }
-    if (passwordMessages?.[0]) {
-      this.setServerError(this.passwordControl, passwordMessages[0]);
+    if (raw && raw.startsWith('/') && !raw.startsWith('//') && !raw.startsWith('/login')) {
+      return raw;
     }
 
-    if (!emailMessages && !passwordMessages) {
-      this.mapServerError(error);
-    }
+    return '/dashboard';
   }
 
-  private mapServerError(error: AppError): void {
-    switch (error.code) {
-      case 'Auth.EmailNotFound':
-        this.setServerError(this.emailControl, error.message);
-        break;
-      case 'Auth.WrongPassword':
-        this.setServerError(this.passwordControl, error.message);
-        break;
-      default:
-        // Cố ý KHÔNG tách "sai email" với "sai mật khẩu" ở nhánh mặc định:
-        // để lộ email nào tồn tại là giúp kẻ xấu dò danh sách tài khoản.
-        break;
+  private toAppError(error: unknown): AppError {
+    if (isAppError(error)) {
+      return error;
     }
-  }
 
-  private setServerError(control: AbstractControl, message: string): void {
-    control.setErrors({ ...(control.errors ?? {}), server: message });
-    control.markAsTouched();
+    return {
+      kind: 'unknown',
+      status: 0,
+      code: 'Client.Unexpected',
+      message: '',
+      details: [],
+      fieldErrors: {},
+      correlationId: null,
+    };
   }
 }

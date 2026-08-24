@@ -1,27 +1,115 @@
 /**
  * Style toàn cục.
  *
- * Chỉ chứa: reset tối thiểu + bộ biến màu dùng chung. Mọi thứ khác thuộc về
- * SCSS của từng component (Angular tự bọc scope, không sợ đè nhau).
+ * Chỉ chứa ba thứ: nạp chữ, khai token của bốn bộ màu, và một reset tối thiểu.
+ * Mọi thứ khác thuộc về SCSS của từng component (Angular tự bọc scope).
  *
- * Vì sao dùng CSS custom property chứ không phải biến SCSS: biến SCSS bị
- * "nướng" cứng lúc build, còn custom property đọc được lúc chạy — sau này
- * làm chế độ tối hoặc đổi màu theo tenant chỉ cần ghi đè trên `:root`.
+ * LUẬT BẤT DI BẤT DỊCH: component chỉ được dùng `var(--token)`, không bao giờ viết mã
+ * màu trực tiếp. Đó là toàn bộ lý do ship được bốn bộ màu mà không tốn gì thêm — bốn bộ
+ * chỉ là bốn lần khai lại đúng mười biến bên dưới.
  */
 
+/* Chữ chọn theo TIẾNG VIỆT trước, không phải theo thẩm mỹ trước — xem he-thong-thiet-ke.md.
+   Be Vietnam Pro được thiết kế riêng cho tiếng Việt: dấu má cân đối, không chồng lấn. */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Sora:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   MƯỜI TOKEN × BỐN BỘ
+
+   --ground      nền ngoài cùng          --ink-soft    chữ phụ, nhãn
+   --surface     nền thẻ, ô nhập         --ink-faint   chữ mờ, gợi ý
+   --surface-2   nền chìm hơn một bậc    --accent      điểm nhấn — CHỈ cho hành động chính
+   --line        đường kẻ, viền          --accent-ink  chữ nằm trên nền accent
+   --ink         chữ chính               --danger      lỗi
+
+   --danger KHÔNG BAO GIỜ trùng --accent. Ở bộ Giấy điểm nhấn vốn là đỏ rượu, nên
+   --danger phải là một sắc đỏ khác hẳn — nếu không thì nút chính và thông báo lỗi
+   trông y như nhau.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Mực — mặc định khi máy để chế độ tối */
+:root,
+:root[data-theme='muc'] {
+  --ground: #0b0c0e;
+  --surface: #141619;
+  --surface-2: #1c1f24;
+  --line: #2a2e35;
+  --ink: #f2f3f5;
+  --ink-soft: #a8adb7;
+  --ink-faint: #6f757f;
+  --accent: #d9a441;
+  --accent-ink: #1a1408;
+  --danger: #e5645c;
+}
+
+:root[data-theme='hai-dang'] {
+  --ground: #0a1220;
+  --surface: #101c30;
+  --surface-2: #16253d;
+  --line: #22374f;
+  --ink: #eef3fa;
+  --ink-soft: #9fb2c9;
+  --ink-faint: #6b7f96;
+  --accent: #ff7a5c;
+  --accent-ink: #2a0d05;
+  --danger: #ff9a8f;
+}
+
+:root[data-theme='giay'] {
+  --ground: #fafaf8;
+  --surface: #ffffff;
+  --surface-2: #f1f0ec;
+  --line: #dfddd6;
+  --ink: #1c1b18;
+  --ink-soft: #5b5850;
+  --ink-faint: #8d8a80;
+  --accent: #8c2f39;
+  --accent-ink: #fdf6f6;
+  /* Cam-đỏ, cố ý KHÁC HẲN đỏ rượu của --accent. */
+  --danger: #c0392b;
+}
+
+:root[data-theme='reu'] {
+  --ground: #12160f;
+  --surface: #1a1f16;
+  --surface-2: #232a1e;
+  --line: #333c2b;
+  --ink: #eef1e9;
+  --ink-soft: #a9b39c;
+  --ink-faint: #737c68;
+  --accent: #a3b18a;
+  --accent-ink: #14180f;
+  --danger: #d9736a;
+}
+
+/* Máy để chế độ tối mà người dùng CHƯA chọn gì → Mực.
+   Có `:not([data-theme])` nên lựa chọn tay của người dùng luôn thắng. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --ground: #fafaf8;
+    --surface: #ffffff;
+    --surface-2: #f1f0ec;
+    --line: #dfddd6;
+    --ink: #1c1b18;
+    --ink-soft: #5b5850;
+    --ink-faint: #8d8a80;
+    --accent: #8c2f39;
+    --accent-ink: #fdf6f6;
+    --danger: #c0392b;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Thang đo — bội số của 4px, không có ngoại lệ
+   ══════════════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --color-bg: #f6f7f9;
-  --color-surface: #ffffff;
-  --color-surface-muted: #f1f3f6;
-  --color-surface-strong: #1f2937;
-  --color-on-strong: #f8fafc;
-  --color-border: #dfe3e8;
-  --color-text: #1f2937;
-  --color-text-muted: #6b7280;
-  --color-accent: #2563eb;
-  --color-accent-soft: #e6efff;
-  --color-hover: #e6e9ee;
-  --color-danger: #dc2626;
+  --radius: 10px;
+  --radius-pill: 999px;
+
+  --font-body: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Sora', var(--font-body);
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
 }
 
 * {
@@ -35,21 +123,57 @@ body {
 
 body {
   margin: 0;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family:
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    system-ui,
-    -apple-system,
-    'Noto Sans',
-    sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-code {
-  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
-  font-size: 0.9em;
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  margin: 0;
+}
+
+code,
+kbd,
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* Viền focus nhìn thấy được ở CẢ BỐN bộ màu. Bỏ outline mà không thay bằng gì là cắt
+   đường đi của người dùng bàn phím — họ không còn biết mình đang đứng ở đâu. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Máy đã xin giảm chuyển động thì tắt hẳn, không "giảm bớt". Với người bị rối loạn tiền
+   đình, một chuyển động nhỏ vẫn đủ gây chóng mặt. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Chỉ trình đọc màn hình thấy. Dùng cho nhãn của nút chỉ có biểu tượng — `display:none`
+   thì trình đọc màn hình cũng không đọc, tức là nút đó câm với người khiếm thị. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

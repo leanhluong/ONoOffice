@@ -1,0 +1,45 @@
+{
+  "app": {
+    "name": "ONoOffice",
+    "tagline": "Cả công ty, gọn trong một chỗ."
+  },
+  "action": {
+    "signIn": "Đăng nhập",
+    "signOut": "Đăng xuất",
+    "cancel": "Huỷ",
+    "retry": "Thử lại"
+  },
+  "theme": {
+    "label": "Giao diện",
+    "muc": "Mực",
+    "hai-dang": "Hải đăng",
+    "giay": "Giấy",
+    "reu": "Rêu"
+  },
+  "language": {
+    "label": "Ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "state": {
+    "loading": "Đang tải…",
+    "waking": "Máy chủ đang khởi động, việc này có thể mất tới một phút…"
+  },
+  "reference": "Mã tham chiếu",
+  "errorKind": {
+    "network": "Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.",
+    "validation": "Dữ liệu chưa hợp lệ. Vui lòng kiểm tra lại.",
+    "unauthorized": "Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.",
+    "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "not-found": "Không tìm thấy dữ liệu yêu cầu.",
+    "conflict": "Thao tác bị từ chối do xung đột dữ liệu.",
+    "server": "Máy chủ đang gặp sự cố. Vui lòng thử lại sau ít phút.",
+    "unknown": "Có lỗi xảy ra. Vui lòng thử lại."
+  },
+  "nav": {
+    "main": "Điều hướng chính",
+    "toggle": "Đóng/mở thanh điều hướng",
+    "dashboard": "Bảng điều khiển",
+    "employees": "Nhân sự"
+  }
+}

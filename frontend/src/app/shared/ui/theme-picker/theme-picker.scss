@@ -1,0 +1,70 @@
+/**
+ * NGOẠI LỆ DUY NHẤT của luật "chỉ dùng token".
+ *
+ * Mấy ô màu dưới đây là BẢN XEM TRƯỚC của từng bộ — chúng phải hiện đúng màu của bộ đó
+ * bất kể người dùng đang ở bộ nào. Dùng token thì cả bốn ô sẽ giống hệt nhau, và người
+ * dùng không chọn được gì cả.
+ *
+ * Giá trị phải khớp với `styles.scss`. Lệch thì ô xem trước nói dối.
+ */
+.picker {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  &__group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__swatch {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+
+    /* Nửa nền, nửa điểm nhấn — nói được cả hai thứ quan trọng nhất của một bộ màu. */
+    &[data-theme-preview='muc'] {
+      background: linear-gradient(135deg, #0b0c0e 50%, #d9a441 50%);
+    }
+    &[data-theme-preview='hai-dang'] {
+      background: linear-gradient(135deg, #0a1220 50%, #ff7a5c 50%);
+    }
+    &[data-theme-preview='giay'] {
+      background: linear-gradient(135deg, #fafaf8 50%, #8c2f39 50%);
+    }
+    &[data-theme-preview='reu'] {
+      background: linear-gradient(135deg, #12160f 50%, #a3b18a 50%);
+    }
+
+    /* Bộ đang chọn có VÒNG SÁNG, không chỉ đậm màu hơn — đậm hơn là tín hiệu chỉ nhìn
+       bằng màu, và ở đây thì chính các ô đã khác màu nhau sẵn rồi. */
+    &--on {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  &__lang {
+    padding: 2px 8px;
+
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--ink-soft);
+
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    cursor: pointer;
+
+    &--on {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  }
+}

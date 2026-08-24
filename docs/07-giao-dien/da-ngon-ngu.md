@@ -1,6 +1,6 @@
 # Đa ngôn ngữ
 
-> Trạng thái: 🟡 **Đã chốt cách làm, chưa dựng** · Chốt ngày 2026-08-23
+> Trạng thái: 🟢 **Đã dựng** · Chốt 2026-08-23 · Dựng xong 2026-08-24
 
 Ban đầu `01-tong-quan/pham-vi.md` xếp đa ngôn ngữ vào **"cố ý không làm ở lát 1"**. Nay
 đổi ý: **làm ngay từ đầu.**

@@ -1,0 +1,45 @@
+{
+  "app": {
+    "name": "ONoOffice",
+    "tagline": "Your whole company, in one place."
+  },
+  "action": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "cancel": "Cancel",
+    "retry": "Try again"
+  },
+  "theme": {
+    "label": "Theme",
+    "muc": "Ink",
+    "hai-dang": "Lighthouse",
+    "giay": "Paper",
+    "reu": "Moss"
+  },
+  "language": {
+    "label": "Language",
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "state": {
+    "loading": "Loading…",
+    "waking": "The server is waking up, this can take up to a minute…"
+  },
+  "reference": "Reference",
+  "errorKind": {
+    "network": "Cannot reach the server. Check your connection and try again.",
+    "validation": "Some fields are not valid. Please check them.",
+    "unauthorized": "Your session has expired. Please sign in again.",
+    "forbidden": "You do not have permission to do that.",
+    "not-found": "We could not find what you asked for.",
+    "conflict": "That action conflicts with the current state of the data.",
+    "server": "The server is having trouble. Please try again in a few minutes.",
+    "unknown": "Something went wrong. Please try again."
+  },
+  "nav": {
+    "main": "Main navigation",
+    "toggle": "Toggle navigation",
+    "dashboard": "Dashboard",
+    "employees": "People"
+  }
+}

@@ -1,53 +1,157 @@
 <div class="login">
-  <form class="login__card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-    <h1 class="login__title">ONoOffice</h1>
-    <p class="login__subtitle">Đăng nhập để vào không gian làm việc của bạn.</p>
+  <!--
+    Cột trái: định vị sản phẩm. Nền là SƠ ĐỒ TỔ CHỨC, không phải hoa văn trang trí —
+    các chấm nối nhau chính là thứ sản phẩm nói về. Vẽ bằng SVG inline chứ không tải ảnh:
+    nó đổi màu theo bộ màu đang chọn, và không tốn thêm một lần đi mạng nào ở đúng màn
+    hình đầu tiên người dùng nhìn thấy.
+  -->
+  <aside class="login__aside" aria-hidden="true">
+    <!--
+      `preserveAspectRatio="xMidYMid slice"` — không có nó thì SVG bị kéo giãn theo khung,
+      và mấy chấm nhỏ phình thành những quả bóng to đùng che hết chữ.
+      `vector-effect` giữ nét kẻ mảnh đều nhau ở mọi cỡ màn hình.
+    -->
+    <svg
+      class="login__orgchart"
+      viewBox="0 0 400 300"
+      preserveAspectRatio="xMidYMid slice"
+      role="presentation"
+    >
+      <g class="login__edges">
+        <path d="M200 62 L200 108" />
+        <path d="M120 142 L120 108 L280 108 L280 142" />
+        <path d="M120 172 L120 208" />
+        <path d="M62 238 L62 208 L178 208 L178 238" />
+        <path d="M280 172 L280 208" />
+        <path d="M222 238 L222 208 L338 208 L338 238" />
+      </g>
+      <g class="login__nodes">
+        <circle cx="200" cy="56" r="6" />
+        <circle cx="120" cy="157" r="4.5" />
+        <circle cx="280" cy="157" r="4.5" />
+        <circle cx="62" cy="244" r="3" />
+        <circle cx="178" cy="244" r="3" />
+        <circle cx="222" cy="244" r="3" />
+        <circle cx="338" cy="244" r="3" />
+      </g>
+    </svg>
 
-    @if (formError(); as error) {
-      <app-alert tone="error" title="Không đăng nhập được" [code]="error.code">
-        {{ error.message }}
-      </app-alert>
-    }
+    <div class="login__pitch">
+      <p class="login__brand">{{ 'app.name' | translate }}</p>
+      <h1 class="login__tagline">{{ 'app.tagline' | translate }}</h1>
+      <p class="login__notice">{{ 'login.notice' | translate }}</p>
+    </div>
+  </aside>
 
-    <div class="field">
-      <label class="field__label" for="email">Email</label>
-      <input
-        id="email"
-        type="email"
-        class="field__input"
-        formControlName="email"
-        autocomplete="username"
-        [attr.aria-invalid]="errorFor(emailControl, 'email') !== null"
-        [attr.aria-describedby]="errorFor(emailControl, 'email') ? 'email-error' : null"
-      />
-      @if (errorFor(emailControl, 'email'); as message) {
-        <p class="field__error" id="email-error">{{ message }}</p>
-      }
+  <!-- Cột phải: form. Trên điện thoại nó chiếm hết bề ngang. -->
+  <main class="login__panel">
+    <div class="login__panel-head">
+      <app-theme-picker />
     </div>
 
-    <div class="field">
-      <label class="field__label" for="password">Mật khẩu</label>
-      <input
-        id="password"
-        type="password"
-        class="field__input"
-        formControlName="password"
-        autocomplete="current-password"
-        [attr.aria-invalid]="errorFor(passwordControl, 'password') !== null"
-        [attr.aria-describedby]="errorFor(passwordControl, 'password') ? 'password-error' : null"
-      />
-      @if (errorFor(passwordControl, 'password'); as message) {
-        <p class="field__error" id="password-error">{{ message }}</p>
+    <form class="login__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <h2 class="login__heading">{{ 'login.heading' | translate }}</h2>
+      <p class="login__sub">{{ 'login.subheading' | translate }}</p>
+
+      @if (sessionExpired && !formError()) {
+        <app-alert tone="warning">{{ 'login.sessionExpired' | translate }}</app-alert>
       }
-    </div>
 
-    <button type="submit" class="login__submit" [disabled]="submitting()">
-      {{ submitting() ? 'Đang đăng nhập…' : 'Đăng nhập' }}
-    </button>
+      @if (errorText(); as message) {
+        <app-alert
+          tone="error"
+          [title]="'login.failed' | translate"
+          [reference]="errorReference()"
+        >
+          {{ message }}
+        </app-alert>
+      }
 
-    <p class="login__note">
-      Backend chưa có endpoint đăng nhập — bấm nút sẽ báo lỗi kết nối. Đây là hành vi đúng ở giai
-      đoạn này.
-    </p>
-  </form>
+      <div class="field">
+        <label class="field__label" for="email">{{ 'login.email' | translate }}</label>
+        <input
+          id="email"
+          type="email"
+          class="field__input"
+          formControlName="email"
+          autocomplete="username"
+          inputmode="email"
+          autocapitalize="off"
+          spellcheck="false"
+          [attr.aria-invalid]="errorFor(emailControl, 'email') !== null"
+          [attr.aria-describedby]="errorFor(emailControl, 'email') ? 'email-error' : null"
+        />
+        @if (errorFor(emailControl, 'email'); as message) {
+          <p class="field__error" id="email-error">{{ message }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="password">{{ 'login.password' | translate }}</label>
+
+        <div class="field__with-action">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            class="field__input"
+            formControlName="password"
+            autocomplete="current-password"
+            [attr.aria-invalid]="errorFor(passwordControl, 'password') !== null"
+            [attr.aria-describedby]="
+              errorFor(passwordControl, 'password') ? 'password-error' : null
+            "
+          />
+          <!--
+            Nút hiện mật khẩu: người gõ sai vài lần cần nhìn thấy mình đang gõ gì. Không
+            có nó thì họ dán mật khẩu vào ô email để đọc — và mật khẩu nằm lại trong
+            lịch sử tự điền của trình duyệt.
+          -->
+          <button
+            type="button"
+            class="field__action"
+            (click)="togglePassword()"
+            [attr.aria-label]="
+              (showPassword() ? 'login.hidePassword' : 'login.showPassword') | translate
+            "
+          >
+            {{ (showPassword() ? 'login.hidePassword' : 'login.showPassword') | translate }}
+          </button>
+        </div>
+
+        @if (errorFor(passwordControl, 'password'); as message) {
+          <p class="field__error" id="password-error">{{ message }}</p>
+        }
+      </div>
+
+      <div class="login__row">
+        <!-- Ô tick đã có nhưng CHƯA NỐI GÌ — ghi rõ ở dang-nhap.md, mục "Chưa làm". -->
+        <label class="login__remember">
+          <input type="checkbox" disabled />
+          <span>{{ 'login.remember' | translate }}</span>
+        </label>
+
+        <button type="button" class="login__link" (click)="notBuiltYet()">
+          {{ 'login.forgot' | translate }}
+        </button>
+      </div>
+
+      <button type="submit" class="login__submit" [disabled]="submitting()">
+        @if (submitting()) {
+          <span class="login__spinner" aria-hidden="true"></span>
+        }
+        {{ (submitting() ? 'login.submitting' : 'login.submit') | translate }}
+      </button>
+
+      <p class="login__divider"><span>{{ 'login.orContinueWith' | translate }}</span></p>
+
+      <div class="login__federated">
+        <button type="button" class="login__federated-button" (click)="notBuiltYet()">
+          Google
+        </button>
+        <button type="button" class="login__federated-button" (click)="notBuiltYet()">
+          Facebook
+        </button>
+      </div>
+    </form>
+  </main>
 </div>

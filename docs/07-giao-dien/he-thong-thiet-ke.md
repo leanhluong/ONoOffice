@@ -124,7 +124,8 @@ Nằm ở `frontend/src/app/shared/ui/`. Danh sách hiện có và cần có:
 
 | Component | Trạng thái |
 |---|---|
-| `alert` — khung cảnh báo, nhận mã lỗi + câu chữ | 🟢 |
+| `alert` — khung cảnh báo, nhận mã lần vết + câu chữ | 🟢 |
+| `theme-picker` — đổi bộ màu và ngôn ngữ | 🟢 |
 | `has-permission` — chỉ thị ẩn/hiện theo quyền | 🟢 |
 | `field` — ô nhập kèm nhãn + dòng lỗi | ⬜ |
 | `empty-state` — trạng thái rỗng kèm gợi ý hành động | ⬜ |

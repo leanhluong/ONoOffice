@@ -1,13 +1,12 @@
-import type { AccessTokenClaims, AuthUser } from '../models/auth.model';
+import type { AccessTokenClaims } from '../models/auth.model';
 
 /**
  * Giải mã phần payload của JWT.
  *
- * LƯU Ý QUAN TRỌNG: đây KHÔNG phải là xác thực chữ ký. Frontend không có
- * public key và cũng không nên có. Việc đọc claim ở đây chỉ để vẽ giao diện
- * (hiện tên, ẩn/hiện menu). Mọi quyết định bảo mật thật vẫn do backend làm.
- * Người dùng hoàn toàn có thể sửa localStorage để "thấy" thêm menu, nhưng
- * API sẽ trả 403 vì backend tự kiểm lại permission từ token đã ký.
+ * <b>Đây KHÔNG phải xác thực chữ ký.</b> Frontend không có khoá và cũng không nên có.
+ * Đọc claim ở đây chỉ để vẽ giao diện — ẩn/hiện menu, chặn route sớm cho đỡ nhấp nháy.
+ * Mọi quyết định bảo mật thật vẫn do backend làm: người dùng sửa tay localStorage thì
+ * "thấy" thêm menu, nhưng bấm vào là 403 vì backend kiểm lại từ token đã ký.
  */
 export function decodeJwtPayload(token: string): AccessTokenClaims | null {
   const parts = token.split('.');
@@ -21,10 +20,10 @@ export function decodeJwtPayload(token: string): AccessTokenClaims | null {
   }
 
   try {
-    // JWT dùng base64url: thay ký tự và bù `=` cho đủ bội số 4.
+    // JWT dùng base64url: đổi ký tự và bù `=` cho đủ bội số 4.
     const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
     const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
-    // `atob` trả chuỗi byte; decodeURIComponent/escape để đọc đúng tiếng Việt có dấu.
+    // `atob` trả chuỗi byte; phải giải lại UTF-8 để đọc đúng tiếng Việt có dấu.
     const json = decodeURIComponent(
       Array.from(
         atob(padded),
@@ -33,7 +32,7 @@ export function decodeJwtPayload(token: string): AccessTokenClaims | null {
     );
     return JSON.parse(json) as AccessTokenClaims;
   } catch {
-    // Token rác (người dùng sửa tay localStorage chẳng hạn) — coi như không có phiên.
+    // Token rác — coi như không có phiên, đừng để nó thành exception giữa lúc khởi động.
     return null;
   }
 }
@@ -48,15 +47,22 @@ export function readPermissions(claims: AccessTokenClaims): string[] {
   return [...new Set(list.filter((item) => typeof item === 'string' && item.length > 0))];
 }
 
-/** Dựng `AuthUser` từ claim. Trả null nếu thiếu claim bắt buộc (`sub`, `tenant_id`). */
-export function readUser(claims: AccessTokenClaims): AuthUser | null {
-  if (!claims.sub || !claims.tenant_id) {
-    return null;
-  }
-  return {
-    userId: claims.sub,
-    tenantId: claims.tenant_id,
-    email: claims.email ?? null,
-    displayName: claims.name ?? claims.email ?? null,
-  };
+/**
+ * Hai claim BẮT BUỘC phải có thì token mới dùng được.
+ *
+ * Thiếu `tenant_id` mà vẫn nhận thì mọi truy vấn sau đó chạy không có workspace —
+ * backend trả rỗng, và người dùng thấy một ứng dụng trống trơn không có lỗi nào.
+ */
+export function hasRequiredClaims(claims: AccessTokenClaims): boolean {
+  return Boolean(claims.sub) && Boolean(claims.tenant_id);
+}
+
+/**
+ * Thời điểm hết hạn, epoch milliseconds.
+ *
+ * Ưu tiên `exp` trong token vì nó do SERVER đặt. `expiresInSeconds` chỉ là phương án dự
+ * phòng: nó cộng vào đồng hồ của máy client, mà đồng hồ đó có thể lệch hàng phút.
+ */
+export function readExpiry(claims: AccessTokenClaims, expiresInSeconds: number): number {
+  return claims.exp ? claims.exp * 1000 : Date.now() + expiresInSeconds * 1000;
 }
