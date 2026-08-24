@@ -48,6 +48,7 @@ const INDEX = `<!doctype html><meta charset="utf-8">
   <p>Mỗi màn có thanh đổi trạng thái ở đáy và bốn chấm đổi bộ màu ở góc.</p>
   <a href="/identity/dang-nhap.html">Đăng nhập <small>identity/dang-nhap.html</small></a>
   <a href="/identity/dang-ky.html">Đăng ký workspace <small>identity/dang-ky.html</small></a>
+  <a href="/comm/chat.html">Trao đổi nội bộ <small>comm/chat.html</small></a>
   <a href="/wireframes.html">Wireframe 6 màn <small>wireframes.html</small></a>
 </main>
 `;
@@ -76,4 +77,5 @@ createServer((req, res) => {
   console.log(`Bản dựng đang chạy ở  http://localhost:${PORT}`);
   console.log(`  đăng nhập  http://localhost:${PORT}/identity/dang-nhap.html`);
   console.log(`  đăng ký    http://localhost:${PORT}/identity/dang-ky.html`);
+  console.log(`  trao đổi   http://localhost:${PORT}/comm/chat.html`);
 });
