@@ -253,6 +253,110 @@ Quản trị viên tạo tài khoản **hộ** một đồng nghiệp.
 > **Vẫn là 200 chứ không phải 201** — cùng lý do với `register-workspace`: chưa có
 > `GET /api/users/{id}` để header `Location` trỏ tới.
 
+### `PATCH /api/users/{id}`
+
+```jsonc
+{ "fullName": "Nguyễn Văn An", "roleId": "0198e2ef-…" }   // → 204
+```
+
+| Ca hỏng | HTTP | `code` |
+|---|---|---|
+| Không có tài khoản đó trong workspace | 404 | `User.NotFound` |
+| Vai trò không tồn tại, hoặc của workspace khác | 404 | `Role.NotFound` |
+| **Đổi vai trò của chủ sở hữu** | 409 | `User.CannotChangeOwnerRole` |
+
+> **Đổi vai trò là THAY, không phải THÊM.** Một người một vai (ADR-0002). Thêm mà không gỡ
+> thì quyền chỉ có tăng — hạ ai đó từ Admin xuống Member sẽ không lấy lại được quyền nào.
+
+### `POST /api/users/{id}/disable` · `/enable`
+
+Không có thân request. Trả `204`.
+
+| Ca hỏng | HTTP | `code` |
+|---|---|---|
+| **Tự vô hiệu hoá chính mình** | 409 | `User.CannotDisableSelf` |
+| **Vô hiệu hoá chủ sở hữu** | 409 | `User.CannotDisableOwner` |
+
+> **Vô hiệu hoá, không phải xoá.** Người nghỉ việc vẫn còn tin nhắn, còn tên trên bản ghi
+> cũ, còn là người duyệt của một đơn từ năm ngoái.
+>
+> Hai luật chặn ở trên đều là chặn **workspace tự khoá chính mình ra ngoài**. Người bị khoá
+> mất quyền truy cập trong vòng 15 phút — `/refresh` nạp lại `IsUserActive` và từ chối, và
+> đó chính là lý do access token cố tình ngắn.
+
+---
+
+## Identity — Tài khoản của tôi
+
+Ba endpoint của màn **Hồ sơ & cài đặt**. Chỉ đòi token, **không đòi quyền gì** — ai cũng
+được sửa hồ sơ của chính mình.
+
+Mã người dùng KHÔNG bao giờ nhận từ ngoài vào ở đây; nó lấy từ token. Nhận từ ngoài thì
+`/api/me` trở thành cửa sửa hồ sơ bất kỳ ai.
+
+### `GET /api/me`
+
+```jsonc
+{
+  "id": "0198e2f1-…", "tenantId": "0198e2f0-…",
+  "email": "chu@congty.vn", "fullName": "Lê Anh Lượng",
+  "roleName": "Owner", "isOwner": true, "mustChangePassword": false
+}
+```
+
+> `isOwner` để giao diện **ẩn bớt lựa chọn**: chủ sở hữu không tự đổi vai trò được, không
+> tự vô hiệu hoá được. Hiện nút rồi báo lỗi khi bấm là cách chắc chắn nhất làm người dùng bực.
+
+### `PATCH /api/me`
+
+```jsonc
+{ "fullName": "Lê Anh Lượng" }   // → 204
+```
+
+**Chỉ có họ tên.** Email là định danh đăng nhập nên phải qua quản trị viên; chức danh và
+phòng ban do phòng Nhân sự đặt; vai trò thì đương nhiên không ai tự nâng cho mình được.
+
+### `POST /api/me/password`
+
+```jsonc
+{ "currentPassword": "…", "newPassword": "…" }   // → 204
+```
+
+| Ca hỏng | HTTP | `code` |
+|---|---|---|
+| Sai mật khẩu hiện tại | 400 | `User.WrongCurrentPassword` |
+| Mật khẩu mới trùng mật khẩu cũ | 400 | `User.NewPasswordSameAsCurrent` |
+
+> ⭐ **Thành công thì MỌI refresh token của người đó bị thu hồi.** Lý do người ta đổi mật
+> khẩu gần như luôn là "tôi nghĩ nó bị lộ" — không thu hồi thì kẻ trộm vẫn ngồi trong phiên
+> cũ suốt 30 ngày, và việc đổi mật khẩu chỉ là một động tác cho yên tâm.
+>
+> **Thất bại thì KHÔNG thu hồi gì.** Ngược lại thì bất kỳ ai ngồi vào máy đang mở cũng đá
+> được người dùng ra khỏi mọi thiết bị chỉ bằng cách gõ bừa.
+
+---
+
+## Identity — Vai trò
+
+### `GET /api/roles`
+
+Cần quyền `role.read`. Không phân trang — một workspace có bốn vai hệ thống cộng vài vai
+tự tạo.
+
+```jsonc
+[{
+  "id": "0198e2ef-…",
+  "name": "Owner",
+  "isSystem": true,
+  "permissions": ["department.manage", "department.read", "…"],
+  "memberCount": 1
+}]
+```
+
+> `isSystem` quyết định giao diện có khoá bảng quyền hay không. Bốn vai hệ thống dựng lại
+> từ hằng số trong mã nguồn ở mọi workspace, nên sửa chúng sẽ bị lần nâng cấp sau ghi đè mà
+> không báo gì.
+
 ---
 
 ## Identity — Đăng nhập

@@ -36,11 +36,17 @@
   "TenantCode.WrongLength": "Mã workspace phải dài từ 3 đến 30 ký tự.",
   "User.AlreadyActive": "Tài khoản đang hoạt động.",
   "User.AlreadyInactive": "Tài khoản đã bị vô hiệu hoá.",
+  "User.CannotChangeOwnerRole": "Không thể đổi vai trò của chủ sở hữu. Hãy chuyển nhượng quyền sở hữu trước.",
+  "User.CannotDisableOwner": "Không thể vô hiệu hoá chủ sở hữu. Hãy chuyển nhượng quyền sở hữu trước.",
+  "User.CannotDisableSelf": "Bạn không thể tự vô hiệu hoá tài khoản của chính mình.",
   "User.FullNameEmpty": "Họ tên không được để trống.",
   "User.FullNameTooLong": "Họ tên không được dài quá 200 ký tự.",
+  "User.NewPasswordSameAsCurrent": "Mật khẩu mới phải khác mật khẩu hiện tại.",
+  "User.NotFound": "Không tìm thấy tài khoản này.",
   "User.PasswordHashRequired": "Thiếu chuỗi băm mật khẩu.",
   "User.RoleAlreadyAssigned": "Tài khoản đã có vai trò này.",
   "User.RoleNotAssigned": "Tài khoản không có vai trò này.",
   "User.TenantRequired": "Tài khoản phải thuộc về một workspace.",
+  "User.WrongCurrentPassword": "Mật khẩu hiện tại không đúng.",
   "Validation.Multiple": "Dữ liệu gửi lên có nhiều chỗ không hợp lệ."
 }

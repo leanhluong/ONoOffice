@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using ONoOffice.Identity.Application.Abstractions;
 using ONoOffice.Identity.Application.Users.Create;
 using ONoOffice.Identity.Application.Users.GetList;
+using ONoOffice.Identity.Application.Users.SetActive;
+using ONoOffice.Identity.Application.Users.Update;
 using ONoOffice.Identity.Domain;
 
 namespace ONoOffice.Api.Controllers.Identity;
@@ -51,4 +53,39 @@ public sealed class UsersController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Users.Manage)]
     public async Task<IActionResult> Create(CreateUserCommand command, CancellationToken cancellationToken)
         => (await sender.Send(command, cancellationToken)).ToActionResult();
+
+    /// <summary>Đổi họ tên và vai trò của một tài khoản.</summary>
+    [HttpPatch("{id:guid}")]
+    [Authorize(Policy = Permissions.Users.Manage)]
+    public async Task<IActionResult> Update(
+        Guid id,
+        UpdateUserBody body,
+        CancellationToken cancellationToken)
+        => (await sender.Send(new UpdateUserCommand(id, body.FullName, body.RoleId), cancellationToken))
+            .ToActionResult();
+
+    /// <summary>
+    /// Vô hiệu hoá một tài khoản — <b>không phải xoá</b>.
+    ///
+    /// Người nghỉ việc vẫn còn tin nhắn, còn tên trên bản ghi cũ, còn là người duyệt của
+    /// một đơn từ năm ngoái. Xoá đi thì mọi chỗ đó thành khoảng trống.
+    /// </summary>
+    [HttpPost("{id:guid}/disable")]
+    [Authorize(Policy = Permissions.Users.Manage)]
+    public async Task<IActionResult> Disable(Guid id, CancellationToken cancellationToken)
+        => (await sender.Send(new SetUserActiveCommand(id, IsActive: false), cancellationToken)).ToActionResult();
+
+    /// <summary>Bật lại một tài khoản đã vô hiệu hoá.</summary>
+    [HttpPost("{id:guid}/enable")]
+    [Authorize(Policy = Permissions.Users.Manage)]
+    public async Task<IActionResult> Enable(Guid id, CancellationToken cancellationToken)
+        => (await sender.Send(new SetUserActiveCommand(id, IsActive: true), cancellationToken)).ToActionResult();
 }
+
+/// <summary>
+/// Thân của <c>PATCH /api/users/{id}</c>.
+///
+/// Mã tài khoản nằm trên ĐƯỜNG DẪN, không nằm trong thân. Để cả hai chỗ thì sớm muộn có
+/// request gửi hai mã khác nhau, và không có câu trả lời đúng cho việc nên tin cái nào.
+/// </summary>
+public sealed record UpdateUserBody(string FullName, Guid RoleId);

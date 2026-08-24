@@ -21,4 +21,12 @@ public interface ITenantRepository
     /// vào <c>docs/07-giao-dien/identity/dang-ky.md</c>.
     /// </summary>
     Task<bool> IsCodeTakenAsync(string code, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Ai đang là chủ workspace hiện tại. <c>null</c> khi chưa gán ai.
+    ///
+    /// Chỉ trả về khoá chứ không trả cả <c>Tenant</c>: nơi gọi chỉ cần so một mã, và nạp
+    /// cả gốc tổng hợp để so một trường là nạp thừa.
+    /// </summary>
+    Task<Guid?> GetOwnerUserIdAsync(CancellationToken cancellationToken = default);
 }

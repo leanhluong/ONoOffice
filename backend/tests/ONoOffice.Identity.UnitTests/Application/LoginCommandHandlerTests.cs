@@ -2,6 +2,7 @@ using Luong.Kernel.Pagination;
 using Luong.Kernel.Abstractions;
 using ONoOffice.Identity.Application.Abstractions;
 using ONoOffice.Identity.Application.Authentication.Login;
+using ONoOffice.Identity.Application.Me.GetProfile;
 using ONoOffice.Identity.Domain;
 using ONoOffice.Identity.Domain.Entities;
 
@@ -9,7 +10,7 @@ namespace ONoOffice.Identity.UnitTests.Application;
 
 // ── Cổng giả ────────────────────────────────────────────────────────────────
 
-internal sealed class FakeUserRepository : IUserRepository
+internal sealed class LoginFakeUsers : IUserRepository
 {
     public AuthUserData? Data { get; set; }
 
@@ -29,6 +30,12 @@ internal sealed class FakeUserRepository : IUserRepository
     public Task<PagedList<UserListItem>> SearchAsync(UserSearch c, CancellationToken t = default) =>
         Task.FromResult(PagedList<UserListItem>.Create([], 1, 20, 0));
 
+    public Task<User?> GetForUpdateAsync(Guid id, CancellationToken c = default) =>
+        throw new NotSupportedException("Đăng nhập không sửa tài khoản.");
+
+    public Task<MyProfile?> GetProfileAsync(Guid id, CancellationToken c = default) =>
+        throw new NotSupportedException("Đăng nhập không đọc hồ sơ.");
+
     public Task<AuthUserData?> GetForLoginAsync(string email, CancellationToken ct = default)
     {
         EmailDaHoi = email;
@@ -36,7 +43,7 @@ internal sealed class FakeUserRepository : IUserRepository
     }
 }
 
-internal sealed class FakeRefreshTokenRepository : IRefreshTokenRepository
+internal sealed class LoginFakeRefreshTokens : IRefreshTokenRepository
 {
     public List<RefreshToken> DaThem { get; } = [];
 
@@ -72,7 +79,7 @@ internal sealed class SpyPasswordHasher : IPasswordHasher
     }
 }
 
-internal sealed class FakeTokenService : ITokenService
+internal sealed class LoginFakeTokens : ITokenService
 {
     public IReadOnlySet<string>? QuyenDaNhan { get; private set; }
 
@@ -100,10 +107,10 @@ public class LoginCommandHandlerTests
     private static readonly Guid UserId = Guid.NewGuid();
     private static readonly Guid TenantId = Guid.NewGuid();
 
-    private readonly FakeUserRepository _users = new();
-    private readonly FakeRefreshTokenRepository _refreshTokens = new();
+    private readonly LoginFakeUsers _users = new();
+    private readonly LoginFakeRefreshTokens _refreshTokens = new();
     private readonly SpyPasswordHasher _hasher = new();
-    private readonly FakeTokenService _tokens = new();
+    private readonly LoginFakeTokens _tokens = new();
 
     private LoginCommandHandler CreateHandler() =>
         new(_users, _refreshTokens, _hasher, _tokens, new FrozenClock(Now));

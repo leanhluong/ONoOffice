@@ -44,12 +44,12 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Phần | Trạng thái | Số test |
 |---|---|---|
 | `Luong.Kernel` (8 gói) | 🟢 Đủ dùng cho lát 1 | **202** |
-| ONoOffice · Domain | 🟢 Identity xong · Org xong | 198 + 36 |
-| ONoOffice · Application | 🟢 Login · Refresh · Logout · RegisterWorkspace · **CreateUser · GetUsers** | *(trong 198)* |
-| ONoOffice · Infrastructure | 🟢 EF · Argon2id · JWT · repository · seeder | *(trong 158)* |
-| ONoOffice · Api | 🟢 **6 endpoint** · phân quyền động · CORS · i18n · header an toàn | 29 |
+| ONoOffice · Domain | 🟢 Identity xong · Org xong | 214 + 36 |
+| ONoOffice · Application | 🟢 Auth (4) · **Users (4)** · **Me (3)** · **Roles (1)** | *(trong 214)* |
+| ONoOffice · Infrastructure | 🟢 EF · Argon2id · JWT · repository · seeder · sinh mật khẩu tạm | *(trong 214)* |
+| ONoOffice · Api | 🟢 **12 endpoint** · phân quyền động · CORS · i18n · header an toàn | 29 |
 | Test kiến trúc + i18n + luật Controller | 🟢 | 14 |
-| **Database** | 🟢 Postgres 16 · **2 migration** · dữ liệu mồi — đã chạy THẬT | **44** |
+| **Database** | 🟢 Postgres 16 · 2 migration · dữ liệu mồi — đã chạy THẬT | **52** |
 | **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
 | **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **75** |
 | **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 75)* |
@@ -60,7 +60,7 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 
 ```bash
 docker compose up -d                          # Postgres 16 ở cổng 5433
-cd backend && dotnet build && dotnet test     # 321 xanh, 0 warning
+cd backend && dotnet build && dotnet test     # 345 xanh, 0 warning
 cd frontend && npm test && npm run parity     # 75 xanh · hai màn lệch 0,02%
 ```
 
@@ -76,6 +76,8 @@ cd frontend && npm test && npm run parity     # 75 xanh · hai màn lệch 0,02%
 | Đăng ký workspace tạo đủ công ty + 4 vai + chủ sở hữu | `curl` → 200, token có đủ 12 quyền; gọi lại cùng mã → 409 `TenantCode.Taken` |
 | Đăng ký xong đăng nhập được bằng chính mật khẩu vừa đặt | `curl` → 200, và test `DangKyXong_ThiDangNhapDuocBangMatKhauVuaDat` trên Postgres thật |
 | Hai màn Angular **giống hệt bản dựng đã duyệt** | `npm run parity` — chụp cả hai ở 1440×940, lệch 0,02% (ngưỡng 0,40%) |
+| Đổi mật khẩu xong thì **vé gia hạn cũ chết** | Test database: đổi xong `/refresh` trả 401; sai mật khẩu hiện tại thì vé VẪN sống |
+| Không ai vô hiệu hoá được chủ sở hữu | Test database dựng thêm một Admin rồi thử; đã phá lại luật để chứng minh nó đỏ |
 | Đăng ký → thẻ xác nhận → dashboard, **bấm tay qua giao diện thật** | Ảnh chụp trình duyệt, kèm ca trùng mã (ô đỏ) và ca chưa tick điều khoản (popup) |
 | Quản trị tạo tài khoản → **đăng nhập bằng chính mật khẩu tạm đó** | `UserManagementFlowTests` trên Postgres thật, đi qua Argon2 và UNIQUE thật |
 | Danh sách nhân sự **không rò sang workspace khác** | Test dựng hai workspace rồi kiểm chéo; đã cố ý gỡ bộ lọc tenant để chứng minh nó đỏ |
@@ -102,12 +104,10 @@ Sau đó:
 
 ```
 ⬜ Angular: màn Nhân sự (bản dựng org/nhan-su.html đã duyệt, backend đã có API)
-⬜ Backend còn thiếu cho ba màn đã duyệt:
-     · PATCH /api/users/{id}          đổi vai trò, họ tên
-     · POST  /api/users/{id}/disable  · /enable
-     · GET   /api/me · PATCH /api/me · POST /api/me/password
-     · GET   /api/me/sessions · DELETE /api/me/sessions
-     · GET   /api/roles               danh sách vai trò + quyền (màn Vai trò)
+⬜ GET /api/me/sessions · DELETE — màn "thiết bị đang đăng nhập" trong bản dựng.
+     RefreshToken chưa lưu user-agent nên chưa nói được "Chrome trên Windows".
+     Cần thêm cột + migration, HOẶC sửa bản dựng cho khớp thực tế.
+     (Bản dựng còn hứa cả vị trí "Hà Nội" — cái đó cần GeoIP, là việc riêng.)
 ⬜ Màn quản lý chat — bản dựng comm/chat.html đã có, chưa duyệt chốt
 ⬜ Module Org — Application → Infrastructure → Api (Domain đã XONG, 36 test)
 ⬜ Tìm nhân sự theo MỘT PHẦN email — cần đổi ánh xạ Email sang kiểu sở hữu
@@ -155,11 +155,11 @@ docker compose down -v      # xoá sạch dữ liệu, lần sau gieo lại từ
 
 | Bộ | Số test | Cần gì | Trả lời câu hỏi |
 |---|---|---|---|
-| `Identity.UnitTests` | 198 | không | Luật nghiệp vụ của Identity có đúng không |
+| `Identity.UnitTests` | 214 | không | Luật nghiệp vụ của Identity có đúng không |
 | `Org.UnitTests` | 36 | không | Luật nghiệp vụ của Org (phòng ban, nhân viên) |
 | `ArchitectureTests` | 14 | không | Ranh giới tầng và luật Controller có bị phá không |
 | `Api.IntegrationTests` | 29 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
-| `Api.DatabaseTests` | 44 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập/đăng ký/tạo tài khoản có chạy THẬT không |
+| `Api.DatabaseTests` | 52 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập/đăng ký/tạo tài khoản có chạy THẬT không |
 | `frontend` (vitest) | 75 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
 | `npm run parity` | 2 màn | **Chrome** | Bản Angular trông có **giống hệt bản dựng đã duyệt** không |
 
@@ -168,7 +168,7 @@ test nối vào compose sẽ im lặng bỏ qua trên máy chưa `up` và trên 
 thì tệ hơn cả không có, vì nhìn danh sách vẫn thấy nó nằm đó.
 
 ```bash
-cd backend  && dotnet build && dotnet test      # 321 xanh, 0 warning
+cd backend  && dotnet build && dotnet test      # 345 xanh, 0 warning
 cd frontend && npm test && npm run build && npm run lint && npm run parity
 ```
 

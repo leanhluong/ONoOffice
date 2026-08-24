@@ -1,6 +1,7 @@
 using Luong.Kernel.Pagination;
 using Luong.Kernel.Abstractions;
 using ONoOffice.Identity.Application.Abstractions;
+using ONoOffice.Identity.UnitTests.Fakes;
 using ONoOffice.Identity.Application.Users.Create;
 using ONoOffice.Identity.Domain;
 using ONoOffice.Identity.Domain.Entities;
@@ -20,36 +21,6 @@ public class CreateUserCommandHandlerTests
 
     // ── Đồ giả ────────────────────────────────────────────────────────────
 
-    private sealed class FakeUsers : IUserRepository
-    {
-        public readonly List<User> Added = [];
-        public string? Taken;
-
-        public void Add(User user) => Added.Add(user);
-
-        public Task<bool> IsEmailTakenAsync(string email, CancellationToken c = default) =>
-            Task.FromResult(string.Equals(Taken, email, StringComparison.OrdinalIgnoreCase));
-
-        public Task<AuthUserData?> GetForLoginAsync(string e, CancellationToken c = default) =>
-            Task.FromResult<AuthUserData?>(null);
-
-        public Task<AuthUserData?> GetByIdAsync(Guid id, CancellationToken c = default) =>
-            Task.FromResult<AuthUserData?>(null);
-
-        public Task<PagedList<UserListItem>> SearchAsync(UserSearch c, CancellationToken t = default) =>
-            Task.FromResult(PagedList<UserListItem>.Create([], 1, 20, 0));
-    }
-
-    private sealed class FakeRoles : IRoleRepository
-    {
-        public Role? Found;
-
-        public void AddRange(IEnumerable<Role> roles) { }
-
-        public Task<Role?> GetByIdAsync(Guid roleId, CancellationToken c = default) =>
-            Task.FromResult(Found?.Id == roleId ? Found : null);
-    }
-
     private sealed class FakeHasher : IPasswordHasher
     {
         public string Hash(string password) => $"bam::{password}";
@@ -62,17 +33,12 @@ public class CreateUserCommandHandlerTests
         public string Generate() => "mat-khau-tam-sinh-ra";
     }
 
-    private sealed class FakeTenant : ICurrentTenant
-    {
-        public Guid? TenantId { get; set; } = CreateUserCommandHandlerTests.TenantId;
-    }
-
     // ── Dựng ──────────────────────────────────────────────────────────────
 
-    private readonly FakeUsers _users = new();
-    private readonly FakeRoles _roles = new();
+    private readonly FakeUserRepository _users = new();
+    private readonly FakeRoleRepository _roles = new();
     private readonly FakeGenerator _generator = new();
-    private readonly FakeTenant _tenant = new();
+    private readonly FakeCurrentTenant _tenant = new() { TenantId = TenantId };
 
     private CreateUserCommandHandler Handler() =>
         new(_users, _roles, new FakeHasher(), _generator, _tenant);
@@ -84,7 +50,7 @@ public class CreateUserCommandHandlerTests
     {
         var role = SystemRoles.Member.CreateFor(TenantId).Value;
 
-        _roles.Found = role;
+        _roles.Existing = role;
 
         return role;
     }
@@ -154,7 +120,7 @@ public class CreateUserCommandHandlerTests
     public async Task EmailDaCoTaiKhoan_ThiTuChoi()
     {
         var role = GiveRole();
-        _users.Taken = "an@congty.vn";
+        _users.TakenEmail = "an@congty.vn";
 
         var result = await Handler().Handle(Command(role.Id), default);
 
@@ -169,7 +135,7 @@ public class CreateUserCommandHandlerTests
         // Email sai định dạng thì không thể trùng với ai. Hỏi database là một vòng đi về
         // thừa — và là một cách đo xem email nào đã tồn tại.
         var role = GiveRole();
-        _users.Taken = "an@congty.vn";
+        _users.TakenEmail = "an@congty.vn";
 
         var result = await Handler().Handle(Command(role.Id) with { Email = "khong-phai-email" }, default);
 
@@ -197,7 +163,7 @@ public class CreateUserCommandHandlerTests
         // qua đây thì người này có quyền trong dữ liệu của công ty khác.
         var khac = SystemRoles.Admin.CreateFor(Guid.NewGuid()).Value;
 
-        _roles.Found = khac;
+        _roles.Existing = khac;
 
         var result = await Handler().Handle(Command(khac.Id), default);
 

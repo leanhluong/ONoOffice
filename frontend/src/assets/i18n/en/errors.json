@@ -36,11 +36,17 @@
   "TenantCode.WrongLength": "Workspace code must be between 3 and 30 characters.",
   "User.AlreadyActive": "This account is already active.",
   "User.AlreadyInactive": "This account has already been disabled.",
+  "User.CannotChangeOwnerRole": "The owner's role cannot be changed. Transfer ownership first.",
+  "User.CannotDisableOwner": "The owner cannot be disabled. Transfer ownership first.",
+  "User.CannotDisableSelf": "You cannot disable your own account.",
   "User.FullNameEmpty": "Full name is required.",
   "User.FullNameTooLong": "Full name must be 200 characters or fewer.",
+  "User.NewPasswordSameAsCurrent": "The new password must be different from the current one.",
+  "User.NotFound": "That account could not be found.",
   "User.PasswordHashRequired": "The password hash is missing.",
   "User.RoleAlreadyAssigned": "This account already has that role.",
   "User.RoleNotAssigned": "This account does not have that role.",
   "User.TenantRequired": "An account must belong to a workspace.",
+  "User.WrongCurrentPassword": "That is not your current password.",
   "Validation.Multiple": "Several fields are not valid."
 }

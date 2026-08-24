@@ -87,6 +87,32 @@ public static class IdentityErrors
         public static readonly Error TenantRequired =
             Error.Validation("User.TenantRequired", "Tài khoản phải thuộc về một workspace.");
 
+        public static readonly Error NotFound =
+            Error.NotFound("User.NotFound", "Không tìm thấy tài khoản này.");
+
+        /// <summary>
+        /// Tự khoá chính mình là cách nhanh nhất để một workspace mất hết quản trị viên.
+        /// Chặn ở đây rẻ hơn nhiều so với đi khôi phục bằng tay trong database.
+        /// </summary>
+        public static readonly Error CannotDisableSelf =
+            Error.Conflict("User.CannotDisableSelf", "Bạn không thể tự vô hiệu hoá tài khoản của chính mình.");
+
+        /// <summary>
+        /// Chủ sở hữu là người DUY NHẤT chuyển nhượng được workspace. Khoá họ lại thì
+        /// không còn ai làm được việc đó, và workspace kẹt vĩnh viễn.
+        /// </summary>
+        public static readonly Error CannotDisableOwner =
+            Error.Conflict("User.CannotDisableOwner", "Không thể vô hiệu hoá chủ sở hữu. Hãy chuyển nhượng quyền sở hữu trước.");
+
+        public static readonly Error CannotChangeOwnerRole =
+            Error.Conflict("User.CannotChangeOwnerRole", "Không thể đổi vai trò của chủ sở hữu. Hãy chuyển nhượng quyền sở hữu trước.");
+
+        public static readonly Error WrongCurrentPassword =
+            Error.Validation("User.WrongCurrentPassword", "Mật khẩu hiện tại không đúng.");
+
+        public static readonly Error NewPasswordSameAsCurrent =
+            Error.Validation("User.NewPasswordSameAsCurrent", "Mật khẩu mới phải khác mật khẩu hiện tại.");
+
         public static readonly Error FullNameEmpty =
             Error.Validation("User.FullNameEmpty", "Họ tên không được để trống.");
 

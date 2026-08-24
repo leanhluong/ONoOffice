@@ -12,9 +12,9 @@ public class RefreshTokenCommandHandlerTests
     private static readonly Guid UserId = Guid.NewGuid();
     private static readonly Guid TenantId = Guid.NewGuid();
 
-    private readonly FakeUserRepository _users = new();
-    private readonly FakeRefreshTokenRepository _refreshTokens = new();
-    private readonly FakeTokenService _tokens = new();
+    private readonly LoginFakeUsers _users = new();
+    private readonly LoginFakeRefreshTokens _refreshTokens = new();
+    private readonly LoginFakeTokens _tokens = new();
 
     public RefreshTokenCommandHandlerTests() => CoTaiKhoan();
 
@@ -156,8 +156,8 @@ public class LogoutCommandHandlerTests
 {
     private static readonly DateTimeOffset Now = new(2026, 8, 23, 10, 0, 0, TimeSpan.Zero);
 
-    private readonly FakeRefreshTokenRepository _refreshTokens = new();
-    private readonly FakeTokenService _tokens = new();
+    private readonly LoginFakeRefreshTokens _refreshTokens = new();
+    private readonly LoginFakeTokens _tokens = new();
 
     private Task<Luong.Kernel.Primitives.Result> DangXuat() =>
         new LogoutCommandHandler(_refreshTokens, _tokens, new FrozenClock(Now))

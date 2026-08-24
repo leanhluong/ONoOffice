@@ -150,9 +150,15 @@ public sealed class User : AggregateRoot<Guid>, ITenantScoped, IAuditable
         // cầu đổi mật khẩu.
         MustChangePassword = false;
 
-        // Sự kiện này bắt buộc phải có: nơi khác lắng nghe nó để THU HỒI mọi refresh
-        // token đang sống. Thiếu nó thì người vừa bị lộ mật khẩu đổi lại mật khẩu, mà
-        // kẻ trộm vẫn ngồi yên trong phiên cũ suốt 30 ngày — đổi mật khẩu thành vô nghĩa.
+        // ⚠️ Sự kiện này HIỆN CHƯA CÓ AI LẮNG NGHE. Việc thu hồi refresh token làm thẳng
+        // trong ChangeMyPasswordCommandHandler.
+        //
+        // Bình luận cũ ở đây nói rằng "nơi khác lắng nghe nó để thu hồi" — điều đó chưa
+        // bao giờ đúng, và một bình luận sai còn nguy hiểm hơn không có bình luận: người
+        // đọc tin là đã có lớp bảo vệ đó rồi.
+        //
+        // Vẫn phát sự kiện, vì nó là dữ kiện nghiệp vụ có thật và sẽ cần khi có nhật ký
+        // kiểm toán. Nhưng đừng dựa vào nó cho tới khi có consumer thật.
         Raise(new UserPasswordChanged(Id, TenantId));
 
         return Result.Success();
@@ -189,8 +195,11 @@ public sealed class User : AggregateRoot<Guid>, ITenantScoped, IAuditable
 
         IsActive = false;
 
-        // Cũng dùng để thu hồi phiên đăng nhập: khoá tài khoản mà token cũ vẫn dùng được
-        // thì việc khoá chỉ có hiệu lực sau khi access token hết hạn.
+        // ⚠️ Cũng CHƯA CÓ AI LẮNG NGHE. Trên thực tế việc khoá vẫn có hiệu lực, nhưng
+        // bằng đường khác: RefreshTokenCommandHandler nạp lại IsUserActive ở mỗi lần
+        // gia hạn và từ chối tài khoản đã khoá. Nghĩa là người bị khoá mất quyền truy cập
+        // trong vòng 15 phút — đúng bằng tuổi thọ của access token, và đó chính là lý do
+        // access token cố tình ngắn.
         Raise(new UserDeactivated(Id, TenantId));
 
         return Result.Success();

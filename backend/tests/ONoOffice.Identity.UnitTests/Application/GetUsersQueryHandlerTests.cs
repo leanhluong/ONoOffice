@@ -1,6 +1,7 @@
 using Luong.Kernel.Pagination;
 using Luong.Kernel.Primitives;
 using ONoOffice.Identity.Application.Abstractions;
+using ONoOffice.Identity.UnitTests.Fakes;
 using ONoOffice.Identity.Domain.Entities;
 using ONoOffice.Identity.Application.Users.GetList;
 
@@ -17,29 +18,7 @@ namespace ONoOffice.Identity.UnitTests.Application;
 /// </summary>
 public class GetUsersQueryHandlerTests
 {
-    private sealed class FakeUsers : IUserRepository
-    {
-        public UserSearch? Received;
-
-        public void Add(User user) { }
-
-        public Task<bool> IsEmailTakenAsync(string e, CancellationToken c = default) => Task.FromResult(false);
-
-        public Task<AuthUserData?> GetForLoginAsync(string e, CancellationToken c = default) =>
-            Task.FromResult<AuthUserData?>(null);
-
-        public Task<AuthUserData?> GetByIdAsync(Guid id, CancellationToken c = default) =>
-            Task.FromResult<AuthUserData?>(null);
-
-        public Task<PagedList<UserListItem>> SearchAsync(UserSearch criteria, CancellationToken c = default)
-        {
-            Received = criteria;
-
-            return Task.FromResult(PagedList<UserListItem>.Create([], criteria.Page, criteria.PageSize, 0));
-        }
-    }
-
-    private readonly FakeUsers _users = new();
+    private readonly FakeUserRepository _users = new();
 
     private GetUsersQueryHandler Handler() => new(_users);
 
@@ -48,8 +27,8 @@ public class GetUsersQueryHandlerTests
     {
         await Handler().Handle(new GetUsersQuery(), default);
 
-        Assert.Equal(1, _users.Received!.Page);
-        Assert.Equal(20, _users.Received!.PageSize);
+        Assert.Equal(1, _users.ReceivedSearch!.Page);
+        Assert.Equal(20, _users.ReceivedSearch!.PageSize);
     }
 
     [Fact]
@@ -59,7 +38,7 @@ public class GetUsersQueryHandlerTests
         // rẻ tiền để gửi, đắt để phục vụ, và không cần quyền gì đặc biệt.
         await Handler().Handle(new GetUsersQuery(PageSize: 1_000_000), default);
 
-        Assert.Equal(100, _users.Received!.PageSize);
+        Assert.Equal(100, _users.ReceivedSearch!.PageSize);
     }
 
     [Theory]
@@ -71,7 +50,7 @@ public class GetUsersQueryHandlerTests
         // người dùng tưởng công ty không có ai.
         await Handler().Handle(new GetUsersQuery(PageSize: pageSize), default);
 
-        Assert.Equal(20, _users.Received!.PageSize);
+        Assert.Equal(20, _users.ReceivedSearch!.PageSize);
     }
 
     [Theory]
@@ -82,7 +61,7 @@ public class GetUsersQueryHandlerTests
         // `page=0` cho `OFFSET -20`, và Postgres từ chối bằng một lỗi 500 khó hiểu.
         await Handler().Handle(new GetUsersQuery(Page: page), default);
 
-        Assert.Equal(1, _users.Received!.Page);
+        Assert.Equal(1, _users.ReceivedSearch!.Page);
     }
 
     [Fact]
@@ -92,7 +71,7 @@ public class GetUsersQueryHandlerTests
         // Không cắt thì họ tìm đúng email của mình mà ra kết quả rỗng.
         await Handler().Handle(new GetUsersQuery(Search: "  an@congty.vn  "), default);
 
-        Assert.Equal("an@congty.vn", _users.Received!.Search);
+        Assert.Equal("an@congty.vn", _users.ReceivedSearch!.Search);
     }
 
     [Fact]
@@ -102,6 +81,6 @@ public class GetUsersQueryHandlerTests
         // Postgres bỏ qua chỉ mục. Coi như không lọc thì rẻ hơn.
         await Handler().Handle(new GetUsersQuery(Search: "   "), default);
 
-        Assert.Null(_users.Received!.Search);
+        Assert.Null(_users.ReceivedSearch!.Search);
     }
 }

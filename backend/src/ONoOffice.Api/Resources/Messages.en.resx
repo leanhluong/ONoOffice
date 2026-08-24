@@ -146,4 +146,22 @@
   <data name="Role.NotFound" xml:space="preserve">
     <value>That role does not exist in this workspace.</value>
   </data>
+  <data name="User.NotFound" xml:space="preserve">
+    <value>That account could not be found.</value>
+  </data>
+  <data name="User.CannotDisableSelf" xml:space="preserve">
+    <value>You cannot disable your own account.</value>
+  </data>
+  <data name="User.CannotDisableOwner" xml:space="preserve">
+    <value>The owner cannot be disabled. Transfer ownership first.</value>
+  </data>
+  <data name="User.CannotChangeOwnerRole" xml:space="preserve">
+    <value>The owner's role cannot be changed. Transfer ownership first.</value>
+  </data>
+  <data name="User.WrongCurrentPassword" xml:space="preserve">
+    <value>That is not your current password.</value>
+  </data>
+  <data name="User.NewPasswordSameAsCurrent" xml:space="preserve">
+    <value>The new password must be different from the current one.</value>
+  </data>
 </root>

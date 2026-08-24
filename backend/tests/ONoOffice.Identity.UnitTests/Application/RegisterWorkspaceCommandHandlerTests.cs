@@ -1,6 +1,6 @@
-using Luong.Kernel.Pagination;
 using Luong.Kernel.Abstractions;
 using ONoOffice.Identity.Application.Abstractions;
+using ONoOffice.Identity.UnitTests.Fakes;
 using ONoOffice.Identity.Application.Authentication.Register;
 using ONoOffice.Identity.Domain;
 using ONoOffice.Identity.Domain.Entities;
@@ -17,60 +17,6 @@ namespace ONoOffice.Identity.UnitTests.Application;
 public class RegisterWorkspaceCommandHandlerTests
 {
     // ── Đồ giả ────────────────────────────────────────────────────────────
-
-    private sealed class FakeTenants : ITenantRepository
-    {
-        public readonly List<Tenant> Added = [];
-        public string? Taken;
-
-        public void Add(Tenant tenant) => Added.Add(tenant);
-
-        public Task<bool> IsCodeTakenAsync(string code, CancellationToken cancellationToken = default) =>
-            Task.FromResult(string.Equals(Taken, code, StringComparison.OrdinalIgnoreCase));
-    }
-
-    private sealed class FakeRoles : IRoleRepository
-    {
-        public readonly List<Role> Added = [];
-
-        public void AddRange(IEnumerable<Role> roles) => Added.AddRange(roles);
-
-        public Task<Role?> GetByIdAsync(Guid id, CancellationToken c = default) =>
-            Task.FromResult<Role?>(null);
-    }
-
-    private sealed class FakeUsers : IUserRepository
-    {
-        public readonly List<User> Added = [];
-        public string? Taken;
-
-        public void Add(User user) => Added.Add(user);
-
-        public Task<bool> IsEmailTakenAsync(string email, CancellationToken cancellationToken = default) =>
-            Task.FromResult(string.Equals(Taken, email, StringComparison.OrdinalIgnoreCase));
-
-        public Task<AuthUserData?> GetForLoginAsync(string e, CancellationToken c = default) =>
-            Task.FromResult<AuthUserData?>(null);
-
-        public Task<AuthUserData?> GetByIdAsync(Guid id, CancellationToken c = default) =>
-            Task.FromResult<AuthUserData?>(null);
-
-        public Task<PagedList<UserListItem>> SearchAsync(UserSearch c, CancellationToken t = default) =>
-            Task.FromResult(PagedList<UserListItem>.Create([], 1, 20, 0));
-    }
-
-    private sealed class FakeRefreshTokens : IRefreshTokenRepository
-    {
-        public readonly List<RefreshToken> Added = [];
-
-        public void Add(RefreshToken token) => Added.Add(token);
-
-        public Task<RefreshToken?> GetByHashAsync(string h, CancellationToken c = default) =>
-            Task.FromResult<RefreshToken?>(null);
-
-        public Task<int> RevokeAllForUserAsync(Guid u, DateTimeOffset n, CancellationToken c = default) =>
-            Task.FromResult(0);
-    }
 
     private sealed class FakeHasher : IPasswordHasher
     {
@@ -101,10 +47,10 @@ public class RegisterWorkspaceCommandHandlerTests
 
     // ── Dựng ──────────────────────────────────────────────────────────────
 
-    private readonly FakeTenants _tenants = new();
-    private readonly FakeRoles _roles = new();
-    private readonly FakeUsers _users = new();
-    private readonly FakeRefreshTokens _refreshTokens = new();
+    private readonly FakeTenantRepository _tenants = new();
+    private readonly FakeRoleRepository _roles = new();
+    private readonly FakeUserRepository _users = new();
+    private readonly FakeRefreshTokenRepository _refreshTokens = new();
     private readonly FakeTokens _tokenService = new();
 
     private RegisterWorkspaceCommandHandler Handler() =>
@@ -218,7 +164,7 @@ public class RegisterWorkspaceCommandHandlerTests
     [Fact]
     public async Task MaWorkspace_DaCoNguoiDung_ThiTuChoi()
     {
-        _tenants.Taken = "acme";
+        _tenants.TakenCode = "acme";
 
         var result = await Handler().Handle(Command("acme"), default);
 
@@ -228,7 +174,7 @@ public class RegisterWorkspaceCommandHandlerTests
     [Fact]
     public async Task Email_DaCoTaiKhoan_ThiTuChoi()
     {
-        _users.Taken = "chu@acme.vn";
+        _users.TakenEmail = "chu@acme.vn";
 
         var result = await Handler().Handle(Command(email: "chu@acme.vn"), default);
 
@@ -245,7 +191,7 @@ public class RegisterWorkspaceCommandHandlerTests
     [Fact]
     public async Task BiTuChoi_ThiKhongTaoGiCa()
     {
-        _users.Taken = "chu@acme.vn";
+        _users.TakenEmail = "chu@acme.vn";
 
         await Handler().Handle(Command(email: "chu@acme.vn"), default);
 
@@ -264,8 +210,8 @@ public class RegisterWorkspaceCommandHandlerTests
     [Fact]
     public async Task CaHaiDeuTrung_ThiBaoMaWorkspaceTruoc()
     {
-        _tenants.Taken = "acme";
-        _users.Taken = "chu@acme.vn";
+        _tenants.TakenCode = "acme";
+        _users.TakenEmail = "chu@acme.vn";
 
         var result = await Handler().Handle(Command("acme", "chu@acme.vn"), default);
 

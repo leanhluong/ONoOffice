@@ -146,4 +146,22 @@
   <data name="Role.NotFound" xml:space="preserve">
     <value>Vai trò này không tồn tại trong workspace.</value>
   </data>
+  <data name="User.NotFound" xml:space="preserve">
+    <value>Không tìm thấy tài khoản này.</value>
+  </data>
+  <data name="User.CannotDisableSelf" xml:space="preserve">
+    <value>Bạn không thể tự vô hiệu hoá tài khoản của chính mình.</value>
+  </data>
+  <data name="User.CannotDisableOwner" xml:space="preserve">
+    <value>Không thể vô hiệu hoá chủ sở hữu. Hãy chuyển nhượng quyền sở hữu trước.</value>
+  </data>
+  <data name="User.CannotChangeOwnerRole" xml:space="preserve">
+    <value>Không thể đổi vai trò của chủ sở hữu. Hãy chuyển nhượng quyền sở hữu trước.</value>
+  </data>
+  <data name="User.WrongCurrentPassword" xml:space="preserve">
+    <value>Mật khẩu hiện tại không đúng.</value>
+  </data>
+  <data name="User.NewPasswordSameAsCurrent" xml:space="preserve">
+    <value>Mật khẩu mới phải khác mật khẩu hiện tại.</value>
+  </data>
 </root>

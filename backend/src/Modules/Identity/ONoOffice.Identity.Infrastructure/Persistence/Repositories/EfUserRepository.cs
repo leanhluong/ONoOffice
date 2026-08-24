@@ -10,6 +10,73 @@ internal sealed class EfUserRepository(IdentityDbContext context) : IUserReposit
     public void Add(Domain.Entities.User user) => context.Users.Add(user);
 
     /// <summary>
+    /// Nạp một tài khoản để SỬA — có theo dõi thay đổi, và <b>có</b> bộ lọc theo tenant.
+    ///
+    /// Khác hẳn ba truy vấn đọc phía dưới: chúng bỏ qua bộ lọc vì chạy lúc phiên chưa có
+    /// workspace. Ở đây thì có phiên, và bộ lọc chính là thứ ngăn quản trị viên công ty A
+    /// sửa tài khoản của công ty B chỉ bằng cách đoán một mã.
+    /// </summary>
+    public Task<Domain.Entities.User?> GetForUpdateAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+    /// <summary>
+    /// Hồ sơ của chính người đang đăng nhập.
+    ///
+    /// Ba mẩu dữ liệu đến từ ba bảng: tài khoản, tên vai trò, và mã chủ sở hữu của
+    /// workspace. Gộp bằng hai truy vấn — một cho tài khoản kèm mảng vai trò, một cho tên
+    /// vai trò. Mã chủ sở hữu đi cùng câu thứ hai.
+    /// </summary>
+    public async Task<Application.Me.GetProfile.MyProfile?> GetProfileAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        var row = await context.Users
+            .AsNoTracking()
+            .Where(u => u.Id == userId)
+            .Select(u => new
+            {
+                u.Id,
+                u.TenantId,
+                u.Email,
+                u.FullName,
+                u.MustChangePassword,
+                RoleIds = EF.Property<List<Guid>>(u, "_roleIds"),
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (row is null)
+        {
+            return null;
+        }
+
+        var roleNames = await context.Roles
+            .AsNoTracking()
+            .Where(r => row.RoleIds.Contains(r.Id))
+            .Select(r => r.Name)
+            .ToListAsync(cancellationToken);
+
+        // ⚠️ Nêu ĐÍCH DANH workspace, không dựa vào bộ lọc toàn cục. Tenant không cài
+        // ITenantScoped — nó CHÍNH LÀ workspace chứ không thuộc về workspace nào — nên
+        // bảng này không có bộ lọc nào cả. Thiếu điều kiện thì truy vấn trả về một
+        // workspace bất kỳ, và cờ "có phải chủ sở hữu không" sẽ nói về người của công ty
+        // khác. Một test trên database thật đã bắt được đúng chuyện này.
+        var ownerUserId = await context.Tenants
+            .AsNoTracking()
+            .Where(t => t.Id == row.TenantId)
+            .Select(t => t.OwnerUserId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return new Application.Me.GetProfile.MyProfile(
+            row.Id,
+            row.TenantId,
+            row.Email.Value,
+            row.FullName,
+            string.Join(", ", roleNames),
+            ownerUserId == row.Id,
+            row.MustChangePassword);
+    }
+
+    /// <summary>
     /// ⚠️ IgnoreQueryFilters — ngoại lệ có chủ đích, cùng lý do với hai chỗ kia: đăng ký
     /// chạy khi CHƯA có workspace nào, nên bộ lọc tenant sẽ không khớp hàng nào và mọi
     /// email đều trông như còn trống. Để lọt thì ràng buộc UNIQUE ở database chặn, nhưng

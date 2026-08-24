@@ -18,4 +18,47 @@ internal sealed class EfRoleRepository(IdentityDbContext context) : IRoleReposit
     /// </summary>
     public Task<Role?> GetByIdAsync(Guid roleId, CancellationToken cancellationToken = default) =>
         context.Roles.FirstOrDefaultAsync(role => role.Id == roleId, cancellationToken);
+
+    /// <summary>
+    /// Mọi vai trò của workspace, kèm số người đang giữ.
+    ///
+    /// Đếm người bằng MỘT câu riêng thay vì một truy vấn con cho từng vai: cột
+    /// <c>role_ids</c> là mảng <c>uuid[]</c> đọc lên qua phép chuyển đổi giá trị, nên EF
+    /// không dàn phẳng nó bằng SQL được. Nạp về danh sách mảng rồi đếm ở C# là chấp nhận
+    /// được — một workspace vài trăm người là vài trăm mảng ngắn, không phải vài trăm nghìn.
+    /// </summary>
+    public async Task<IReadOnlyList<RoleListItem>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        var roles = await context.Roles
+            .AsNoTracking()
+            .OrderBy(role => role.Name)
+            .Select(role => new
+            {
+                role.Id,
+                role.Name,
+                role.IsSystem,
+                Permissions = EF.Property<HashSet<string>>(role, "_permissions"),
+            })
+            .ToListAsync(cancellationToken);
+
+        var roleIdsPerUser = await context.Users
+            .AsNoTracking()
+            .Select(user => EF.Property<List<Guid>>(user, "_roleIds"))
+            .ToListAsync(cancellationToken);
+
+        var counts = roleIdsPerUser
+            .SelectMany(ids => ids)
+            .GroupBy(id => id)
+            .ToDictionary(group => group.Key, group => group.Count());
+
+        return
+        [
+            .. roles.Select(role => new RoleListItem(
+                role.Id,
+                role.Name,
+                role.IsSystem,
+                [.. role.Permissions.OrderBy(p => p, StringComparer.Ordinal)],
+                counts.GetValueOrDefault(role.Id))),
+        ];
+    }
 }

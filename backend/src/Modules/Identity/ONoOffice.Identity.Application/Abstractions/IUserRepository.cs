@@ -87,4 +87,16 @@ public interface IUserRepository
     /// sửa gì. Nạp cả gốc tổng hợp cho 20 dòng là 20 lần theo dõi thay đổi vô ích.
     /// </summary>
     Task<PagedList<UserListItem>> SearchAsync(UserSearch criteria, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Nạp một tài khoản để SỬA. Trả <c>null</c> khi không có trong workspace hiện tại.
+    ///
+    /// Có theo dõi thay đổi, khác hẳn <see cref="SearchAsync"/>: những gì gọi hàm này sẽ
+    /// gọi tiếp <c>Rename</c>, <c>AssignRole</c>, <c>Deactivate</c>… Nạp không theo dõi thì
+    /// mọi thay đổi rơi vào hư không mà không có lỗi nào báo.
+    /// </summary>
+    Task<Domain.Entities.User?> GetForUpdateAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>Hồ sơ của chính người đang đăng nhập. Bản chiếu, không phải thực thể.</summary>
+    Task<Me.GetProfile.MyProfile?> GetProfileAsync(Guid userId, CancellationToken cancellationToken = default);
 }
