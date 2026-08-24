@@ -67,3 +67,24 @@ của thư viện, là chuyện xảy ra hoài.
 | [Danh bạ](./org/danh-ba.md) | org | ⬜ Chưa tới lượt |
 | [Sơ đồ tổ chức](./org/so-do-to-chuc.md) | org | ⬜ Chưa tới lượt |
 | [Quản trị nhân viên](./org/quan-tri-nhan-vien.md) | org | ⬜ Chưa tới lượt |
+
+---
+
+## Bản trên web và bản trong repo — đừng để lệch
+
+Bản dựng trong repo **tách phần dùng chung** ra `chung/_shell.css` + `_shell.js`: bốn bộ
+màu chỉ khai một lần, mọi màn dùng chung. Đúng cho repo.
+
+Nhưng artifact trên claude.ai chạy trong một khung có CSP **chặn mọi máy chủ ngoài** và
+không có đường dẫn tương đối nào để với sang file khác — bản đăng phải là **một file duy nhất**.
+
+```bash
+node tools/build-artifact.mjs docs/07-giao-dien/identity/dang-nhap.html
+# → .artifacts/dang-nhap.html   ← đăng file NÀY, không đăng file gốc
+```
+
+> **Sự cố ngày 2026-08-24:** repo đã sửa xong màn đăng nhập, nhưng artifact vẫn là bản
+> cũ. Người duyệt mở link trên web, thấy bản cũ, và tưởng bản dựng không khớp yêu cầu.
+>
+> **Luật: sửa bản dựng xong thì ĐĂNG LẠI ngay trong cùng lần đó.** Gộp bằng máy chứ
+> không chép tay, vì chép tay là đường ngắn nhất để hai bản lệch nhau lần nữa.

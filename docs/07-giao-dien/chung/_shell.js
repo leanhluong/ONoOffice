@@ -186,15 +186,14 @@ export function mountPrefs(host) {
    Popup thông báo — nổi ở đầu màn hình, tự biến mất
    ════════════════════════════════════════════════════════════════════════ */
 
-const ICONS = {
-  error: `<path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 4a1 1 0 011 1v4a1 1 0 11-2 0V7a1 1 0 011-1zm0 8.5a1.1 1.1 0 110-2.2 1.1 1.1 0 010 2.2z"/>`,
-  info: `<path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 3.4a1.1 1.1 0 110 2.2 1.1 1.1 0 010-2.2zM9 9h2v5.6H9z"/>`,
-};
-
 /**
- * @param {{ tone?: 'error'|'info', text: string, code?: string, ms?: number }} options
+ * @param {{ tone?: 'error'|'info', text: string, ref?: string, ms?: number }} options
+ *
+ * `ref` là mã tham chiếu, CHỈ truyền khi không giải thích được chuyện gì đã xảy ra
+ * (lỗi 500, mất mạng). Với lỗi nghiệp vụ đã có câu chữ rõ ràng thì đừng truyền — mã kỹ
+ * thuật không giúp người dùng làm được gì, chỉ khiến câu thông báo trông đáng sợ hơn.
  */
-export function popup({ tone = 'info', text, code, ms = tone === 'error' ? 6000 : 3200 }) {
+export function popup({ tone = 'info', text, ref, ms = tone === 'error' ? 6000 : 3200 }) {
   const host = document.getElementById('popups');
   if (!host) return;
 
@@ -202,9 +201,9 @@ export function popup({ tone = 'info', text, code, ms = tone === 'error' ? 6000 
   el.className = `popup popup--${tone}`;
   el.setAttribute('role', tone === 'error' ? 'alert' : 'status');
   el.innerHTML = `
-    <svg class="popup__icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">${ICONS[tone]}</svg>
-    <div class="popup__body">${text}${code ? `<code class="popup__code">${code}</code>` : ''}</div>
-    <button type="button" class="popup__close" aria-label="Đóng thông báo">✕</button>
+    <span class="popup__dot" aria-hidden="true"></span>
+    <span class="popup__body">${text}${ref ? `<span class="popup__ref">#${ref}</span>` : ''}</span>
+    <button type="button" class="popup__close" aria-label="Đóng">×</button>
     <span class="popup__timer" style="animation-duration:${ms}ms"></span>
   `;
 
@@ -216,7 +215,6 @@ export function popup({ tone = 'info', text, code, ms = tone === 'error' ? 6000 
   let timer = setTimeout(remove, ms);
 
   // Rê chuột vào thì dừng đồng hồ — người đang đọc dở không bị cướp mất câu chữ.
-  // Vạch đếm ngược cũng dừng theo, nhờ `animation-play-state` trong CSS.
   el.addEventListener('mouseenter', () => clearTimeout(timer));
   el.addEventListener('mouseleave', () => {
     timer = setTimeout(remove, 1200);

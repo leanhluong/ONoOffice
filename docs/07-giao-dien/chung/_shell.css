@@ -200,20 +200,26 @@ body {
 /* ═══════════════════════════════════════════════════════════════════════
    POPUP THÔNG BÁO — nổi ở ĐẦU màn hình, tự biến mất
 
-   Dùng cho lỗi từ server và cho những nút chưa làm. Trước đây khối lỗi nằm
-   cố định trong biểu mẫu và đẩy mọi thứ xuống; nay nó nổi lên trên, không
-   chiếm chỗ, và tự đi sau vài giây.
+   Một dòng, một câu, một nút đóng. KHÔNG có mã lỗi kỹ thuật:
+   "TenantCode.Taken · HTTP 409" chẳng giúp người dùng làm được gì, mà lại
+   biến một câu dễ hiểu thành một khối trông như lỗi hệ thống.
+
+   Mã tham chiếu CHỈ hiện khi ta không giải thích được chuyện gì đã xảy ra —
+   xem `popup({ ref })`. Lúc đó nó là thứ duy nhất giúp bộ phận hỗ trợ tìm
+   ra dòng log, nên đáng hiện; còn "sai mật khẩu" thì không.
    ═══════════════════════════════════════════════════════════════════════ */
 .popups {
   position: fixed;
-  top: 16px;
+  top: 14px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 60;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
-  width: min(440px, calc(100vw - 32px));
+  width: max-content;
+  max-width: calc(100vw - 32px);
   pointer-events: none;
 }
 
@@ -221,74 +227,138 @@ body {
   position: relative;
   overflow: hidden;
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  padding: 11px 13px;
+  gap: 9px;
+  align-items: center;
+  padding: 9px 10px 9px 12px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 999px;
   background: var(--surface);
-  box-shadow: 0 12px 34px rgb(0 0 0 / 0.3);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.26);
   font-size: 13.5px;
+  white-space: nowrap;
   pointer-events: auto;
-  animation: popup-in 220ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  animation: popup-in 200ms cubic-bezier(0.2, 0.9, 0.3, 1);
 }
-.popup--leaving { animation: popup-out 180ms ease forwards; }
+.popup--leaving { animation: popup-out 160ms ease forwards; }
+
+/* Câu dài thì cho xuống dòng thay vì tràn ra ngoài màn hình. */
+@media (max-width: 560px) {
+  .popup { white-space: normal; border-radius: 12px; align-items: flex-start; }
+}
 
 .popup--error {
-  border-color: color-mix(in srgb, var(--danger) 42%, var(--line));
-  background: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--line));
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
 }
-.popup--error .popup__icon { color: var(--danger); }
 
-.popup__icon { width: 16px; height: 16px; flex: none; margin-top: 3px; color: var(--ink-faint); }
+.popup__dot {
+  width: 7px; height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ink-faint);
+}
+.popup--error .popup__dot { background: var(--danger); }
+
 .popup__body { flex: 1; min-width: 0; }
-.popup__code {
-  display: block;
-  margin-top: 3px;
+
+/* Mã tham chiếu — chỉ hiện với lỗi không giải thích được. Sáu ký tự là đủ để
+   tìm trong log mà không biến popup thành một khối chữ kỹ thuật. */
+.popup__ref {
+  margin-left: 8px;
   font-family: "JetBrains Mono", ui-monospace, monospace;
   font-size: 11px;
   color: var(--ink-faint);
   user-select: all;
 }
+
 .popup__close {
   flex: none;
-  margin: -2px -4px 0 0;
-  padding: 4px;
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
   border: 0;
+  border-radius: 50%;
   background: none;
   color: var(--ink-faint);
-  font: inherit;
-  line-height: 1;
+  font: inherit; font-size: 15px; line-height: 1;
   cursor: pointer;
 }
-.popup__close:hover { color: var(--ink); }
+.popup__close:hover { background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); }
 
 /* Vạch đếm ngược: người dùng THẤY nó sắp biến mất thay vì bị bất ngờ. */
 .popup__timer {
   position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 2px;
-  width: 100%;
+  left: 0; bottom: 0;
+  height: 2px; width: 100%;
   transform-origin: left;
-  background: color-mix(in srgb, var(--danger) 55%, transparent);
+  background: color-mix(in srgb, var(--ink-faint) 45%, transparent);
   animation: popup-timer linear forwards;
 }
-.popup:not(.popup--error) .popup__timer { background: color-mix(in srgb, var(--accent) 55%, transparent); }
+.popup--error .popup__timer { background: color-mix(in srgb, var(--danger) 45%, transparent); }
 
 /* Rê chuột vào thì dừng đồng hồ — người đang đọc dở không bị cướp mất câu chữ. */
 .popup:hover .popup__timer { animation-play-state: paused; }
 
 @keyframes popup-in {
-  from { opacity: 0; transform: translateY(-12px) scale(0.98); }
+  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
   to   { opacity: 1; transform: none; }
 }
 @keyframes popup-out {
-  to { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  to { opacity: 0; transform: translateY(-8px) scale(0.98); }
 }
 @keyframes popup-timer {
   from { transform: scaleX(1); }
   to   { transform: scaleX(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TOOLTIP — dấu ? cạnh nhãn
+
+   Thay cho những dòng chú thích nằm cố định dưới ô nhập. Một dòng chữ xám
+   dưới mỗi ô làm biểu mẫu dài gấp rưỡi và người dùng đọc lướt qua hết — chỗ
+   nào cũng có chữ thì không chỗ nào đáng đọc. Cất vào dấu ? thì ai cần mới mở.
+
+   Dùng `tabindex="0"` để mở được bằng bàn phím: chỉ hiện khi rê chuột nghĩa
+   là người dùng bàn phím không bao giờ đọc được nội dung đó.
+   ═══════════════════════════════════════════════════════════════════════ */
+.tip {
+  position: relative;
+  width: 15px; height: 15px;
+  display: inline-grid; place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--ink-faint);
+  font-size: 10px;
+  line-height: 1;
+  cursor: help;
+}
+.tip:hover, .tip:focus-visible { border-color: var(--ink-faint); color: var(--ink); }
+
+.tip__bubble {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  z-index: 10;
+  width: max-content;
+  max-width: 220px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: normal;
+  text-align: left;
+  box-shadow: 0 8px 22px rgb(0 0 0 / 0.26);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+.tip:hover .tip__bubble,
+.tip:focus-visible .tip__bubble {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }

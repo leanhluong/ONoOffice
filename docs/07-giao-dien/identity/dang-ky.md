@@ -1,7 +1,7 @@
 # Đăng ký workspace
 
 > Module `identity` · Trạng thái: 🟡 **Đã dựng bản mẫu, chờ duyệt** (2026-08-24)
-> Bản dựng: [`dang-ky.html`](./dang-ky.html) — mở thẳng bằng trình duyệt là chạy
+> Bản dựng: [`dang-ky.html`](./dang-ky.html) · [xem trên web](https://claude.ai/code/artifact/cb00b878-30b0-40b8-bd30-93602186bd64)
 
 ---
 

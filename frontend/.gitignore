@@ -42,3 +42,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Ảnh chụp đối chiếu — sinh lại được
+.shots/

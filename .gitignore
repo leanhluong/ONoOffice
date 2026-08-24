@@ -8,3 +8,6 @@ TestResults/
 
 # Ảnh chụp màn hình để đối chiếu với mockup — sinh lại được, không cần lưu
 frontend/.shots/
+
+# Bản gộp để đăng artifact — sinh lại được bằng tools/build-artifact.mjs
+.artifacts/

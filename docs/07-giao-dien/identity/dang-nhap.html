@@ -90,6 +90,10 @@
 
 .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
 .field label { font-size: 12.5px; font-weight: 500; letter-spacing: 0.01em; color: var(--ink-soft); }
+/* Nhãn và dấu ? nằm cùng hàng. Chú thích cất vào tooltip thay vì để một dòng chữ xám
+   cố định dưới mỗi ô — chỗ nào cũng có chữ thì không chỗ nào đáng đọc. */
+.field__head { display: flex; align-items: center; gap: 6px; }
+
 
 .control {
   display: flex; align-items: center; gap: 10px;
@@ -109,8 +113,9 @@
 .peek { padding: 4px; border: 0; background: none; color: var(--ink-faint); cursor: pointer; font: inherit; font-size: 12px; }
 .peek:hover { color: var(--ink); }
 
-.hint { display: none; align-items: center; gap: 6px; font-size: 12.5px; color: var(--danger); }
-.hint::before { content: "—"; opacity: 0.6; }
+/* Dòng nhắc dưới ô nhập: ngắn, một câu, không trang trí gì thêm.
+   Trước có gạch "—" đầu dòng — nó chẳng nói gì mà làm dòng chữ trông dài hơn. */
+.hint { display: none; font-size: 12.5px; color: var(--danger); }
 [data-state="invalid"] .hint { display: flex; }
 [data-state="invalid"] .control { border-color: var(--danger); }
 
@@ -307,11 +312,9 @@ document.querySelectorAll('.states button').forEach(btn => {
     // Lỗi từ server giờ là POPUP nổi ở đầu màn hình, không còn là khối cố định
     // trong biểu mẫu — xem ghi chú dài ở dang-nhap.md.
     if (state === 'rejected') {
-      popup({
-        tone: 'error',
-        text: 'Email hoặc mật khẩu không đúng.',
-        code: 'Auth.InvalidCredentials · HTTP 401',
-      });
+      // Không truyền `ref`: ta biết chính xác chuyện gì xảy ra và đã nói rõ. Mã tham
+      // chiếu chỉ dành cho lỗi không giải thích được.
+      popup({ tone: 'error', text: 'Email hoặc mật khẩu không đúng.' });
     }
   });
 });
@@ -333,6 +336,12 @@ document.body.addEventListener('click', e => {
 });
 
 form.addEventListener('submit', e => e.preventDefault());
+
+// ?bare=1 — giấu thanh duyệt để bộ so ảnh chụp được đúng phần sẽ ship.
+if (new URLSearchParams(location.search).has('bare')) {
+  document.querySelector('.states')?.remove();
+}
+
 
 // Đặt sẵn trạng thái qua URL để chụp ảnh và gửi link duyệt: ?state=rejected
 // KHUNG ĐỂ DUYỆT — không có trong sản phẩm.

@@ -77,7 +77,10 @@
 
 .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
 .field label { font-size: 12.5px; font-weight: 500; letter-spacing: 0.01em; color: var(--ink-soft); }
-.field__note { margin: 0; font-size: 12px; color: var(--ink-faint); }
+/* Nhãn và dấu ? nằm cùng hàng. Chú thích cất vào tooltip thay vì để một dòng chữ xám
+   cố định dưới mỗi ô — chỗ nào cũng có chữ thì không chỗ nào đáng đọc. */
+.field__head { display: flex; align-items: center; gap: 6px; }
+
 
 .control {
   display: flex; align-items: center; gap: 10px;
@@ -93,8 +96,9 @@
 .peek { padding: 4px; border: 0; background: none; color: var(--ink-faint); cursor: pointer; font: inherit; font-size: 12px; }
 .peek:hover { color: var(--ink); }
 
-.hint { display: none; align-items: center; gap: 6px; font-size: 12.5px; color: var(--danger); }
-.hint::before { content: "—"; opacity: 0.6; }
+/* Dòng nhắc dưới ô nhập: ngắn, một câu, không trang trí gì thêm.
+   Trước có gạch "—" đầu dòng — nó chẳng nói gì mà làm dòng chữ trông dài hơn. */
+.hint { display: none; font-size: 12.5px; color: var(--danger); }
 [data-state="invalid"] .hint { display: flex; }
 [data-state="invalid"] .control--check { border-color: var(--danger); }
 
@@ -102,12 +106,14 @@
 /* Bốn vạch chứ không phải một thanh liền: một thanh liền gợi ý "càng đầy càng tốt" và
    người dùng cố nhồi cho đầy. Bốn vạch nói rõ đây là bốn nấc rời rạc. */
 .meter { display: flex; gap: 4px; margin-top: 2px; }
+.meter[data-score="0"] { visibility: hidden; }
 .meter span { flex: 1; height: 3px; border-radius: 999px; background: var(--line); transition: background 200ms ease; }
 .meter[data-score="1"] span:nth-child(-n+1),
 .meter[data-score="2"] span:nth-child(-n+2) { background: var(--danger); }
 .meter[data-score="3"] span:nth-child(-n+3) { background: color-mix(in srgb, var(--accent) 70%, var(--ink-faint)); }
 .meter[data-score="4"] span { background: var(--accent); }
 .meter__label { margin: 6px 0 0; font-size: 12px; color: var(--ink-faint); }
+.meter__label:empty { display: none; }
 
 .check { display: flex; align-items: flex-start; gap: 9px; color: var(--ink-soft); font-size: 13px; cursor: pointer; margin-bottom: 18px; }
 .check input { margin-top: 3px; width: 15px; height: 15px; flex: none; accent-color: var(--accent); }
@@ -221,7 +227,13 @@
           </div>
 
           <div class="field">
-            <label for="slug">Mã workspace</label>
+            <div class="field__head">
+              <label for="slug">Mã workspace</label>
+              <span class="tip" tabindex="0" role="note"
+                    aria-label="Chỉ chữ thường, số và gạch nối. Không đổi được sau khi tạo.">?
+                <span class="tip__bubble">Chỉ chữ thường, số và gạch nối.<br><b>Không đổi được</b> sau khi tạo.</span>
+              </span>
+            </div>
             <div class="control control--check">
               <span class="control__suffix">onooffice.vn/</span>
               <input id="slug" type="text" placeholder="acme" inputmode="url" autocapitalize="off" spellcheck="false">
@@ -231,7 +243,6 @@
               tên dài sẽ nhận một mã xấu mà không sửa được; bắt gõ tay từ đầu thì phần lớn
               người dùng gõ luôn tên công ty có dấu, rồi nhận lỗi.
             -->
-            <p class="field__note">Chỉ chữ thường, số và gạch nối. <b>Không đổi được sau này.</b></p>
             <span class="hint">Mã này đã có công ty khác dùng.</span>
           </div>
         </div>
@@ -252,19 +263,29 @@
           </div>
 
           <div class="field">
-            <label for="email">Email công ty</label>
+            <div class="field__head">
+              <label for="email">Email công ty</label>
+              <span class="tip" tabindex="0" role="note" aria-label="Đây sẽ là email đăng nhập của bạn.">?
+                <span class="tip__bubble">Đây sẽ là email đăng nhập của bạn.</span>
+              </span>
+            </div>
             <div class="control control--check">
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="m3 6 7 5 7-5"/>
               </svg>
               <input id="email" type="email" inputmode="email" autocomplete="username" placeholder="ten.ban@congty.com">
             </div>
-            <p class="field__note">Đây sẽ là email đăng nhập của bạn.</p>
             <span class="hint">Email này đã có tài khoản.</span>
           </div>
 
           <div class="field">
-            <label for="password">Mật khẩu</label>
+            <div class="field__head">
+              <label for="password">Mật khẩu</label>
+              <span class="tip" tabindex="0" role="note"
+                    aria-label="Dùng một câu dễ nhớ. Dài hơn là an toàn hơn — không cần ký tự đặc biệt.">?
+                <span class="tip__bubble">Dùng một câu dễ nhớ.<br>Dài hơn là an toàn hơn — không cần ký tự đặc biệt.</span>
+              </span>
+            </div>
             <div class="control control--check">
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <rect x="4" y="8.5" width="12" height="8" rx="2"/><path d="M7 8.5V6a3 3 0 016 0v2.5"/>
@@ -276,7 +297,7 @@
             <div class="meter" id="meter" data-score="0" aria-hidden="true">
               <span></span><span></span><span></span><span></span>
             </div>
-            <p class="meter__label" id="meterLabel">Dùng một câu dễ nhớ, dài hơn là an toàn hơn.</p>
+            <p class="meter__label" id="meterLabel"></p>
             <span class="hint">Mật khẩu phải có ít nhất 10 ký tự.</span>
           </div>
         </div>
@@ -348,11 +369,9 @@ document.querySelectorAll('.states button').forEach(btn => {
       b.setAttribute('aria-pressed', String(b === btn)));
 
     if (state === 'rejected') {
-      popup({
-        tone: 'error',
-        text: 'Mã workspace này đã có công ty khác dùng. Hãy chọn mã khác.',
-        code: 'TenantCode.Taken · HTTP 409',
-      });
+      // Câu ngắn, không mã kỹ thuật. Người dùng cần biết phải LÀM GÌ, không cần biết
+      // backend gọi lỗi đó là gì.
+      popup({ tone: 'error', text: 'Mã workspace này đã có người dùng.' });
     }
   });
 });
@@ -384,13 +403,9 @@ company.addEventListener('input', () => {
 // hơn nhiều mà người dùng không phải dán vào file ghi chú.
 const meter = document.getElementById('meter');
 const meterLabel = document.getElementById('meterLabel');
-const LABELS = [
-  'Dùng một câu dễ nhớ, dài hơn là an toàn hơn.',
-  'Quá ngắn — dễ đoán.',
-  'Tạm được, nhưng nên dài hơn.',
-  'Khá tốt.',
-  'Rất tốt.',
-];
+// Nấc 0 để TRỐNG: lúc người dùng chưa gõ gì thì không có gì để nhận xét, và một dòng
+// chữ xám nằm sẵn ở đó chỉ làm biểu mẫu dài thêm. Lời khuyên đã nằm trong tooltip.
+const LABELS = ['', 'Quá ngắn — dễ đoán.', 'Tạm được, nên dài hơn.', 'Khá tốt.', 'Rất tốt.'];
 
 document.getElementById('password').addEventListener('input', (e) => {
   const v = e.target.value;
@@ -422,6 +437,12 @@ document.body.addEventListener('click', e => {
 });
 
 form.addEventListener('submit', e => e.preventDefault());
+
+// ?bare=1 — giấu thanh duyệt để bộ so ảnh chụp được đúng phần sẽ ship.
+if (new URLSearchParams(location.search).has('bare')) {
+  document.querySelector('.states')?.remove();
+}
+
 
 // Đặt sẵn trạng thái qua URL để chụp ảnh và gửi link duyệt: ?state=rejected
 // KHUNG ĐỂ DUYỆT — không có trong sản phẩm.
