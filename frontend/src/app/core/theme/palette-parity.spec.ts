@@ -6,7 +6,7 @@ import { THEMES } from './theme.service';
  * Đối chiếu bảng màu đang chạy với <b>bản dựng đã duyệt</b>.
  *
  * <pre>
- *   docs/07-giao-dien/identity/dang-nhap.html   ↔   frontend/src/styles.scss
+ *   docs/07-giao-dien/chung/_shell.css   ↔   frontend/src/styles.scss
  * </pre>
  *
  * <b>Vì sao cần, khi styles.scss vốn được SINH TỰ ĐỘNG từ chính file đó:</b> sinh tự
@@ -20,22 +20,15 @@ import { THEMES } from './theme.service';
  * lint, test đều xanh.
  */
 
-const MOCKUP = join(
-  process.cwd(),
-  '..',
-  'docs',
-  '07-giao-dien',
-  'identity',
-  'dang-nhap.html',
-);
+const MOCKUP = join(process.cwd(), '..', 'docs', '07-giao-dien', 'chung', '_shell.css');
 
 const STYLES = join(process.cwd(), 'src', 'styles.scss');
 
 /** Mã bộ trong mockup dùng `data-skin`; trong sản phẩm là `data-theme`. Tên bộ thì trùng. */
 function palettesFromMockup(): Map<string, Map<string, string>> {
-  const html = readFileSync(MOCKUP, 'utf8');
+  const css = readFileSync(MOCKUP, 'utf8');
 
-  const blocks = [...html.matchAll(/:root(?:\[data-skin="(\w+)"\])?\s*\{([^}]*--glow[^}]*)\}/g)];
+  const blocks = [...css.matchAll(/:root(?:\[data-skin="(\w+)"\])?\s*\{([^}]*--glow[^}]*)\}/g)];
 
   return new Map(
     blocks.map(([, skin, body]) => [

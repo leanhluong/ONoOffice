@@ -1,0 +1,311 @@
+/*
+  Nền chung cho MỌI bản dựng trong 07-giao-dien.
+
+  Vì sao tách ra một file: bốn bộ màu và bộ chữ phải giống hệt nhau ở mọi màn. Chép đi
+  chép lại vào từng file HTML thì sớm muộn hai màn lệch nhau một token, và không ai nhìn
+  ra bằng mắt.
+
+  ⚠️ Bảng màu ở đây là NGUỒN GỐC của cả sản phẩm: `frontend/src/styles.scss` được sinh
+  tự động từ nó bằng `tools/sync-palette.mjs`, và `palette-parity.spec.ts` đối chiếu hai
+  chiều mỗi lần chạy test. Sửa màu thì sửa ở đây, rồi chạy lại bộ sinh.
+*/
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BỐN BỘ MÀU — mỗi bộ là một thế giới hoàn chỉnh, không đảo sáng/tối.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root,
+:root[data-skin="muc"] {
+  --ground:      #0B0C0E;
+  --surface:     #131417;
+  --surface-2:   #1B1D21;
+  --line:        #26282D;
+  --ink:         #EDEAE4;
+  --ink-soft:    #9B9891;
+  --ink-faint:   #6A6862;
+  --accent:      #D9A441;
+  --accent-ink:  #1A1408;
+  --danger:      #E0644F;
+  --glow:        217, 164, 65;
+}
+:root[data-skin="haidang"] {
+  --ground:      #0A1220;
+  --surface:     #101A2B;
+  --surface-2:   #16233A;
+  --line:        #223148;
+  --ink:         #DCE4F0;
+  --ink-soft:    #8A9AB4;
+  --ink-faint:   #5C6B84;
+  --accent:      #FF7A5C;
+  --accent-ink:  #2A0D06;
+  --danger:      #FF9E8C;
+  --glow:        255, 122, 92;
+}
+:root[data-skin="giay"] {
+  --ground:      #FAFAF8;
+  --surface:     #FFFFFF;
+  --surface-2:   #F1F1EE;
+  --line:        #DEDEDA;
+  --ink:         #16181C;
+  --ink-soft:    #5A5D64;
+  --ink-faint:   #8B8E95;
+  --accent:      #8C2F39;
+  --accent-ink:  #FFF6F2;
+  --danger:      #B3261E;
+  --glow:        140, 47, 57;
+}
+:root[data-skin="reu"] {
+  --ground:      #12160F;
+  --surface:     #191E15;
+  --surface-2:   #22281C;
+  --line:        #2F3728;
+  --ink:         #E4E8DC;
+  --ink-soft:    #9AA48C;
+  --ink-faint:   #6B7461;
+  --accent:      #A3B18A;
+  --accent-ink:  #141A0D;
+  --danger:      #D98E7A;
+  --glow:        163, 177, 138;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 320ms ease, color 320ms ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   THANH TUỲ CHỌN — bộ màu + ngôn ngữ
+
+   Đây là thứ SẼ SHIP, không phải khung để duyệt. Nó nằm góc trên phải của
+   cột biểu mẫu ở mọi màn công khai.
+   ═══════════════════════════════════════════════════════════════════════ */
+.prefs {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Chỉ CHẤM MÀU, không kèm tên bộ.
+   Tên bộ ("Mực", "Hải đăng"…) chẳng nói được gì mà một ô màu không nói rõ hơn, lại
+   chiếm gấp bốn lần chỗ và phải dịch sang mọi ngôn ngữ. Tên vẫn còn trong `title` và
+   nhãn cho trình đọc màn hình, nên người dùng bàn phím không mất gì. */
+.skins { display: flex; align-items: center; gap: 7px; }
+
+.skin {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid rgb(128 128 128 / 0.35);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.skin:hover { transform: scale(1.14); }
+.skin[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--ground), 0 0 0 4px var(--accent);
+}
+
+/* Chọn ngôn ngữ: danh sách xổ TỰ VIẾT, không phải thẻ <select> gốc.
+
+   Vì sao: <select> không cho đặt hình vào <option> — không có cách nào hiện lá cờ. Và
+   emoji cờ (🇻🇳) thì Windows KHÔNG có phông cho chúng, nó hiện ra thành hai chữ cái
+   "VN". Nghĩa là trên đúng hệ điều hành mà phần lớn người dùng đang chạy, giải pháp
+   emoji hỏng.
+
+   Đổi lại phải tự lo bàn phím và ARIA — đã làm ở dưới. */
+.lang { position: relative; }
+
+.lang__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 9px 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+.lang__button:hover { border-color: var(--ink-faint); color: var(--ink); }
+.lang__button[aria-expanded="true"] { border-color: var(--accent); color: var(--ink); }
+
+.flag {
+  width: 20px;
+  height: 14px;
+  flex: none;
+  border-radius: 2px;
+  /* Cờ nền trắng (Nhật, Hàn) sẽ biến mất trên nền sáng nếu không có viền. */
+  box-shadow: 0 0 0 1px rgb(128 128 128 / 0.3);
+}
+
+.lang__caret { width: 10px; height: 10px; color: var(--ink-faint); }
+
+.lang__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 30;
+  min-width: 190px;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 14px 34px rgb(0 0 0 / 0.32);
+}
+.lang__menu[hidden] { display: none; }
+
+.lang__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.lang__option:hover, .lang__option:focus-visible { background: var(--surface-2); color: var(--ink); }
+.lang__option[aria-selected="true"] { color: var(--ink); font-weight: 500; }
+.lang__option .tick { margin-left: auto; color: var(--accent); }
+.lang__option[aria-selected="false"] .tick { visibility: hidden; }
+
+/* Ngôn ngữ chưa có bản dịch — hiện xám, bấm được nhưng báo "chưa có". Thà nói thẳng
+   còn hơn giấu đi rồi người dùng tưởng sản phẩm không hỗ trợ tiếng của họ. */
+.lang__option[data-soon] { color: var(--ink-faint); }
+.lang__option[data-soon] .soon {
+  margin-left: auto;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   POPUP THÔNG BÁO — nổi ở ĐẦU màn hình, tự biến mất
+
+   Dùng cho lỗi từ server và cho những nút chưa làm. Trước đây khối lỗi nằm
+   cố định trong biểu mẫu và đẩy mọi thứ xuống; nay nó nổi lên trên, không
+   chiếm chỗ, và tự đi sau vài giây.
+   ═══════════════════════════════════════════════════════════════════════ */
+.popups {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(440px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.popup {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 12px 34px rgb(0 0 0 / 0.3);
+  font-size: 13.5px;
+  pointer-events: auto;
+  animation: popup-in 220ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+.popup--leaving { animation: popup-out 180ms ease forwards; }
+
+.popup--error {
+  border-color: color-mix(in srgb, var(--danger) 42%, var(--line));
+  background: color-mix(in srgb, var(--danger) 9%, var(--surface));
+}
+.popup--error .popup__icon { color: var(--danger); }
+
+.popup__icon { width: 16px; height: 16px; flex: none; margin-top: 3px; color: var(--ink-faint); }
+.popup__body { flex: 1; min-width: 0; }
+.popup__code {
+  display: block;
+  margin-top: 3px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  user-select: all;
+}
+.popup__close {
+  flex: none;
+  margin: -2px -4px 0 0;
+  padding: 4px;
+  border: 0;
+  background: none;
+  color: var(--ink-faint);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+.popup__close:hover { color: var(--ink); }
+
+/* Vạch đếm ngược: người dùng THẤY nó sắp biến mất thay vì bị bất ngờ. */
+.popup__timer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  transform-origin: left;
+  background: color-mix(in srgb, var(--danger) 55%, transparent);
+  animation: popup-timer linear forwards;
+}
+.popup:not(.popup--error) .popup__timer { background: color-mix(in srgb, var(--accent) 55%, transparent); }
+
+/* Rê chuột vào thì dừng đồng hồ — người đang đọc dở không bị cướp mất câu chữ. */
+.popup:hover .popup__timer { animation-play-state: paused; }
+
+@keyframes popup-in {
+  from { opacity: 0; transform: translateY(-12px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes popup-out {
+  to { opacity: 0; transform: translateY(-10px) scale(0.98); }
+}
+@keyframes popup-timer {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  /* Tắt animation thì vạch đếm ngược đứng yên — ẩn hẳn cho khỏi hiểu nhầm là bị treo. */
+  .popup__timer { display: none; }
+}
+
+/* Chỉ trình đọc màn hình thấy. Nút chỉ có màu (chọn bộ màu) vẫn phải có tên đọc được —
+   `display:none` thì trình đọc màn hình cũng bỏ qua, tức là nút đó câm. */
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

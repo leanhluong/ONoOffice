@@ -1,0 +1,431 @@
+<!--
+  Bản dựng màn ĐĂNG KÝ WORKSPACE — bốn bộ màu, bốn trạng thái.
+
+  Màn này tạo MỘT LÚC ba thứ: workspace, bốn vai trò hệ thống, và tài khoản chủ sở hữu.
+  Đó chính là việc mà `IdentityDataSeeder` đang làm bằng tay ở môi trường phát triển —
+  nay biến thành một use case thật, có giao diện.
+
+  Mở thẳng bằng trình duyệt là chạy. Nền chung: ../chung/_shell.css + _shell.js
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đăng ký workspace · ONoOffice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../chung/_shell.css">
+
+<style>
+.stage { display: grid; grid-template-columns: 1.15fr 1fr; min-height: 100vh; }
+@media (max-width: 900px) { .stage { grid-template-columns: 1fr; } }
+
+/* ── Cột trái ─────────────────────────────────────────────────────── */
+.brand {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: clamp(28px, 5vw, 56px);
+  border-right: 1px solid var(--line);
+}
+@media (max-width: 900px) { .brand { min-height: 200px; border-right: 0; border-bottom: 1px solid var(--line); } }
+#weave { position: absolute; inset: 0; width: 100%; height: 100%; }
+.brand > *:not(#weave) { position: relative; z-index: 1; }
+
+.wordmark { display: flex; align-items: center; gap: 10px; font-family: "Sora", system-ui, sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+.wordmark__mark { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 7px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; }
+
+/* Lưu ý: đơn vị ch tính theo phông của CHÍNH .pitch (15px), không theo cỡ chữ của h1.
+   Nên 32ch ở đây là khoảng 256px, không phải 32 ký tự của tiêu đề. */
+.pitch { max-width: 32ch; }
+.pitch h1 {
+  margin: 0 0 16px;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600;
+  font-size: clamp(26px, 3.1vw, 34px); line-height: 1.16; letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+/* Ba thứ được tạo ra — nói trước cho người dùng biết họ sắp nhận được gì.
+   Màn đăng ký nào cũng nên trả lời câu "bấm xong thì có gì?" TRƯỚC khi bấm. */
+.gets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+.gets li { display: flex; gap: 11px; align-items: flex-start; color: var(--ink-soft); font-size: 14px; }
+.gets svg { width: 17px; height: 17px; flex: none; margin-top: 3px; color: var(--accent); }
+
+.brandfoot { display: flex; gap: 26px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-faint); }
+
+/* ── Cột phải ─────────────────────────────────────────────────────── */
+.panel {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 48px);
+}
+.panel__prefs { position: absolute; top: clamp(20px, 3vw, 28px); right: clamp(20px, 4vw, 48px); }
+
+.form { width: 100%; max-width: 400px; }
+.form__head { margin-bottom: 24px; }
+.form__head h2 { margin: 0 0 6px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 25px; letter-spacing: -0.02em; }
+.form__head p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+
+/* Chia hai nhóm có tiêu đề: sáu ô liền một mạch trông như một bức tường.
+   Nhóm lại thì người dùng biết mình đang ở đoạn nào và còn bao nhiêu. */
+.group { margin-bottom: 18px; }
+.group__title {
+  display: flex; align-items: center; gap: 10px;
+  margin: 18px 0 12px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-faint);
+}
+.group__title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+.field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+.field label { font-size: 12.5px; font-weight: 500; letter-spacing: 0.01em; color: var(--ink-soft); }
+.field__note { margin: 0; font-size: 12px; color: var(--ink-faint); }
+
+.control {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 13px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.control:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgb(var(--glow) / 0.18); }
+.control input { flex: 1; min-width: 0; padding: 12px 0; border: 0; background: none; outline: none; color: var(--ink); font: inherit; }
+.control input::placeholder { color: var(--ink-faint); }
+.control > svg { width: 16px; height: 16px; flex: none; color: var(--ink-faint); }
+.control__suffix { flex: none; color: var(--ink-faint); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; }
+.peek { padding: 4px; border: 0; background: none; color: var(--ink-faint); cursor: pointer; font: inherit; font-size: 12px; }
+.peek:hover { color: var(--ink); }
+
+.hint { display: none; align-items: center; gap: 6px; font-size: 12.5px; color: var(--danger); }
+.hint::before { content: "—"; opacity: 0.6; }
+[data-state="invalid"] .hint { display: flex; }
+[data-state="invalid"] .control--check { border-color: var(--danger); }
+
+/* ── Thước độ mạnh mật khẩu ───────────────────────────────────────── */
+/* Bốn vạch chứ không phải một thanh liền: một thanh liền gợi ý "càng đầy càng tốt" và
+   người dùng cố nhồi cho đầy. Bốn vạch nói rõ đây là bốn nấc rời rạc. */
+.meter { display: flex; gap: 4px; margin-top: 2px; }
+.meter span { flex: 1; height: 3px; border-radius: 999px; background: var(--line); transition: background 200ms ease; }
+.meter[data-score="1"] span:nth-child(-n+1),
+.meter[data-score="2"] span:nth-child(-n+2) { background: var(--danger); }
+.meter[data-score="3"] span:nth-child(-n+3) { background: color-mix(in srgb, var(--accent) 70%, var(--ink-faint)); }
+.meter[data-score="4"] span { background: var(--accent); }
+.meter__label { margin: 6px 0 0; font-size: 12px; color: var(--ink-faint); }
+
+.check { display: flex; align-items: flex-start; gap: 9px; color: var(--ink-soft); font-size: 13px; cursor: pointer; margin-bottom: 18px; }
+.check input { margin-top: 3px; width: 15px; height: 15px; flex: none; accent-color: var(--accent); }
+.link { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid transparent; }
+.link:hover { color: var(--ink); border-bottom-color: var(--ink-faint); }
+
+.submit {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  padding: 13px 18px; border: 0; border-radius: 10px;
+  background: var(--accent); color: var(--accent-ink);
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 14.5px;
+  cursor: pointer;
+  transition: filter 160ms ease, transform 120ms ease;
+}
+.submit:hover { filter: brightness(1.08); }
+.submit:active { transform: translateY(1px); }
+.submit[disabled] { opacity: 0.72; cursor: progress; }
+
+.spinner { display: none; width: 15px; height: 15px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 700ms linear infinite; }
+[data-state="sending"] .spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.footnote { margin-top: 20px; font-size: 13px; color: var(--ink-faint); text-align: center; }
+.footnote a { color: var(--ink-soft); }
+
+/* ── Trạng thái XONG ──────────────────────────────────────────────── */
+.done { display: none; text-align: center; }
+[data-state="done"] .form__body { display: none; }
+[data-state="done"] .done { display: block; }
+.done__mark {
+  width: 52px; height: 52px; margin: 0 auto 18px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  color: var(--accent);
+}
+.done__mark svg { width: 26px; height: 26px; }
+.done h3 { margin: 0 0 8px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 21px; }
+.done p { margin: 0 0 22px; color: var(--ink-soft); font-size: 14px; }
+.done__card {
+  margin-bottom: 22px; padding: 13px 15px; text-align: left;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2);
+  font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--ink-soft);
+}
+.done__card b { color: var(--ink); font-weight: 500; }
+
+.states {
+  position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 50;
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  padding: 8px 10px; border: 1px dashed var(--line); border-radius: 999px;
+  background: color-mix(in srgb, var(--ground) 86%, transparent); backdrop-filter: blur(14px);
+}
+.states span { align-self: center; padding-left: 6px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-faint); }
+.states button { padding: 5px 11px; border: 1px solid var(--line); border-radius: 999px; background: none; color: var(--ink-soft); font: inherit; font-size: 12px; cursor: pointer; }
+.states button:hover { color: var(--ink); border-color: var(--ink-faint); }
+.states button[aria-pressed="true"] { border-color: var(--accent); color: var(--ink); }
+</style>
+
+<div class="stage">
+  <section class="brand">
+    <canvas id="weave" aria-hidden="true"></canvas>
+
+    <div class="wordmark"><span class="wordmark__mark">O</span>ONoOffice</div>
+
+    <div>
+      <div class="pitch"><h1>Dựng không gian làm việc cho công ty bạn.</h1></div>
+
+      <ul class="gets">
+        <li>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg>
+          <span>Một workspace riêng — dữ liệu công ty bạn <b>không nằm chung</b> với bất kỳ công ty nào khác.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg>
+          <span>Bốn vai trò sẵn sàng: <b>Owner · Admin · Manager · Member</b>. Sửa được, thêm được.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg>
+          <span>Tài khoản chủ sở hữu là <b>của bạn</b> — chuyển nhượng được, không ai lấy mất.</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="brandfoot"><span>Miễn phí</span><span>Không cần thẻ</span><span>Việt Nam</span></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel__prefs" id="prefs"></div>
+
+    <form class="form" id="form" data-state="idle" novalidate>
+      <div class="form__body">
+        <div class="form__head">
+          <h2>Đăng ký workspace</h2>
+          <p>Mất khoảng một phút. Bạn sẽ là chủ sở hữu.</p>
+        </div>
+
+        <!-- ── Nhóm 1: công ty ── -->
+        <div class="group">
+          <p class="group__title">Công ty</p>
+
+          <div class="field">
+            <label for="company">Tên công ty</label>
+            <div class="control control--check">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <rect x="3" y="6" width="9" height="11" rx="1.5"/><path d="M12 9h5v8h-5M6 9h3M6 12h3M6 15h3"/>
+              </svg>
+              <input id="company" type="text" placeholder="Công ty TNHH ACME" autocomplete="organization">
+            </div>
+            <span class="hint">Vui lòng nhập tên công ty.</span>
+          </div>
+
+          <div class="field">
+            <label for="slug">Mã workspace</label>
+            <div class="control control--check">
+              <span class="control__suffix">onooffice.vn/</span>
+              <input id="slug" type="text" placeholder="acme" inputmode="url" autocapitalize="off" spellcheck="false">
+            </div>
+            <!--
+              Tự gợi ý từ tên công ty, nhưng vẫn cho sửa. Sinh xong khoá cứng thì công ty
+              tên dài sẽ nhận một mã xấu mà không sửa được; bắt gõ tay từ đầu thì phần lớn
+              người dùng gõ luôn tên công ty có dấu, rồi nhận lỗi.
+            -->
+            <p class="field__note">Chỉ chữ thường, số và gạch nối. <b>Không đổi được sau này.</b></p>
+            <span class="hint">Mã này đã có công ty khác dùng.</span>
+          </div>
+        </div>
+
+        <!-- ── Nhóm 2: tài khoản chủ sở hữu ── -->
+        <div class="group">
+          <p class="group__title">Tài khoản chủ sở hữu</p>
+
+          <div class="field">
+            <label for="fullname">Họ và tên</label>
+            <div class="control control--check">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <circle cx="10" cy="7" r="3"/><path d="M4 16.5a6 6 0 0112 0"/>
+              </svg>
+              <input id="fullname" type="text" placeholder="Lê Anh Lượng" autocomplete="name">
+            </div>
+            <span class="hint">Vui lòng nhập họ tên.</span>
+          </div>
+
+          <div class="field">
+            <label for="email">Email công ty</label>
+            <div class="control control--check">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="m3 6 7 5 7-5"/>
+              </svg>
+              <input id="email" type="email" inputmode="email" autocomplete="username" placeholder="ten.ban@congty.com">
+            </div>
+            <p class="field__note">Đây sẽ là email đăng nhập của bạn.</p>
+            <span class="hint">Email này đã có tài khoản.</span>
+          </div>
+
+          <div class="field">
+            <label for="password">Mật khẩu</label>
+            <div class="control control--check">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <rect x="4" y="8.5" width="12" height="8" rx="2"/><path d="M7 8.5V6a3 3 0 016 0v2.5"/>
+              </svg>
+              <input id="password" type="password" autocomplete="new-password" placeholder="Ít nhất 10 ký tự">
+              <button type="button" class="peek" id="peek">Hiện</button>
+            </div>
+
+            <div class="meter" id="meter" data-score="0" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <p class="meter__label" id="meterLabel">Dùng một câu dễ nhớ, dài hơn là an toàn hơn.</p>
+            <span class="hint">Mật khẩu phải có ít nhất 10 ký tự.</span>
+          </div>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="terms">
+          <span>Tôi đồng ý với <a class="link" href="#" data-soon="Điều khoản sử dụng">Điều khoản sử dụng</a>
+          và <a class="link" href="#" data-soon="Chính sách riêng tư">Chính sách riêng tư</a>.</span>
+        </label>
+
+        <button class="submit" type="submit" id="submit">
+          <span class="spinner" aria-hidden="true"></span>
+          <span id="submitText">Tạo workspace</span>
+        </button>
+
+        <p class="footnote">Đã có tài khoản? <a class="link" href="./dang-nhap.html">Đăng nhập</a></p>
+      </div>
+
+      <!-- ── Xong ── -->
+      <div class="done">
+        <div class="done__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7"/></svg>
+        </div>
+        <h3>Workspace đã sẵn sàng</h3>
+        <p>Bạn đã là chủ sở hữu. Việc tiếp theo là mời đồng nghiệp vào.</p>
+
+        <div class="done__card">
+          Workspace &nbsp;<b>onooffice.vn/acme</b><br>
+          Đăng nhập &nbsp;&nbsp;<b>ten.ban@congty.com</b><br>
+          Vai trò &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Owner · đủ 12 quyền</b>
+        </div>
+
+        <button class="submit" type="button" data-soon="Vào workspace">Vào workspace</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<div class="popups" id="popups" aria-live="polite"></div>
+
+<div class="states">
+  <span>Duyệt</span>
+  <button data-state="idle" aria-pressed="true">Mặc định</button>
+  <button data-state="invalid" aria-pressed="false">Lỗi nhập liệu</button>
+  <button data-state="rejected" aria-pressed="false">Mã đã tồn tại</button>
+  <button data-state="sending" aria-pressed="false">Đang gửi</button>
+  <button data-state="done" aria-pressed="false">Xong</button>
+</div>
+
+<script type="module">
+import { mountPrefs, popup, weave } from '../chung/_shell.js';
+
+mountPrefs(document.getElementById('prefs'));
+weave(document.getElementById('weave'));
+
+const form = document.getElementById('form');
+
+// ── Đổi trạng thái để duyệt ─────────────────────────────────────────
+document.querySelectorAll('.states button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const state = btn.dataset.state;
+    form.dataset.state = state;
+
+    document.getElementById('submit').disabled = state === 'sending';
+    document.getElementById('submitText').textContent =
+      state === 'sending' ? 'Đang tạo workspace…' : 'Tạo workspace';
+
+    document.querySelectorAll('.states button').forEach(b =>
+      b.setAttribute('aria-pressed', String(b === btn)));
+
+    if (state === 'rejected') {
+      popup({
+        tone: 'error',
+        text: 'Mã workspace này đã có công ty khác dùng. Hãy chọn mã khác.',
+        code: 'TenantCode.Taken · HTTP 409',
+      });
+    }
+  });
+});
+
+// ── Gợi ý mã workspace từ tên công ty ───────────────────────────────
+// Bỏ dấu tiếng Việt bằng chuẩn hoá Unicode rồi cắt dấu — không cần bảng tra tay.
+const slugify = (s) => s
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '')
+  .slice(0, 30);
+
+const company = document.getElementById('company');
+const slug = document.getElementById('slug');
+let slugTouched = false;
+
+// Người dùng đã tự sửa mã thì THÔI ghi đè — ghi đè lên thứ họ vừa gõ là kiểu khó chịu
+// mà ai cũng từng gặp ở form đăng ký.
+slug.addEventListener('input', () => { slugTouched = true; });
+company.addEventListener('input', () => {
+  if (!slugTouched) slug.value = slugify(company.value);
+});
+
+// ── Độ mạnh mật khẩu ────────────────────────────────────────────────
+// Đếm theo ĐỘ DÀI và sự đa dạng, không bắt buộc "phải có ký tự đặc biệt". Luật bắt buộc
+// ký tự đặc biệt đẻ ra toàn "Matkhau@123" — dài mà đoán được. Câu dài dễ nhớ thì an toàn
+// hơn nhiều mà người dùng không phải dán vào file ghi chú.
+const meter = document.getElementById('meter');
+const meterLabel = document.getElementById('meterLabel');
+const LABELS = [
+  'Dùng một câu dễ nhớ, dài hơn là an toàn hơn.',
+  'Quá ngắn — dễ đoán.',
+  'Tạm được, nhưng nên dài hơn.',
+  'Khá tốt.',
+  'Rất tốt.',
+];
+
+document.getElementById('password').addEventListener('input', (e) => {
+  const v = e.target.value;
+  let score = 0;
+  if (v.length >= 10) score++;
+  if (v.length >= 14) score++;
+  if (/[a-z]/.test(v) && /[A-Z0-9]/.test(v)) score++;
+  if (v.length >= 20 || /[^\w\s]/.test(v)) score++;
+  if (v.length === 0) score = 0;
+
+  meter.dataset.score = String(score);
+  meterLabel.textContent = LABELS[score];
+});
+
+// ── Hiện/ẩn mật khẩu ────────────────────────────────────────────────
+const pw = document.getElementById('password');
+document.getElementById('peek').addEventListener('click', e => {
+  const showing = pw.type === 'text';
+  pw.type = showing ? 'password' : 'text';
+  e.target.textContent = showing ? 'Hiện' : 'Ẩn';
+});
+
+// ── Nút chưa làm ────────────────────────────────────────────────────
+document.body.addEventListener('click', e => {
+  const el = e.target.closest('[data-soon]');
+  if (!el) return;
+  e.preventDefault();
+  popup({ text: `${el.dataset.soon} — tính năng đang phát triển.` });
+});
+
+form.addEventListener('submit', e => e.preventDefault());
+
+// Đặt sẵn trạng thái qua URL để chụp ảnh và gửi link duyệt: ?state=rejected
+// KHUNG ĐỂ DUYỆT — không có trong sản phẩm.
+const preset = new URLSearchParams(location.search).get('state');
+if (preset) document.querySelector('.states button[data-state="' + preset + '"]')?.click();
+
+</script>

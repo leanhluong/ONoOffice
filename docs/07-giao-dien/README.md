@@ -15,13 +15,14 @@ thứ đổi chậm: mục đích của màn, ai vào được, có bao nhiêu t
 07-giao-dien/
 ├── he-thong-thiet-ke.md      · bộ màu · chữ · khoảng cách · component dùng chung
 ├── da-ngon-ngu.md            · tiếng Việt + tiếng Anh — cách làm và bốn thứ hay quên
-├── identity/dang-nhap.html    · bản dựng MÀU — 4 bộ để chọn, 4 trạng thái
+├── chung/_shell.css + _shell.js  · NỀN CHUNG: 4 bộ màu, chọn bộ màu/ngôn ngữ, popup
 ├── wireframes.html           · bố cục 6 màn, đơn sắc có chú thích
 ├── chung/                    · thứ không thuộc module nào
 │   ├── khung-man-hinh.md     · sidebar + topbar
 │   └── trang-thai-chung.md   · rỗng · lỗi · 403 · 404 · đang tải
 ├── identity/                 · tài khoản, đăng nhập, phân quyền
-│   └── dang-nhap.md          🟢
+│   ├── dang-nhap.md · dang-nhap.html   🟢
+│   └── dang-ky.md   · dang-ky.html     🟡 chờ duyệt
 └── org/                      · nhân sự, phòng ban
     ├── danh-ba.md            ⬜
     ├── so-do-to-chuc.md      ⬜
@@ -60,7 +61,9 @@ của thư viện, là chuyện xảy ra hoài.
 | [Trạng thái chung](./chung/trang-thai-chung.md) | chung | 🟡 Đã định nghĩa, chưa dựng |
 | [Đa ngôn ngữ](./da-ngon-ngu.md) | chung | 🟡 Đã chốt cách làm, chưa dựng |
 | [Wireframe 6 màn](./wireframes.html) | chung | 🟢 Đã vẽ — duyệt BỐ CỤC |
-| [Bản dựng màu — đăng nhập](./identity/dang-nhap.html) | identity | 🟢 Đã dựng — duyệt MÀU |
+| [Bản dựng — đăng nhập](./identity/dang-nhap.html) | identity | 🟢 Đã dựng · cập nhật 24/08 |
+| [Đăng ký workspace](./identity/dang-ky.md) | identity | 🟡 **Đã dựng, chờ duyệt** |
+| [Bản dựng — đăng ký](./identity/dang-ky.html) | identity | 🟡 **Chờ duyệt** |
 | [Danh bạ](./org/danh-ba.md) | org | ⬜ Chưa tới lượt |
 | [Sơ đồ tổ chức](./org/so-do-to-chuc.md) | org | ⬜ Chưa tới lượt |
 | [Quản trị nhân viên](./org/quan-tri-nhan-vien.md) | org | ⬜ Chưa tới lượt |

@@ -6,7 +6,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const MOCKUP = 'docs/07-giao-dien/identity/dang-nhap.html';
+const MOCKUP = 'docs/07-giao-dien/chung/_shell.css';
 const TARGET = 'frontend/src/styles.scss';
 
 const html = readFileSync(MOCKUP, 'utf8');
@@ -61,7 +61,7 @@ const css = `/**
 
    ⚠️ KHỐI DƯỚI ĐÂY ĐƯỢC SINH TỰ ĐỘNG — đừng sửa tay.
 
-   Nguồn: docs/07-giao-dien/identity/dang-nhap.html (bản dựng màu đã duyệt).
+   Nguồn: docs/07-giao-dien/chung/_shell.css (nền chung của mọi bản dựng).
    Sinh lại:  node tools/sync-palette.mjs
 
    Vì sao sinh máy: 4 bộ × 11 token = 44 giá trị hex. Chép tay là 44 cơ hội gõ sai một

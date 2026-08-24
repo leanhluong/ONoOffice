@@ -178,3 +178,62 @@ thì phần lớn người dùng thật mở app lên sẽ thấy tiếng Anh r�
 
 Đoán sai ở đây không phải lỗi kỹ thuật — nó chỉ phiền, nhưng phiền với đúng nhóm người
 mà sản phẩm phục vụ.
+
+---
+
+## Bốn thay đổi sau khi duyệt lần một (2026-08-24)
+
+Bản dựng `dang-nhap.html` đã cập nhật. **Angular chưa đồng bộ** — chờ duyệt bản dựng trước.
+
+### ① Chọn bộ màu: chỉ CHẤM MÀU, bỏ tên
+
+Trước: `● Mực │ ● Hải đăng │ ● Giấy │ ● Rêu` — bốn viên thuốc có chữ.
+
+Tên bộ chẳng nói được gì mà một ô màu không nói rõ hơn, lại chiếm gấp bốn lần chỗ và phải
+dịch sang mọi ngôn ngữ thêm vào. Tên vẫn còn trong `title` và nhãn cho trình đọc màn hình,
+nên người dùng bàn phím không mất gì.
+
+### ② Chọn ngôn ngữ: danh sách xổ có CỜ, mở rộng được
+
+Trước: hai viên thuốc `VI` `EN` — thêm nước thứ ba là hết chỗ.
+
+Nay là một nút xổ danh sách, mỗi dòng có **lá cờ + tên bản địa** (Tiếng Việt, English,
+日本語, 한국어). Ngôn ngữ chưa có bản dịch hiện xám kèm chữ *"sắp có"* — thà nói thẳng còn
+hơn giấu đi rồi người dùng tưởng sản phẩm không hỗ trợ tiếng của họ.
+
+> **Không dùng thẻ `<select>` gốc, và không dùng emoji cờ** — hai chuyện này liên quan
+> nhau. `<select>` không cho đặt hình vào `<option>`, nên cách duy nhất để có cờ trong
+> `<select>` là emoji. Mà **Windows không ship phông cho emoji cờ**: `🇻🇳` hiện ra thành
+> hai chữ cái `VN`. Tức là trên đúng hệ điều hành mà phần lớn người dùng đang chạy, giải
+> pháp đó hỏng — và hỏng theo kiểu người viết code trên máy Mac không bao giờ nhìn thấy.
+>
+> Nên: danh sách xổ tự viết + cờ vẽ bằng SVG. Cái giá là phải tự lo bàn phím và ARIA
+> (`role="listbox"`, Esc để đóng, bấm ra ngoài để đóng) — đã làm trong bản dựng.
+
+### ③ Lỗi từ server: POPUP nổi ở đầu màn hình, tự biến mất
+
+Trước: khối đỏ nằm cố định trong biểu mẫu, **đẩy mọi thứ bên dưới xuống**, và nằm đó mãi.
+
+Nay nổi ở giữa trên cùng, không chiếm chỗ trong luồng, tự đi sau **6 giây** (lỗi) hoặc
+**3,2 giây** (thông báo thường).
+
+Ba chi tiết khiến nó không trở thành thứ khó chịu khác:
+
+| Chi tiết | Vì sao |
+|---|---|
+| **Vạch đếm ngược** ở đáy popup | Người dùng THẤY nó sắp đi, thay vì bị bất ngờ |
+| **Rê chuột vào thì dừng đồng hồ** | Người đang đọc dở không bị cướp mất câu chữ |
+| **Nút ✕** | Ai đọc xong rồi thì đóng luôn, không phải chờ |
+
+> ⚠️ **Đánh đổi phải nói thẳng:** thông báo tự biến mất nghĩa là người đang nhìn xuống bàn
+> phím lúc nó hiện ra sẽ **không bao giờ biết vì sao đăng nhập hỏng**. Hướng dẫn trải
+> nghiệm phổ biến khuyên lỗi biểu mẫu nên nằm lại.
+>
+> Ba thứ ở trên bù được phần lớn, nhưng nếu sau này thấy người dùng bấm đăng nhập hai ba
+> lần mà không hiểu chuyện gì, thì đây là chỗ đầu tiên cần xem lại. Đường lui: giữ popup
+> cho mọi thứ, riêng lỗi xác thực thì **không** tự tắt.
+
+### ④ "Chưa có tài khoản?" nay dẫn tới màn đăng ký thật
+
+Trước chỉ có *"liên hệ quản trị viên"* — một ngõ cụt với người chưa có công ty nào trên hệ
+thống. Nay có [đăng ký workspace mới](./dang-ky.md).
