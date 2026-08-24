@@ -43,82 +43,88 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 
 | Phần | Trạng thái | Số test |
 |---|---|---|
-| `Luong.Kernel` (8 gói) | 🟢 Đủ dùng cho lát 1 | **200** |
-| ONoOffice · Domain | 🟢 Xong | 151 |
-| ONoOffice · Application | 🟢 Login · Refresh · Logout | *(trong 151)* |
-| ONoOffice · Infrastructure | 🟢 EF · Argon2id · JWT · repository | *(trong 151)* |
-| ONoOffice · **Api** | 🟢 **Xong** — 3 endpoint · phân quyền động · CORS · i18n · header an toàn | **29** |
+| `Luong.Kernel` (8 gói) | 🟢 Đủ dùng cho lát 1 | **202** |
+| ONoOffice · Domain | 🟢 Xong | 158 |
+| ONoOffice · Application | 🟢 Login · Refresh · Logout | *(trong 158)* |
+| ONoOffice · Infrastructure | 🟢 EF · Argon2id · JWT · repository · seeder | *(trong 158)* |
+| ONoOffice · Api | 🟢 3 endpoint · phân quyền động · CORS · i18n · header an toàn | 29 |
 | Test kiến trúc + i18n + luật Controller | 🟢 | 14 |
-| **Migration + Docker Compose** | ⬜ **CHƯA LÀM — việc tiếp theo** | — |
-| Frontend | 🟡 Khung Angular chạy được, chưa nối API | 8 |
+| **Database** | 🟢 **Postgres 16 · migration · dữ liệu mồi — đã chạy THẬT** | **26** |
+| **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
+| Frontend | 🟡 Khung Angular chạy được, **chưa nối API — việc tiếp theo** | 8 |
 | Tài liệu | 🟢 7 thư mục · 4 ADR · `05-api` · wireframe · bản dựng màu | — |
 
 ```bash
-cd backend && dotnet build && dotnet test     # 194 xanh, 0 warning
+docker compose up -d                          # Postgres 16 ở cổng 5433
+cd backend && dotnet build && dotnet test     # 227 xanh, 0 warning
 cd frontend && npm run build && npm test      # 8 xanh
 ```
 
-**Chưa có database nào.** 194 test đều chạy mà không cần Postgres — kể cả 29 test tích
-hợp, vì `AddDbContext` chỉ ghi nhận chuỗi kết nối chứ không mở kết nối lúc khởi động.
-Ranh giới đó cũng là ranh giới của bộ test hiện tại: **chưa có một câu truy vấn thật nào
-từng chạy.**
+Đã gọi thật bằng curl và nhận về token đủ 12 quyền:
+
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"chu@demo.vn","password":"MatKhauDemo!2026"}'
+```
 
 ---
 
-## ⏭️ VIỆC TIẾP THEO — chạm database lần đầu
+## ⏭️ VIỆC TIẾP THEO — frontend nối vào API thật
 
-Ba việc, làm đúng thứ tự này:
-
-```
-⬜ 1. docker-compose.yml — Postgres 16 (+ pgAdmin nếu muốn)
-⬜ 2. dotnet ef migrations add InitialIdentity
-⬜ 3. Dữ liệu mồi: 1 workspace + 1 tài khoản Owner + 4 vai trò
-```
-
-**Vì sao Docker trước migration:** `dotnet ef migrations add` không cần database, nhưng
-`database update` thì cần — và không kiểm chứng được migration bằng cách chạy thật thì
-nó chỉ là một file `.cs` trông có vẻ đúng.
-
-**Cái sẽ lộ ra ở bước này, và đó là điểm đáng giá nhất của nó:** cho tới lúc này
-**chưa một câu truy vấn nào từng chạy thật.** 194 test đều dừng trước lời gọi dữ liệu đầu
-tiên. Nghĩa là cấu hình EF, tên bảng snake_case, bộ lọc tenant, bốn interceptor — tất cả
-mới chỉ được kiểm ở mức "mô hình dựng lên được", chưa ở mức "Postgres chấp nhận".
-
-Cụ thể ba chỗ đáng ngờ nhất:
-
-| Chỗ | Vì sao đáng ngờ |
-|---|---|
-| Bộ lọc tenant lúc **đăng nhập** | Đăng nhập chạy khi phiên CHƯA có tenant. `IgnoreQueryFilters` phải có mặt đúng ở đó — thiếu thì không ai đăng nhập được, thừa thì rò dữ liệu |
-| `TenantInterceptor` khi INSERT `RefreshToken` | Nó tự điền `tenant_id` từ `ICurrentTenant`, mà lúc đăng nhập `ICurrentTenant` trả `null` |
-| Hai schema `identity.*` và `org.*` | Chưa có schema nào tồn tại thật |
-
-Sau đó là frontend:
+Backend đã **chạy được đầu-tới-cuối**: `POST /api/auth/login` trả token thật từ Postgres thật.
 
 ```
-⬜ Màn đăng nhập thật: gọi POST /api/auth/login, giữ access token trong biến,
+⬜ Màn đăng nhập thật — gọi POST /api/auth/login, giữ access token TRONG BIẾN,
    refresh token trong localStorage (ADR-0004)
-⬜ 4 bộ màu + ngx-translate
+⬜ Interceptor tự gia hạn khi 401, và xử lý ca "vé bị thu hồi cả chuỗi" → về màn đăng nhập
+⬜ 4 bộ màu + ngx-translate, khoá dịch trùng khít mã lỗi backend
 ⬜ Trạng thái chờ NÓI RÕ ĐANG LÀM GÌ — hạ tầng miễn phí ngủ dậy mất 30–60 giây
 ```
 
-### Tầng `Api` — đã xong, đây là những gì nó có
+Sau đó mới tới module `Org` (phòng ban, nhân viên) và `04-database`.
 
-```
-src/ONoOffice.Api/
-├── Program.cs                    · DI + pipeline, mỗi dòng middleware có chú thích vì sao ở đó
-├── Controllers/Identity/AuthController.cs   · login · refresh · logout
-├── Authorization/                · PermissionRequirement · Handler · PolicyProvider
-├── Extensions/                   · ControllerSetup · AuthenticationSetup · CorsSetup · LocalizationSetup
-├── Filters/                      · LocalizeProblemDetailsFilter
-└── Middleware/                   · SecurityHeadersMiddleware
+### Chạy backend ở máy mình
 
-tests/ONoOffice.Api.IntegrationTests/    · 29 test, dựng máy chủ thật, KHÔNG cần Postgres
-└── Probe/ProbeController.cs             · endpoint chỉ có lúc test — nằm ở assembly TEST,
-                                           nạp vào bằng AddApplicationPart, nên bản build
-                                           sản phẩm không thể chứa nó
+```bash
+docker compose up -d                        # Postgres 16 ở cổng 5433
+cd backend && dotnet run --project src/ONoOffice.Api
 ```
 
-Hợp đồng API đầy đủ: [`docs/05-api/README.md`](./docs/05-api/README.md).
+Lần khởi động đầu tiên với database trống sẽ tự chạy migration và gieo dữ liệu mồi:
+
+```
+Workspace  demo · Công ty Demo
+Đăng nhập  chu@demo.vn  /  MatKhauDemo!2026
+```
+
+Cấu hình ở `appsettings.Development.json`. **`Seed:Enabled` mặc định là TẮT** trong
+`SeedOptions` — máy chủ thật không tự sinh tài khoản nào.
+
+```bash
+docker compose down -v      # xoá sạch dữ liệu, lần chạy sau gieo lại từ đầu
+```
+
+⚠️ **Cổng 5433, không phải 5432.** Máy này đã có một Postgres cài thẳng vào Windows giữ
+5432. Trỏ nhầm thì migration chạy vào nhầm database — và nó sẽ *thành công*.
+
+### Bốn bộ test, bốn mục đích khác nhau
+
+| Bộ | Số test | Cần gì | Trả lời câu hỏi |
+|---|---|---|---|
+| `Identity.UnitTests` | 158 | không | Luật nghiệp vụ có đúng không |
+| `ArchitectureTests` | 14 | không | Ranh giới tầng và luật Controller có bị phá không |
+| `Api.IntegrationTests` | 29 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
+| **`Api.DatabaseTests`** | **26** | **Docker** | **EF ánh xạ, cô lập tenant, luồng đăng nhập có chạy THẬT không** |
+
+Bộ thứ tư tự dựng Postgres bằng **Testcontainers**, không nối vào `docker compose`. Cố ý:
+test nối vào compose sẽ im lặng bỏ qua trên máy chưa `up` và trên CI — mà test không chạy
+thì tệ hơn cả không có, vì nhìn danh sách vẫn thấy nó nằm đó.
+
+```bash
+cd backend && dotnet build && dotnet test     # 227 xanh, 0 warning
+cd frontend && npm run build && npm test      # 8 xanh
+```
 
 ---
 
@@ -152,9 +158,33 @@ Hợp đồng API đầy đủ: [`docs/05-api/README.md`](./docs/05-api/README.m
 
 ---
 
-## ⚠️ Tám cái bẫy đã gặp — đừng dẫm lại
+## ⚠️ Mười hai cái bẫy đã gặp — đừng dẫm lại
 
-### Bốn cái mới, gặp khi ráp tầng `Api` (2026-08-24)
+### Bốn cái gặp khi chạm database lần đầu (2026-08-24)
+
+> Cả bốn đều là **hỏng im lặng**, và cả bốn đều lọt qua 194 test trước đó. Đây chính là
+> lý do bước "chạm database thật" không thể trì hoãn thêm nữa.
+
+**Mô hình EF chưa từng dựng nổi trên Postgres, mà test vẫn xanh.** `Role._permissions` là
+`HashSet<string>`; EF chỉ map primitive collection cho mảng hoặc `IList`. Test đơn vị chỉ
+chạm `context.Model` nên không kích hoạt phép kiểm đó, và nó xanh suốt. Truy vấn thật đầu
+tiên mới nổ. Bài học: *"mô hình dựng lên được"* và *"Postgres chấp nhận"* là hai câu hỏi
+khác nhau. `User._roleIds` không dính vì nó là `List` — EF đổ dữ liệu vào tại chỗ được.
+
+**Thiếu `ValueComparer` thì `Grant()` không lưu gì cả.** Với thuộc tính có phép chuyển
+đổi, EF mặc định so bằng **tham chiếu**. `Grant()` sửa tại chỗ chính cái `HashSet` đang có
+nên tham chiếu không đổi → EF kết luận "không có gì thay đổi" → không sinh câu `UPDATE`.
+Cấp quyền xong, không lỗi, và quyền biến mất sau khi tải lại trang.
+
+**`DatabaseFixture` tự dựng `DbContextOptions` = test xanh giả.** Bản tự dựng thiếu cả bốn
+interceptor và thiếu bảng lịch sử migration tuỳ chỉnh. Test cô lập tenant vì thế "xanh"
+trong khi lớp bảo vệ nó tưởng đang kiểm **không hề có mặt**. Nay nó lấy `DbContext` qua
+đúng đường DI của ứng dụng, và giả lập phiên bằng một `HttpContext` mang claim `tenant_id`.
+
+**Cổng 5432 đã có chủ.** Máy này có sẵn một Postgres cài thẳng vào Windows. Container
+dùng **5433**. Trỏ nhầm cổng thì migration chạy vào nhầm database — và nó sẽ *thành công*.
+
+### Bốn cái gặp khi ráp tầng `Api` (2026-08-24)
 
 **Thứ tự `UseCors` — lời giải thích quen thuộc là SAI, dù kết luận thì đúng.** Ai cũng
 bảo "preflight `OPTIONS` không mang token nên bị 401". Thực nghiệm ở đây cho thấy **không
@@ -272,13 +302,14 @@ LUẬT BẮT BUỘC:
 Cách giảng: đừng dùng thuật ngữ chưa định nghĩa; ví von đời thường + số liệu cụ thể;
 mở đầu bằng sự cố thật rồi mới tới lý thuyết.
 
-VIỆC TIẾP THEO: chạm database lần đầu — docker-compose (Postgres 16) →
-migration InitialIdentity → dữ liệu mồi. Xem mục "VIỆC TIẾP THEO" trong
-HANDOFF.md: nó nêu sẵn ba chỗ đáng ngờ nhất sẽ lộ ra ở bước này.
+VIỆC TIẾP THEO: frontend nối vào API thật — màn đăng nhập gọi POST /api/auth/login,
+interceptor tự gia hạn khi 401, 4 bộ màu, ngx-translate. Backend đã chạy được
+đầu-tới-cuối. Xem mục "VIỆC TIẾP THEO" trong HANDOFF.md.
 Chưa duyệt thiết kế bước này — trình bày trước theo luật 1.
 
 Bắt đầu bằng việc chạy `cd ONoOffice/backend && dotnet build && dotnet test`
-để xác nhận 194 test còn xanh, rồi báo tôi trạng thái trước khi làm gì.
+để xác nhận 227 test còn xanh (cần `docker compose up -d` trước), rồi báo
+tôi trạng thái trước khi làm gì.
 ```
 
 **Vì sao đoạn prompt này dài như vậy:** session mới không nhớ gì cả. Ba thứ nó **không thể

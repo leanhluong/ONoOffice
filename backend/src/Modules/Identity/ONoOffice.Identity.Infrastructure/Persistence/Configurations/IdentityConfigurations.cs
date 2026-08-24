@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ONoOffice.Identity.Domain.Entities;
 using ONoOffice.Identity.Domain.ValueObjects;
@@ -82,6 +83,28 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
 internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 {
+    private const string PermissionsField = "_permissions";
+
+    /// <summary>
+    /// Dạy EF cách so sánh hai tập quyền — và đây <b>không</b> phải chi tiết vụn vặt.
+    ///
+    /// Với một thuộc tính có phép chuyển đổi, mặc định EF so bằng <b>tham chiếu</b>. Mà
+    /// <c>Grant()</c> sửa tại chỗ chính cái <c>HashSet</c> đang có, nên tham chiếu không
+    /// đổi → EF kết luận "không có gì thay đổi" → <c>SaveChanges</c> không sinh câu
+    /// <c>UPDATE</c> nào. Cấp quyền xong, không có lỗi nào, và quyền <b>không được lưu</b>.
+    ///
+    /// Băm phải KHÔNG phụ thuộc thứ tự (dùng XOR, không dùng <c>HashCode.Combine</c> nối
+    /// tiếp): hai tập cùng phần tử mà duyệt ra khác thứ tự phải cho cùng một mã băm, nếu
+    /// không EF lại tưởng có thay đổi ở mọi lần đọc lên.
+    ///
+    /// Bản sao chép phải là bản sao THẬT — EF giữ nó làm ảnh chụp để đối chiếu. Trả về
+    /// chính đối tượng cũ thì ảnh chụp thay đổi theo bản gốc, và không bao giờ khác nó.
+    /// </summary>
+    private static readonly ValueComparer<HashSet<string>> PermissionsComparer = new(
+        (a, b) => a != null && b != null && a.SetEquals(b),
+        tap => tap.Aggregate(0, (bam, quyen) => bam ^ StringComparer.OrdinalIgnoreCase.GetHashCode(quyen)),
+        tap => new HashSet<string>(tap, StringComparer.OrdinalIgnoreCase));
+
     public void Configure(EntityTypeBuilder<Role> builder)
     {
         builder.ToTable("Roles");
@@ -93,9 +116,21 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
         // thoải mái — "Trưởng phòng" của A và của B là hai vai trò khác nhau.
         builder.HasIndex(r => new { r.TenantId, r.Name }).IsUnique();
 
-        builder.PrimitiveCollection(r => r.Permissions)
-            .HasColumnType("text[]");
+        // Tập quyền lưu thành MỘT CỘT text[] của Postgres.
+        //
+        // Không dùng được PrimitiveCollection như User._roleIds: cái đó cần một mảng hoặc
+        // IList, mà tập quyền là HashSet (xem lý do ở Role._permissions). Nên phải tự khai
+        // phép chuyển đổi HashSet ↔ string[].
+        builder.Property<HashSet<string>>(PermissionsField)
+            .HasColumnName("permissions")
+            .HasColumnType("text[]")
+            .HasConversion(
+                tap => tap.ToArray(),
+                mang => new HashSet<string>(mang, StringComparer.OrdinalIgnoreCase),
+                PermissionsComparer)
+            .IsRequired();
 
+        builder.Ignore(r => r.Permissions);
         builder.Ignore(r => r.DomainEvents);
     }
 }

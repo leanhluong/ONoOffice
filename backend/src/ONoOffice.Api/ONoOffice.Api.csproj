@@ -32,6 +32,16 @@
       thì lỗi hiện ra dưới dạng "token hợp lệ nhưng không xác minh được", rất khó lần.
     -->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
+
+    <!--
+      Chỉ phục vụ `dotnet ef` lúc phát triển — nó cần một project khởi động để dựng được
+      DbContext thật (đủ chuỗi kết nối, đủ interceptor).
+
+      PrivateAssets="all" nghĩa là gói này KHÔNG theo vào bản publish. Không đặt thì công
+      cụ thiết kế đi thẳng lên máy chủ thật: nặng thêm mà chẳng ai dùng, và là bề mặt tấn
+      công cho không.
+    -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,54 @@
+# Hạ tầng cho máy lập trình viên.
+#
+# CHỈ có database. API chạy từ IDE (F5) hoặc `dotnet run` — cố ý không đóng gói API vào
+# đây ở giai đoạn này: sửa một dòng code mà phải build lại image rồi dựng lại container
+# thì vòng lặp sửa–thử dài ra gấp mấy lần, và đó là thứ mình làm vài trăm lần một ngày.
+# API sẽ có service riêng khi tới lúc deploy thật.
+#
+#   docker compose up -d          bật
+#   docker compose down           tắt, GIỮ dữ liệu
+#   docker compose down -v        tắt và XOÁ SẠCH dữ liệu (dùng khi muốn seed lại từ đầu)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: onooffice-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: onooffice
+      POSTGRES_USER: postgres
+
+      # Mật khẩu để trần trong file này là CÓ CHỦ Ý và chỉ đúng ở đây: container này
+      # chỉ mở ra localhost của máy lập trình viên, và dữ liệu bên trong là dữ liệu giả.
+      # Máy chủ thật KHÔNG dùng file này — nó đọc bí mật từ biến môi trường.
+      POSTGRES_PASSWORD: postgres
+
+      # Bật so sánh chuỗi theo chuẩn ICU thay vì theo locale của máy chủ. Không đặt thì
+      # thứ tự ORDER BY phụ thuộc vào locale của MÁY dựng container — nghĩa là máy bạn
+      # và máy chủ có thể sắp xếp tên tiếng Việt khác nhau, và không ai nghĩ tới chuyện đó.
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=vi-VN"
+
+    ports:
+      # 5433 chứ không phải 5432, CÓ LÝ DO: máy này đã có sẵn một Postgres cài thẳng vào
+      # Windows đang giữ cổng 5432. Giành cổng của nó thì hoặc container không lên được,
+      # hoặc tệ hơn — lệnh migration lặng lẽ chạy vào NHẦM database.
+      #
+      # Chỉ lắng nghe trên localhost. Bỏ tiền tố 127.0.0.1 thì Docker mở cổng ra MỌI card
+      # mạng — ngồi quán cà phê là cả quán kết nối được vào database của bạn.
+      - "127.0.0.1:5433:5432"
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+    healthcheck:
+      # `depends_on: condition: service_healthy` của service khác dựa vào mục này.
+      # Không có nó thì "container đã chạy" chỉ nghĩa là tiến trình đã khởi động, chứ
+      # chưa chắc Postgres đã nhận kết nối — và lệnh migration đầu tiên sẽ hỏng.
+      test: ["CMD-SHELL", "pg_isready -U postgres -d onooffice"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:

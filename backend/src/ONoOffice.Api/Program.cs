@@ -6,6 +6,7 @@ using ONoOffice.Api.Extensions;
 using ONoOffice.Api.Middleware;
 using ONoOffice.Identity.Application.Authentication.Login;
 using ONoOffice.Identity.Infrastructure;
+using ONoOffice.Identity.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,16 @@ var app = builder.Build();
 // Thử bộ tài nguyên dịch NGAY, trước khi nhận request đầu tiên. Thiếu satellite assembly
 // là lỗi đóng gói im lặng: hệ thống vẫn chạy đúng, chỉ là không còn dịch được gì.
 app.Services.KiemTraBanDich();
+
+// Gieo dữ liệu mồi — KHÔNG làm gì cả trừ khi `Seed:Enabled` được bật (mặc định tắt).
+//
+// Chạy TRƯỚC app.Run(), tức là trước khi cổng HTTP mở: nếu migration hỏng thì ứng dụng
+// không lên, thay vì lên rồi trả 500 cho mọi request. Người phát hiện phải là người
+// triển khai, không phải người dùng đầu tiên.
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    await scope.ServiceProvider.GetRequiredService<IdentityDataSeeder>().RunAsync();
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  ĐƯỜNG ĐI CỦA MỘT REQUEST

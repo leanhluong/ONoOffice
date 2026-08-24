@@ -65,6 +65,12 @@ public static class IdentityModuleRegistration
         // DbContext chính là IUnitOfWork — TransactionBehavior gọi qua cổng này.
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<IdentityDbContext>());
 
+        services
+            .AddOptions<SeedOptions>()
+            .Bind(configuration.GetSection(SeedOptions.SectionName));
+
+        services.AddScoped<IdentityDataSeeder>();
+
         services.AddScoped<IUserRepository, EfUserRepository>();
         services.AddScoped<IRefreshTokenRepository, EfRefreshTokenRepository>();
 

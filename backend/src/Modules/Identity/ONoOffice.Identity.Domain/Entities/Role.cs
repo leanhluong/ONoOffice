@@ -19,7 +19,21 @@ public sealed class Role : AggregateRoot<Guid>, ITenantScoped, IAuditable
 {
     private const int MaxNameLength = 100;
 
-    private readonly HashSet<string> _permissions = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>
+    /// <b>KHÔNG</b> có <c>readonly</c>, và đó là một nhượng bộ có chủ ý cho EF Core —
+    /// nhượng bộ duy nhất ở file này.
+    ///
+    /// EF nạp dữ liệu lên bằng cách GÁN vào trường này, mà trường <c>readonly</c> thì
+    /// không gán được. Với <c>User._roleIds</c> thì <c>readonly</c> vẫn chạy vì đó là
+    /// <c>List</c> — EF đổ dữ liệu vào tại chỗ bằng <c>Clear</c>/<c>Add</c>. <c>HashSet</c>
+    /// không phải <c>IList</c> nên không có đường đó.
+    ///
+    /// Vì sao vẫn giữ <c>HashSet</c> chứ không đổi sang <c>List</c> cho tiện EF: tập quyền
+    /// <b>là</b> một tập hợp — không thứ tự, không trùng lặp, so sánh không phân biệt hoa
+    /// thường. Đổi sang <c>List</c> là bẻ mô hình nghiệp vụ cho vừa công cụ, và mở đường
+    /// cho một vai trò có hai lần cùng một quyền.
+    /// </summary>
+    private HashSet<string> _permissions = new(StringComparer.OrdinalIgnoreCase);
 
     private ReadOnlySet<string>? _readOnlyPermissions;
 

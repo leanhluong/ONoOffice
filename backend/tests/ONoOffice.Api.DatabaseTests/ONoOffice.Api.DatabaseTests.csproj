@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.11" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+
+    <!--
+      Testcontainers tự dựng một Postgres riêng cho mỗi lần chạy test rồi xoá đi.
+
+      Vì sao không nối vào Postgres của docker-compose: test sẽ IM LẶNG bỏ qua trên máy
+      chưa `docker compose up`, và trên CI thì không bao giờ chạy. Test không chạy là
+      test không tồn tại — mà tệ hơn cả không tồn tại, vì nhìn danh sách vẫn thấy nó ở đó.
+    -->
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.7.0" />
+
+    <!--
+      Ghim đè SSH.NET. Testcontainers kéo theo bản 2024.2.0, mà bản đó có lỗ hổng mức
+      cao (GHSA-q939-rpr3-3284) — TreatWarningsAsErrors ở Directory.Build.props biến
+      cảnh báo NU1903 thành lỗi build, nên nó không lọt được.
+      Chỉ có thể gỡ dòng này khi Testcontainers tự nâng phụ thuộc của nó.
+    -->
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
+
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ONoOffice.Api\ONoOffice.Api.csproj" />
+  </ItemGroup>
+
+</Project>

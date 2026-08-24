@@ -6,6 +6,36 @@ namespace ONoOffice.Identity.Infrastructure.Persistence.Repositories;
 
 internal sealed class EfUserRepository(IdentityDbContext context) : IUserRepository
 {
+    /// <summary>
+    /// Gom quyền của nhiều vai trò thành một tập.
+    ///
+    /// Tách riêng khỏi truy vấn người dùng vì đó là quan hệ một-nhiều sang bảng khác;
+    /// nhét chung vào một câu sẽ nhân bản hàng người dùng theo số vai trò.
+    ///
+    /// <b>Gộp mảng ở phía C# chứ không ở phía Postgres</b> — cố ý, chứ không phải lười.
+    /// Cột <c>permissions</c> là <c>text[]</c> đọc lên qua một phép chuyển đổi giá trị,
+    /// nên EF không dàn phẳng nó bằng SQL được. Đổi lại thì cũng chẳng mất gì: một người
+    /// có vài vai trò, mỗi vai vài chục quyền — đây là vài trăm chuỗi, không phải vài
+    /// trăm nghìn. Ngưỡng phải xem lại là khi một người có hàng trăm vai trò, mà lúc đó
+    /// vấn đề nằm ở chỗ khác rồi.
+    /// </summary>
+    private async Task<List<string>> GomQuyenAsync(List<Guid> roleIds, CancellationToken cancellationToken)
+    {
+        if (roleIds.Count == 0)
+        {
+            return [];
+        }
+
+        var tungVai = await context.Roles
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(r => roleIds.Contains(r.Id))
+            .Select(r => EF.Property<HashSet<string>>(r, "_permissions"))
+            .ToListAsync(cancellationToken);
+
+        return [.. tungVai.SelectMany(tap => tap).Distinct(StringComparer.OrdinalIgnoreCase)];
+    }
+
     public async Task<AuthUserData?> GetForLoginAsync(string email, CancellationToken cancellationToken = default)
     {
         var emailResult = Email.Create(email);
@@ -52,15 +82,7 @@ internal sealed class EfUserRepository(IdentityDbContext context) : IUserReposit
 
         // Truy vấn thứ hai: gom quyền từ các vai trò. Tách riêng vì nó là quan hệ một-nhiều
         // sang bảng khác; nhét chung vào câu trên sẽ nhân bản hàng người dùng theo số vai trò.
-        var permissions = row.RoleIds.Count == 0
-            ? []
-            : await context.Roles
-                .IgnoreQueryFilters()
-                .AsNoTracking()
-                .Where(r => row.RoleIds.Contains(r.Id))
-                .SelectMany(r => r.Permissions)
-                .Distinct()
-                .ToListAsync(cancellationToken);
+        var permissions = await GomQuyenAsync(row.RoleIds, cancellationToken);
 
         return new AuthUserData(
             row.Id,
@@ -108,15 +130,7 @@ internal sealed class EfUserRepository(IdentityDbContext context) : IUserReposit
             return null;
         }
 
-        var permissions = row.RoleIds.Count == 0
-            ? []
-            : await context.Roles
-                .IgnoreQueryFilters()
-                .AsNoTracking()
-                .Where(r => row.RoleIds.Contains(r.Id))
-                .SelectMany(r => r.Permissions)
-                .Distinct()
-                .ToListAsync(cancellationToken);
+        var permissions = await GomQuyenAsync(row.RoleIds, cancellationToken);
 
         return new AuthUserData(
             row.Id,

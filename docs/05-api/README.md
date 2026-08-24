@@ -5,6 +5,25 @@
 
 Tài liệu này trả lời: **frontend gọi endpoint nào, gửi gì, nhận gì.**
 
+## Thử ngay ở máy mình
+
+```bash
+docker compose up -d                        # Postgres 16, cổng 5433
+cd backend && dotnet run --project src/ONoOffice.Api
+```
+
+Lần chạy đầu với database trống sẽ tự gieo một workspace dùng được:
+
+| | |
+|---|---|
+| Workspace | `demo` — Công ty Demo |
+| Email | `chu@demo.vn` |
+| Mật khẩu | `MatKhauDemo!2026` |
+| Vai trò | `Owner` — đủ cả 12 quyền |
+
+Tài khoản này **chỉ có ở môi trường phát triển**: `Seed:Enabled` mặc định TẮT, và
+`appsettings.Development.json` là nơi duy nhất bật nó.
+
 ---
 
 ## Luật chung — đọc một lần, áp cho mọi endpoint
