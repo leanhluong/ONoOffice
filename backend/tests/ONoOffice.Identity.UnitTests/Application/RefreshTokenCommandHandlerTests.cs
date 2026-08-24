@@ -21,7 +21,8 @@ public class RefreshTokenCommandHandlerTests
     private void CoTaiKhoan(bool userActive = true, bool tenantActive = true) =>
         _users.Data = new AuthUserData(
             UserId, TenantId, "hash-trong-db", "an@gmail.com", "Lê Anh Lượng",
-            userActive, tenantActive, new HashSet<string> { Permissions.Employees.Read });
+            userActive, tenantActive, MustChangePassword: false,
+            new HashSet<string> { Permissions.Employees.Read });
 
     private RefreshToken TaoVe(DateTimeOffset? createdAt = null) =>
         RefreshToken.Create(UserId, TenantId, "bam-cua-ve", createdAt ?? Now, TimeSpan.FromDays(30)).Value;

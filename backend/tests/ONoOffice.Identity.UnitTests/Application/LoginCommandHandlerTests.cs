@@ -1,3 +1,4 @@
+using Luong.Kernel.Pagination;
 using Luong.Kernel.Abstractions;
 using ONoOffice.Identity.Application.Abstractions;
 using ONoOffice.Identity.Application.Authentication.Login;
@@ -24,6 +25,9 @@ internal sealed class FakeUserRepository : IUserRepository
     public string? EmailDaHoi { get; private set; }
 
     public Task<AuthUserData?> GetByIdAsync(Guid userId, CancellationToken ct = default) => Task.FromResult(Data);
+
+    public Task<PagedList<UserListItem>> SearchAsync(UserSearch c, CancellationToken t = default) =>
+        Task.FromResult(PagedList<UserListItem>.Create([], 1, 20, 0));
 
     public Task<AuthUserData?> GetForLoginAsync(string email, CancellationToken ct = default)
     {
@@ -116,6 +120,7 @@ public class LoginCommandHandlerTests
             "Lê Anh Lượng",
             userActive,
             tenantActive,
+            MustChangePassword: false,
             permissions.ToHashSet(StringComparer.OrdinalIgnoreCase));
 
     private Task<Luong.Kernel.Primitives.Result<LoginResponse>> DangNhap(

@@ -58,6 +58,19 @@ public sealed class User : AggregateRoot<Guid>, ITenantScoped, IAuditable
 
     public bool IsActive { get; private set; }
 
+    /// <summary>
+    /// Buộc đổi mật khẩu ở lần đăng nhập tới.
+    ///
+    /// Bật khi quản trị viên tạo tài khoản HỘ người khác. Lát này chưa có dịch vụ gửi
+    /// email, nên mật khẩu tạm đi qua tin nhắn, lời nói hoặc mẩu giấy — nó coi như đã lộ
+    /// ngay từ lúc sinh ra. Không bắt đổi thì nó nằm nguyên nhiều tháng.
+    ///
+    /// Cờ này KHÔNG chặn đăng nhập. Chặn ở tầng đăng nhập thì người dùng kẹt cứng: muốn
+    /// đổi mật khẩu phải đăng nhập, mà muốn đăng nhập phải đổi mật khẩu. Họ vẫn vào được,
+    /// giao diện chỉ đưa thẳng tới màn đổi mật khẩu.
+    /// </summary>
+    public bool MustChangePassword { get; private set; }
+
     // Hạ tầng tự điền qua AuditableEntityInterceptor. Public setter là nhượng bộ có chủ ý
     // của Luong.Kernel: đổi lại, KHÔNG chỗ nào trong tầng nghiệp vụ được phép gán tay —
     // gán tay nghĩa là đang nói dối về thời điểm.
@@ -129,6 +142,14 @@ public sealed class User : AggregateRoot<Guid>, ITenantScoped, IAuditable
 
         PasswordHash = newPasswordHash;
 
+        // Đổi xong thì hết lý do bắt đổi. Không tắt ở đây thì người dùng bị hỏi lại mãi,
+        // và họ sẽ đổi đi đổi lại vài lần trước khi kết luận là app hỏng.
+        //
+        // Đặt SAU phép kiểm băm rỗng ở trên là có chủ ý: băm hỏng thì mật khẩu không đổi,
+        // nên cờ cũng không được tắt — nếu không, gửi một request hỏng là thoát được yêu
+        // cầu đổi mật khẩu.
+        MustChangePassword = false;
+
         // Sự kiện này bắt buộc phải có: nơi khác lắng nghe nó để THU HỒI mọi refresh
         // token đang sống. Thiếu nó thì người vừa bị lộ mật khẩu đổi lại mật khẩu, mà
         // kẻ trộm vẫn ngồi yên trong phiên cũ suốt 30 ngày — đổi mật khẩu thành vô nghĩa.
@@ -136,6 +157,14 @@ public sealed class User : AggregateRoot<Guid>, ITenantScoped, IAuditable
 
         return Result.Success();
     }
+
+    /// <summary>
+    /// Đánh dấu tài khoản này phải đổi mật khẩu ở lần đăng nhập tới.
+    ///
+    /// Không trả <c>Result</c> vì không có ca nào hỏng: gọi hai lần cũng chỉ là bật một
+    /// cờ đã bật. Trả <c>Result</c> ở đây chỉ ép mọi nơi gọi phải viết một nhánh lỗi chết.
+    /// </summary>
+    public void RequirePasswordChange() => MustChangePassword = true;
 
     public Result Rename(string? fullName)
     {

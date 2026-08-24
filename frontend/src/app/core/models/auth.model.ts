@@ -23,6 +23,15 @@ export interface LoginUser {
   tenantId: string;
   email: string;
   fullName: string;
+
+  /**
+   * Tài khoản do quản trị viên tạo hộ, mật khẩu tạm phải đổi ngay.
+   *
+   * Cố ý nằm trong THÂN phản hồi chứ không trong access token: server không chặn gì dựa
+   * vào cờ này, nó chỉ để giao diện đưa người dùng thẳng tới màn đổi mật khẩu. Nhét vào
+   * token thì mọi request đều mang theo, và nó chỉ đúng tại thời điểm phát token.
+   */
+  mustChangePassword: boolean;
 }
 
 /** `POST /api/auth/login` → 200. */

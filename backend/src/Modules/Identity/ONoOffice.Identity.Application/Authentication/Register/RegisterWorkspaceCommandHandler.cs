@@ -181,7 +181,10 @@ internal sealed class RegisterWorkspaceCommandHandler(
                 user.Value.Id,
                 tenant.Value.Id,
                 user.Value.Email.Value,
-                user.Value.FullName),
+                user.Value.FullName,
+
+                // Người tự đăng ký workspace đã tự chọn mật khẩu — không có lý do bắt đổi.
+                user.Value.MustChangePassword),
             new RegisteredWorkspace(tenant.Value.Id, tenant.Value.Code.Value, tenant.Value.Name));
     }
 }

@@ -168,6 +168,93 @@ không có gì được ghi — nếu không, một lần lỗi để lại mộ
 
 ---
 
+## Identity — Quản lý người dùng
+
+Hai endpoint của màn **Nhân sự**. Cả hai đòi token, và đòi quyền khác nhau: `user.read`
+để xem, `user.manage` để tạo. Gộp làm một thì ai xem được danh bạ cũng tạo được tài khoản.
+
+### `GET /api/users`
+
+```
+?search=      tên (khớp một phần) hoặc email (khớp CHÍNH XÁC)
+?status=      0 mọi trạng thái · 1 đang hoạt động · 2 chờ nhận tài khoản · 3 đã vô hiệu hoá
+?roleId=      lọc theo một vai trò
+?page=        mặc định 1
+?pageSize=    mặc định 20, TRẦN CỨNG 100
+```
+
+```jsonc
+// 200 OK
+{
+  "items": [{
+    "id": "0198e2f1-…",
+    "email": "an@congty.vn",
+    "fullName": "Nguyễn Văn An",
+    "isActive": true,
+    "mustChangePassword": false,
+    "roleName": "Member",
+    "createdAtUtc": "2026-08-24T07:12:00+00:00"
+  }],
+  "page": 1, "pageSize": 20, "totalCount": 38, "totalPages": 2,
+  "hasPreviousPage": false, "hasNextPage": true
+}
+```
+
+> **Trần cứng 100 dòng.** Không có nó thì `?pageSize=1000000` kéo cả bảng lên bộ nhớ trong
+> một request — rẻ tiền để gửi, đắt để phục vụ, và không đòi hỏi quyền gì đặc biệt.
+
+> **Tìm theo email chỉ khớp CHÍNH XÁC**, không khớp một phần. Cột `email` ánh xạ qua một
+> phép chuyển đổi giá trị (`Email` ↔ `text`) nên EF không dịch nổi `Contains` trên nó.
+> Đổi sang kiểu sở hữu là một thay đổi riêng — xem "Chưa làm".
+
+### `POST /api/users`
+
+Quản trị viên tạo tài khoản **hộ** một đồng nghiệp.
+
+```jsonc
+// Request
+{
+  "fullName": "Nguyễn Văn An",
+  "email": "an@congty.vn",
+  "roleId": "0198e2ef-…",
+  "mustChangePassword": true
+}
+```
+
+```jsonc
+// 200 OK
+{
+  "id": "0198e2f1-…",
+  "email": "an@congty.vn",
+  "fullName": "Nguyễn Văn An",
+  "roleName": "Member",
+  "temporaryPassword": "k7np-2wqx-hs4m"
+}
+```
+
+| Ca hỏng | HTTP | `code` |
+|---|---|---|
+| Email sai định dạng | 400 | `Email.Invalid` |
+| Vai trò không tồn tại, hoặc thuộc workspace khác | 404 | `Role.NotFound` |
+| **Email đã có tài khoản** | 409 | `Email.Taken` |
+
+> ⭐ **`temporaryPassword` chỉ trả về ĐÚNG MỘT LẦN.** Đây là lần duy nhất chuỗi thô tồn tại
+> ngoài đầu người tạo — nó không được ghi log, không lưu, và **không endpoint nào đọc lại
+> được**. Quên thì phải đặt lại mật khẩu.
+>
+> Vì sao không gửi email lời mời: lát này chưa nối dịch vụ gửi mail. Làm một luồng "đã gửi
+> lời mời" mà thật ra không gửi gì là kiểu nói dối tệ nhất — quản trị viên ngồi chờ, đồng
+> nghiệp không nhận được gì, và không chỗ nào báo lỗi.
+
+> **Mật khẩu tạm đọc được qua điện thoại.** Bảng chữ bỏ `0/O` và `1/l/I`, chia cụm bằng dấu
+> nối. Nó đi qua Zalo hoặc lời nói, nên một chuỗi base64 32 ký tự là đúng về mật mã và hỏng
+> về thực tế. Đổi lại: nó chỉ sống tới lần đăng nhập đầu, vì `mustChangePassword` bắt đổi.
+
+> **Vẫn là 200 chứ không phải 201** — cùng lý do với `register-workspace`: chưa có
+> `GET /api/users/{id}` để header `Location` trỏ tới.
+
+---
+
 ## Identity — Đăng nhập
 
 Cả ba endpoint dưới đây **không cần token**: người gọi chúng chính là người chưa có, hoặc
@@ -190,10 +277,15 @@ không còn, token dùng được.
     "id": "0198e2f1-…",
     "tenantId": "0198e2f0-…",
     "email": "an@congty.vn",
-    "fullName": "Nguyễn Văn An"
+    "fullName": "Nguyễn Văn An",
+    "mustChangePassword": false
   }
 }
 ```
+
+> `mustChangePassword` nằm trong THÂN phản hồi, không nằm trong access token. Server không
+> chặn gì dựa vào nó — nó chỉ để giao diện đưa người dùng thẳng tới màn đổi mật khẩu. Nhét
+> vào token thì mọi request đều mang theo, và nó chỉ đúng tại thời điểm phát token.
 
 | Ca hỏng | HTTP | `code` |
 |---|---|---|

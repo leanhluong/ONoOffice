@@ -117,6 +117,9 @@ public static class IdentityErrors
         public static readonly Error TenantRequired =
             Error.Validation("Role.TenantRequired", "Vai trò phải thuộc về một workspace.");
 
+        public static readonly Error NotFound =
+            Error.NotFound("Role.NotFound", "Vai trò này không tồn tại trong workspace.");
+
         public static readonly Error NameEmpty =
             Error.Validation("Role.NameEmpty", "Tên vai trò không được để trống.");
 

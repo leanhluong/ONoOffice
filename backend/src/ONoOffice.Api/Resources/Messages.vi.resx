@@ -143,4 +143,7 @@
   <data name="TenantCode.Taken" xml:space="preserve">
     <value>Mã workspace này đã có người dùng.</value>
   </data>
+  <data name="Role.NotFound" xml:space="preserve">
+    <value>Vai trò này không tồn tại trong workspace.</value>
+  </data>
 </root>

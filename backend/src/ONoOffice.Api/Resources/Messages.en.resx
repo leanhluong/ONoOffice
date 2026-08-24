@@ -143,4 +143,7 @@
   <data name="TenantCode.Taken" xml:space="preserve">
     <value>That workspace code is already taken.</value>
   </data>
+  <data name="Role.NotFound" xml:space="preserve">
+    <value>That role does not exist in this workspace.</value>
+  </data>
 </root>

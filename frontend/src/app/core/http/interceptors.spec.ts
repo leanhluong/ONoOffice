@@ -38,7 +38,13 @@ function login(accessToken: string, refreshToken = 've-1'): LoginResponse {
     accessToken,
     refreshToken,
     expiresInSeconds: 900,
-    user: { id: USER_ID, tenantId: TENANT_ID, email: 'chu@demo.vn', fullName: 'Chủ Demo' },
+    user: {
+      id: USER_ID,
+      tenantId: TENANT_ID,
+      email: 'chu@demo.vn',
+      fullName: 'Chủ Demo',
+      mustChangePassword: false,
+    },
   };
 }
 

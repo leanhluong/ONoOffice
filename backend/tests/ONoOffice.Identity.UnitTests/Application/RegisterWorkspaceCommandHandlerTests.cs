@@ -1,3 +1,4 @@
+using Luong.Kernel.Pagination;
 using Luong.Kernel.Abstractions;
 using ONoOffice.Identity.Application.Abstractions;
 using ONoOffice.Identity.Application.Authentication.Register;
@@ -33,6 +34,9 @@ public class RegisterWorkspaceCommandHandlerTests
         public readonly List<Role> Added = [];
 
         public void AddRange(IEnumerable<Role> roles) => Added.AddRange(roles);
+
+        public Task<Role?> GetByIdAsync(Guid id, CancellationToken c = default) =>
+            Task.FromResult<Role?>(null);
     }
 
     private sealed class FakeUsers : IUserRepository
@@ -50,6 +54,9 @@ public class RegisterWorkspaceCommandHandlerTests
 
         public Task<AuthUserData?> GetByIdAsync(Guid id, CancellationToken c = default) =>
             Task.FromResult<AuthUserData?>(null);
+
+        public Task<PagedList<UserListItem>> SearchAsync(UserSearch c, CancellationToken t = default) =>
+            Task.FromResult(PagedList<UserListItem>.Create([], 1, 20, 0));
     }
 
     private sealed class FakeRefreshTokens : IRefreshTokenRepository

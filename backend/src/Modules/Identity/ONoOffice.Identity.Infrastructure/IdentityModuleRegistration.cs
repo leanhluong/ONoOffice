@@ -77,6 +77,9 @@ public static class IdentityModuleRegistration
         services.AddScoped<IRefreshTokenRepository, EfRefreshTokenRepository>();
 
         // Băm mật khẩu không giữ trạng thái gì -> Singleton là đủ và rẻ nhất.
+        // Không trạng thái, chỉ gọi RandomNumberGenerator — singleton là đủ và rẻ nhất.
+        services.AddSingleton<ITemporaryPasswordGenerator, TemporaryPasswordGenerator>();
+
         services.AddSingleton<IPasswordHasher, Argon2PasswordHasher>();
 
         // Phát token phụ thuộc IDateTimeProvider (Singleton) và IOptions -> Singleton được.

@@ -15,6 +15,7 @@
   "RefreshToken.OwnerRequired": "Thiếu tài khoản hoặc workspace của phiên.",
   "Role.NameEmpty": "Tên vai trò không được để trống.",
   "Role.NameTooLong": "Tên vai trò không được dài quá 100 ký tự.",
+  "Role.NotFound": "Vai trò này không tồn tại trong workspace.",
   "Role.PermissionAlreadyGranted": "Vai trò đã có quyền này.",
   "Role.PermissionEmpty": "Tên quyền không được để trống.",
   "Role.PermissionNotGranted": "Vai trò không có quyền này.",

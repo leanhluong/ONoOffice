@@ -15,7 +15,19 @@ public sealed record LoginResponse(
     int ExpiresInSeconds,
     LoggedInUser User);
 
-public sealed record LoggedInUser(Guid Id, Guid TenantId, string Email, string FullName);
+/// <summary>
+/// <c>MustChangePassword</c> có trong THÂN phản hồi chứ không trong access token.
+///
+/// Nó không phục vụ quyết định bảo mật nào ở phía server — server không chặn gì dựa vào
+/// nó. Nó chỉ để giao diện biết mà đưa người dùng thẳng tới màn đổi mật khẩu. Nhét vào
+/// token thì mọi request đều mang theo nó, và nó chỉ đúng tại thời điểm phát token.
+/// </summary>
+public sealed record LoggedInUser(
+    Guid Id,
+    Guid TenantId,
+    string Email,
+    string FullName,
+    bool MustChangePassword);
 
 /// <summary>
 /// Điều phối một lần đăng nhập.
@@ -99,6 +111,6 @@ internal sealed class LoginCommandHandler(
             accessToken.Value,
             refreshPair.Raw,           // ← chuỗi thô chỉ đi ra ngoài, không đọng lại đâu cả
             (int)accessToken.Lifetime.TotalSeconds,
-            new LoggedInUser(data.UserId, data.TenantId, data.Email, data.FullName));
+            new LoggedInUser(data.UserId, data.TenantId, data.Email, data.FullName, data.MustChangePassword));
     }
 }

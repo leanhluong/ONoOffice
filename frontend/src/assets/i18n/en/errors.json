@@ -15,6 +15,7 @@
   "RefreshToken.OwnerRequired": "The session is missing its account or workspace.",
   "Role.NameEmpty": "Role name is required.",
   "Role.NameTooLong": "Role name must be 100 characters or fewer.",
+  "Role.NotFound": "That role does not exist in this workspace.",
   "Role.PermissionAlreadyGranted": "This role already has that permission.",
   "Role.PermissionEmpty": "Permission name is required.",
   "Role.PermissionNotGranted": "This role does not have that permission.",

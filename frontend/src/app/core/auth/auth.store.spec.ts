@@ -29,6 +29,7 @@ function loginResponse(overrides: Partial<LoginResponse> = {}): LoginResponse {
       tenantId: TENANT_ID,
       email: 'chu@demo.vn',
       fullName: 'Chủ Workspace Demo',
+      mustChangePassword: false,
     },
     ...overrides,
   };

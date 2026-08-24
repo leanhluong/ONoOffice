@@ -1,3 +1,4 @@
+using Luong.Kernel.Pagination;
 using Microsoft.EntityFrameworkCore;
 using ONoOffice.Identity.Application.Abstractions;
 using ONoOffice.Identity.Domain.ValueObjects;
@@ -28,6 +29,106 @@ internal sealed class EfUserRepository(IdentityDbContext context) : IUserReposit
         return await context.Users
             .IgnoreQueryFilters()
             .AnyAsync(u => u.Email == parsed.Value, cancellationToken);
+    }
+
+    /// <summary>
+    /// Danh sách nhân sự cho màn quản trị: lọc, sắp xếp, phân trang — <b>tất cả ở database</b>.
+    ///
+    /// Hai truy vấn, không phải N+1:
+    ///
+    /// <list type="number">
+    /// <item>Một câu lấy đúng một trang người dùng, kèm mảng <c>role_ids</c> của họ.</item>
+    /// <item>Một câu lấy tên của những vai trò xuất hiện trên trang đó.</item>
+    /// </list>
+    ///
+    /// Gộp làm một câu thì phải dàn phẳng cột mảng <c>uuid[]</c>, mà EF không sinh được
+    /// SQL cho việc đó qua phép chuyển đổi giá trị. Hai câu cho tối đa 100 dòng là rẻ;
+    /// một câu cho mỗi dòng thì không.
+    ///
+    /// <b>Về ô tìm kiếm:</b> tên khớp một phần, email chỉ khớp CHÍNH XÁC. Lý do rất cụ
+    /// thể: cột <c>email</c> ánh xạ qua một phép chuyển đổi giá trị (<c>Email</c> ↔
+    /// <c>text</c>), nên EF không dịch nổi <c>Contains</c> trên nó. Đổi sang kiểu sở hữu
+    /// để tìm được một phần email là một thay đổi riêng — ghi ở mục "chưa làm".
+    /// </summary>
+    public async Task<PagedList<UserListItem>> SearchAsync(
+        UserSearch criteria,
+        CancellationToken cancellationToken = default)
+    {
+        // KHÔNG có IgnoreQueryFilters ở đây, khác hẳn ba truy vấn phía trên. Đây là màn
+        // quản trị của một workspace cụ thể, và bộ lọc tenant chính là thứ giữ cho quản
+        // trị viên công ty A không nhìn thấy nhân sự công ty B.
+        var query = context.Users.AsNoTracking();
+
+        if (criteria.Search is { } term)
+        {
+            var parsed = Email.Create(term);
+
+            query = parsed.IsSuccess
+                ? query.Where(u => u.Email == parsed.Value)
+                : query.Where(u => EF.Functions.ILike(u.FullName, $"%{term}%"));
+        }
+
+        query = criteria.Status switch
+        {
+            UserStatusFilter.Active => query.Where(u => u.IsActive && !u.MustChangePassword),
+            UserStatusFilter.PendingFirstLogin => query.Where(u => u.IsActive && u.MustChangePassword),
+            UserStatusFilter.Disabled => query.Where(u => !u.IsActive),
+            _ => query,
+        };
+
+        if (criteria.RoleId is { } roleId)
+        {
+            query = query.Where(u => EF.Property<List<Guid>>(u, "_roleIds").Contains(roleId));
+        }
+
+        // Đếm TRƯỚC khi phân trang, và đếm bằng một câu riêng. Đếm sau khi đã `Skip/Take`
+        // thì con số luôn bằng số dòng của trang — thanh phân trang nói dối.
+        var total = await query.CountAsync(cancellationToken);
+
+        var rows = await query
+            // Sắp xếp phải ỔN ĐỊNH, nếu không hai trang liên tiếp có thể trả về cùng một
+            // người và bỏ sót một người khác. `Id` là chốt chặn cho những tên trùng nhau.
+            .OrderBy(u => u.FullName)
+            .ThenBy(u => u.Id)
+            .Skip((criteria.Page - 1) * criteria.PageSize)
+            .Take(criteria.PageSize)
+            .Select(u => new
+            {
+                u.Id,
+                u.Email,
+                u.FullName,
+                u.IsActive,
+                u.MustChangePassword,
+                u.CreatedAtUtc,
+                RoleIds = EF.Property<List<Guid>>(u, "_roleIds"),
+            })
+            .ToListAsync(cancellationToken);
+
+        var roleIds = rows.SelectMany(r => r.RoleIds).Distinct().ToList();
+
+        var roleNames = roleIds.Count == 0
+            ? []
+            : await context.Roles
+                .AsNoTracking()
+                .Where(r => roleIds.Contains(r.Id))
+                .ToDictionaryAsync(r => r.Id, r => r.Name, cancellationToken);
+
+        var items = rows
+            .Select(r => new UserListItem(
+                r.Id,
+                r.Email.Value,
+                r.FullName,
+                r.IsActive,
+                r.MustChangePassword,
+
+                // Người chưa được gán vai trò nào là dữ liệu hỏng, nhưng bảng vẫn phải vẽ
+                // ra được — ném ở đây thì cả màn Nhân sự trắng vì đúng MỘT hàng lỗi, và
+                // quản trị viên không có cách nào tìm ra hàng đó để sửa.
+                string.Join(", ", r.RoleIds.Select(id => roleNames.GetValueOrDefault(id, "—"))),
+                r.CreatedAtUtc))
+            .ToList();
+
+        return PagedList<UserListItem>.Create(items, criteria.Page, criteria.PageSize, total);
     }
 
     /// <summary>
@@ -95,6 +196,7 @@ internal sealed class EfUserRepository(IdentityDbContext context) : IUserReposit
                     u.FullName,
                     IsUserActive = u.IsActive,
                     IsTenantActive = t.IsActive,
+                    u.MustChangePassword,
                     RoleIds = EF.Property<List<Guid>>(u, "_roleIds"),
                 })
             .FirstOrDefaultAsync(cancellationToken);
@@ -116,6 +218,7 @@ internal sealed class EfUserRepository(IdentityDbContext context) : IUserReposit
             row.FullName,
             row.IsUserActive,
             row.IsTenantActive,
+            row.MustChangePassword,
             permissions.ToHashSet(StringComparer.OrdinalIgnoreCase));
     }
 
@@ -145,6 +248,7 @@ internal sealed class EfUserRepository(IdentityDbContext context) : IUserReposit
                     Email = u.Email,
                     IsUserActive = u.IsActive,
                     IsTenantActive = t.IsActive,
+                    u.MustChangePassword,
                     RoleIds = EF.Property<List<Guid>>(u, "_roleIds"),
                 })
             .FirstOrDefaultAsync(cancellationToken);
@@ -164,6 +268,7 @@ internal sealed class EfUserRepository(IdentityDbContext context) : IUserReposit
             row.FullName,
             row.IsUserActive,
             row.IsTenantActive,
+            row.MustChangePassword,
             permissions.ToHashSet(StringComparer.OrdinalIgnoreCase));
     }
 }
