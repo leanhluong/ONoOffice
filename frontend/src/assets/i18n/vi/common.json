@@ -44,7 +44,12 @@
     "main": "Điều hướng chính",
     "toggle": "Đóng/mở thanh điều hướng",
     "dashboard": "Bảng điều khiển",
-    "employees": "Nhân sự"
+    "employees": "Nhân sự",
+    "groupWork": "Làm việc",
+    "groupOrg": "Tổ chức",
+    "search": "Tìm kiếm",
+    "appearance": "Giao diện & ngôn ngữ",
+    "profile": "Hồ sơ & cài đặt"
   },
   "brandfoot": {
     "internal": "Nội bộ",

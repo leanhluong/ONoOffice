@@ -1,68 +1,207 @@
-<div class="shell" [class.shell--collapsed]="!sidebarOpen()">
-  <header class="topbar">
+<!--
+  Đánh dấu chép từ `docs/07-giao-dien/chung/_khung.css` và các bản dựng dùng nó
+  (`docs/07-giao-dien/org/nhan-su.html` là bản đầy đủ nhất).
+
+  CSS thì KHÔNG chép — nó nằm ở `styles.scss` toàn cục, được sinh tự động từ chính file đó
+  (`node tools/sync-shell.mjs`). Chỗ duy nhất phải giữ đồng bộ bằng tay là đánh dấu.
+-->
+<div class="khung" [class.khung--gon]="collapsed()">
+  <nav class="nav" [attr.aria-label]="'nav.main' | translate">
+    <!-- Ảnh đại diện kiêm cửa vào menu tài khoản. -->
     <button
       type="button"
-      class="topbar__toggle"
-      (click)="toggleSidebar()"
-      [attr.aria-expanded]="sidebarOpen()"
-      [attr.aria-label]="'nav.toggle' | translate"
+      class="nav__toi"
+      [attr.aria-expanded]="openMenu() === 'toi'"
+      (click)="toggleMenu('toi', $event)"
     >
-      ☰
+      @if (store.user(); as user) {
+        <span class="mat mat--nho"
+          >{{ initials(user.displayName, user.email) }}<span class="online"></span
+        ></span>
+        <span class="nav__ten">
+          <b>{{ user.displayName || user.email }}</b>
+          <span>{{ user.email }}</span>
+        </span>
+      }
     </button>
 
-    <span class="topbar__brand">{{ 'app.name' | translate }}</span>
+    <div class="nav__tim">
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        aria-hidden="true"
+      >
+        <circle cx="7" cy="7" r="4.5" />
+        <path d="m10.5 10.5 3 3" />
+      </svg>
+      <!--
+        CHƯA NỐI GÌ. Để đây vì bản dựng đã duyệt có nó, và vì chỗ của ô tìm kiếm toàn cục
+        phải cố định ngay từ đầu — chuyển nó đi sau khi người dùng đã quen tay là đắt hơn
+        nhiều so với chừa sẵn.
+      -->
+      <input
+        type="search"
+        [placeholder]="'nav.search' | translate"
+        [attr.aria-label]="'nav.search' | translate"
+        (keydown.enter)="notBuiltYet($event, 'nav.search')"
+      />
+      <span class="nav__phim">Ctrl K</span>
+    </div>
 
-    <div class="topbar__spacer"></div>
+    <div class="nav__ds">
+      @for (group of navGroups; track group.labelKey) {
+        <div class="nav__nhan">{{ group.labelKey | translate }}</div>
 
-    @if (store.user(); as user) {
-      <div class="topbar__user">
-        <span class="topbar__name">{{ user.displayName || user.email || user.userId }}</span>
-        <span class="topbar__tenant" [title]="'session.workspace' | translate">{{
-          user.email
-        }}</span>
-      </div>
-    }
-
-    <app-prefs />
-
-    <button type="button" class="topbar__logout" (click)="logout()">
-      {{ 'action.signOut' | translate }}
-    </button>
-  </header>
-
-  <div class="shell__body">
-    <nav class="sidebar" [attr.aria-label]="'nav.main' | translate">
-      <ul class="sidebar__list">
-        @for (item of navItems; track item.path) {
-          @if (item.permissions.length === 0) {
-            <li>
-              <a
-                class="sidebar__link"
-                [routerLink]="item.path"
-                routerLinkActive="sidebar__link--active"
+        @for (item of group.items; track item.path) {
+          <ng-container *appHasPermission="item.permissions">
+            <!--
+              Trạng thái "đang mở" đánh dấu bằng `aria-current`, KHÔNG bằng một lớp CSS
+              riêng. Bản dựng viết luật là `.nav__muc[aria-current="page"]`, nên thêm một
+              lớp `nav__muc--dang` thì nó không khớp luật nào — mục đang mở mất hẳn màu
+              nhấn mà chẳng có lỗi nào báo. `routerLinkActive` để trống: ở đây chỉ cần
+              `isActive` của nó, không cần nó gắn lớp.
+            -->
+            <a
+              class="nav__muc"
+              [routerLink]="item.path"
+              routerLinkActive=""
+              #active="routerLinkActive"
+              [attr.aria-current]="active.isActive ? 'page' : null"
+            >
+              <svg
+                class="nav__icon"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
               >
-                <span class="sidebar__icon" aria-hidden="true">{{ item.icon }}</span>
-                <span class="sidebar__label">{{ item.labelKey | translate }}</span>
-              </a>
-            </li>
-          } @else {
-            <li *appHasPermission="item.permissions">
-              <a
-                class="sidebar__link"
-                [routerLink]="item.path"
-                routerLinkActive="sidebar__link--active"
-              >
-                <span class="sidebar__icon" aria-hidden="true">{{ item.icon }}</span>
-                <span class="sidebar__label">{{ item.labelKey | translate }}</span>
-              </a>
-            </li>
-          }
+                @switch (item.path) {
+                  @case ('/dashboard') {
+                    <rect x="2.5" y="2.5" width="6" height="6" rx="1.8" />
+                    <rect x="11.5" y="2.5" width="6" height="6" rx="1.8" />
+                    <rect x="2.5" y="11.5" width="6" height="6" rx="1.8" />
+                    <rect x="11.5" y="11.5" width="6" height="6" rx="1.8" />
+                  }
+                  @case ('/employees') {
+                    <circle cx="7.5" cy="6.8" r="2.9" />
+                    <path d="M2.4 16.6a5.1 5.1 0 0110.2 0" />
+                    <path d="M13.2 4.4a2.9 2.9 0 010 4.8M14.8 16.6a5.1 5.1 0 00-1.7-3.8" />
+                  }
+                }
+              </svg>
+
+              <span class="nav__chu">{{ item.labelKey | translate }}</span>
+
+              @if (item.badge) {
+                <span class="nav__dem" [class.nav__dem--nhat]="item.quiet">{{ item.badge }}</span>
+              }
+
+              <!-- Nhãn khi rê chuột — bắt buộc, vì cột thu gọn chỉ còn biểu tượng. -->
+              <span class="nav__meo">{{ item.labelKey | translate }}</span>
+            </a>
+          </ng-container>
         }
-      </ul>
-    </nav>
+      }
+    </div>
 
-    <main class="content">
-      <router-outlet />
-    </main>
+    <div class="nav__duoi">
+      <button
+        type="button"
+        class="nuti"
+        [attr.aria-expanded]="openMenu() === 'caidat'"
+        [attr.aria-label]="'nav.appearance' | translate"
+        (click)="toggleMenu('caidat', $event)"
+      >
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          aria-hidden="true"
+        >
+          <circle cx="10" cy="10" r="2.6" />
+          <path
+            d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7"
+          />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="nuti"
+        [attr.aria-label]="'nav.toggle' | translate"
+        [attr.aria-pressed]="collapsed()"
+        (click)="toggleCollapsed()"
+      >
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          aria-hidden="true"
+        >
+          <rect x="2.5" y="3.5" width="15" height="13" rx="2.5" />
+          <path d="M7.5 3.5v13" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Menu bộ màu & ngôn ngữ -->
+    <div class="popover" [hidden]="openMenu() !== 'caidat'" style="left: 8px; bottom: 52px">
+      <div class="popover__hang">{{ 'nav.appearance' | translate }}</div>
+      <div style="padding: 2px 10px 8px"><app-prefs /></div>
+    </div>
+
+    <!-- Menu tài khoản -->
+    <div class="popover" [hidden]="openMenu() !== 'toi'" style="left: 8px; top: 56px">
+      @if (store.user(); as user) {
+        <div class="popover__ai">
+          <div class="popover__ten">{{ user.displayName || user.email }}</div>
+          <div class="popover__mail">{{ user.email }}</div>
+        </div>
+      }
+
+      <button type="button" class="popover__nut" (click)="notBuiltYet($event, 'nav.profile')">
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          aria-hidden="true"
+        >
+          <circle cx="8" cy="5.5" r="2.4" />
+          <path d="M3.5 13.2a4.5 4.5 0 019 0" />
+        </svg>
+        {{ 'nav.profile' | translate }}
+      </button>
+
+      <div class="popover__vach"></div>
+
+      <button type="button" class="popover__nut" (click)="logout()">
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          aria-hidden="true"
+        >
+          <path
+            d="M6 14H3.5A1.5 1.5 0 012 12.5v-9A1.5 1.5 0 013.5 2H6M10.5 11 14 8l-3.5-3M14 8H6"
+          />
+        </svg>
+        {{ 'action.signOut' | translate }}
+      </button>
+    </div>
+  </nav>
+
+  <div class="noidung">
+    <router-outlet />
   </div>
 </div>
+
+<app-popup-host />

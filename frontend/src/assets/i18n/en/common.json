@@ -44,7 +44,12 @@
     "main": "Main navigation",
     "toggle": "Toggle navigation",
     "dashboard": "Dashboard",
-    "employees": "People"
+    "employees": "People",
+    "groupWork": "Work",
+    "groupOrg": "Organisation",
+    "search": "Search",
+    "appearance": "Appearance & language",
+    "profile": "Profile & settings"
   },
   "brandfoot": {
     "internal": "Internal",

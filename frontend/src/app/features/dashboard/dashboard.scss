@@ -4,22 +4,17 @@
   gap: 1rem;
   max-width: 48rem;
 
-  &__title {
-    margin: 0;
-    font-size: 1.35rem;
-  }
-
   &__lead {
     margin: 0;
-    color: var(--color-text-muted);
+    color: var(--ink-soft);
     font-size: 0.9rem;
   }
 }
 
 .card {
   padding: 1rem 1.15rem;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 10px;
 
   &__title {
@@ -27,7 +22,7 @@
     font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: var(--color-text-muted);
+    color: var(--ink-soft);
   }
 }
 
@@ -39,7 +34,7 @@
   font-size: 0.9rem;
 
   dt {
-    color: var(--color-text-muted);
+    color: var(--ink-soft);
   }
 
   dd {
@@ -60,8 +55,8 @@
   &__item {
     padding: 0.2rem 0.55rem;
     border-radius: 999px;
-    background: var(--color-accent-soft);
-    color: var(--color-accent);
+    background: var(--surface-2);
+    color: var(--accent);
     font-size: 0.78rem;
     font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
   }

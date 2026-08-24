@@ -89,13 +89,22 @@ function styleBlocks(html) {
 const toProduct = (css) => css.replaceAll('data-skin', 'data-theme');
 
 // ══════════════════════════════════════════════════════════════════════════
-// 1. Nền chung → styles.scss
+// 1. Nền chung + khung + bộ điều khiển → styles.scss
 // ══════════════════════════════════════════════════════════════════════════
 {
-  const SOURCE = 'docs/07-giao-dien/chung/_shell.css';
+  // Ba file, một đích. Cả ba đều là CSS TOÀN CỤC (token màu, khung ứng dụng, bộ điều
+  // khiển dùng chung), nên gộp vào một file sinh ra là đúng — tách ra chỉ thêm mấy dòng
+  // nhập file mà không đổi được gì.
+  const NGUON = [
+    'docs/07-giao-dien/chung/_shell.css',
+    'docs/07-giao-dien/chung/_khung.css',
+    'docs/07-giao-dien/chung/_dieukhien.css',
+  ];
+
+  const SOURCE = NGUON.join('  +  ');
   const TARGET = 'frontend/src/styles.scss';
 
-  const shell = toProduct(readFileSync(SOURCE, 'utf8'));
+  const shell = NGUON.map((f) => toProduct(readFileSync(f, 'utf8'))).join('\n\n');
 
   // Bộ Giấy để làm mặc định cho máy đặt chế độ SÁNG.
   const giay = shell.match(/:root\[data-theme="giay"\]\s*\{([^}]*)\}/)[1];

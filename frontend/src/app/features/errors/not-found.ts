@@ -23,12 +23,12 @@ import { RouterLink } from '@angular/router';
       }
 
       p {
-        color: var(--color-text-muted);
+        color: var(--ink-soft);
         font-size: 0.9rem;
       }
 
       a {
-        color: var(--color-accent);
+        color: var(--accent);
         font-size: 0.9rem;
       }
     }
