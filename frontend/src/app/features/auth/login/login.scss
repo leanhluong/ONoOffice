@@ -1,331 +1,416 @@
 /**
- * Màn đăng nhập — hai cột trên màn rộng, một cột trên điện thoại.
- * Chỉ dùng token; xem `docs/07-giao-dien/identity/dang-nhap.md`.
+ * Màn đăng nhập.
+ *
+ * Mọi con số dưới đây chép từ bản dựng đã duyệt
+ * `docs/07-giao-dien/identity/dang-nhap.html` — kể cả những chỗ trông lẻ (13px, 12.5px,
+ * 1.15fr, 384px). Chúng lẻ vì đã được cân bằng mắt trên bản dựng; làm tròn cho "đẹp" là
+ * làm khác đi thứ đã duyệt.
  */
 
-.login {
-  min-height: 100dvh;
+.stage {
   display: grid;
-  grid-template-columns: 1fr;
-  background: var(--ground);
+  grid-template-columns: 1.15fr 1fr;
+  min-height: 100dvh;
+}
 
-  @media (min-width: 900px) {
-    grid-template-columns: 1.1fr 1fr;
+@media (max-width: 900px) {
+  .stage {
+    grid-template-columns: 1fr;
   }
+}
 
-  /* ── Cột trái: định vị sản phẩm ───────────────────────────────────── */
+/* ── Cột trái: thương hiệu + sơ đồ tổ chức trôi ────────────────────── */
 
-  &__aside {
+.brand {
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  padding: clamp(28px, 5vw, 56px);
+  border-right: 1px solid var(--line);
+
+  /* Nền canvas nằm ở lớp 0; ba khối chữ phải nổi lên trên nó. */
+  > *:not(app-org-weave) {
     position: relative;
-    overflow: hidden;
+    z-index: 1;
+  }
+}
 
-    display: flex;
-    align-items: flex-end;
-
-    /* Trên điện thoại thu thành một dải cao ~240px ở trên. */
+@media (max-width: 900px) {
+  .brand {
     min-height: 240px;
-    padding: 32px 24px;
-
-    background: var(--surface);
+    border-right: 0;
     border-bottom: 1px solid var(--line);
-
-    @media (min-width: 900px) {
-      min-height: auto;
-      padding: 56px;
-      border-bottom: none;
-      border-right: 1px solid var(--line);
-    }
   }
+}
 
-  &__orgchart {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.22;
-  }
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 
-  &__edges path {
-    fill: none;
-    stroke: var(--ink-faint);
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
-  }
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: -0.01em;
 
-  &__nodes circle {
-    fill: var(--accent);
+  &__mark {
+    width: 26px;
+    height: 26px;
 
-    /* Nhịp thở rất chậm — đủ để trang có sự sống, không đủ để kéo mắt khỏi form.
-       Máy xin giảm chuyển động thì `styles.scss` tắt hẳn animation này. */
-    animation: login-pulse 6s ease-in-out infinite;
+    display: grid;
+    place-items: center;
 
-    &:nth-child(2n) {
-      animation-delay: -2s;
-    }
-    &:nth-child(3n) {
-      animation-delay: -4s;
-    }
-  }
-
-  &__pitch {
-    position: relative;
-    max-width: 34ch;
-  }
-
-  &__brand {
-    margin: 0 0 20px;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 17px;
-    letter-spacing: -0.01em;
-  }
-
-  &__tagline {
-    margin: 0;
-    font-size: 32px;
-
-    @media (min-width: 900px) {
-      font-size: 46px;
-    }
-  }
-
-  &__notice {
-    margin: 24px 0 0;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-  }
-
-  /* ── Cột phải: form ───────────────────────────────────────────────── */
-
-  &__panel {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-
-    @media (min-width: 900px) {
-      padding: 32px 56px;
-    }
-  }
-
-  &__panel-head {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 24px;
-  }
-
-  &__form {
-    width: 100%;
-    max-width: 380px;
-    margin: auto;
-
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  &__heading {
-    font-size: 25px;
-    margin: 0;
-  }
-
-  &__sub {
-    margin: -12px 0 0;
-    color: var(--ink-soft);
-    font-size: 13.5px;
-  }
-
-  &__row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: -8px;
-    font-size: 13.5px;
-  }
-
-  &__remember {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--ink-faint); /* mờ vì CHƯA nối gì — trông cũng phải giống như chưa dùng được */
-  }
-
-  &__link {
-    padding: 0;
-    border: none;
-    background: none;
-    color: var(--ink-soft);
-    font: inherit;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-
-  /* Nút chính — điểm nhấn DUY NHẤT của màn hình này. */
-  &__submit {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-
-    padding: 12px 20px;
-    border: none;
-    border-radius: var(--radius);
-
+    border-radius: 7px;
     background: var(--accent);
     color: var(--accent-ink);
 
-    font-family: inherit;
-    font-size: 15px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.pitch {
+  max-width: 30ch;
+
+  h1 {
+    margin: 0 0 16px;
+
+    font-family: var(--font-display);
     font-weight: 600;
-    cursor: pointer;
+    font-size: clamp(30px, 4.4vw, 46px);
+    line-height: 1.12;
+    letter-spacing: -0.025em;
 
-    transition: opacity 0.15s ease;
-
-    &:disabled {
-      opacity: 0.7;
-      cursor: progress;
-    }
+    /* Ngắt dòng cho hai dòng cân nhau thay vì một dòng dài, một dòng cụt. */
+    text-wrap: balance;
   }
 
-  &__spinner {
-    width: 14px;
-    height: 14px;
-    border: 2px solid currentcolor;
-    border-top-color: transparent;
-    border-radius: var(--radius-pill);
-    animation: login-spin 0.7s linear infinite;
-  }
-
-  &__divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  p {
     margin: 0;
+    max-width: 34ch;
+    color: var(--ink-soft);
+    font-size: 15.5px;
+  }
+}
 
-    color: var(--ink-faint);
-    font-size: 12px;
+.brandfoot {
+  display: flex;
+  gap: 26px;
 
-    &::before,
-    &::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--line);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ── Cột phải: biểu mẫu ───────────────────────────────────────────── */
+
+.panel {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 48px);
+
+  /* Chọn bộ màu và ngôn ngữ nổi ở góc trên, không chiếm chỗ trong luồng — nếu không nó
+     đẩy biểu mẫu lệch khỏi tâm dọc của cột. */
+  &__prefs {
+    position: absolute;
+    top: clamp(20px, 3vw, 28px);
+    right: clamp(20px, 4vw, 48px);
+  }
+}
+
+.form {
+  width: 100%;
+  max-width: 384px;
+
+  &__head {
+    margin-bottom: 28px;
+
+    h2 {
+      margin: 0 0 6px;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 25px;
+      letter-spacing: -0.02em;
     }
-  }
 
-  &__federated {
-    display: flex;
-    gap: 12px;
-  }
-
-  &__federated-button {
-    flex: 1;
-    padding: 10px 16px;
-
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--ink);
-
-    font: inherit;
-    font-size: 13.5px;
-    cursor: pointer;
-
-    &:hover {
-      background: var(--surface-2);
+    p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 14px;
     }
   }
 }
 
-/* ── Ô nhập dùng chung của màn này ──────────────────────────────────── */
+/* ── Ô nhập ───────────────────────────────────────────────────────── */
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
+  margin-bottom: 16px;
 
-  &__label {
-    font-size: 13.5px;
+  label {
+    font-size: 12.5px;
     font-weight: 500;
+    letter-spacing: 0.01em;
     color: var(--ink-soft);
   }
+}
 
-  &__with-action {
-    position: relative;
-    display: flex;
+/**
+ * Viền nằm ở KHUNG BAO, không nằm ở thẻ input.
+ *
+ * Nhờ vậy icon và nút "Hiện" nằm gọn bên trong cùng một viền, và `:focus-within` làm cả
+ * khung sáng lên khi con trỏ vào ô — chứ không phải mỗi thẻ input sáng riêng bên trong
+ * một cái khung tối.
+ */
+.control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+
+  /* Vòng sáng dùng --glow (accent dạng R,G,B). Cần bản R,G,B riêng vì `rgb()` không nhận
+     một mã hex rồi thêm alpha vào được. */
+  &:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgb(var(--glow) / 0.18);
   }
 
-  &__input {
-    width: 100%;
-    padding: 12px 14px;
+  &--bad {
+    border-color: var(--danger);
+  }
 
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
+  input {
+    flex: 1;
+    min-width: 0;
+
+    padding: 12px 0;
+    border: 0;
+    background: none;
+    outline: none;
+
     color: var(--ink);
-
     font: inherit;
-    font-size: 15px;
 
     &::placeholder {
       color: var(--ink-faint);
     }
-
-    /* Viền đỏ KHÔNG đi một mình — luôn có dòng chữ `.field__error` bên dưới.
-       Chỉ dùng màu để báo lỗi là bỏ rơi người mù màu. */
-    &[aria-invalid='true'] {
-      border-color: var(--danger);
-    }
   }
 
-  &__with-action &__input {
-    padding-right: 84px;
-  }
-
-  &__action {
-    position: absolute;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-
-    padding: 6px 10px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--ink-soft);
-
-    font: inherit;
-    font-size: 12px;
-    cursor: pointer;
-
-    &:hover {
-      background: var(--surface-2);
-    }
-  }
-
-  &__error {
-    margin: 0;
-    color: var(--danger);
-    font-size: 12.5px;
+  > svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    color: var(--ink-faint);
   }
 }
 
-@keyframes login-spin {
+.peek {
+  padding: 4px;
+  border: 0;
+  background: none;
+  color: var(--ink-faint);
+
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--ink);
+  }
+}
+
+/* Gạch ngang đầu dòng lỗi: nó tách dòng nhắc khỏi nhãn ô mà không cần thêm biểu tượng. */
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 12.5px;
+  color: var(--danger);
+
+  &::before {
+    content: '—';
+    opacity: 0.6;
+  }
+}
+
+/* ── Hàng ghi nhớ / quên mật khẩu ─────────────────────────────────── */
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin: 4px 0 22px;
+  font-size: 13.5px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-soft);
+  cursor: pointer;
+
+  input {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent);
+  }
+}
+
+.link {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+
+  &:hover {
+    color: var(--ink);
+    border-bottom-color: var(--ink-faint);
+  }
+}
+
+/* ── Nút chính — điểm nhấn DUY NHẤT của màn hình ──────────────────── */
+
+.submit {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  padding: 13px 18px;
+  border: 0;
+  border-radius: var(--radius);
+
+  background: var(--accent);
+  color: var(--accent-ink);
+
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+
+  transition:
+    filter 160ms ease,
+    transform 120ms ease;
+
+  &:hover {
+    filter: brightness(1.08);
+  }
+
+  /* Lún xuống 1px khi bấm — phản hồi tức thì, không phải chờ mạng mới biết là đã bấm. */
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &[disabled] {
+    opacity: 0.72;
+    cursor: progress;
+  }
+}
+
+.spinner {
+  width: 15px;
+  height: 15px;
+
+  border: 2px solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-@keyframes login-pulse {
-  0%,
-  100% {
-    opacity: 0.55;
+/* ── Đăng nhập ngoài ──────────────────────────────────────────────── */
+
+.sep {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  margin: 24px 0 18px;
+  color: var(--ink-faint);
+  font-size: 12px;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
   }
-  50% {
-    opacity: 1;
+}
+
+.oauth {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+
+    transition:
+      border-color 160ms ease,
+      background 160ms ease;
+
+    &:hover {
+      border-color: var(--ink-faint);
+      background: var(--surface-2);
+    }
   }
+
+  svg {
+    width: 17px;
+    height: 17px;
+    flex: none;
+  }
+}
+
+.footnote {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-faint);
 }

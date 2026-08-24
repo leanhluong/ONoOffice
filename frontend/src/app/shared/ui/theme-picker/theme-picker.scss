@@ -1,70 +1,87 @@
 /**
- * NGOẠI LỆ DUY NHẤT của luật "chỉ dùng token".
+ * Chép từ `.swatch` của bản dựng mockup.
  *
- * Mấy ô màu dưới đây là BẢN XEM TRƯỚC của từng bộ — chúng phải hiện đúng màu của bộ đó
- * bất kể người dùng đang ở bộ nào. Dùng token thì cả bốn ô sẽ giống hệt nhau, và người
- * dùng không chọn được gì cả.
- *
- * Giá trị phải khớp với `styles.scss`. Lệch thì ô xem trước nói dối.
+ * Chấm màu là NGOẠI LỆ duy nhất của luật "chỉ dùng token": nó phải hiện đúng màu của bộ
+ * mà nó đại diện, bất kể người dùng đang ở bộ nào. Dùng token thì cả bốn chấm giống hệt
+ * nhau và không ai chọn được gì. Giá trị hex nằm ở `theme.service.ts`, cạnh mã bộ.
  */
-.picker {
+.prefs {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
 
   &__group {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
   }
+}
 
-  &__swatch {
-    width: 20px;
-    height: 20px;
-    padding: 0;
+.swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 
-    border: 1px solid var(--line);
-    border-radius: var(--radius-pill);
-    cursor: pointer;
+  padding: 6px 12px 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink-soft);
 
-    /* Nửa nền, nửa điểm nhấn — nói được cả hai thứ quan trọng nhất của một bộ màu. */
-    &[data-theme-preview='muc'] {
-      background: linear-gradient(135deg, #0b0c0e 50%, #d9a441 50%);
-    }
-    &[data-theme-preview='hai-dang'] {
-      background: linear-gradient(135deg, #0a1220 50%, #ff7a5c 50%);
-    }
-    &[data-theme-preview='giay'] {
-      background: linear-gradient(135deg, #fafaf8 50%, #8c2f39 50%);
-    }
-    &[data-theme-preview='reu'] {
-      background: linear-gradient(135deg, #12160f 50%, #a3b18a 50%);
-    }
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
 
-    /* Bộ đang chọn có VÒNG SÁNG, không chỉ đậm màu hơn — đậm hơn là tín hiệu chỉ nhìn
-       bằng màu, và ở đây thì chính các ô đã khác màu nhau sẵn rồi. */
-    &--on {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
+
+  &:hover {
+    border-color: var(--ink-faint);
+    color: var(--ink);
   }
 
-  &__lang {
-    padding: 2px 8px;
+  /* Bộ đang chọn: đổi màu VIỀN, không tô đậm nền — nền đậm sẽ chọi với chấm màu. */
+  &[aria-pressed='true'] {
+    border-color: var(--accent);
+    color: var(--ink);
+  }
 
-    border: 1px solid var(--line);
-    border-radius: var(--radius-pill);
-    background: transparent;
-    color: var(--ink-soft);
+  &__dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
 
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.07em;
-    cursor: pointer;
+    /* Viền trắng rất mờ để chấm tối vẫn tách khỏi nền tối. */
+    border: 1px solid rgb(255 255 255 / 0.16);
+  }
+}
 
-    &--on {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+.lang {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink-soft);
+
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  cursor: pointer;
+
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
+
+  &:hover {
+    border-color: var(--ink-faint);
+    color: var(--ink);
+  }
+
+  &[aria-pressed='true'] {
+    border-color: var(--accent);
+    color: var(--ink);
   }
 }

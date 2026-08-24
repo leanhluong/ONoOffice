@@ -1,11 +1,17 @@
 import { Injectable, signal } from '@angular/core';
 
-/** Bốn bộ màu ship kèm sản phẩm — chốt ở `docs/07-giao-dien/he-thong-thiet-ke.md`. */
+/**
+ * Bốn bộ màu ship kèm sản phẩm.
+ *
+ * Mã bộ (`muc`, `haidang`, `giay`, `reu`) và màu chấm xem trước chép đúng từ bản dựng
+ * đã duyệt: `docs/07-giao-dien/identity/dang-nhap.html`. Bảng token đầy đủ nằm ở
+ * `styles.scss` và được SINH TỰ ĐỘNG từ chính bản dựng đó — xem `tools/sync-palette.mjs`.
+ */
 export const THEMES = [
-  { id: 'muc', name: 'Mực', hint: 'Nền đen ám xanh · điểm nhấn hổ phách', dark: true },
-  { id: 'hai-dang', name: 'Hải đăng', hint: 'Nền xanh mực sâu · điểm nhấn san hô', dark: true },
-  { id: 'giay', name: 'Giấy', hint: 'Nền trắng ngà · điểm nhấn đỏ rượu', dark: false },
-  { id: 'reu', name: 'Rêu', hint: 'Nền xanh rêu tối · điểm nhấn xanh xô thơm', dark: true },
+  { id: 'muc', name: 'Mực', dot: '#D9A441' },
+  { id: 'haidang', name: 'Hải đăng', dot: '#FF7A5C' },
+  { id: 'giay', name: 'Giấy', dot: '#8C2F39' },
+  { id: 'reu', name: 'Rêu', dot: '#A3B18A' },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]['id'];
@@ -23,10 +29,10 @@ function isThemeId(value: string | null): value is ThemeId {
 /**
  * Đổi bộ màu bằng cách đặt một thuộc tính trên thẻ <html>.
  *
- * <b>Vì sao đổi thuộc tính chứ không nạp file CSS khác:</b> nạp file thì đổi giao diện
- * là một lần đi mạng, và có một khoảnh khắc trang chưa có màu. Cả bốn bộ chỉ là bốn lần
- * khai lại đúng mười biến CSS — gộp hết vào một file thì việc đổi bộ màu diễn ra tức thì,
- * và tốn thêm chưa tới một kilobyte.
+ * <b>Vì sao đổi thuộc tính chứ không nạp file CSS khác:</b> nạp file thì đổi giao diện là
+ * một lần đi mạng, và có một khoảnh khắc trang chưa có màu. Cả bốn bộ chỉ là bốn lần khai
+ * lại đúng mười một biến — gộp hết vào một file thì đổi bộ màu diễn ra tức thì, và tốn
+ * thêm chưa tới một kilobyte.
  *
  * <b>Giao diện là lựa chọn của TỪNG NGƯỜI, không phải cấu hình của workspace.</b> Nên nó
  * nằm ở <c>localStorage</c> của máy đó, không nằm trong hồ sơ người dùng trên server —

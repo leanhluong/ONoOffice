@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "ONoOffice",
-    "tagline": "Your whole company, in one place."
+    "tagline": "Your whole company, in one place.",
+    "pitch": "Directory, departments, requests and internal chat — no longer scattered across spreadsheets and messaging apps."
   },
   "action": {
     "signIn": "Sign in",
@@ -12,7 +13,7 @@
   "theme": {
     "label": "Theme",
     "muc": "Ink",
-    "hai-dang": "Lighthouse",
+    "haidang": "Lighthouse",
     "giay": "Paper",
     "reu": "Moss"
   },
@@ -41,5 +42,10 @@
     "toggle": "Toggle navigation",
     "dashboard": "Dashboard",
     "employees": "People"
+  },
+  "brandfoot": {
+    "internal": "Internal",
+    "perCompany": "One workspace per company",
+    "vietnam": "Vietnam"
   }
 }

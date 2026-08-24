@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, type AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -6,21 +6,24 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ErrorMessageService } from '../../../core/i18n/error-message.service';
 import { isAppError, type AppError } from '../../../core/models/api-error.model';
 import { Alert } from '../../../shared/ui/alert/alert';
+import { OrgWeave } from '../../../shared/ui/org-weave/org-weave';
 import { ThemePicker } from '../../../shared/ui/theme-picker/theme-picker';
+import { Toast } from '../../../shared/ui/toast/toast';
 
 /**
  * Màn đăng nhập.
  *
  * Đây là màn DUY NHẤT ai cũng vào được mà chưa cần token, nên cũng là màn bị dò nhiều
  * nhất. Mọi lựa chọn dưới đây xoay quanh chuyện đó — xem
- * `docs/07-giao-dien/identity/dang-nhap.md`.
+ * `docs/07-giao-dien/identity/dang-nhap.md`, và bản dựng màu `dang-nhap.html` là nguồn
+ * duy nhất cho mọi con số về giao diện.
  *
  * Đã chạy thật với backend ngày 2026-08-24.
  */
 @Component({
   selector: 'app-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, TranslatePipe, Alert, ThemePicker],
+  imports: [ReactiveFormsModule, TranslatePipe, Alert, OrgWeave, ThemePicker, Toast],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -32,6 +35,8 @@ export class Login {
   private readonly errorMessages = inject(ErrorMessageService);
   private readonly translate = inject(TranslateService);
 
+  private readonly toast = viewChild.required(Toast);
+
   protected readonly submitting = signal(false);
   protected readonly showPassword = signal(false);
 
@@ -41,11 +46,6 @@ export class Login {
   protected readonly errorText = computed(() => {
     const error = this.formError();
     return error === null ? null : this.errorMessages.resolve(error);
-  });
-
-  protected readonly errorReference = computed(() => {
-    const error = this.formError();
-    return error === null ? null : this.errorMessages.reference(error);
   });
 
   /**
@@ -64,10 +64,13 @@ export class Login {
      *
      * Cố ý không kiểm độ dài tối thiểu ở màn ĐĂNG NHẬP: mật khẩu đã tồn tại rồi, luật độ
      * mạnh thuộc về màn đăng ký và màn đổi mật khẩu. Kiểm ở đây thì người có mật khẩu cũ
-     * ngắn hơn luật mới sẽ không đăng nhập được vào chính tài khoản của họ — và thông
-     * báo lỗi sẽ nói cho kẻ đang dò biết luật mật khẩu của hệ thống.
+     * ngắn hơn luật mới sẽ không vào được chính tài khoản của họ — và thông báo lỗi sẽ
+     * nói cho kẻ đang dò biết luật mật khẩu của hệ thống.
      */
     password: ['', [Validators.required]],
+
+    /** CHƯA NỐI GÌ. Sẽ quyết định hạn refresh token dài/ngắn — xem dang-nhap.md. */
+    remember: [true],
   });
 
   protected get emailControl(): AbstractControl {
@@ -97,9 +100,7 @@ export class Login {
 
     if (errors['required']) {
       return this.translate.instant(
-        field === 'email'
-          ? 'login.validation.emailRequired'
-          : 'login.validation.passwordRequired',
+        field === 'email' ? 'login.validation.emailRequired' : 'login.validation.passwordRequired',
       ) as string;
     }
 
@@ -122,13 +123,15 @@ export class Login {
 
     this.submitting.set(true);
 
+    const { email, password } = this.form.getRawValue();
+
     /**
      * CỐ Ý không khoá hai ô nhập khi đang gửi — chỉ khoá nút.
      *
      * Khoá cả form thì người vừa nhận ra mình gõ nhầm email phải ngồi chờ hết một vòng
      * mạng mới sửa được. Với hạ tầng miễn phí đang ngủ, vòng đó có thể là 30–60 giây.
      */
-    this.auth.login(this.form.getRawValue()).subscribe({
+    this.auth.login({ email, password }).subscribe({
       next: () => {
         this.submitting.set(false);
         void this.router.navigateByUrl(this.returnUrl());
@@ -140,17 +143,19 @@ export class Login {
     });
   }
 
-  /** Nút Google/Facebook: đã có chỗ, chưa có gì phía sau. Nói thẳng thay vì im lặng. */
-  protected notBuiltYet(): void {
-    this.formError.set({
-      kind: 'unknown',
-      status: 0,
-      code: 'Client.NotBuiltYet',
-      message: this.translate.instant('login.comingSoon') as string,
-      details: [],
-      fieldErrors: {},
-      correlationId: null,
-    });
+  /**
+   * Nút chưa làm: hiện một thông báo thoáng qua ở đáy màn hình.
+   *
+   * KHÔNG dùng khối cảnh báo trong form — khối đó dành cho lý do người dùng không vào
+   * được. Nhét "tính năng đang phát triển" vào đó khiến một tin vô hại trông như lỗi.
+   */
+  protected notBuiltYet(event: Event, labelKey: string): void {
+    event.preventDefault();
+
+    const label = this.translate.instant(labelKey) as string;
+    const suffix = this.translate.instant('login.comingSoon') as string;
+
+    this.toast().show(`${label} — ${suffix}`);
   }
 
   /**

@@ -7,12 +7,16 @@ import { ThemeService, type ThemeId } from '../../../core/theme/theme.service';
 /**
  * Chọn bộ màu và ngôn ngữ.
  *
+ * Kiểu dáng chép từ `.swatch` của bản dựng mockup: viên thuốc bo tròn, một chấm màu bên
+ * trái, tên bộ bên phải. Bản đang chọn đổi màu VIỀN sang accent — không tô đậm nền, vì
+ * nền đậm sẽ chọi với chính chấm màu bên trong.
+ *
  * Hai thứ này đi cùng nhau vì chúng cùng một loại: <b>lựa chọn của từng người</b>, lưu
  * trên máy họ, không phải cấu hình của workspace. Hai người cùng công ty được dùng hai
  * giao diện và hai thứ tiếng khác nhau.
  *
  * Đặt cả ở màn đăng nhập, không chỉ trong menu sau khi vào: người chưa đăng nhập được
- * cũng cần đọc được thông báo lỗi bằng tiếng của họ, và cũng có mắt nhạy sáng.
+ * cũng cần đọc thông báo lỗi bằng tiếng của họ, và cũng có mắt nhạy sáng.
  */
 @Component({
   selector: 'app-theme-picker',
@@ -20,29 +24,26 @@ import { ThemeService, type ThemeId } from '../../../core/theme/theme.service';
   imports: [TranslatePipe],
   styleUrl: './theme-picker.scss',
   template: `
-    <div class="picker">
-      <div class="picker__group" role="group" [attr.aria-label]="'theme.label' | translate">
+    <div class="prefs">
+      <div class="prefs__group" role="group" [attr.aria-label]="'theme.label' | translate">
         @for (theme of themes; track theme.id) {
           <button
             type="button"
-            class="picker__swatch"
-            [class.picker__swatch--on]="themeService.current() === theme.id"
-            [attr.data-theme-preview]="theme.id"
+            class="swatch"
             [attr.aria-pressed]="themeService.current() === theme.id"
-            [title]="theme.hint"
             (click)="setTheme(theme.id)"
           >
-            <span class="visually-hidden">{{ 'theme.' + theme.id | translate }}</span>
+            <span class="swatch__dot" [style.background]="theme.dot"></span>
+            {{ 'theme.' + theme.id | translate }}
           </button>
         }
       </div>
 
-      <div class="picker__group" role="group" [attr.aria-label]="'language.label' | translate">
+      <div class="prefs__group" role="group" [attr.aria-label]="'language.label' | translate">
         @for (language of languages; track language.id) {
           <button
             type="button"
-            class="picker__lang"
-            [class.picker__lang--on]="languageService.current() === language.id"
+            class="lang"
             [attr.aria-pressed]="languageService.current() === language.id"
             (click)="setLanguage(language.id)"
           >

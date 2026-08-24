@@ -25,6 +25,18 @@ export const LANGUAGE_STORAGE_KEY = 'onooffice.language';
  */
 const RESOURCES = ['common', 'errors', 'identity'] as const;
 
+/**
+ * Người dùng đã chọn thì theo họ; chưa chọn thì <b>tiếng Việt</b>.
+ *
+ * <b>Cố ý KHÔNG suy đoán từ <c>navigator.language</c></b>, dù nghe rất hợp lý. Đây là
+ * sản phẩm nội bộ cho công ty Việt Nam — chân trang ghi thẳng "VIỆT NAM". Nhưng rất
+ * nhiều máy ở Việt Nam để mặc định <c>en-US</c>: máy mua sẵn, máy công ty cấp, Windows
+ * cài bản tiếng Anh. Suy đoán theo cài đặt máy thì phần lớn người dùng thật sẽ mở app
+ * lên và thấy tiếng Anh, rồi phải đi tìm chỗ đổi.
+ *
+ * Đoán sai ở đây không phải lỗi kỹ thuật, nó chỉ là phiền — nhưng phiền với đúng nhóm
+ * người mà sản phẩm phục vụ.
+ */
 export function readSavedLanguage(): LanguageId {
   try {
     const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
@@ -33,13 +45,10 @@ export function readSavedLanguage(): LanguageId {
       return saved as LanguageId;
     }
   } catch {
-    // Chế độ ẩn danh — rơi xuống suy đoán từ trình duyệt.
+    // Chế độ ẩn danh — rơi xuống mặc định.
   }
 
-  // Trình duyệt là bên duy nhất biết chắc người dùng muốn đọc tiếng gì.
-  const browser = typeof navigator !== 'undefined' ? navigator.language.slice(0, 2) : '';
-
-  return browser === 'en' ? 'en' : DEFAULT_LANGUAGE;
+  return DEFAULT_LANGUAGE;
 }
 
 /**

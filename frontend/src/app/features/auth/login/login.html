@@ -1,157 +1,181 @@
-<div class="login">
+<div class="stage">
   <!--
-    Cột trái: định vị sản phẩm. Nền là SƠ ĐỒ TỔ CHỨC, không phải hoa văn trang trí —
-    các chấm nối nhau chính là thứ sản phẩm nói về. Vẽ bằng SVG inline chứ không tải ảnh:
-    nó đổi màu theo bộ màu đang chọn, và không tốn thêm một lần đi mạng nào ở đúng màn
-    hình đầu tiên người dùng nhìn thấy.
+    Cột trái: thương hiệu + sơ đồ tổ chức trôi.
+    Ba khối xếp cách đều nhau theo chiều dọc — wordmark trên, lời định vị giữa, ba nhãn
+    dưới. Bố cục chép đúng `.brand` của bản dựng.
   -->
-  <aside class="login__aside" aria-hidden="true">
-    <!--
-      `preserveAspectRatio="xMidYMid slice"` — không có nó thì SVG bị kéo giãn theo khung,
-      và mấy chấm nhỏ phình thành những quả bóng to đùng che hết chữ.
-      `vector-effect` giữ nét kẻ mảnh đều nhau ở mọi cỡ màn hình.
-    -->
-    <svg
-      class="login__orgchart"
-      viewBox="0 0 400 300"
-      preserveAspectRatio="xMidYMid slice"
-      role="presentation"
-    >
-      <g class="login__edges">
-        <path d="M200 62 L200 108" />
-        <path d="M120 142 L120 108 L280 108 L280 142" />
-        <path d="M120 172 L120 208" />
-        <path d="M62 238 L62 208 L178 208 L178 238" />
-        <path d="M280 172 L280 208" />
-        <path d="M222 238 L222 208 L338 208 L338 238" />
-      </g>
-      <g class="login__nodes">
-        <circle cx="200" cy="56" r="6" />
-        <circle cx="120" cy="157" r="4.5" />
-        <circle cx="280" cy="157" r="4.5" />
-        <circle cx="62" cy="244" r="3" />
-        <circle cx="178" cy="244" r="3" />
-        <circle cx="222" cy="244" r="3" />
-        <circle cx="338" cy="244" r="3" />
-      </g>
-    </svg>
+  <section class="brand">
+    <app-org-weave />
 
-    <div class="login__pitch">
-      <p class="login__brand">{{ 'app.name' | translate }}</p>
-      <h1 class="login__tagline">{{ 'app.tagline' | translate }}</h1>
-      <p class="login__notice">{{ 'login.notice' | translate }}</p>
+    <div class="wordmark">
+      <span class="wordmark__mark" aria-hidden="true">O</span>
+      {{ 'app.name' | translate }}
     </div>
-  </aside>
 
-  <!-- Cột phải: form. Trên điện thoại nó chiếm hết bề ngang. -->
-  <main class="login__panel">
-    <div class="login__panel-head">
+    <div class="pitch">
+      <h1>{{ 'app.tagline' | translate }}</h1>
+      <p>{{ 'app.pitch' | translate }}</p>
+    </div>
+
+    <div class="brandfoot">
+      <span>{{ 'brandfoot.internal' | translate }}</span>
+      <span>{{ 'brandfoot.perCompany' | translate }}</span>
+      <span>{{ 'brandfoot.vietnam' | translate }}</span>
+    </div>
+  </section>
+
+  <!-- Cột phải: biểu mẫu. Trên điện thoại nó chiếm hết bề ngang. -->
+  <section class="panel">
+    <div class="panel__prefs">
       <app-theme-picker />
     </div>
 
-    <form class="login__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <h2 class="login__heading">{{ 'login.heading' | translate }}</h2>
-      <p class="login__sub">{{ 'login.subheading' | translate }}</p>
+    <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="form__head">
+        <h2>{{ 'login.heading' | translate }}</h2>
+        <p>{{ 'login.subheading' | translate }}</p>
+      </div>
 
       @if (sessionExpired && !formError()) {
-        <app-alert tone="warning">{{ 'login.sessionExpired' | translate }}</app-alert>
+        <app-alert>{{ 'login.sessionExpired' | translate }}</app-alert>
       }
 
       @if (errorText(); as message) {
-        <app-alert
-          tone="error"
-          [title]="'login.failed' | translate"
-          [reference]="errorReference()"
-        >
+        <app-alert [code]="formError()!.code" [status]="formError()!.status || null">
           {{ message }}
         </app-alert>
       }
 
       <div class="field">
-        <label class="field__label" for="email">{{ 'login.email' | translate }}</label>
-        <input
-          id="email"
-          type="email"
-          class="field__input"
-          formControlName="email"
-          autocomplete="username"
-          inputmode="email"
-          autocapitalize="off"
-          spellcheck="false"
-          [attr.aria-invalid]="errorFor(emailControl, 'email') !== null"
-          [attr.aria-describedby]="errorFor(emailControl, 'email') ? 'email-error' : null"
-        />
+        <label for="email">{{ 'login.email' | translate }}</label>
+
+        <div class="control" [class.control--bad]="errorFor(emailControl, 'email') !== null">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <rect x="2.5" y="4.5" width="15" height="11" rx="2" />
+            <path d="m3 6 7 5 7-5" />
+          </svg>
+
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            inputmode="email"
+            autocomplete="username"
+            autocapitalize="off"
+            spellcheck="false"
+            [placeholder]="'login.emailPlaceholder' | translate"
+            [attr.aria-invalid]="errorFor(emailControl, 'email') !== null"
+            [attr.aria-describedby]="errorFor(emailControl, 'email') ? 'email-hint' : null"
+          />
+        </div>
+
         @if (errorFor(emailControl, 'email'); as message) {
-          <p class="field__error" id="email-error">{{ message }}</p>
+          <span class="hint" id="email-hint">{{ message }}</span>
         }
       </div>
 
       <div class="field">
-        <label class="field__label" for="password">{{ 'login.password' | translate }}</label>
+        <label for="password">{{ 'login.password' | translate }}</label>
 
-        <div class="field__with-action">
+        <div class="control" [class.control--bad]="errorFor(passwordControl, 'password') !== null">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <rect x="4" y="8.5" width="12" height="8" rx="2" />
+            <path d="M7 8.5V6a3 3 0 016 0v2.5" />
+          </svg>
+
           <input
             id="password"
             [type]="showPassword() ? 'text' : 'password'"
-            class="field__input"
             formControlName="password"
             autocomplete="current-password"
+            placeholder="••••••••"
             [attr.aria-invalid]="errorFor(passwordControl, 'password') !== null"
-            [attr.aria-describedby]="
-              errorFor(passwordControl, 'password') ? 'password-error' : null
-            "
+            [attr.aria-describedby]="errorFor(passwordControl, 'password') ? 'password-hint' : null"
           />
+
           <!--
-            Nút hiện mật khẩu: người gõ sai vài lần cần nhìn thấy mình đang gõ gì. Không
-            có nó thì họ dán mật khẩu vào ô email để đọc — và mật khẩu nằm lại trong
-            lịch sử tự điền của trình duyệt.
+            Người gõ sai vài lần cần nhìn thấy mình đang gõ gì. Không có nút này thì họ
+            dán mật khẩu vào ô email để đọc — và nó nằm lại trong lịch sử tự điền.
           -->
           <button
             type="button"
-            class="field__action"
+            class="peek"
             (click)="togglePassword()"
-            [attr.aria-label]="
-              (showPassword() ? 'login.hidePassword' : 'login.showPassword') | translate
-            "
+            [attr.aria-label]="(showPassword() ? 'login.hidePassword' : 'login.showPassword') | translate"
           >
-            {{ (showPassword() ? 'login.hidePassword' : 'login.showPassword') | translate }}
+            {{ (showPassword() ? 'login.hide' : 'login.show') | translate }}
           </button>
         </div>
 
         @if (errorFor(passwordControl, 'password'); as message) {
-          <p class="field__error" id="password-error">{{ message }}</p>
+          <span class="hint" id="password-hint">{{ message }}</span>
         }
       </div>
 
-      <div class="login__row">
+      <div class="row">
         <!-- Ô tick đã có nhưng CHƯA NỐI GÌ — ghi rõ ở dang-nhap.md, mục "Chưa làm". -->
-        <label class="login__remember">
-          <input type="checkbox" disabled />
-          <span>{{ 'login.remember' | translate }}</span>
+        <label class="check">
+          <input type="checkbox" formControlName="remember" />
+          {{ 'login.remember' | translate }}
         </label>
 
-        <button type="button" class="login__link" (click)="notBuiltYet()">
+        <a class="link" href="#" (click)="notBuiltYet($event, 'login.forgot')">
           {{ 'login.forgot' | translate }}
-        </button>
+        </a>
       </div>
 
-      <button type="submit" class="login__submit" [disabled]="submitting()">
+      <button class="submit" type="submit" [disabled]="submitting()">
         @if (submitting()) {
-          <span class="login__spinner" aria-hidden="true"></span>
+          <span class="spinner" aria-hidden="true"></span>
         }
-        {{ (submitting() ? 'login.submitting' : 'login.submit') | translate }}
+        <span>{{ (submitting() ? 'login.submitting' : 'login.submit') | translate }}</span>
       </button>
 
-      <p class="login__divider"><span>{{ 'login.orContinueWith' | translate }}</span></p>
+      <div class="sep">{{ 'login.orContinueWith' | translate }}</div>
 
-      <div class="login__federated">
-        <button type="button" class="login__federated-button" (click)="notBuiltYet()">
+      <div class="oauth">
+        <button type="button" (click)="notBuiltYet($event, 'login.google')">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="#4285F4"
+              d="M23.5 12.3c0-.9-.1-1.5-.2-2.2H12v4.1h6.6c-.1 1.1-.9 2.8-2.5 3.9l3.8 3c2.3-2.1 3.6-5.2 3.6-8.8z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 24c3.2 0 6-1.1 8-2.9l-3.8-3c-1 .7-2.4 1.2-4.2 1.2-3.2 0-5.9-2.1-6.8-5l-3.9 3C3.3 21.3 7.3 24 12 24z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.2 14.3c-.2-.7-.4-1.5-.4-2.3s.1-1.6.4-2.3l-4-3.1C.4 8.2 0 10 0 12s.4 3.8 1.2 5.4l4-3.1z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 4.8c2.3 0 3.8 1 4.7 1.8l3.4-3.3C18 1.2 15.2 0 12 0 7.3 0 3.3 2.7 1.2 6.6l4 3.1C6.1 6.8 8.8 4.8 12 4.8z"
+            />
+          </svg>
           Google
         </button>
-        <button type="button" class="login__federated-button" (click)="notBuiltYet()">
+
+        <button type="button" (click)="notBuiltYet($event, 'login.facebook')">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="#1877F2"
+              d="M24 12a12 12 0 10-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.6 4.5-4.6 1.3 0 2.6.2 2.6.2v2.9h-1.5c-1.5 0-1.9.9-1.9 1.8V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0024 12z"
+            />
+          </svg>
           Facebook
         </button>
       </div>
+
+      <p class="footnote">
+        {{ 'login.noAccount' | translate }}
+        <a class="link" href="#" (click)="notBuiltYet($event, 'login.contactAdmin')">{{
+          'login.admin' | translate
+        }}</a>
+        {{ 'login.ofYourCompany' | translate }}
+      </p>
     </form>
-  </main>
+  </section>
 </div>
+
+<app-toast />

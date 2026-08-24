@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "ONoOffice",
-    "tagline": "Cả công ty, gọn trong một chỗ."
+    "tagline": "Cả công ty, gọn trong một chỗ.",
+    "pitch": "Danh bạ, phòng ban, đơn từ và trao đổi nội bộ — không còn nằm rải trong Excel và Zalo."
   },
   "action": {
     "signIn": "Đăng nhập",
@@ -10,9 +11,9 @@
     "retry": "Thử lại"
   },
   "theme": {
-    "label": "Giao diện",
+    "label": "Bộ màu",
     "muc": "Mực",
-    "hai-dang": "Hải đăng",
+    "haidang": "Hải đăng",
     "giay": "Giấy",
     "reu": "Rêu"
   },
@@ -41,5 +42,10 @@
     "toggle": "Đóng/mở thanh điều hướng",
     "dashboard": "Bảng điều khiển",
     "employees": "Nhân sự"
+  },
+  "brandfoot": {
+    "internal": "Nội bộ",
+    "perCompany": "Riêng từng công ty",
+    "vietnam": "Việt Nam"
   }
 }

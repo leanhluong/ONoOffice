@@ -5,3 +5,6 @@ obj/
 node_modules/
 dist/
 TestResults/
+
+# Ảnh chụp màn hình để đối chiếu với mockup — sinh lại được, không cần lưu
+frontend/.shots/

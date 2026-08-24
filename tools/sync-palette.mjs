@@ -1,10 +1,53 @@
 /**
+ * Sinh phần token màu của `styles.scss` THẲNG từ bản dựng mockup.
+ *
+ * Chép tay 4 bộ × 11 token = 44 giá trị hex là 44 cơ hội gõ sai một ký tự — và sai một
+ * ký tự thì không ai nhìn ra bằng mắt. Sinh máy thì không thể lệch.
+ */
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const MOCKUP = 'docs/07-giao-dien/identity/dang-nhap.html';
+const TARGET = 'frontend/src/styles.scss';
+
+const html = readFileSync(MOCKUP, 'utf8');
+
+const skins = [...html.matchAll(/:root(?:\[data-skin="(\w+)"\])?\s*\{([^}]*--glow[^}]*)\}/g)].map(
+  ([, skin, body]) => ({
+    skin: skin ?? 'muc',
+    tokens: [...body.matchAll(/(--[\w-]+):\s*([^;]+);/g)].map(([, n, v]) => [n, v.trim()]),
+  }),
+);
+
+if (skins.length !== 4) {
+  throw new Error(`Đọc được ${skins.length} bộ màu, phải là 4 — biểu thức tìm kiếm hỏng.`);
+}
+
+const NAMES = {
+  muc: 'Mực — nền đen ám xanh, điểm nhấn hổ phách',
+  haidang: 'Hải đăng — nền xanh mực sâu, điểm nhấn san hô',
+  giay: 'Giấy — nền trắng ngà, điểm nhấn đỏ rượu',
+  reu: 'Rêu — nền xanh rêu tối, điểm nhấn xanh xô thơm',
+};
+
+const render = (tokens, indent = '  ') =>
+  tokens.map(([n, v]) => `${indent}${n}: ${v};`).join('\n');
+
+const giay = skins.find((s) => s.skin === 'giay');
+
+const blocks = skins
+  .map(({ skin, tokens }) => {
+    const selector = skin === 'muc' ? `:root,\n:root[data-theme='muc']` : `:root[data-theme='${skin}']`;
+    return `/* ${NAMES[skin]} */\n${selector} {\n${render(tokens)}\n}`;
+  })
+  .join('\n\n');
+
+const css = `/**
  * Style toàn cục.
  *
  * Chỉ chứa ba thứ: nạp chữ, khai token của bốn bộ màu, và một reset tối thiểu.
  * Mọi thứ khác thuộc về SCSS của từng component (Angular tự bọc scope).
  *
- * LUẬT BẤT DI BẤT DỊCH: component chỉ được dùng `var(--token)`, không bao giờ viết mã
+ * LUẬT BẤT DI BẤT DỊCH: component chỉ được dùng \`var(--token)\`, không bao giờ viết mã
  * màu trực tiếp. Đó là toàn bộ lý do ship được bốn bộ màu mà không tốn gì thêm — bốn bộ
  * chỉ là bốn lần khai lại đúng mười một biến bên dưới.
  */
@@ -33,82 +76,13 @@
    --ink-soft    chữ phụ, nhãn
    ══════════════════════════════════════════════════════════════════════════════ */
 
-/* Mực — nền đen ám xanh, điểm nhấn hổ phách */
-:root,
-:root[data-theme='muc'] {
-  --ground: #0B0C0E;
-  --surface: #131417;
-  --surface-2: #1B1D21;
-  --line: #26282D;
-  --ink: #EDEAE4;
-  --ink-soft: #9B9891;
-  --ink-faint: #6A6862;
-  --accent: #D9A441;
-  --accent-ink: #1A1408;
-  --danger: #E0644F;
-  --glow: 217, 164, 65;
-}
-
-/* Hải đăng — nền xanh mực sâu, điểm nhấn san hô */
-:root[data-theme='haidang'] {
-  --ground: #0A1220;
-  --surface: #101A2B;
-  --surface-2: #16233A;
-  --line: #223148;
-  --ink: #DCE4F0;
-  --ink-soft: #8A9AB4;
-  --ink-faint: #5C6B84;
-  --accent: #FF7A5C;
-  --accent-ink: #2A0D06;
-  --danger: #FF9E8C;
-  --glow: 255, 122, 92;
-}
-
-/* Giấy — nền trắng ngà, điểm nhấn đỏ rượu */
-:root[data-theme='giay'] {
-  --ground: #FAFAF8;
-  --surface: #FFFFFF;
-  --surface-2: #F1F1EE;
-  --line: #DEDEDA;
-  --ink: #16181C;
-  --ink-soft: #5A5D64;
-  --ink-faint: #8B8E95;
-  --accent: #8C2F39;
-  --accent-ink: #FFF6F2;
-  --danger: #B3261E;
-  --glow: 140, 47, 57;
-}
-
-/* Rêu — nền xanh rêu tối, điểm nhấn xanh xô thơm */
-:root[data-theme='reu'] {
-  --ground: #12160F;
-  --surface: #191E15;
-  --surface-2: #22281C;
-  --line: #2F3728;
-  --ink: #E4E8DC;
-  --ink-soft: #9AA48C;
-  --ink-faint: #6B7461;
-  --accent: #A3B18A;
-  --accent-ink: #141A0D;
-  --danger: #D98E7A;
-  --glow: 163, 177, 138;
-}
+${blocks}
 
 /* Máy để chế độ SÁNG mà người dùng chưa chọn gì → Giấy.
-   `:not([data-theme])` nên lựa chọn tay của người dùng luôn thắng. */
+   \`:not([data-theme])\` nên lựa chọn tay của người dùng luôn thắng. */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
-    --ground: #FAFAF8;
-    --surface: #FFFFFF;
-    --surface-2: #F1F1EE;
-    --line: #DEDEDA;
-    --ink: #16181C;
-    --ink-soft: #5A5D64;
-    --ink-faint: #8B8E95;
-    --accent: #8C2F39;
-    --accent-ink: #FFF6F2;
-    --danger: #B3261E;
-    --glow: 140, 47, 57;
+${render(giay.tokens, '    ')}
   }
 }
 
@@ -177,7 +151,7 @@ kbd,
   }
 }
 
-/* Chỉ trình đọc màn hình thấy. Dùng cho nhãn của nút chỉ có biểu tượng — `display:none`
+/* Chỉ trình đọc màn hình thấy. Dùng cho nhãn của nút chỉ có biểu tượng — \`display:none\`
    thì trình đọc màn hình cũng không đọc, tức là nút đó câm với người khiếm thị. */
 .visually-hidden {
   position: absolute;
@@ -189,3 +163,7 @@ kbd,
   clip-path: inset(50%);
   white-space: nowrap;
 }
+`;
+
+writeFileSync(TARGET, css);
+console.log(`Đã sinh ${TARGET} từ ${skins.length} bộ màu trong mockup.`);
