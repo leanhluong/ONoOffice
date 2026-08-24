@@ -1,0 +1,135 @@
+<!--
+  Đánh dấu chép từ `docs/07-giao-dien/identity/vai-tro.html`.
+
+  CSS thì KHÔNG chép — `role-list.scss` sinh tự động từ chính file đó
+  (`node tools/sync-shell.mjs`). Chỗ duy nhất phải giữ đồng bộ bằng tay là đánh dấu.
+-->
+<header class="trangdau">
+  <h1>{{ 'nav.roles' | translate }}</h1>
+  <span class="trangdau__phu">
+    {{ 'roles.summary' | translate: { roles: roles().length, permissions: totalPermissions } }}
+  </span>
+  <div class="trangdau__day"></div>
+</header>
+
+<div class="hai">
+  <!-- ══════════════ DANH SÁCH VAI TRÒ ══════════════ -->
+  <aside class="dsvai" [attr.aria-label]="'roles.listLabel' | translate">
+    <div class="dsvai__cuon">
+      <div class="dsvai__nhan">{{ 'roles.systemRoles' | translate }}</div>
+
+      @for (role of roles(); track role.id) {
+        <button
+          class="vaimuc"
+          type="button"
+          [attr.aria-current]="role.id === selectedId() ? 'true' : null"
+          (click)="select(role.id)"
+        >
+          <span class="vaimuc__giua">
+            <span class="vaimuc__ten">{{ role.name }}</span>
+            <span class="vaimuc__phu">
+              {{ 'roles.memberCount' | translate: { count: role.memberCount } }} ·
+              {{ 'roles.permissionCount' | translate: { count: role.permissions.length } }}
+            </span>
+          </span>
+
+          @if (role.isSystem) {
+            <svg
+              class="vaimuc__khoa"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <rect x="3" y="6" width="8" height="6" rx="1.5" />
+              <path d="M5 6V4.3a2 2 0 014 0V6" />
+            </svg>
+          }
+        </button>
+      }
+    </div>
+  </aside>
+
+  <!-- ══════════════ CHI TIẾT ══════════════ -->
+  <section class="chitiet" [attr.aria-label]="'roles.detailLabel' | translate">
+    @if (selected(); as role) {
+      <div class="trangdau" style="min-height: 52px">
+        <div style="flex: 1; min-width: 0">
+          <div style="font-family: Sora, system-ui, sans-serif; font-weight: 600; font-size: 15px">
+            {{ role.name }}
+          </div>
+          <div style="font-size: 12px; color: var(--ink-faint); margin-top: 2px">
+            {{ 'roles.holders' | translate: { count: role.memberCount } }}
+          </div>
+        </div>
+      </div>
+
+      <div class="chitiet__cuon">
+        <p style="margin: 0 0 16px; font-size: 13px; color: var(--ink-soft); line-height: 1.6">
+          {{ 'roles.describe.' + role.name | translate }}
+        </p>
+
+        @if (role.isSystem) {
+          <!--
+            Dải giải thích đặt NGAY TRÊN bảng quyền. Để cuối trang thì người dùng bấm ba
+            lần vào công tắc không nhúc nhích rồi mới đọc tới.
+          -->
+          <div class="khoabao">
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              aria-hidden="true"
+            >
+              <rect x="3.5" y="7" width="9" height="6.5" rx="1.6" />
+              <path d="M5.8 7V5a2.2 2.2 0 014.4 0v2" />
+            </svg>
+            <span>{{ 'roles.locked' | translate }}</span>
+          </div>
+        }
+
+        @for (block of blocks(); track block.group) {
+          <div class="nhomq">
+            <div class="nhomq__dau">
+              <span class="nhomq__ten">{{ 'roles.group.' + block.group | translate }}</span>
+              <span class="nhomq__dem">{{ block.grantedCount }} / {{ block.rows.length }}</span>
+            </div>
+
+            <div class="nhomq__than">
+              @for (row of block.rows; track row.code) {
+                <div class="quyen">
+                  <div class="quyen__giua">
+                    <div class="quyen__ten">{{ row.info.labelKey | translate }}</div>
+                    <div class="quyen__ma">{{ row.code }}</div>
+
+                    <!-- Quyền nguy hiểm nói HẬU QUẢ, không chỉ nói tên. -->
+                    @if (row.info.consequenceKey) {
+                      <div class="quyen__mota">{{ row.info.consequenceKey | translate }}</div>
+                    }
+                  </div>
+
+                  <!--
+                    Công tắc mờ VÀ không bấm được (CSS đã khoá). Chỉ làm mờ mà vẫn bấm được
+                    là tệ nhất: người dùng bấm, nó đổi, rồi lưu xong quay lại như cũ mà
+                    không có lời giải thích nào.
+                  -->
+                  <label class="congtac">
+                    <input
+                      type="checkbox"
+                      disabled
+                      [checked]="row.granted"
+                      [attr.aria-label]="row.info.labelKey | translate"
+                    />
+                    <span class="congtac__ray"></span>
+                  </label>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

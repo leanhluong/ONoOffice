@@ -199,5 +199,88 @@
       "enable": "Enable account",
       "locked": "You cannot disable yourself or the owner. Transfer ownership first if you need to."
     }
+  },
+  "account": {
+    "mustChange": "This account is on a temporary password. Please change it now.",
+    "saved": "Profile saved.",
+    "passwordChanged": "Password changed. Every other device has been signed out.",
+    "tab": {
+      "profile": "Profile",
+      "security": "Security",
+      "appearance": "Appearance"
+    },
+    "personal": {
+      "title": "Personal details",
+      "text": "Colleagues see your name in the directory and when you send messages."
+    },
+    "field": {
+      "loginEmail": "Sign-in email",
+      "emailLocked": "Changing the sign-in email goes through an administrator — it identifies the account.",
+      "roleLocked": "Nobody can change their own role."
+    },
+    "password": {
+      "title": "Change password",
+      "text": "Use a sentence you can remember. Longer is safer — no special characters needed. At least 10 characters.",
+      "current": "Current password",
+      "new": "New password",
+      "repeat": "Repeat new password",
+      "placeholder": "At least 10 characters",
+      "warning": "Changing your password signs out every other device — including your phone.",
+      "submit": "Change password"
+    },
+    "appearance": {
+      "title": "Theme & language",
+      "text": "This choice is yours alone — it is stored on your machine and changes nothing for colleagues. It follows your system light/dark setting by default."
+    },
+    "display": {
+      "title": "Display",
+      "collapse": "Collapse the navigation column",
+      "collapseText": "Icons only, leaving more room for content."
+    },
+    "validation": {
+      "nameRequired": "Please enter your full name.",
+      "passwordRequired": "Please enter a password.",
+      "passwordTooShort": "The password must be at least 10 characters.",
+      "mismatch": "The two entries do not match."
+    }
+  },
+  "roles": {
+    "summary": "{{roles}} roles · {{permissions}} permissions",
+    "listLabel": "Roles",
+    "detailLabel": "Role details",
+    "systemRoles": "System roles",
+    "memberCount": "{{count}} people",
+    "permissionCount": "{{count}} permissions",
+    "holders": "{{count}} people hold this role",
+    "locked": "The four system roles are read-only. They are rebuilt in every workspace from one definition in the source, so an edit here would be overwritten by the next upgrade without warning. Company-defined roles are the next step — not built yet.",
+    "describe": {
+      "Owner": "Workspace owner. Holds every permission, including transferring ownership.",
+      "Admin": "Administers the whole workspace: people, departments, roles.",
+      "Manager": "Runs their own department. Currently IDENTICAL to Member — the leave.approve permission does not exist yet, so nothing separates the two.",
+      "Member": "Regular employee. Currently can only view the employee directory."
+    },
+    "group": {
+      "workspace": "Workspace",
+      "employee": "People",
+      "account": "Accounts & roles",
+      "department": "Departments"
+    },
+    "perm": {
+      "workspaceRead": "View workspace details",
+      "workspaceManage": "Edit workspace details",
+      "workspaceTransfer": "Transfer ownership",
+      "workspaceTransferWhy": "Hands the workspace to someone else. The giver loses Owner immediately.",
+      "employeeRead": "View the employee list",
+      "employeeWrite": "Add and edit employees",
+      "employeeDelete": "Delete employees",
+      "employeeDeleteWhy": "A soft delete — the record is hidden but past data stays.",
+      "userRead": "View accounts",
+      "userManage": "Create accounts, disable them, reset passwords",
+      "roleRead": "View roles",
+      "roleManage": "Create and edit roles",
+      "roleManageWhy": "Anyone with this can raise their own permissions. Give it only to real administrators.",
+      "departmentRead": "View the department tree",
+      "departmentManage": "Create, edit and reorder departments"
+    }
   }
 }

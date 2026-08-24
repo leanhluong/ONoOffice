@@ -51,18 +51,19 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Test kiến trúc + i18n + luật Controller | 🟢 | 14 |
 | **Database** | 🟢 Postgres 16 · 2 migration · dữ liệu mồi — đã chạy THẬT | **52** |
 | **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
-| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **91** |
-| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 91)* |
-| **Khung ứng dụng v3** | 🟢 Cột điều hướng có chữ, sinh từ `_khung.css` · 18 biến màu chết đã sửa | *(trong 91)* |
-| **Frontend · Nhân sự** | 🟢 **Đã chạy thật**: lọc, phân trang, thêm người hai bước, ngăn kéo chi tiết | *(trong 91)* |
-| Bản dựng tài khoản · vai trò | 🟡 Đã duyệt, **chưa nối Angular** | — |
+| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **104** |
+| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 104)* |
+| **Khung ứng dụng v3** | 🟢 Cột điều hướng có chữ, sinh từ `_khung.css` · 18 biến màu chết đã sửa | *(trong 104)* |
+| **Frontend · Nhân sự** | 🟢 **Đã chạy thật**: lọc, phân trang, thêm người hai bước, ngăn kéo chi tiết | *(trong 104)* |
+| **Frontend · Hồ sơ & cài đặt** | 🟢 Sửa tên · đổi mật khẩu · bộ màu/ngôn ngữ | *(trong 104)* |
+| **Frontend · Vai trò & quyền** | 🟢 Bốn vai, bảng quyền đầy đủ — **chỉ xem** | *(trong 104)* |
 | Frontend · các màn còn lại | ⬜ Dashboard vẫn là khung rỗng | — |
 | Tài liệu | 🟢 7 thư mục · 4 ADR · `05-api` · wireframe · bản dựng màu | — |
 
 ```bash
 docker compose up -d                          # Postgres 16 ở cổng 5433
 cd backend && dotnet build && dotnet test     # 345 xanh, 0 warning
-cd frontend && npm test && npm run parity     # 91 xanh · hai màn lệch 0,02%
+cd frontend && npm test && npm run parity     # 104 xanh · hai màn lệch 0,02%
 ```
 
 ### Đã kiểm chứng tới đâu (2026-08-24) — và chỗ nào thì CHƯA
@@ -84,8 +85,8 @@ cd frontend && npm test && npm run parity     # 91 xanh · hai màn lệch 0,02%
 | Màn Nhân sự chạy thật: lọc, thêm người, xem chi tiết | Ảnh chụp app đang chạy — điền biểu mẫu, API tạo thật, nhận mật khẩu tạm, bảng tự cập nhật |
 | Danh sách nhân sự **không rò sang workspace khác** | Test dựng hai workspace rồi kiểm chéo; đã cố ý gỡ bộ lọc tenant để chứng minh nó đỏ |
 
-⬜ **Chưa bấm tay qua: màn Hồ sơ và Vai trò.** Hai màn đó mới có bản dựng, chưa có Angular.
-Đăng ký, đăng nhập và Nhân sự thì đã bấm qua rồi — xem bảng trên.
+⬜ **Chưa bấm tay qua: đổi mật khẩu ở màn Hồ sơ.** Backend có test trên Postgres thật, và
+màn hình đã chụp ảnh, nhưng chưa ai gõ tay qua ba ô đó. Mọi thứ còn lại đã bấm qua.
 
 ```bash
 curl -X POST http://localhost:5000/api/auth/login \
@@ -105,8 +106,9 @@ thật — việc còn lại chỉ là nối giao diện.
 Sau đó:
 
 ```
-⬜ Angular: màn Hồ sơ & cài đặt (identity/tai-khoan.html — backend đã có /api/me)
-⬜ Angular: màn Vai trò & quyền (identity/vai-tro.html — backend đã có /api/roles)
+⬜ Tạo / sửa / xoá VAI TRÒ — màn Vai trò hiện chỉ xem được, thiếu ba endpoint
+⬜ Thao tác hàng loạt ở màn Nhân sự · xuất Excel · bộ lọc trên URL
+⬜ Đặt lại mật khẩu HỘ người khác — cùng luồng hai bước như lúc tạo tài khoản
 ⬜ GET /api/me/sessions · DELETE — màn "thiết bị đang đăng nhập" trong bản dựng.
      RefreshToken chưa lưu user-agent nên chưa nói được "Chrome trên Windows".
      Cần thêm cột + migration, HOẶC sửa bản dựng cho khớp thực tế.
@@ -130,7 +132,8 @@ Ba việc nhỏ đang nợ, đã ghi rõ trong code:
 | Điều khoản / Chính sách riêng tư chỉ là link rỗng | `register.html` |
 | Nút "Vào workspace" sau đăng ký đi thẳng `/dashboard` — chưa có màn mời đồng nghiệp | `register.ts` |
 | Quên mật khẩu / Google / Facebook đều hiện *"đang phát triển"* | `login.ts` — `notBuiltYet()` |
-| `Manager` trùng khít `Member` cho tới khi có `leave.approve` | `SystemRoles.cs`, có test canh |
+| `Manager` trùng khít `Member` cho tới khi có `leave.approve` | `SystemRoles.cs`, có test canh — và màn Vai trò nay phơi nó ra: cả hai đúng **1 quyền** |
+| `Member` chỉ có `employee.read`, mà quyền đó không chặn route nào | Cần chốt: Member được thấy những gì? |
 
 ### Chạy cả hệ thống
 
@@ -163,7 +166,7 @@ docker compose down -v      # xoá sạch dữ liệu, lần sau gieo lại từ
 | `ArchitectureTests` | 14 | không | Ranh giới tầng và luật Controller có bị phá không |
 | `Api.IntegrationTests` | 29 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
 | `Api.DatabaseTests` | 52 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập/đăng ký/tạo tài khoản có chạy THẬT không |
-| `frontend` (vitest) | 91 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
+| `frontend` (vitest) | 104 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
 | `npm run parity` | 2 màn | **Chrome** | Bản Angular trông có **giống hệt bản dựng đã duyệt** không |
 
 Bộ thứ tư tự dựng Postgres bằng **Testcontainers**, không nối vào `docker compose`. Cố ý:

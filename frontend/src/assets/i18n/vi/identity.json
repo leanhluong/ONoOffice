@@ -199,5 +199,88 @@
       "enable": "Bật lại tài khoản",
       "locked": "Không thể vô hiệu hoá chính mình hay chủ sở hữu. Chuyển nhượng quyền sở hữu trước, nếu cần."
     }
+  },
+  "account": {
+    "mustChange": "Tài khoản này dùng mật khẩu tạm. Hãy đổi ngay bây giờ.",
+    "saved": "Đã lưu hồ sơ.",
+    "passwordChanged": "Đã đổi mật khẩu. Mọi thiết bị khác đã bị đăng xuất.",
+    "tab": {
+      "profile": "Hồ sơ",
+      "security": "Bảo mật",
+      "appearance": "Giao diện"
+    },
+    "personal": {
+      "title": "Thông tin cá nhân",
+      "text": "Đồng nghiệp nhìn thấy tên bạn trong danh bạ và khi bạn nhắn tin."
+    },
+    "field": {
+      "loginEmail": "Email đăng nhập",
+      "emailLocked": "Đổi email đăng nhập phải qua quản trị viên — nó là định danh của tài khoản.",
+      "roleLocked": "Không ai tự đổi vai trò của mình được."
+    },
+    "password": {
+      "title": "Đổi mật khẩu",
+      "text": "Dùng một câu dễ nhớ. Dài hơn là an toàn hơn — không cần ký tự đặc biệt. Tối thiểu 10 ký tự.",
+      "current": "Mật khẩu hiện tại",
+      "new": "Mật khẩu mới",
+      "repeat": "Nhập lại mật khẩu mới",
+      "placeholder": "Ít nhất 10 ký tự",
+      "warning": "Đổi mật khẩu sẽ đăng xuất mọi thiết bị khác — kể cả điện thoại của bạn.",
+      "submit": "Đổi mật khẩu"
+    },
+    "appearance": {
+      "title": "Bộ màu & ngôn ngữ",
+      "text": "Lựa chọn này là của riêng bạn — nó lưu trên máy bạn và không đổi gì của đồng nghiệp. Mặc định đi theo cài đặt sáng/tối của máy."
+    },
+    "display": {
+      "title": "Hiển thị",
+      "collapse": "Thu gọn thanh điều hướng",
+      "collapseText": "Chỉ hiện biểu tượng, lấy thêm chỗ cho nội dung."
+    },
+    "validation": {
+      "nameRequired": "Vui lòng nhập họ tên.",
+      "passwordRequired": "Vui lòng nhập mật khẩu.",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 10 ký tự.",
+      "mismatch": "Hai lần nhập chưa khớp nhau."
+    }
+  },
+  "roles": {
+    "summary": "{{roles}} vai trò · {{permissions}} quyền",
+    "listLabel": "Danh sách vai trò",
+    "detailLabel": "Chi tiết vai trò",
+    "systemRoles": "Vai trò hệ thống",
+    "memberCount": "{{count}} người",
+    "permissionCount": "{{count}} quyền",
+    "holders": "{{count}} người đang giữ vai trò này",
+    "locked": "Bốn vai hệ thống chỉ xem, không sửa được. Chúng dựng lại ở mọi workspace từ cùng một định nghĩa trong mã nguồn, nên sửa ở đây sẽ bị lần nâng cấp sau ghi đè mà không báo gì. Tạo vai trò riêng của công ty là việc tiếp theo — chưa có.",
+    "describe": {
+      "Owner": "Chủ sở hữu workspace. Có mọi quyền, kể cả chuyển nhượng quyền sở hữu.",
+      "Admin": "Quản trị toàn workspace: nhân sự, phòng ban, vai trò.",
+      "Manager": "Quản lý phòng ban của mình. Hiện TRÙNG KHÍT Member — quyền leave.approve chưa tồn tại, nên chưa có gì phân biệt hai vai.",
+      "Member": "Nhân viên thường. Hiện chỉ xem được danh bạ nhân sự."
+    },
+    "group": {
+      "workspace": "Workspace",
+      "employee": "Nhân sự",
+      "account": "Tài khoản & vai trò",
+      "department": "Phòng ban"
+    },
+    "perm": {
+      "workspaceRead": "Xem thông tin workspace",
+      "workspaceManage": "Sửa thông tin workspace",
+      "workspaceTransfer": "Chuyển nhượng quyền sở hữu",
+      "workspaceTransferWhy": "Trao workspace cho người khác. Người trao mất quyền Owner ngay lập tức.",
+      "employeeRead": "Xem danh sách nhân viên",
+      "employeeWrite": "Thêm và sửa nhân viên",
+      "employeeDelete": "Xoá nhân viên",
+      "employeeDeleteWhy": "Xoá mềm — hồ sơ ẩn đi nhưng dữ liệu cũ vẫn còn.",
+      "userRead": "Xem tài khoản",
+      "userManage": "Tạo tài khoản, vô hiệu hoá, đặt lại mật khẩu",
+      "roleRead": "Xem vai trò",
+      "roleManage": "Tạo và sửa vai trò",
+      "roleManageWhy": "Ai có quyền này thì tự nâng quyền cho chính mình được. Chỉ trao cho người thật sự quản trị.",
+      "departmentRead": "Xem cây phòng ban",
+      "departmentManage": "Tạo, sửa, sắp xếp phòng ban"
+    }
   }
 }

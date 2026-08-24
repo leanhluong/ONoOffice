@@ -10,6 +10,10 @@
   trong mã nguồn và seeder dựng lại chúng ở mọi workspace, nên một workspace sửa đi thì lần
   nâng cấp sau sẽ ghi đè mà không báo. Cần bộ quyền khác thì tạo vai trò mới.
 
+  ⚠️ Màn này hiện CHỈ XEM. Backend mới có GET /api/roles; chưa có endpoint tạo, đổi tên
+  hay sửa quyền của một vai trò. Vẽ sẵn nút "Tạo vai trò" rồi báo "đang phát triển" thì
+  người dùng bấm vào mới biết — thà đừng vẽ. Chúng quay lại khi có endpoint.
+
   Mở thẳng bằng trình duyệt là chạy.
 -->
 <meta charset="utf-8">
@@ -65,11 +69,7 @@
 }
 .khoabao svg { width: 16px; height: 16px; flex: none; color: var(--canh); }
 .khoabao b { color: var(--ink); }
-[data-vai="tuytao"] .khoabao { display: none; }
 
-.mo { display: none; }
-[data-vai="tuytao"] .mo { display: inline-flex; }
-[data-vai="tuytao"] .khoa { display: none; }
 
 /* ── Bảng quyền ───────────────────────────────────────────────────── */
 .nhomq { margin-bottom: 12px; }
@@ -94,7 +94,7 @@
 
 /* Quyền bị khoá thì công tắc mờ VÀ không bấm được. Chỉ làm mờ mà vẫn bấm được là tệ nhất:
    người dùng bấm, nó đổi, rồi lưu xong quay lại như cũ mà không có lời giải thích nào. */
-[data-vai="hethong"] .congtac { opacity: 0.55; pointer-events: none; }
+.congtac { opacity: 0.55; pointer-events: none; }
 </style>
 
 <div class="khung">
@@ -103,12 +103,9 @@
   <div class="noidung" data-vai="hethong">
     <header class="trangdau">
       <h1>Vai trò &amp; quyền</h1>
-      <span class="trangdau__phu">5 vai trò · 12 quyền</span>
+      <span class="trangdau__phu">4 vai trò · 12 quyền</span>
       <div class="trangdau__day"></div>
-      <button class="nut nut--chinh" data-soon="Tạo vai trò">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
-        Tạo vai trò
-      </button>
+
     </header>
 
     <div class="hai">
@@ -129,10 +126,10 @@
           </button>
 
           <button class="vaimuc" data-loai="hethong" data-ten="Admin"
-                  data-mota="Quản trị toàn workspace: nhân sự, phòng ban, vai trò." data-so="2 người" data-q="9">
+                  data-mota="Quản trị toàn workspace: nhân sự, phòng ban, vai trò." data-so="2 người" data-q="11">
             <span class="vaimuc__giua">
               <span class="vaimuc__ten">Admin</span>
-              <span class="vaimuc__phu">2 người · 9 quyền</span>
+              <span class="vaimuc__phu">2 người · 11 quyền</span>
             </span>
             <svg class="vaimuc__khoa" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
               <rect x="3" y="6" width="8" height="6" rx="1.5"/><path d="M5 6V4.3a2 2 0 014 0V6"/>
@@ -140,10 +137,10 @@
           </button>
 
           <button class="vaimuc" data-loai="hethong" data-ten="Manager"
-                  data-mota="Quản lý phòng ban của mình. Xem và sửa nhân sự trong phòng." data-so="4 người" data-q="6">
+                  data-mota="Quản lý phòng ban của mình. Hiện TRÙNG KHÍT Member — quyền leave.approve chưa tồn tại." data-so="4 người" data-q="1">
             <span class="vaimuc__giua">
               <span class="vaimuc__ten">Manager</span>
-              <span class="vaimuc__phu">4 người · 6 quyền</span>
+              <span class="vaimuc__phu">4 người · 1 quyền</span>
             </span>
             <svg class="vaimuc__khoa" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
               <rect x="3" y="6" width="8" height="6" rx="1.5"/><path d="M5 6V4.3a2 2 0 014 0V6"/>
@@ -151,25 +148,16 @@
           </button>
 
           <button class="vaimuc" data-loai="hethong" data-ten="Member"
-                  data-mota="Nhân viên thường. Xem danh bạ, phòng ban và trao đổi nội bộ." data-so="31 người" data-q="4">
+                  data-mota="Nhân viên thường. Hiện chỉ xem được danh bạ." data-so="31 người" data-q="1">
             <span class="vaimuc__giua">
               <span class="vaimuc__ten">Member</span>
-              <span class="vaimuc__phu">31 người · 4 quyền</span>
+              <span class="vaimuc__phu">31 người · 1 quyền</span>
             </span>
             <svg class="vaimuc__khoa" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
               <rect x="3" y="6" width="8" height="6" rx="1.5"/><path d="M5 6V4.3a2 2 0 014 0V6"/>
             </svg>
           </button>
 
-          <div class="dsvai__nhan">Vai trò của công ty</div>
-
-          <button class="vaimuc" data-loai="tuytao" data-ten="Kế toán trưởng"
-                  data-mota="Xem toàn bộ nhân sự nhưng không sửa; không vào được phần vai trò." data-so="1 người" data-q="5">
-            <span class="vaimuc__giua">
-              <span class="vaimuc__ten">Kế toán trưởng</span>
-              <span class="vaimuc__phu">1 người · 5 quyền</span>
-            </span>
-          </button>
         </div>
       </aside>
 
@@ -180,9 +168,7 @@
             <div style="font-family:Sora,system-ui,sans-serif;font-weight:600;font-size:15px" id="vTen">Owner</div>
             <div style="font-size:12px;color:var(--ink-faint);margin-top:2px" id="vSo">1 người đang giữ vai trò này</div>
           </div>
-          <button class="nut nut--nho mo" data-soon="Đổi tên vai trò">Đổi tên</button>
-          <button class="nut nut--nho nut--nguy mo" data-soon="Xoá vai trò">Xoá vai trò</button>
-          <button class="nut nut--chinh nut--nho mo" data-soon="Lưu thay đổi">Lưu</button>
+
         </div>
 
         <div class="chitiet__cuon">
@@ -195,9 +181,9 @@
               <rect x="3.5" y="7" width="9" height="6.5" rx="1.6"/><path d="M5.8 7V5a2.2 2.2 0 014.4 0v2"/>
             </svg>
             <span>
-              <b>Vai trò hệ thống — không sửa được.</b> Bốn vai này dựng lại ở mọi workspace từ
-              cùng một định nghĩa trong mã nguồn, nên sửa ở đây sẽ bị lần nâng cấp sau ghi đè mà
-              không báo. Cần bộ quyền khác thì <a class="link" href="#" data-soon="Tạo vai trò">tạo vai trò mới</a>.
+              <b>Bốn vai hệ thống — chỉ xem, không sửa được.</b> Chúng dựng lại ở mọi workspace
+              từ cùng một định nghĩa trong mã nguồn, nên sửa ở đây sẽ bị lần nâng cấp sau ghi đè
+              mà không báo gì. Tạo vai trò riêng của công ty là việc tiếp theo — chưa có.
             </span>
           </div>
 
@@ -337,12 +323,6 @@
 
 <div class="popups" id="popups" aria-live="polite"></div>
 
-<div class="states">
-  <span>Vai trò</span>
-  <button data-loai="hethong" aria-pressed="true">Hệ thống (khoá)</button>
-  <button data-loai="tuytao" aria-pressed="false">Của công ty (sửa được)</button>
-</div>
-
 <script type="module">
 import { mountNav, mountChuaLam } from '../chung/_shell.js';
 
@@ -353,13 +333,20 @@ const noidung = document.querySelector('.noidung');
 
 // Bộ quyền THẬT của từng vai trò. Bản dựng trước bật hết mọi công tắc ở mọi vai trò, tức
 // là nó nói dối đúng cái thứ mà màn này sinh ra để trả lời: "vai trò này làm được gì".
+// Chép ĐÚNG từ SystemRoles.cs. Bản trước ở đây là số bịa cho đẹp — Manager 6 quyền,
+// Member 4 quyền — trong khi mã nguồn cho cả hai đúng MỘT quyền. Bản dựng nói sai về
+// chính hệ thống của mình thì người duyệt chốt một thứ không tồn tại.
 const BO = {
   Owner: 'tất cả',
-  Admin: ['workspace.read','employee.read','employee.write','employee.delete',
-          'user.read','user.manage','role.read','department.read','department.manage'],
-  Manager: ['workspace.read','employee.read','employee.write','user.read','role.read','department.read'],
-  Member: ['workspace.read','employee.read','user.read','department.read'],
-  'Kế toán trưởng': ['workspace.read','employee.read','user.read','role.read','department.read'],
+
+  // Admin = tất cả TRỪ chuyển nhượng quyền sở hữu. Đó là toàn bộ ranh giới hai vai.
+  Admin: ['workspace.read','workspace.manage','employee.read','employee.write','employee.delete',
+          'user.read','user.manage','role.read','role.manage','department.read','department.manage'],
+
+  // ⚠️ Manager TRÙNG KHÍT Member cho tới khi có quyền leave.approve — chưa có module
+  // nghỉ phép. Ghi rõ ở SystemRoles.cs, và có test canh để nhắc quay lại.
+  Manager: ['employee.read'],
+  Member: ['employee.read'],
 };
 
 function veQuyen(tenVai) {
@@ -389,8 +376,6 @@ function chon(btn) {
 
   veQuyen(btn.dataset.ten);
 
-  document.querySelectorAll('.states button[data-loai]').forEach(b =>
-    b.setAttribute('aria-pressed', String(b.dataset.loai === btn.dataset.loai)));
 }
 
 document.querySelectorAll('.vaimuc').forEach(b => b.addEventListener('click', () => chon(b)));
@@ -398,11 +383,9 @@ document.querySelectorAll('.vaimuc').forEach(b => b.addEventListener('click', ()
 // Vẽ ngay khi mở, không chờ người dùng bấm đổi vai trò.
 veQuyen(document.querySelector('.vaimuc[aria-current="true"]').dataset.ten);
 
-// Thanh duyệt: nhảy tới vai trò đầu tiên đúng loại.
-document.querySelectorAll('.states button[data-loai]').forEach(b =>
-  b.addEventListener('click', () => chon(document.querySelector(`.vaimuc[data-loai="${b.dataset.loai}"]`))));
-
 const q = new URLSearchParams(location.search);
-if (q.get('loai')) document.querySelector(`.states button[data-loai="${q.get('loai')}"]`)?.click();
+
+// ?vai=Admin — mở thẳng một vai trò để chụp ảnh gửi duyệt.
+if (q.get('vai')) document.querySelector(`.vaimuc[data-ten="${q.get('vai')}"]`)?.click();
 if (q.has('bare')) document.querySelector('.states')?.remove();
 </script>

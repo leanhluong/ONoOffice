@@ -50,7 +50,8 @@
     "groupOrg": "Organisation",
     "search": "Search",
     "appearance": "Appearance & language",
-    "profile": "Profile & settings"
+    "profile": "Profile & settings",
+    "roles": "Roles & permissions"
   },
   "brandfoot": {
     "internal": "Internal",

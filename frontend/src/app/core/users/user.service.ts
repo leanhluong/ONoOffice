@@ -3,12 +3,14 @@ import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import type {
+  ChangePasswordRequest,
   CreateUserRequest,
   CreateUserResponse,
   PagedList,
   RoleListItem,
   UpdateUserRequest,
   UserListItem,
+  MyProfile,
   UserQuery,
 } from '../models/user.model';
 import { UserStatusFilter } from '../models/user.model';
@@ -73,6 +75,24 @@ export class UserService {
     const action = isActive ? 'enable' : 'disable';
 
     return this.http.post<void>(this.url(`/api/users/${id}/${action}`), {});
+  }
+
+  // ── Tài khoản của tôi ─────────────────────────────────────────────
+  //
+  // Ở cùng service với /api/users vì cùng một vùng nghiệp vụ (tài khoản người dùng), và
+  // tách ra thành service riêng chỉ để có thêm một file thì không đổi được gì.
+
+  myProfile(): Observable<MyProfile> {
+    return this.http.get<MyProfile>(this.url('/api/me'));
+  }
+
+  updateMyProfile(fullName: string): Observable<void> {
+    return this.http.patch<void>(this.url('/api/me'), { fullName });
+  }
+
+  /** Thành công thì MỌI phiên khác bị thu hồi — kể cả điện thoại của chính người dùng. */
+  changeMyPassword(request: ChangePasswordRequest): Observable<void> {
+    return this.http.post<void>(this.url('/api/me/password'), request);
   }
 
   roles(): Observable<RoleListItem[]> {

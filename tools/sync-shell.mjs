@@ -157,6 +157,14 @@ const SCREENS = [
     source: 'docs/07-giao-dien/org/nhan-su.html',
     target: 'frontend/src/app/features/users/user-list.scss',
   },
+  {
+    source: 'docs/07-giao-dien/identity/tai-khoan.html',
+    target: 'frontend/src/app/features/account/account.scss',
+  },
+  {
+    source: 'docs/07-giao-dien/identity/vai-tro.html',
+    target: 'frontend/src/app/features/roles/role-list.scss',
+  },
 ];
 
 for (const { source, target } of SCREENS) {

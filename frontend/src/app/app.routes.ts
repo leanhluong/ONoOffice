@@ -49,6 +49,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/users/user-list').then((m) => m.UserList),
       },
       {
+        // Hồ sơ của CHÍNH mình — không đòi quyền gì ngoài việc đã đăng nhập.
+        path: 'tai-khoan',
+        loadComponent: () => import('./features/account/account').then((m) => m.Account),
+      },
+      {
+        path: 'vai-tro',
+        canActivate: [permissionGuard('role.read')],
+        loadComponent: () => import('./features/roles/role-list').then((m) => m.RoleList),
+      },
+      {
         path: 'forbidden',
         loadComponent: () => import('./features/errors/forbidden').then((m) => m.Forbidden),
       },

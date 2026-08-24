@@ -12,6 +12,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthStore } from '../../core/auth/auth.store';
+import { notBlank } from '../../core/forms/validators';
 import { ErrorMessageService } from '../../core/i18n/error-message.service';
 import { isAppError, type AppError } from '../../core/models/api-error.model';
 import {
@@ -100,14 +101,14 @@ export class UserList {
   });
 
   protected readonly createForm = this.fb.nonNullable.group({
-    fullName: ['', [Validators.required, Validators.maxLength(200)]],
+    fullName: ['', [notBlank, Validators.maxLength(200)]],
     email: ['', [Validators.required, Validators.email]],
     roleId: ['', [Validators.required]],
     mustChangePassword: [true],
   });
 
   protected readonly detailForm = this.fb.nonNullable.group({
-    fullName: ['', [Validators.required, Validators.maxLength(200)]],
+    fullName: ['', [notBlank, Validators.maxLength(200)]],
     roleId: ['', [Validators.required]],
   });
 
@@ -281,7 +282,9 @@ export class UserList {
     this.saving.set(true);
     this.rejectedEmail.set(null);
 
-    this.users.create(this.createForm.getRawValue()).subscribe({
+    const body = this.createForm.getRawValue();
+
+    this.users.create({ ...body, fullName: body.fullName.trim() }).subscribe({
       next: (response) => {
         this.saving.set(false);
         this.created.set(response);

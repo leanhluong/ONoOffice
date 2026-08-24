@@ -96,6 +96,7 @@ export class Shell {
           permissions: ['user.read'],
           quiet: true,
         },
+        { labelKey: 'nav.roles', path: '/vai-tro', permissions: ['role.read'] },
       ],
     },
   ];
@@ -118,6 +119,10 @@ export class Shell {
 
   protected toggleCollapsed(): void {
     this.collapsed.update((value) => !value);
+  }
+
+  protected closeMenu(): void {
+    this.openMenu.set(null);
   }
 
   protected toggleMenu(menu: 'toi' | 'caidat', event: Event): void {

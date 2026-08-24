@@ -92,3 +92,25 @@ export interface RoleListItem {
   permissions: string[];
   memberCount: number;
 }
+
+/**
+ * Hồ sơ của chính người đang đăng nhập — GET /api/me.
+ *
+ * <c>isOwner</c> để giao diện ẩn bớt lựa chọn, không phải để phân quyền: chủ sở hữu không
+ * tự đổi vai trò của mình được. Luật thật vẫn ở backend.
+ */
+export interface MyProfile {
+  id: string;
+  tenantId: string;
+  email: string;
+  fullName: string;
+  roleName: string;
+  isOwner: boolean;
+  mustChangePassword: boolean;
+}
+
+/** Thân của POST /api/me/password. */
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
