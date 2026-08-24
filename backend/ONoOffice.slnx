@@ -16,6 +16,7 @@
     <Project Path="src/Modules/Org/ONoOffice.Org.Infrastructure/ONoOffice.Org.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/ONoOffice.Api.IntegrationTests/ONoOffice.Api.IntegrationTests.csproj" />
     <Project Path="tests/ONoOffice.ArchitectureTests/ONoOffice.ArchitectureTests.csproj" />
     <Project Path="tests/ONoOffice.Identity.UnitTests/ONoOffice.Identity.UnitTests.csproj" />
     <Project Path="tests/ONoOffice.Org.UnitTests/ONoOffice.Org.UnitTests.csproj" />

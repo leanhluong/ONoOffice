@@ -4,6 +4,19 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <!--
+      CỐ Ý KHÔNG đặt <NeutralLanguage>vi</NeutralLanguage>.
+
+      Nghe thì hợp lý — tiếng Việt đúng là ngôn ngữ gốc. Nhưng thuộc tính đó nói với
+      ResourceManager rằng bản tiếng Việt nằm TRONG assembly chính, nên khi được hỏi
+      bằng culture "vi" nó sẽ không thèm mở satellite assembly vi/ nữa. Mà bản dịch
+      tiếng Việt của ta lại nằm đúng ở đó (Messages.vi.resx sinh ra vi/...resources.dll,
+      không có file Messages.resx trung tính nào cả).
+
+      Hậu quả: MỌI phép tra tiếng Việt trả về null, và toàn hệ thống lặng lẽ rơi về câu
+      mặc định viết cứng trong code.
+    -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,17 +26,34 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!--
+      Bên XÁC MINH token. Bên PHÁT nằm ở Identity.Infrastructure và dùng
+      Microsoft.IdentityModel.JsonWebTokens 8.x — hai gói này phải cùng đời, lệch nhau
+      thì lỗi hiện ra dưới dạng "token hợp lệ nhưng không xác minh được", rất khó lần.
+    -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Modules\Identity\ONoOffice.Identity.Infrastructure\ONoOffice.Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Org\ONoOffice.Org.Infrastructure\ONoOffice.Org.Infrastructure.csproj" />
   </ItemGroup>
 
+  <!--
+    KHÔNG khai <EmbeddedResource> cho Resources/Messages.{vi,en}.resx.
+
+    Quy ước mặc định của SDK đã làm đúng thứ ta cần: thấy đuôi ngôn ngữ trong tên file,
+    nó biên dịch mỗi file thành một SATELLITE ASSEMBLY riêng — vi/ONoOffice.Api.resources.dll
+    và en/... — và đó chính xác là nơi ResourceManager đi tìm khi được hỏi bằng một
+    CultureInfo.
+
+    Ép chúng thành tài nguyên nhúng trong assembly chính (bằng LogicalName chẳng hạn)
+    sẽ làm mọi phép tra theo culture trả về null, im lặng: hệ thống vẫn chạy, chỉ là
+    không bao giờ dịch được câu nào.
+  -->
+
   <ItemGroup>
-    <!--
-      Nhúng .resx vào assembly. LogicalName đặt tay để tên tài nguyên không phụ thuộc
-      cấu trúc thư mục — dời file sang chỗ khác thì ResourceManager vẫn tìm ra.
-    -->
-    <EmbeddedResource Update="ResourcesMessages.vi.resx" LogicalName="ONoOffice.Api.Resources.Messages.vi.resources" />
-    <EmbeddedResource Update="ResourcesMessages.en.resx" LogicalName="ONoOffice.Api.Resources.Messages.en.resources" />
+    <InternalsVisibleTo Include="ONoOffice.Api.IntegrationTests" />
   </ItemGroup>
 
 </Project>

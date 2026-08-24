@@ -1,7 +1,7 @@
 # Tiến độ
 
 > File này được sửa nhiều nhất trong repo. **Xong việc gì thì sửa ở đây ngay trong cùng commit.**
-> Cập nhật lần cuối: 2026-08-23
+> Cập nhật lần cuối: 2026-08-24
 
 ## Ký hiệu
 
@@ -18,7 +18,7 @@
 | `02-kien-truc` — cấu trúc BE, ranh giới module | 🟢 | Sơ đồ · 2 module Identity/Org · 4 luật ranh giới · ADR-0001 (multi-tenant) · ADR-0002 (xác thực) |
 | `03-quy-uoc` — luật viết code | ⬜ | |
 | `04-database` — bảng, quan hệ | ⬜ | |
-| `05-api` — danh sách endpoint | ⬜ | |
+| `05-api` — danh sách endpoint | 🟢 | 3 endpoint đăng nhập · hình dạng lỗi chung · quy ước phân quyền |
 | `06-deploy` — docker, CI, Cloudflare | ⬜ | |
 
 ## Giai đoạn 1 — `Luong.Kernel` (repo riêng `leanhluong/libNetCore`)
@@ -59,9 +59,12 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 |---|---|---|
 | Khởi tạo solution ONoOffice | 🟢 | backend/ + frontend/ · 9 project · 6 test kiến trúc canh 4 luật ranh giới |
 | Module `Identity` — tầng Domain | 🟢 | Email · TenantCode · Tenant · User · Role · Permissions · RefreshToken — **104 test** |
-| Module `Identity` — đăng nhập, token, vai trò | ⬜ | |
+| Module `Identity` — tầng Application | 🟢 | Login · Refresh (xoay vòng + phát hiện trộm) · Logout |
+| Module `Identity` — tầng Infrastructure | 🟢 | EF Core · Argon2id · JWT HS256 · repository theo từng aggregate |
+| Tầng `Api` — host, middleware, phân quyền | 🟢 | 3 endpoint · policy sinh lúc chạy theo `permission` · CORS · header an toàn · i18n · **29 test tích hợp** |
 | Module `Org` — phòng ban, nhân viên | ⬜ | |
-| Test ranh giới module | ⬜ | |
+| Test ranh giới module | 🟢 | 4 luật ranh giới + 4 luật Controller — đều đã cố ý phá một lần để chứng minh |
+| Migration đầu tiên (`InitialIdentity`) | ⬜ | Việc tiếp theo |
 | Docker Compose (API + Postgres) | ⬜ | |
 
 ## Giai đoạn 3 — Frontend lát 1
@@ -106,3 +109,7 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | 2026-08-23 | **Chốt: ship CẢ BỐN bộ màu** thành tính năng đổi giao diện, không chọn một. Rẻ vì luật "component chỉ dùng token" đã có từ đầu. Mặc định theo `prefers-color-scheme`, người dùng đổi thì ghi `localStorage` — giao diện là lựa chọn của từng người, giống ngôn ngữ. Vẽ `wireframes.html`: 6 màn, đơn sắc, có chú thích đánh số ở những chỗ CÓ quyết định. |
 | 2026-08-23 | Đưa bản dựng màu màn đăng nhập vào repo (`docs/07-giao-dien/identity/dang-nhap.html`) — trước đó nó chỉ nằm trên web, clone repo về là mất. Thêm **`HANDOFF.md`** ở gốc repo: đang ở đâu · việc tiếp theo (tầng `Api`, đã duyệt thiết kế) · luật bắt buộc · 10 quyết định đã chốt · **4 cái bẫy đã gặp** để người sau không dẫm lại. |
 | 2026-08-23 | **Chốt ADR-0004: token đi trong thân phản hồi, không dùng cookie.** Lý do không phải "đủ an toàn" mà là hoàn cảnh: deploy đầu tiên lên hạ tầng miễn phí → FE và BE khác tên miền gốc → cookie thành cookie bên thứ ba → **Safari chặn mặc định**, tức là không chạy chứ không phải kém an toàn. Bù bằng ba lớp đã có sẵn (xoay vòng · phát hiện dùng lại · thu hồi cả chuỗi) + CSP. Ngưỡng chuyển sang cookie: khi FE và API về cùng tên miền gốc. |
+| 2026-08-24 | **Xong tầng `Api`** — 29 test tích hợp dựng máy chủ thật trong bộ nhớ (`WebApplicationFactory`), không cần Postgres vì `AddDbContext` không mở kết nối lúc khởi động. Ba endpoint đăng nhập · phân quyền động sinh policy lúc chạy · CORS đích danh · ba header an toàn · dịch thông báo lỗi theo `Accept-Language`. Đã cố ý phá **6 luật** rồi khôi phục để chứng minh test bắt được. |
+| 2026-08-24 | **Sửa lại một hiểu sai về thứ tự `UseCors`.** Lời giải thích quen thuộc — "preflight OPTIONS không mang token nên bị 401" — thực nghiệm cho thấy KHÔNG xảy ra ở đây: `OPTIONS` không khớp endpoint nào nên `UseAuthorization` chẳng có policy nào để áp. Chuyện hỏng thật là ở request thường bị từ chối: `UseAuthorization` cắt ngang, nên nếu `UseCors` đứng sau thì **401 đi ra không có header CORS** → trình duyệt cấm JavaScript đọc phản hồi → frontend không phân biệt được "phiên hết hạn" với "máy chủ hỏng". Đã viết test canh đúng chỗ đó. |
+| 2026-08-24 | **Ba lỗ hổng im lặng phát hiện khi ráp tầng `Api`.** (1) 41 khoá `.resx` chưa từng được dùng — không ai gọi `ProblemDetails.Localize`, nên mọi người dùng luôn nhận câu tiếng Việt viết cứng; đã thêm `LocalizeProblemDetailsFilter`. (2) `[ApiController]` mặc định tự sinh khuôn lỗi RIÊNG (`errors` là từ điển) cho JSON hỏng, khác hẳn mảng `errors[]` của mọi lỗi khác → frontend phải viết hai nhánh; đã ép về một hình dạng. (3) `ClockSkew` mặc định 5 phút khiến access token 15 phút thật ra sống 20 phút → đặt về 0. |
+| 2026-08-24 | Gỡ hai dòng `<EmbeddedResource Update="ResourcesMessages.*.resx">` trong `ONoOffice.Api.csproj`: đường dẫn thiếu dấu `/` nên chúng là **no-op**, và quy ước mặc định của SDK mới là thứ đang chạy đúng (sinh satellite assembly `vi/` + `en/`, đúng nơi `ResourceManager` tìm). Sửa "đúng" theo ý định ban đầu sẽ làm mọi bản dịch trả `null`. Cũng đã thử `<NeutralLanguage>vi</NeutralLanguage>` và nó **làm hỏng ngay** — test khởi động bắt được. |
