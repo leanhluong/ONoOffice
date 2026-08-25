@@ -197,8 +197,34 @@ Workspace  demo · Công ty Demo
 docker compose down -v      # xoá sạch dữ liệu, lần sau gieo lại từ đầu
 ```
 
-⚠️ **Cổng 5433, không phải 5432.** Máy này đã có một Postgres cài thẳng vào Windows giữ
-5432. Trỏ nhầm thì migration chạy vào nhầm database — và nó sẽ *thành công*.
+⚠️ **Cổng 5433, không phải 5432.** Trỏ nhầm cổng thì migration chạy vào nhầm database —
+và nó sẽ *thành công*, đó mới là chỗ đáng sợ.
+
+> Lý do gốc của con số 5433 là *"máy này đã có một Postgres cài thẳng vào Windows giữ
+> 5432"*. **Đo lại ngày 2026-08-25: không còn đúng** — không có service `postgresql*` nào,
+> và cả 5432 lẫn 5433 đều đóng. Vẫn giữ 5433 vì đổi cổng nay chỉ tạo ra một đợt lệch giữa
+> `docker-compose.yml`, chuỗi kết nối và tài liệu, mà chẳng đổi lại được gì.
+
+### 🐳 Docker Desktop trên máy này — ba cái bẫy đã gặp (2026-08-25)
+
+Engine chết hẳn, và phải gỡ đúng **ba** lớp, mỗi lớp có một thông báo lỗi khác nhau:
+
+| Thông báo | Nguyên nhân thật | Cách gỡ |
+|---|---|---|
+| `open \\.\pipe\dockerBackendV2:`<br>`The system cannot find the file` | `com.docker.service` **Stopped**, và WSL **không còn distro nào** | `wsl --update` · `wsl --install --no-distribution` · `net start com.docker.service` |
+| `Group membership check:`<br>`user is not a member of the group` | Nhóm `docker-users` tồn tại nhưng **rỗng hoàn toàn** | `net localgroup docker-users <máy>\<user> /add` |
+| `open \\.\pipe\dockerBackendV2:`<br>**`Access is denied`** | Đã thêm nhóm rồi, nhưng token đăng nhập cũ chưa mang nhóm mới | **Đăng xuất rồi đăng nhập lại** — bắt buộc |
+
+Hai bài học đáng nhớ hơn ba dòng lệnh:
+
+**Thông báo lỗi đổi từ *"không tìm thấy"* sang *"bị từ chối"* là dấu hiệu ĐANG TIẾN TRIỂN**,
+không phải vẫn hỏng như cũ. Không tìm thấy = pipe chưa tồn tại. Bị từ chối = pipe đã có,
+chỉ thiếu quyền. Đọc lướt thì cả hai đều là "vẫn lỗi" và người ta quay lại làm lại từ đầu.
+
+**Thêm nhóm xong KHÔNG có tác dụng cho tới khi đăng nhập lại.** Windows dựng danh sách nhóm
+đúng một lần, lúc tạo phiên đăng nhập. Chạy `as administrator` cũng không cứu được: nâng
+quyền chỉ đổi mức toàn vẹn, nó không nạp thêm nhóm mới. Mọi tiến trình con đều thừa hưởng
+đúng cái token cũ đó — kể cả Docker Desktop.
 
 ### Năm bộ test, năm mục đích khác nhau
 
