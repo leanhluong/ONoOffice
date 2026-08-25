@@ -61,6 +61,29 @@
     "profile": "Your profile",
     "roles": "Roles & permissions"
   },
+  "departments": {
+    "title": "Departments",
+    "summary": "{{departments}} departments · {{people}} people",
+    "add": "Add department",
+    "addFirst": "Add the first department",
+    "move": "Move",
+    "emptyTitle": "No departments yet",
+    "emptyHint": "The org tree filters the directory, and later it is what chat channels bind to. Start with one root — usually the company name or \"Executive\".",
+    "countNote": "The number beside each department counts people directly in it, not rolled up from child departments. A department with children or people cannot be deleted.",
+    "loadFailed": "Could not load the department tree."
+  },
+  "contacts": {
+    "title": "Directory",
+    "all": "Everyone",
+    "summary": "{{count}} people",
+    "filterByDepartment": "Filter by department",
+    "searchPlaceholder": "Search by name, employee code or email",
+    "showInactive": "Include people who have left",
+    "noDepartment": "No department",
+    "left": "left",
+    "noneTitle": "Nobody found",
+    "noneHint": "Try dropping a filter, or search by employee code instead of name."
+  },
   "admin": {
     "title": "Admin",
     "nav": "Admin navigation",

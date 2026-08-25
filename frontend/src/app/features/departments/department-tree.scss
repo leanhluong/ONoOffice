@@ -1,0 +1,70 @@
+/**
+ * ⚠️ FILE NÀY ĐƯỢC SINH TỰ ĐỘNG — ĐỪNG SỬA TAY.
+ *
+ * Nguồn:    docs/07-giao-dien/org/phong-ban.html
+ * Sinh lại: node tools/sync-shell.mjs
+ *
+ * Sửa ở đây thì lần chạy bộ sinh tiếp theo sẽ xoá mất, và tệ hơn: bản dựng mà người
+ * duyệt nhìn sẽ khác thứ đang chạy thật. Muốn đổi giao diện thì sửa bản dựng rồi chạy
+ * lại bộ sinh.
+ */
+
+/* ══════════════════════════════════════════════════════════════════════
+   CÂY
+   ══════════════════════════════════════════════════════════════════════ */
+.cay { padding: 4px 0; }
+
+.cay__nut {
+  position: relative;
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; margin-bottom: 1px;
+  border-radius: 9px;
+  cursor: default;
+}
+.cay__nut:hover { background: var(--surface-2); }
+
+/* Mũi tên gập. Nút không có con thì vẫn chừa CHỖ — bỏ hẳn thì tên của nút không con
+   thụt trái hơn nút có con, và cả cột chữ răng cưa. */
+.cay__mo {
+  width: 18px; height: 18px; flex: none;
+  display: grid; place-items: center;
+  border: 0; border-radius: 5px; background: transparent;
+  color: var(--ink-faint); cursor: pointer;
+}
+.cay__mo:hover { background: var(--surface); color: var(--ink); }
+.cay__mo svg { width: 12px; height: 12px; transition: transform 140ms ease; }
+.cay__nut[aria-expanded="true"] .cay__mo svg { transform: rotate(90deg); }
+.cay__mo--trong { visibility: hidden; }
+
+.cay__bieu { width: 17px; height: 17px; flex: none; color: var(--ink-faint); }
+.cay__ten { font-size: 13.5px; color: var(--ink); }
+
+/* Số người TRỰC TIẾP của phòng này, không cộng dồn phòng con. Chữ xám chứ không phải
+   viên màu nhấn: đây là số ĐO ĐẠC, không phải việc phải làm. */
+.cay__dem {
+  padding: 1px 7px;
+  border-radius: 999px; background: var(--surface-2);
+  color: var(--ink-faint); font-size: 11px; font-variant-numeric: tabular-nums;
+}
+
+.cay__truong { font-size: 12px; color: var(--ink-faint); }
+.cay__truong::before { content: "·"; margin: 0 7px; }
+
+/* Thao tác chỉ hiện khi rê chuột vào ĐÚNG nút đó. Hiện sẵn cả cây thì mỗi dòng có ba nút
+   và mắt không còn đọc được cấu trúc — mà cấu trúc mới là thứ người ta mở màn này để xem. */
+.cay__thao { margin-left: auto; display: flex; gap: 2px; opacity: 0; }
+.cay__nut:hover .cay__thao,
+.cay__nut:focus-within .cay__thao { opacity: 1; }
+
+/* Nhánh con: thụt vào và có một vạch dọc. Vạch dọc là thứ giữ mắt bám theo cấp — chỉ thụt
+   lề thôi thì tới cấp thứ ba là không ai lần được nút nào thuộc nút nào. */
+.cay__con {
+  margin-left: 18px; padding-left: 12px;
+  border-left: 1px solid var(--line);
+}
+.cay__con[hidden] { display: none; }
+
+/* ── Trạng thái ───────────────────────────────────────────────────── */
+.khi { display: none; }
+[data-state="co"] .khi--cay { display: block; }
+[data-state="rong"] .khi--rong { display: flex; }

@@ -61,6 +61,29 @@
     "profile": "Hồ sơ của bạn",
     "roles": "Vai trò & quyền"
   },
+  "departments": {
+    "title": "Phòng ban",
+    "summary": "{{departments}} phòng · {{people}} người",
+    "add": "Thêm phòng ban",
+    "addFirst": "Thêm phòng đầu tiên",
+    "move": "Chuyển phòng",
+    "emptyTitle": "Chưa có phòng ban nào",
+    "emptyHint": "Cây tổ chức giúp lọc danh bạ và sau này là nơi kênh trao đổi tự khớp theo phòng. Bắt đầu bằng một phòng gốc — thường là tên công ty hoặc \"Ban giám đốc\".",
+    "countNote": "Số bên cạnh mỗi phòng là số người trực tiếp thuộc phòng đó, không cộng dồn phòng con. Phòng còn phòng con hoặc còn nhân viên thì không xoá được.",
+    "loadFailed": "Không tải được cây phòng ban."
+  },
+  "contacts": {
+    "title": "Danh bạ",
+    "all": "Tất cả",
+    "summary": "{{count}} người",
+    "filterByDepartment": "Lọc theo phòng ban",
+    "searchPlaceholder": "Tìm theo tên, mã nhân viên hoặc email",
+    "showInactive": "Hiện cả người đã nghỉ",
+    "noDepartment": "Chưa xếp phòng",
+    "left": "đã nghỉ",
+    "noneTitle": "Không tìm thấy ai",
+    "noneHint": "Thử bớt một bộ lọc, hoặc tìm bằng mã nhân viên thay vì tên."
+  },
   "admin": {
     "title": "Quản trị",
     "nav": "Điều hướng quản trị",

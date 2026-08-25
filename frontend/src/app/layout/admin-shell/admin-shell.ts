@@ -120,10 +120,14 @@ export class AdminShell {
       key: 'org',
       labelKey: 'admin.org',
       path: '',
-      permissions: ['user.read', 'role.read'],
+      permissions: ['user.read', 'role.read', 'department.read'],
       children: [
         { labelKey: 'admin.members', path: '/admin/users', permissions: ['user.read'] },
-        { labelKey: 'admin.departments', path: '', permissions: [] },
+        {
+          labelKey: 'admin.departments',
+          path: '/admin/departments',
+          permissions: ['department.read'],
+        },
         { labelKey: 'nav.roles', path: '/admin/roles', permissions: ['role.read'] },
       ],
     },

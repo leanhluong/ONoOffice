@@ -89,6 +89,13 @@ export const routes: Routes = [
         canActivate: [permissionGuard('role.read')],
         loadComponent: () => import('./features/roles/role-list').then((m) => m.RoleList),
       },
+      {
+        // SỬA cây tổ chức → khung quản trị. Xem cây thì ở `/contacts`, khung app.
+        path: 'departments',
+        canActivate: [permissionGuard('department.read')],
+        loadComponent: () =>
+          import('./features/departments/department-tree').then((m) => m.DepartmentTree),
+      },
     ],
   },
 
@@ -111,6 +118,13 @@ export const routes: Routes = [
         // Hồ sơ của CHÍNH mình — không đòi quyền gì ngoài việc đã đăng nhập.
         path: 'me',
         loadComponent: () => import('./features/account/account').then((m) => m.Account),
+      },
+      {
+        // Danh bạ: TRA CỨU đồng nghiệp. `employee.read` là quyền cả bốn vai hệ thống đều
+        // có — đây là màn nhân viên mở hằng ngày, không phải công cụ quản trị.
+        path: 'contacts',
+        canActivate: [permissionGuard('employee.read')],
+        loadComponent: () => import('./features/contacts/contact-list').then((m) => m.ContactList),
       },
       {
         path: 'forbidden',

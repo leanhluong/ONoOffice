@@ -44,20 +44,45 @@ const ANGULAR = join(process.cwd(), 'src', 'app');
 interface Cap {
   readonly ten: string;
   readonly banDung: string;
-  readonly angular: string;
+
+  /**
+   * MỘT bản dựng có thể ứng với NHIỀU template Angular.
+   *
+   * Màn Phòng ban là ví dụ: cây là cấu trúc đệ quy, và template Angular không tự gọi lại
+   * chính nó được — phải tách một component riêng cho một nút. Bản dựng thì viết sẵn ba
+   * cấp lồng nhau trong một file. So từng file một thì cả hai bên đều "thiếu" của nhau.
+   */
+  readonly angular: readonly string[];
 }
 
 const CAP: readonly Cap[] = [
-  { ten: 'Đăng nhập', banDung: 'identity/dang-nhap.html', angular: 'features/auth/login/login.html' },
-  { ten: 'Đăng ký', banDung: 'identity/dang-ky.html', angular: 'features/auth/register/register.html' },
-  { ten: 'Hồ sơ', banDung: 'identity/tai-khoan.html', angular: 'features/account/account.html' },
-  { ten: 'Thành viên', banDung: 'org/nhan-su.html', angular: 'features/users/user-list.html' },
-  { ten: 'Vai trò', banDung: 'identity/vai-tro.html', angular: 'features/roles/role-list.html' },
+  {
+    ten: 'Đăng nhập',
+    banDung: 'identity/dang-nhap.html',
+    angular: ['features/auth/login/login.html'],
+  },
+  {
+    ten: 'Đăng ký',
+    banDung: 'identity/dang-ky.html',
+    angular: ['features/auth/register/register.html'],
+  },
+  { ten: 'Hồ sơ', banDung: 'identity/tai-khoan.html', angular: ['features/account/account.html'] },
+  { ten: 'Thành viên', banDung: 'org/nhan-su.html', angular: ['features/users/user-list.html'] },
+  { ten: 'Vai trò', banDung: 'identity/vai-tro.html', angular: ['features/roles/role-list.html'] },
   {
     ten: 'Tổng quan quản trị',
     banDung: 'khung/quan-tri.html',
-    angular: 'features/admin/overview/overview.html',
+    angular: ['features/admin/overview/overview.html'],
   },
+  {
+    ten: 'Phòng ban',
+    banDung: 'org/phong-ban.html',
+    angular: [
+      'features/departments/department-tree.html',
+      'features/departments/department-node.html',
+    ],
+  },
+  { ten: 'Danh bạ', banDung: 'org/danh-ba.html', angular: ['features/contacts/contact-list.html'] },
 ];
 
 /**
@@ -87,22 +112,25 @@ const BO_QUA = new Map<string, string>([
   ['khung--gon', 'Shell giữ'],
   ['qt--gon', 'AdminShell giữ'],
 
-  /*
-    Bộ đổi trạng thái của bản dựng.
-
-    Bản dựng hiện MỌI trạng thái cùng lúc trong một file rồi ẩn bớt bằng
-    `[data-state="…"] .khi--x { display: … }`, để người duyệt bấm qua lại được. Angular
-    không cần cơ chế đó — nó có `@switch` / `@if`, và chỉ dựng đúng nhánh đang hiện.
-
-    Nói cách khác: đây là khung để DUYỆT, giống `.states`, không phải đánh dấu của sản
-    phẩm. Ép Angular mang chúng thì chỉ tổ thêm mấy thẻ rỗng.
-  */
-  ['khi', 'bộ đổi trạng thái của bản dựng'],
-  ['khi--bang', 'bộ đổi trạng thái của bản dựng'],
-  ['khi--rong', 'bộ đổi trạng thái của bản dựng'],
-  ['khi--khongthay', 'bộ đổi trạng thái của bản dựng'],
   ['loc__xoa', 'bộ đổi trạng thái của bản dựng — Angular dùng @if (hasFilter())'],
 ]);
+
+/**
+ * Bộ đổi trạng thái của bản dựng: mọi lớp bắt đầu bằng <c>khi</c>.
+ *
+ * Bản dựng hiện MỌI trạng thái cùng lúc trong một file rồi ẩn bớt bằng
+ * <c>[data-state="…"] .khi--x { display: … }</c>, để người duyệt bấm qua lại được. Angular
+ * không cần cơ chế đó — nó có <c>&#64;switch</c> / <c>&#64;if</c> và chỉ dựng đúng nhánh
+ * đang hiện.
+ *
+ * Đây là khung để DUYỆT, giống <c>.states</c>, không phải đánh dấu của sản phẩm.
+ *
+ * Viết thành LUẬT thay vì liệt kê từng lớp: bản đầu ghi tay bốn cái
+ * (<c>khi--bang</c>, <c>khi--rong</c>…) và mỗi màn mới lại thêm một biến thể mới, nên bộ
+ * canh đỏ vì lý do sai và người ta bắt đầu dán tên vào cho hết đỏ. Một tiền tố có nghĩa
+ * rõ ràng thì chỉ cần giải thích một lần.
+ */
+const LA_DOI_TRANG_THAI = (ten: string) => /^khi(--|$)/.test(ten);
 
 function thanTrang(html: string): string {
   return html
@@ -164,12 +192,13 @@ describe('bản dựng ↔ template Angular', () => {
   for (const cap of CAP) {
     it(`${cap.ten}: hai bên dựng cùng một tập khối`, () => {
       const banDung = readFileSync(join(BAN_DUNG, cap.banDung), 'utf8');
-      const angular = readFileSync(join(ANGULAR, cap.angular), 'utf8');
+      const angular = cap.angular.map((f) => readFileSync(join(ANGULAR, f), 'utf8')).join('\n');
 
       const cuaBanDung = lopBanDung(banDung);
       const cuaAngular = lop(angular, true);
 
-      const bo = (ten: string) => BO_QUA.has(ten) || ten.startsWith('states');
+      const bo = (ten: string) =>
+        BO_QUA.has(ten) || ten.startsWith('states') || LA_DOI_TRANG_THAI(ten);
 
       const thieuOAngular = [...cuaBanDung]
         .filter((ten) => !bo(ten) && !cuaAngular.has(ten))

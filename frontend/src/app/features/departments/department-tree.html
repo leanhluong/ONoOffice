@@ -1,0 +1,65 @@
+<!--
+  Đánh dấu chép từ `docs/07-giao-dien/org/phong-ban.html`.
+  CSS sinh sang `department-tree.scss` bằng `node tools/sync-shell.mjs` — đừng sửa tay.
+-->
+<header class="trangdau">
+  <h1>{{ 'departments.title' | translate }}</h1>
+
+  @if (tree(); as list) {
+    <span class="trangdau__phu">
+      {{ 'departments.summary' | translate: { departments: departmentCount(), people: peopleCount() } }}
+    </span>
+  }
+
+  <div class="trangdau__day"></div>
+
+  <button type="button" class="nut nut--chinh" (click)="notBuiltYet($event, 'departments.add')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+      <path d="M8 3.5v9M3.5 8h9" />
+    </svg>
+    {{ 'departments.add' | translate }}
+  </button>
+</header>
+
+<div class="trang">
+  <div class="trang--hep">
+    @if (failed()) {
+      <!-- Hỏng thì nói HỎNG, không hiện cây rỗng. Cây rỗng đọc như "công ty chưa có phòng
+           nào" — một câu trả lời SAI, không phải một câu trả lời thiếu. -->
+      <div class="rong" style="padding: 44px 0">
+        <h2>{{ 'departments.loadFailed' | translate }}</h2>
+        <button type="button" class="nut nut--nho" (click)="load()">
+          {{ 'action.retry' | translate }}
+        </button>
+      </div>
+    } @else if (tree(); as list) {
+      @if (list.length === 0) {
+        <div class="rong" style="padding: 44px 0">
+          <span class="rong__vong">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="3" width="6" height="4.5" rx="1.3" />
+              <rect x="2.5" y="16" width="6" height="4.5" rx="1.3" />
+              <rect x="15.5" y="16" width="6" height="4.5" rx="1.3" />
+              <path d="M12 7.5v4M5.5 16v-4.5h13V16" />
+            </svg>
+          </span>
+          <h2>{{ 'departments.emptyTitle' | translate }}</h2>
+          <p>{{ 'departments.emptyHint' | translate }}</p>
+          <button type="button" class="nut nut--chinh nut--nho" (click)="notBuiltYet($event, 'departments.add')">
+            {{ 'departments.addFirst' | translate }}
+          </button>
+        </div>
+      } @else {
+        <div class="the__khoi">
+          <div class="cay">
+            @for (node of list; track node.id) {
+              <app-department-node [node]="node" (notBuilt)="notBuiltYet($event.event, $event.labelKey)" />
+            }
+          </div>
+        </div>
+
+        <p class="o__meo" style="margin-top: 12px">{{ 'departments.countNote' | translate }}</p>
+      }
+    }
+  </div>
+</div>

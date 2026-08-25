@@ -1,0 +1,162 @@
+<!--
+  Đánh dấu chép từ `docs/07-giao-dien/org/danh-ba.html`.
+  CSS sinh sang `contact-list.scss` bằng `node tools/sync-shell.mjs` — đừng sửa tay.
+
+  Màn này tự dựng CỘT NGỮ CẢNH của mình (`.nav`), giống màn Trao đổi dựng danh sách hội
+  thoại. Khung app cố ý không dựng sẵn cột thứ hai — mỗi app cần một cột khác nhau, và
+  màn nào không cần thì bỏ hẳn.
+-->
+<nav class="nav" [attr.aria-label]="'contacts.filterByDepartment' | translate">
+  <div class="nav__dau">
+    <h2>{{ 'contacts.title' | translate }}</h2>
+  </div>
+
+  <div class="nav__ds">
+    <div class="nav__nhan">{{ 'departments.title' | translate }}</div>
+
+    <button
+      type="button"
+      class="nav__muc"
+      [attr.aria-current]="departmentId() === null ? 'page' : null"
+      (click)="chonPhong(null)"
+    >
+      <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="7.5" cy="6.8" r="2.9" />
+        <path d="M2.4 16.6a5.1 5.1 0 0110.2 0" />
+        <path d="M13.2 4.4a2.9 2.9 0 010 4.8M14.8 16.6a5.1 5.1 0 00-1.7-3.8" />
+      </svg>
+      <span class="nav__chu">{{ 'contacts.all' | translate }}</span>
+      @if (page(); as list) {
+        <span class="nav__dem nav__dem--nhat">{{ list.totalCount }}</span>
+      }
+    </button>
+
+    @for (row of filterRows(); track row.id) {
+      <!-- Thụt lề theo độ sâu. Cây ở đây chỉ là danh sách để BẤM CHỌN, không phải thứ
+           người ta vào để ngắm — nên ép phẳng, không cần gập mở. -->
+      <button
+        type="button"
+        class="nav__muc"
+        [style.padding-left.px]="10 + row.depth * 16"
+        [attr.aria-current]="departmentId() === row.id ? 'page' : null"
+        (click)="chonPhong(row.id)"
+      >
+        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="14" height="14" rx="2.4" />
+          <path d="M7 8.5h6M7 12h4" />
+        </svg>
+        <span class="nav__chu">{{ row.name }}</span>
+        <span class="nav__dem nav__dem--nhat">{{ row.count }}</span>
+      </button>
+    }
+  </div>
+</nav>
+
+<div class="noidung">
+  <header class="trangdau">
+    <h1>{{ currentName() ?? ('contacts.all' | translate) }}</h1>
+
+    @if (page(); as list) {
+      <span class="trangdau__phu">
+        {{ 'contacts.summary' | translate: { count: list.totalCount } }}
+      </span>
+    }
+
+    <div class="trangdau__day"></div>
+  </header>
+
+  <div class="loc">
+    <div class="loc__tim">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <circle cx="7" cy="7" r="4.5" />
+        <path d="m10.5 10.5 3 3" />
+      </svg>
+      <input
+        type="search"
+        [formControl]="search"
+        [placeholder]="'contacts.searchPlaceholder' | translate"
+        [attr.aria-label]="'contacts.searchPlaceholder' | translate"
+      />
+    </div>
+
+    <label class="congtac">
+      <input
+        type="checkbox"
+        [checked]="includeInactive()"
+        (change)="doiHienNghi($any($event.target).checked)"
+      />
+      <span class="congtac__ray"></span>
+    </label>
+    <span style="font-size: 12.5px; color: var(--ink-soft)">
+      {{ 'contacts.showInactive' | translate }}
+    </span>
+  </div>
+
+  <div class="trang">
+    @if (page(); as list) {
+      @if (list.items.length === 0) {
+        <div class="rong" style="padding: 44px 0">
+          <span class="rong__vong">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m15.5 15.5 4 4" />
+            </svg>
+          </span>
+          <h2>{{ 'contacts.noneTitle' | translate }}</h2>
+          <p>{{ 'contacts.noneHint' | translate }}</p>
+        </div>
+      } @else {
+        <div class="db">
+          @for (person of list.items; track person.id) {
+            <div class="db__the" [class.db__the--nghi]="!person.isActive">
+              <span class="mat">{{ initials(person.fullName) }}</span>
+
+              <div class="db__giua">
+                <div class="db__ten">
+                  {{ person.fullName }}
+                  @if (!person.isActive) {
+                    <span class="the">{{ 'contacts.left' | translate }}</span>
+                  }
+                </div>
+
+                @if (person.jobTitle) {
+                  <div class="db__chuc">{{ person.jobTitle }}</div>
+                }
+
+                <span class="db__phong">
+                  {{ person.departmentName ?? ('contacts.noDepartment' | translate) }}
+                </span>
+
+                <div class="db__lienhe">
+                  <!--
+                    Không có email hay điện thoại thì BỎ HẲN dòng, không vẽ ô rỗng và cũng
+                    không vẽ dấu gạch ngang. Ô trống đọc như "dữ liệu bị thiếu"; bỏ dòng
+                    thì thẻ vẫn gọn và vẫn đúng.
+                  -->
+                  @if (person.workEmail) {
+                    <a class="db__dong" [href]="'mailto:' + person.workEmail">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                        <rect x="2" y="3.5" width="12" height="9" rx="1.6" />
+                        <path d="m2.5 4.5 5.5 4 5.5-4" />
+                      </svg>
+                      {{ person.workEmail }}
+                    </a>
+                  }
+
+                  @if (person.phone) {
+                    <a class="db__dong" [href]="'tel:' + person.phone">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                        <path d="M4 2.5 6 5 4.6 6.7a8 8 0 004.7 4.7L11 10l2.5 2-1.4 1.6c-3.7.6-9.3-5-8.7-8.7z" />
+                      </svg>
+                      {{ person.phone }}
+                    </a>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

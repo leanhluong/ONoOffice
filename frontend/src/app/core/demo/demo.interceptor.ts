@@ -296,6 +296,37 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
     return ok(kho.roles);
   }
 
+  // ── Phòng ban ───────────────────────────────────────────────────────
+  if (duong === '/api/departments' && req.method === 'GET') {
+    return ok(kho.phongBan);
+  }
+
+  // ── Danh bạ ─────────────────────────────────────────────────────────
+  if (duong === '/api/contacts' && req.method === 'GET') {
+    const p = req.params;
+    const tim = (p.get('search') ?? '').trim().toLowerCase();
+    const phong = p.get('departmentId');
+    const caNghi = p.get('includeInactive') === 'true';
+
+    const items = kho.hoSo
+      .filter((h) => (caNghi || h.isActive)
+        && (!phong || h.departmentId === phong)
+        && (!tim
+          || `${h.fullName} ${h.code} ${h.workEmail ?? ''}`.toLowerCase().includes(tim)))
+      // Sắp theo TÊN rồi tới id, giống hệt `EfEmployeeRepository`: sắp xếp phải ổn định.
+      .sort((a, b) => a.fullName.localeCompare(b.fullName, 'vi') || a.id.localeCompare(b.id));
+
+    return ok({
+      items,
+      page: 1,
+      pageSize: 60,
+      totalCount: items.length,
+      totalPages: 1,
+      hasPreviousPage: false,
+      hasNextPage: false,
+    });
+  }
+
   // ── Người dùng ──────────────────────────────────────────────────────
   if (duong === '/api/users' && req.method === 'GET') {
     return ok(locNguoiDung(req));

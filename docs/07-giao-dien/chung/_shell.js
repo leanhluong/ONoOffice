@@ -371,7 +371,7 @@ const APPS = [
   { ma: 'lich', ten: 'Lịch', soon: 'Lịch' },
   { ma: 'tai-lieu', ten: 'Tài liệu', soon: 'Tài liệu' },
   { ma: 'duyet', ten: 'Chờ duyệt', dem: 9, soon: 'Chờ duyệt' },
-  { ma: 'danh-ba', ten: 'Danh bạ', cham: true, soon: 'Danh bạ' },
+  { ma: 'danh-ba', ten: 'Danh bạ', href: '../org/danh-ba.html' },
 ];
 
 const bieu = (d, lop = 'nav__icon') =>
@@ -616,7 +616,7 @@ const QT_MUC = [
     icon: '<rect x="7" y="2.5" width="6" height="4.5" rx="1.3"/><rect x="2" y="13" width="5.5" height="4.5" rx="1.3"/><rect x="12.5" y="13" width="5.5" height="4.5" rx="1.3"/><path d="M10 7v3.5M4.75 13v-2.5h10.5V13"/>',
     con: [
       { ma: 'tai-khoan-ds', ten: 'Thành viên', href: '../org/nhan-su.html', dem: 38 },
-      { ma: 'phong-ban', ten: 'Phòng ban', dem: 6, soon: 'Phòng ban' },
+      { ma: 'phong-ban', ten: 'Phòng ban', href: '../org/phong-ban.html', dem: 6 },
       { ma: 'vai-tro', ten: 'Vai trò & quyền', href: '../identity/vai-tro.html', dem: 4 },
     ],
   },

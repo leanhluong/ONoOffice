@@ -108,7 +108,12 @@ export class Shell {
     { key: 'calendar', labelKey: 'nav.calendar', path: '', permissions: [], soon: true },
     { key: 'docs', labelKey: 'nav.docs', path: '', permissions: [], soon: true },
     { key: 'approval', labelKey: 'nav.approvals', path: '', permissions: [], soon: true },
-    { key: 'contacts', labelKey: 'nav.contacts', path: '', permissions: [], soon: true },
+    {
+      key: 'contacts',
+      labelKey: 'nav.contacts',
+      path: '/contacts',
+      permissions: ['employee.read'],
+    },
   ];
 
   /**

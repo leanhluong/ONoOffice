@@ -183,6 +183,14 @@ const SCREENS = [
     source: 'docs/07-giao-dien/khung/quan-tri.html',
     target: 'frontend/src/app/features/admin/overview/overview.scss',
   },
+  {
+    source: 'docs/07-giao-dien/org/phong-ban.html',
+    target: 'frontend/src/app/features/departments/department-tree.scss',
+  },
+  {
+    source: 'docs/07-giao-dien/org/danh-ba.html',
+    target: 'frontend/src/app/features/contacts/contact-list.scss',
+  },
 ];
 
 for (const { source, target } of SCREENS) {

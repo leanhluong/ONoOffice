@@ -1,0 +1,362 @@
+<!doctype html>
+<!--
+  Bản dựng màn PHÒNG BAN — cây tổ chức, trong KHUNG QUẢN TRỊ (khuôn B).
+
+  Vì sao ở khung quản trị chứ không phải khung app: màn này SỬA cây tổ chức của cả công
+  ty. Xem cây thì ai cũng được (danh bạ lọc theo phòng ban), nhưng đó là màn khác —
+  ./danh-ba.html, và nó ở khung app.
+
+  ══════════════════════════════════════════════════════════════════════════
+   BA QUYẾT ĐỊNH CỦA MÀN NÀY
+  ══════════════════════════════════════════════════════════════════════════
+
+  1. CÂY THẬT, KHÔNG PHẢI BẢNG PHẲNG CÓ CỘT "PHÒNG CHA".
+     Bảng phẳng dễ dựng hơn nhiều, nhưng nó bắt người đọc tự nối quan hệ trong đầu — mà
+     lý do duy nhất người ta mở màn này là để NHÌN THẤY quan hệ đó.
+
+  2. MỖI NÚT HIỆN SỐ NGƯỜI, và số ấy KHÔNG cộng dồn từ phòng con.
+     Cộng dồn thì tổng công ty hiện ở phòng gốc và mọi phòng con bị đếm hai lần khi mắt
+     lướt qua. Số ở đây trả lời "phòng này trực tiếp có bao nhiêu người".
+
+  3. XOÁ LÀ THAO TÁC HIẾM VÀ KHÓ ĐẢO → nút xoá chỉ hiện khi rê chuột vào đúng nút đó, và
+     backend còn chặn hai lần nữa (còn phòng con · còn nhân viên). Không xoá theo tầng:
+     một cú bấm cuốn theo mười phòng và ba trăm hồ sơ là thứ người bấm không lường được.
+
+  ⚠️ CHƯA CÓ: kéo-thả để điều chuyển. Điều chuyển hiện làm bằng hộp thoại chọn phòng cha.
+  Kéo-thả trên cây cần bắt đúng ba vùng thả (vào trong / trước / sau) và một lớp chống
+  thả-nhầm-vào-nhánh-của-chính-mình; làm nửa vời thì tệ hơn không có.
+
+  Mở bằng: node tools/serve-mockups.mjs → http://localhost:4300/org/phong-ban.html
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phòng ban · ONoOffice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;700&display=swap">
+<link rel="stylesheet" href="../chung/_shell.css">
+<link rel="stylesheet" href="../chung/_brand.css">
+<link rel="stylesheet" href="../chung/_khung-quantri.css">
+<link rel="stylesheet" href="../chung/_dieukhien.css">
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   CÂY
+   ══════════════════════════════════════════════════════════════════════ */
+.cay { padding: 4px 0; }
+
+.cay__nut {
+  position: relative;
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; margin-bottom: 1px;
+  border-radius: 9px;
+  cursor: default;
+}
+.cay__nut:hover { background: var(--surface-2); }
+
+/* Mũi tên gập. Nút không có con thì vẫn chừa CHỖ — bỏ hẳn thì tên của nút không con
+   thụt trái hơn nút có con, và cả cột chữ răng cưa. */
+.cay__mo {
+  width: 18px; height: 18px; flex: none;
+  display: grid; place-items: center;
+  border: 0; border-radius: 5px; background: transparent;
+  color: var(--ink-faint); cursor: pointer;
+}
+.cay__mo:hover { background: var(--surface); color: var(--ink); }
+.cay__mo svg { width: 12px; height: 12px; transition: transform 140ms ease; }
+.cay__nut[aria-expanded="true"] .cay__mo svg { transform: rotate(90deg); }
+.cay__mo--trong { visibility: hidden; }
+
+.cay__bieu { width: 17px; height: 17px; flex: none; color: var(--ink-faint); }
+.cay__ten { font-size: 13.5px; color: var(--ink); }
+
+/* Số người TRỰC TIẾP của phòng này, không cộng dồn phòng con. Chữ xám chứ không phải
+   viên màu nhấn: đây là số ĐO ĐẠC, không phải việc phải làm. */
+.cay__dem {
+  padding: 1px 7px;
+  border-radius: 999px; background: var(--surface-2);
+  color: var(--ink-faint); font-size: 11px; font-variant-numeric: tabular-nums;
+}
+
+.cay__truong { font-size: 12px; color: var(--ink-faint); }
+.cay__truong::before { content: "·"; margin: 0 7px; }
+
+/* Thao tác chỉ hiện khi rê chuột vào ĐÚNG nút đó. Hiện sẵn cả cây thì mỗi dòng có ba nút
+   và mắt không còn đọc được cấu trúc — mà cấu trúc mới là thứ người ta mở màn này để xem. */
+.cay__thao { margin-left: auto; display: flex; gap: 2px; opacity: 0; }
+.cay__nut:hover .cay__thao,
+.cay__nut:focus-within .cay__thao { opacity: 1; }
+
+/* Nhánh con: thụt vào và có một vạch dọc. Vạch dọc là thứ giữ mắt bám theo cấp — chỉ thụt
+   lề thôi thì tới cấp thứ ba là không ai lần được nút nào thuộc nút nào. */
+.cay__con {
+  margin-left: 18px; padding-left: 12px;
+  border-left: 1px solid var(--line);
+}
+.cay__con[hidden] { display: none; }
+
+/* ── Trạng thái ───────────────────────────────────────────────────── */
+.khi { display: none; }
+[data-state="co"] .khi--cay { display: block; }
+[data-state="rong"] .khi--rong { display: flex; }
+</style>
+
+<div class="qt">
+  <header id="qtTren"></header>
+
+  <div class="qt__than">
+    <nav id="qtBen"></nav>
+
+    <div class="qt__noi" data-state="co">
+      <header class="trangdau">
+        <h1>Phòng ban</h1>
+        <!-- 2+3+12+5+9+4 = 35. Bản trước ghi 38 — một con số bịa cho khớp với màn Thành
+             viên, trong khi cây ngay bên dưới cộng lại ra số khác. Con số nào ĐẾM ĐƯỢC
+             bằng mắt thì đừng viết sai, vì người duyệt sẽ cộng thử. -->
+        <span class="trangdau__phu">6 phòng · 35 người</span>
+        <div class="trangdau__day"></div>
+        <button class="nut nut--chinh" data-soon="Thêm phòng ban">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"
+               stroke-linecap="round" aria-hidden="true"><path d="M8 3.5v9M3.5 8h9"/></svg>
+          Thêm phòng ban
+        </button>
+      </header>
+
+      <div class="trang">
+        <div class="trang--hep">
+
+          <!-- ══════════════ CÓ DỮ LIỆU ══════════════ -->
+          <div class="khi khi--cay">
+            <div class="the__khoi">
+              <div class="cay">
+
+                <div class="cay__nut" aria-expanded="true">
+                  <button class="cay__mo" aria-label="Thu gọn">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"/></svg>
+                  </button>
+                  <svg class="cay__bieu" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                       stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+                  </svg>
+                  <span class="cay__ten">Ban giám đốc</span>
+                  <span class="cay__dem">2</span>
+                  <span class="cay__truong">Lê Anh Lượng</span>
+                  <span class="cay__thao">
+                    <button class="nuti" data-soon="Đổi tên" aria-label="Đổi tên">
+                      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 3.5 16.5 6.5 7 16H4v-3z"/></svg>
+                    </button>
+                    <button class="nuti" data-soon="Chuyển phòng" aria-label="Chuyển">
+                      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9l-3-3M16 13H7l3 3"/></svg>
+                    </button>
+                    <button class="nuti" data-soon="Xoá phòng ban" aria-label="Xoá">
+                      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h12M8 6V4h4v2M6.5 6l.7 10h5.6l.7-10"/></svg>
+                    </button>
+                  </span>
+                </div>
+
+                <div class="cay__con">
+                  <div class="cay__nut" aria-expanded="true">
+                    <button class="cay__mo" aria-label="Thu gọn">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"
+                           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"/></svg>
+                    </button>
+                    <svg class="cay__bieu" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                         stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+                    </svg>
+                    <span class="cay__ten">Khối Kỹ thuật</span>
+                    <span class="cay__dem">3</span>
+                    <span class="cay__truong">Trần Bình</span>
+                    <span class="cay__thao">
+                      <button class="nuti" data-soon="Đổi tên" aria-label="Đổi tên">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 3.5 16.5 6.5 7 16H4v-3z"/></svg>
+                      </button>
+                      <button class="nuti" data-soon="Chuyển phòng" aria-label="Chuyển">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9l-3-3M16 13H7l3 3"/></svg>
+                      </button>
+                      <button class="nuti" data-soon="Xoá phòng ban" aria-label="Xoá">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h12M8 6V4h4v2M6.5 6l.7 10h5.6l.7-10"/></svg>
+                      </button>
+                    </span>
+                  </div>
+
+                  <div class="cay__con">
+                    <div class="cay__nut">
+                      <span class="cay__mo cay__mo--trong"></span>
+                      <svg class="cay__bieu" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                           stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+                      </svg>
+                      <span class="cay__ten">Phát triển sản phẩm</span>
+                      <span class="cay__dem">12</span>
+                      <span class="cay__thao">
+                        <button class="nuti" data-soon="Đổi tên" aria-label="Đổi tên">
+                          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 3.5 16.5 6.5 7 16H4v-3z"/></svg>
+                        </button>
+                        <button class="nuti" data-soon="Chuyển phòng" aria-label="Chuyển">
+                          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9l-3-3M16 13H7l3 3"/></svg>
+                        </button>
+                        <button class="nuti" data-soon="Xoá phòng ban" aria-label="Xoá">
+                          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h12M8 6V4h4v2M6.5 6l.7 10h5.6l.7-10"/></svg>
+                        </button>
+                      </span>
+                    </div>
+
+                    <div class="cay__nut">
+                      <span class="cay__mo cay__mo--trong"></span>
+                      <svg class="cay__bieu" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                           stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+                      </svg>
+                      <span class="cay__ten">Hạ tầng</span>
+                      <span class="cay__dem">5</span>
+                      <span class="cay__truong">Nguyễn An</span>
+                      <span class="cay__thao">
+                        <button class="nuti" data-soon="Đổi tên" aria-label="Đổi tên">
+                          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 3.5 16.5 6.5 7 16H4v-3z"/></svg>
+                        </button>
+                        <button class="nuti" data-soon="Chuyển phòng" aria-label="Chuyển">
+                          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9l-3-3M16 13H7l3 3"/></svg>
+                        </button>
+                        <button class="nuti" data-soon="Xoá phòng ban" aria-label="Xoá">
+                          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h12M8 6V4h4v2M6.5 6l.7 10h5.6l.7-10"/></svg>
+                        </button>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="cay__nut">
+                    <span class="cay__mo cay__mo--trong"></span>
+                    <svg class="cay__bieu" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                         stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+                    </svg>
+                    <span class="cay__ten">Kinh doanh</span>
+                    <span class="cay__dem">9</span>
+                    <span class="cay__truong">Phạm Hà</span>
+                    <span class="cay__thao">
+                      <button class="nuti" data-soon="Đổi tên" aria-label="Đổi tên">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 3.5 16.5 6.5 7 16H4v-3z"/></svg>
+                      </button>
+                      <button class="nuti" data-soon="Chuyển phòng" aria-label="Chuyển">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9l-3-3M16 13H7l3 3"/></svg>
+                      </button>
+                      <button class="nuti" data-soon="Xoá phòng ban" aria-label="Xoá">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h12M8 6V4h4v2M6.5 6l.7 10h5.6l.7-10"/></svg>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="cay__nut">
+                  <span class="cay__mo cay__mo--trong"></span>
+                  <svg class="cay__bieu" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                       stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+                  </svg>
+                  <span class="cay__ten">Nhân sự</span>
+                  <span class="cay__dem">4</span>
+                  <span class="cay__thao">
+                    <button class="nuti" data-soon="Đổi tên" aria-label="Đổi tên">
+                      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 3.5 16.5 6.5 7 16H4v-3z"/></svg>
+                    </button>
+                    <button class="nuti" data-soon="Chuyển phòng" aria-label="Chuyển">
+                      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9l-3-3M16 13H7l3 3"/></svg>
+                    </button>
+                    <button class="nuti" data-soon="Xoá phòng ban" aria-label="Xoá">
+                      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h12M8 6V4h4v2M6.5 6l.7 10h5.6l.7-10"/></svg>
+                    </button>
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+            <p class="o__meo" style="margin-top:12px">
+              Số bên cạnh mỗi phòng là số người <b>trực tiếp</b> thuộc phòng đó, không cộng
+              dồn phòng con. Phòng còn phòng con hoặc còn nhân viên thì không xoá được.
+            </p>
+          </div>
+
+          <!-- ══════════════ CHƯA CÓ PHÒNG NÀO ══════════════ -->
+          <div class="khi khi--rong rong" style="padding:44px 0">
+            <span class="rong__vong">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="3" width="6" height="4.5" rx="1.3"/>
+                <rect x="2.5" y="16" width="6" height="4.5" rx="1.3"/>
+                <rect x="15.5" y="16" width="6" height="4.5" rx="1.3"/>
+                <path d="M12 7.5v4M5.5 16v-4.5h13V16"/>
+              </svg>
+            </span>
+            <h2>Chưa có phòng ban nào</h2>
+            <p>
+              Cây tổ chức giúp lọc danh bạ và sau này là nơi kênh trao đổi tự khớp theo
+              phòng. Bắt đầu bằng một phòng gốc — thường là tên công ty hoặc "Ban giám đốc".
+            </p>
+            <button class="nut nut--chinh nut--nho" data-soon="Thêm phòng ban">Thêm phòng đầu tiên</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="popups" id="popups" aria-live="polite"></div>
+
+<div class="states">
+  <span>Trạng thái</span>
+  <button data-state="co" aria-pressed="true">Có cây</button>
+  <button data-state="rong" aria-pressed="false">Chưa có phòng nào</button>
+</div>
+
+<script type="module">
+import { mountQuanTri, mountChuaLam } from '../chung/_shell.js';
+
+mountQuanTri(document.getElementById('qtTren'), document.getElementById('qtBen'), 'phong-ban');
+mountChuaLam();
+
+const noi = document.querySelector('.qt__noi');
+
+document.querySelectorAll('.states button[data-state]').forEach(b =>
+  b.addEventListener('click', () => {
+    noi.dataset.state = b.dataset.state;
+    document.querySelectorAll('.states button[data-state]').forEach(x =>
+      x.setAttribute('aria-pressed', String(x === b)));
+  }));
+
+// Gập / mở một nhánh.
+document.querySelectorAll('.cay__mo:not(.cay__mo--trong)').forEach(nut =>
+  nut.addEventListener('click', () => {
+    const dong = nut.closest('.cay__nut');
+    const con = dong.nextElementSibling;
+    const mo = dong.getAttribute('aria-expanded') !== 'true';
+
+    dong.setAttribute('aria-expanded', String(mo));
+    if (con?.classList.contains('cay__con')) con.hidden = !mo;
+  }));
+
+const q = new URLSearchParams(location.search);
+if (q.get('state')) noi.dataset.state = q.get('state');
+if (q.has('bare')) document.querySelector('.states')?.remove();
+</script>

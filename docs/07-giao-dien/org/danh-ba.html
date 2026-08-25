@@ -1,0 +1,397 @@
+<!doctype html>
+<!--
+  Bản dựng màn DANH BẠ — trong KHUNG APP (khuôn A): rail + cột ngữ cảnh + nội dung.
+
+  ══════════════════════════════════════════════════════════════════════════
+   ĐỪNG NHẦM VỚI MÀN "THÀNH VIÊN" BÊN QUẢN TRỊ
+  ══════════════════════════════════════════════════════════════════════════
+
+  Cùng nói về con người, hai màn hoàn toàn khác nhau, và đó chính là ví dụ rõ nhất cho
+  luật ranh giới giữa hai khung:
+
+    Danh bạ (ở đây)     · ai cũng vào được, quyền `employee.read` — cả bốn vai đều có
+                        · để TRA CỨU đồng nghiệp: số điện thoại, phòng ban, chức danh
+                        · dữ liệu là HỒ SƠ NHÂN SỰ (module Org)
+
+    Thành viên (quản trị) · quyền `user.read`
+                        · để SỬA tài khoản người khác: đổi vai, vô hiệu hoá
+                        · dữ liệu là TÀI KHOẢN ĐĂNG NHẬP (module Identity)
+
+  Một người có thể có hồ sơ mà chưa có tài khoản (nhân viên mới), hoặc có tài khoản mà
+  không phải nhân viên (tài khoản bot chạy sao lưu). Xem chú thích đầu `Employee.cs`.
+
+  ══════════════════════════════════════════════════════════════════════════
+   HAI QUYẾT ĐỊNH
+  ══════════════════════════════════════════════════════════════════════════
+
+  1. THẺ, KHÔNG PHẢI BẢNG. Người ta mở danh bạ để tìm MỘT người rồi gọi điện, không phải
+     để so sánh 38 dòng. Thẻ cho chỗ đặt số điện thoại và email ở kích thước bấm được
+     bằng ngón tay; bảng thì nhét chúng vào ô hẹp và phải cắt bớt.
+
+  2. CỘT NGỮ CẢNH LÀ CÂY PHÒNG BAN, dùng để LỌC. Đây đúng là việc mà cột thứ hai của
+     khuôn A sinh ra để làm — xem `../chung/_khung.css`.
+
+  ⚠️ CHƯA CÓ: ảnh đại diện thật (chưa có chỗ lưu file), trạng thái trực tuyến (chưa có
+  realtime), và nút "nhắn tin" (module Trao đổi chưa có code). Chữ cái đầu thay ảnh, và
+  không vẽ nút chết nào.
+
+  Mở bằng: node tools/serve-mockups.mjs → http://localhost:4300/org/danh-ba.html
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Danh bạ · ONoOffice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;700&display=swap">
+<link rel="stylesheet" href="../chung/_shell.css">
+<link rel="stylesheet" href="../chung/_brand.css">
+<link rel="stylesheet" href="../chung/_khung.css">
+<link rel="stylesheet" href="../chung/_dieukhien.css">
+
+<style>
+/* ── Thanh lọc trên cùng ──────────────────────────────────────────── */
+.loc {
+  flex: none;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.loc__tim { position: relative; flex: 1; min-width: 220px; max-width: 420px; }
+.loc__tim svg {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  width: 15px; height: 15px; color: var(--ink-faint); pointer-events: none;
+}
+.loc__tim input {
+  width: 100%; box-sizing: border-box;
+  padding: 8px 12px 8px 34px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 9px;
+  color: var(--ink); font-family: inherit; font-size: 13px;
+}
+.loc__tim input:focus { outline: none; border-color: var(--accent); }
+
+/* ── Lưới thẻ ─────────────────────────────────────────────────────── */
+.db { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 12px; }
+
+.db__the {
+  display: flex; gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line); border-radius: var(--radius, 10px);
+  background: var(--surface);
+}
+.db__the:hover { border-color: var(--ink-faint); }
+
+.db__giua { flex: 1; min-width: 0; }
+.db__ten { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.db__chuc { font-size: 12px; color: var(--ink-faint); margin-top: 1px; }
+
+.db__phong {
+  display: inline-block; margin-top: 8px; padding: 2px 8px;
+  border-radius: 999px; background: var(--surface-2);
+  color: var(--ink-soft); font-size: 11px;
+}
+
+.db__lienhe { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.db__dong {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--ink-soft); font-size: 12px; text-decoration: none;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.db__dong:hover { color: var(--accent); }
+.db__dong svg { width: 13px; height: 13px; flex: none; color: var(--ink-faint); }
+
+/* Người đã nghỉ việc: mờ đi và có nhãn. Cố ý KHÔNG ẩn hẳn — người ta vẫn cần tra lại ai
+   từng phụ trách việc gì. Nhưng để nguyên như người đang làm thì đồng nghiệp gọi điện
+   cho một người không còn ở đây. */
+.db__the--nghi { opacity: 0.55; }
+
+/* ── Trạng thái ───────────────────────────────────────────────────── */
+.khi { display: none; }
+[data-state="co"] .khi--luoi { display: block; }
+[data-state="khongthay"] .khi--khongthay { display: flex; }
+</style>
+
+<div class="khung">
+  <nav id="rail"></nav>
+
+  <!-- Cột ngữ cảnh của app Danh bạ: CÂY PHÒNG BAN dùng để lọc. Đây đúng việc mà cột thứ
+       hai của khuôn A sinh ra để làm. -->
+  <nav class="nav" aria-label="Lọc theo phòng ban">
+    <div class="nav__dau"><h2>Danh bạ</h2></div>
+
+    <div class="nav__ds">
+      <div class="nav__nhan">Phòng ban</div>
+
+      <button class="nav__muc" aria-current="page">
+        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="7.5" cy="6.8" r="2.9"/><path d="M2.4 16.6a5.1 5.1 0 0110.2 0"/>
+          <path d="M13.2 4.4a2.9 2.9 0 010 4.8M14.8 16.6a5.1 5.1 0 00-1.7-3.8"/>
+        </svg>
+        <span class="nav__chu">Tất cả</span>
+        <span class="nav__dem nav__dem--nhat">38</span>
+      </button>
+
+      <button class="nav__muc" data-soon="Lọc theo phòng ban">
+        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+        </svg>
+        <span class="nav__chu">Ban giám đốc</span>
+        <span class="nav__dem nav__dem--nhat">2</span>
+      </button>
+
+      <button class="nav__muc" data-soon="Lọc theo phòng ban">
+        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+        </svg>
+        <span class="nav__chu">Khối Kỹ thuật</span>
+        <span class="nav__dem nav__dem--nhat">3</span>
+      </button>
+
+      <button class="nav__muc" data-soon="Lọc theo phòng ban" style="padding-left:26px">
+        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+        </svg>
+        <span class="nav__chu">Phát triển sản phẩm</span>
+        <span class="nav__dem nav__dem--nhat">12</span>
+      </button>
+
+      <button class="nav__muc" data-soon="Lọc theo phòng ban" style="padding-left:26px">
+        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+        </svg>
+        <span class="nav__chu">Hạ tầng</span>
+        <span class="nav__dem nav__dem--nhat">5</span>
+      </button>
+
+      <button class="nav__muc" data-soon="Lọc theo phòng ban">
+        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+        </svg>
+        <span class="nav__chu">Kinh doanh</span>
+        <span class="nav__dem nav__dem--nhat">9</span>
+      </button>
+
+      <button class="nav__muc" data-soon="Lọc theo phòng ban">
+        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="14" height="14" rx="2.4"/><path d="M7 8.5h6M7 12h4"/>
+        </svg>
+        <span class="nav__chu">Nhân sự</span>
+        <span class="nav__dem nav__dem--nhat">4</span>
+      </button>
+
+      <div class="nav__nhan">Chưa xếp phòng</div>
+      <button class="nav__muc" data-soon="Lọc theo phòng ban">
+        <svg class="nav__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="10" cy="7" r="3"/><path d="M4.5 16.5a5.5 5.5 0 0111 0"/>
+        </svg>
+        <span class="nav__chu">Chưa xếp</span>
+        <span class="nav__dem nav__dem--nhat">3</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="noidung" data-state="co">
+    <header class="trangdau">
+      <h1>Tất cả</h1>
+      <span class="trangdau__phu">38 người đang làm việc</span>
+      <div class="trangdau__day"></div>
+    </header>
+
+    <div class="loc">
+      <div class="loc__tim">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/>
+        </svg>
+        <input type="search" placeholder="Tìm theo tên, mã nhân viên hoặc email"
+               aria-label="Tìm trong danh bạ">
+      </div>
+
+      <label class="congtac">
+        <input type="checkbox" id="hienNghi">
+        <span class="congtac__ray"></span>
+      </label>
+      <span style="font-size:12.5px;color:var(--ink-soft)">Hiện cả người đã nghỉ</span>
+    </div>
+
+    <div class="trang">
+
+      <!-- ══════════════ CÓ KẾT QUẢ ══════════════ -->
+      <div class="khi khi--luoi">
+        <div class="db">
+
+          <div class="db__the">
+            <span class="mat">LL</span>
+            <div class="db__giua">
+              <div class="db__ten">Lê Anh Lượng</div>
+              <div class="db__chuc">Giám đốc</div>
+              <span class="db__phong">Ban giám đốc</span>
+              <div class="db__lienhe">
+                <a class="db__dong" href="mailto:chu@congty.vn">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <rect x="2" y="3.5" width="12" height="9" rx="1.6"/><path d="m2.5 4.5 5.5 4 5.5-4"/>
+                  </svg>
+                  chu@congty.vn
+                </a>
+                <a class="db__dong" href="tel:+84901234567">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <path d="M4 2.5 6 5 4.6 6.7a8 8 0 004.7 4.7L11 10l2.5 2-1.4 1.6c-3.7.6-9.3-5-8.7-8.7z"/>
+                  </svg>
+                  090 123 4567
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="db__the">
+            <span class="mat">TB</span>
+            <div class="db__giua">
+              <div class="db__ten">Trần Bình</div>
+              <div class="db__chuc">Trưởng khối Kỹ thuật</div>
+              <span class="db__phong">Khối Kỹ thuật</span>
+              <div class="db__lienhe">
+                <a class="db__dong" href="mailto:binh.tran@congty.vn">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <rect x="2" y="3.5" width="12" height="9" rx="1.6"/><path d="m2.5 4.5 5.5 4 5.5-4"/>
+                  </svg>
+                  binh.tran@congty.vn
+                </a>
+                <a class="db__dong" href="tel:+84912345678">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <path d="M4 2.5 6 5 4.6 6.7a8 8 0 004.7 4.7L11 10l2.5 2-1.4 1.6c-3.7.6-9.3-5-8.7-8.7z"/>
+                  </svg>
+                  091 234 5678
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Không có điện thoại: KHÔNG vẽ dòng rỗng, cũng không vẽ dấu gạch ngang. Ô
+               trống đọc như "dữ liệu bị thiếu"; bỏ hẳn dòng thì thẻ vẫn gọn và đúng. -->
+          <div class="db__the">
+            <span class="mat">NA</span>
+            <div class="db__giua">
+              <div class="db__ten">Nguyễn An</div>
+              <div class="db__chuc">Kỹ sư hạ tầng</div>
+              <span class="db__phong">Hạ tầng</span>
+              <div class="db__lienhe">
+                <a class="db__dong" href="mailto:an.nguyen@congty.vn">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <rect x="2" y="3.5" width="12" height="9" rx="1.6"/><path d="m2.5 4.5 5.5 4 5.5-4"/>
+                  </svg>
+                  an.nguyen@congty.vn
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="db__the">
+            <span class="mat">PH</span>
+            <div class="db__giua">
+              <div class="db__ten">Phạm Hà</div>
+              <div class="db__chuc">Trưởng phòng Kinh doanh</div>
+              <span class="db__phong">Kinh doanh</span>
+              <div class="db__lienhe">
+                <a class="db__dong" href="mailto:ha.pham@congty.vn">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <rect x="2" y="3.5" width="12" height="9" rx="1.6"/><path d="m2.5 4.5 5.5 4 5.5-4"/>
+                  </svg>
+                  ha.pham@congty.vn
+                </a>
+                <a class="db__dong" href="tel:+84987654321">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <path d="M4 2.5 6 5 4.6 6.7a8 8 0 004.7 4.7L11 10l2.5 2-1.4 1.6c-3.7.6-9.3-5-8.7-8.7z"/>
+                  </svg>
+                  098 765 4321
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chưa xếp phòng là trạng thái BÌNH THƯỜNG của người mới, không phải lỗi. -->
+          <div class="db__the">
+            <span class="mat">ĐH</span>
+            <div class="db__giua">
+              <div class="db__ten">Đỗ Ngọc Hà</div>
+              <div class="db__chuc">Thực tập sinh</div>
+              <span class="db__phong">Chưa xếp phòng</span>
+              <div class="db__lienhe">
+                <a class="db__dong" href="mailto:ha.do@congty.vn">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <rect x="2" y="3.5" width="12" height="9" rx="1.6"/><path d="m2.5 4.5 5.5 4 5.5-4"/>
+                  </svg>
+                  ha.do@congty.vn
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="db__the db__the--nghi">
+            <span class="mat">VM</span>
+            <div class="db__giua">
+              <div class="db__ten">Vũ Thị Mai <span class="the">đã nghỉ</span></div>
+              <div class="db__chuc">Nhân viên kinh doanh</div>
+              <span class="db__phong">Kinh doanh</span>
+              <div class="db__lienhe">
+                <a class="db__dong" href="mailto:mai.vu@congty.vn">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <rect x="2" y="3.5" width="12" height="9" rx="1.6"/><path d="m2.5 4.5 5.5 4 5.5-4"/>
+                  </svg>
+                  mai.vu@congty.vn
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══════════════ LỌC KHÔNG RA ══════════════ -->
+      <div class="khi khi--khongthay rong" style="padding:44px 0">
+        <span class="rong__vong">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4 4"/>
+          </svg>
+        </span>
+        <h2>Không tìm thấy ai</h2>
+        <p>Thử bớt một bộ lọc, hoặc tìm bằng mã nhân viên thay vì tên.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="popups" id="popups" aria-live="polite"></div>
+
+<div class="states">
+  <span>Trạng thái</span>
+  <button data-state="co" aria-pressed="true">Có kết quả</button>
+  <button data-state="khongthay" aria-pressed="false">Lọc không ra</button>
+</div>
+
+<script type="module">
+import { mountRail, mountChuaLam } from '../chung/_shell.js';
+
+mountRail(document.getElementById('rail'), 'danh-ba');
+mountChuaLam();
+
+const noi = document.querySelector('.noidung');
+
+document.querySelectorAll('.states button[data-state]').forEach(b =>
+  b.addEventListener('click', () => {
+    noi.dataset.state = b.dataset.state;
+    document.querySelectorAll('.states button[data-state]').forEach(x =>
+      x.setAttribute('aria-pressed', String(x === b)));
+  }));
+
+const q = new URLSearchParams(location.search);
+if (q.get('state')) noi.dataset.state = q.get('state');
+if (q.has('bare')) document.querySelector('.states')?.remove();
+</script>

@@ -1,0 +1,70 @@
+/**
+ * ⚠️ FILE NÀY ĐƯỢC SINH TỰ ĐỘNG — ĐỪNG SỬA TAY.
+ *
+ * Nguồn:    docs/07-giao-dien/org/danh-ba.html
+ * Sinh lại: node tools/sync-shell.mjs
+ *
+ * Sửa ở đây thì lần chạy bộ sinh tiếp theo sẽ xoá mất, và tệ hơn: bản dựng mà người
+ * duyệt nhìn sẽ khác thứ đang chạy thật. Muốn đổi giao diện thì sửa bản dựng rồi chạy
+ * lại bộ sinh.
+ */
+
+/* ── Thanh lọc trên cùng ──────────────────────────────────────────── */
+.loc {
+  flex: none;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.loc__tim { position: relative; flex: 1; min-width: 220px; max-width: 420px; }
+.loc__tim svg {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  width: 15px; height: 15px; color: var(--ink-faint); pointer-events: none;
+}
+.loc__tim input {
+  width: 100%; box-sizing: border-box;
+  padding: 8px 12px 8px 34px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 9px;
+  color: var(--ink); font-family: inherit; font-size: 13px;
+}
+.loc__tim input:focus { outline: none; border-color: var(--accent); }
+
+/* ── Lưới thẻ ─────────────────────────────────────────────────────── */
+.db { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 12px; }
+
+.db__the {
+  display: flex; gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line); border-radius: var(--radius, 10px);
+  background: var(--surface);
+}
+.db__the:hover { border-color: var(--ink-faint); }
+
+.db__giua { flex: 1; min-width: 0; }
+.db__ten { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.db__chuc { font-size: 12px; color: var(--ink-faint); margin-top: 1px; }
+
+.db__phong {
+  display: inline-block; margin-top: 8px; padding: 2px 8px;
+  border-radius: 999px; background: var(--surface-2);
+  color: var(--ink-soft); font-size: 11px;
+}
+
+.db__lienhe { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.db__dong {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--ink-soft); font-size: 12px; text-decoration: none;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.db__dong:hover { color: var(--accent); }
+.db__dong svg { width: 13px; height: 13px; flex: none; color: var(--ink-faint); }
+
+/* Người đã nghỉ việc: mờ đi và có nhãn. Cố ý KHÔNG ẩn hẳn — người ta vẫn cần tra lại ai
+   từng phụ trách việc gì. Nhưng để nguyên như người đang làm thì đồng nghiệp gọi điện
+   cho một người không còn ở đây. */
+.db__the--nghi { opacity: 0.55; }
+
+/* ── Trạng thái ───────────────────────────────────────────────────── */
+.khi { display: none; }
+[data-state="co"] .khi--luoi { display: block; }
+[data-state="khongthay"] .khi--khongthay { display: flex; }
