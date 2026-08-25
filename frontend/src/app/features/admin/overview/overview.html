@@ -163,6 +163,45 @@
 
   <!-- ══════════════ CỘT PHỤ ══════════════ -->
   <div class="qt__cot">
+    <!--
+      Thẻ DUY NHẤT ở cột phụ chạy bằng dữ liệu thật, và là việc đáng làm nhất trên màn:
+      mật khẩu tạm đã đi qua Zalo và lời nói, và nó sống cho tới khi người ta đăng nhập
+      lần đầu. Ẩn hẳn khi không còn ai — một thẻ rỗng đứng đó mỗi ngày thì sau ba ngày
+      không ai đọc nó nữa, kể cả hôm nó có nội dung.
+    -->
+    @if (canXuLy().length > 0) {
+      <div class="the__khoi">
+        <h3>{{ 'admin.needsAttention' | translate }}</h3>
+        <p class="mota">{{ 'admin.needsAttentionHint' | translate }}</p>
+
+        @for (user of canXuLy(); track user.id) {
+          <div class="ud__hang">
+            <span class="mat mat--nho">{{ initials(user.fullName) }}</span>
+            <div class="ud__giua">
+              <div class="ud__ten">{{ user.fullName }}</div>
+              <div class="ud__mo">{{ user.email }}</div>
+            </div>
+            <!-- Quá một tuần thì tô cảnh báo. Ngưỡng nằm ở đây chứ không ở CSS vì nó là
+                 một luật nghiệp vụ, không phải một lựa chọn thẩm mỹ. -->
+            <span class="the" [class.the--canh]="daysOld(user.createdAtUtc) > 7">
+              {{ 'admin.daysAgo' | translate: { count: daysOld(user.createdAtUtc) } }}
+            </span>
+          </div>
+        }
+
+        @if ((stats()?.pending ?? 0) > canXuLy().length) {
+          <a
+            class="nut nut--nho"
+            style="margin-top: 14px"
+            routerLink="/admin/users"
+            [queryParams]="{ status: filter.PendingFirstLogin }"
+          >
+            {{ 'admin.seeAll' | translate: { count: stats()?.pending ?? 0 } }}
+          </a>
+        }
+      </div>
+    }
+
     <div class="the__khoi">
       <h3>
         {{ 'admin.apps' | translate }}

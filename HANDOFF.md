@@ -149,6 +149,15 @@ Sau đó:
      `BackgroundService`/`IHostedService` nào trong toàn backend để rút ra.
 ⬜ Plan / Quota / Usage — ba khái niệm mới, chưa có bảng nào. Màn Tổng quan
      đang vẽ sẵn và đeo nhãn "chưa nối backend".
+⬜ Thêm `isOwner` vào `UserListItem` (tính từ `Tenant.OwnerUserId`, không cần
+     migration). Frontend đang tô huy hiệu Owner bằng phép so TÊN vai — chấp
+     nhận được vì nó chỉ là màu, nhưng ngày nào cần CHẶN theo chủ sở hữu thì
+     bắt buộc phải có trường này.
+⬜ Bảng điều khiển `/dashboard` KHÔNG có bản dựng, và nội dung hiện tại là màn
+     debug (userId, tenantId, danh sách quyền thô). Hoặc vẽ bản dựng cho nó,
+     hoặc bỏ hẳn và cho `/` trỏ sang Trao đổi khi màn đó xong.
+⬜ `forbidden` và `not-found` cũng chưa có bản dựng — hai màn duy nhất còn lại
+     nằm ngoài `ui-parity.spec`.
 ⬜ Tạo / sửa / xoá VAI TRÒ — màn Vai trò hiện chỉ xem được, thiếu ba endpoint
 ⬜ Thao tác hàng loạt ở màn Nhân sự · xuất Excel · bộ lọc trên URL
 ⬜ Đặt lại mật khẩu HỘ người khác — cùng luồng hai bước như lúc tạo tài khoản
@@ -448,6 +457,14 @@ node tools/sync-shell.mjs           # bản dựng → styles.scss + 6 file .scs
 node tools/sync-error-messages.mjs  # .resx của backend → errors.json của FE
 cd frontend && npm run parity       # chụp cả hai rồi so từng điểm ảnh
 ```
+
+Bộ thứ tư, thêm 2026-08-25: **`ui-parity.spec.ts`** — so tập LỚP CSS giữa bản dựng và
+template Angular của **sáu cặp màn**, chạy cùng `npm test`. Nó lấp đúng lỗ hổng mà ba bộ
+kia để lại: bộ sinh CSS bảo đảm *luật CSS* không lệch nhưng không đụng tới *đánh dấu*, còn
+`npm run parity` thì không với tới màn nào sau đăng nhập. Lần chạy đầu nó đỏ ba màn.
+
+Nó KHÔNG bắt được lệch về thứ tự khối hay câu chữ — chỗ đó vẫn phải nhìn bằng mắt. Một bộ
+canh biết rõ mình không canh gì thì tốt hơn một bộ canh giả vờ canh tất.
 
 ⚠️ **`npm run parity` mới chỉ soi được HAI màn công khai** (`/login`, `/dang-ky`). Mọi màn
 sau đăng nhập thì bộ so ảnh chưa với tới được: nó phục vụ bản build tĩnh rồi chụp một URL,

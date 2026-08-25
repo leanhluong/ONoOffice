@@ -100,7 +100,11 @@
     "resetPassword": "Đặt lại mật khẩu",
     "apps": "Ứng dụng",
     "appsHint": "Bật tắt từng app cho cả workspace.",
-    "notReleased": "Chưa phát hành"
+    "notReleased": "Chưa phát hành",
+    "needsAttention": "Cần bạn xử lý",
+    "needsAttentionHint": "Mật khẩu tạm đi qua Zalo và lời nói, và nó sống tới khi người ta đăng nhập lần đầu.",
+    "daysAgo": "{{count}} ngày",
+    "seeAll": "Xem cả {{count}} người"
   },
   "brandfoot": {
     "internal": "Nội bộ",

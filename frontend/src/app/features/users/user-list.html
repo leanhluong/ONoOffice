@@ -179,7 +179,20 @@
                   </td>
 
                   <td>
-                    <span class="vai">{{ user.roleName }}</span>
+                    <!--
+                      Tô nổi vai CHỦ SỞ HỮU. So theo TÊN vai ở đây là cố ý, và chỉ an toàn
+                      vì đúng hai điều kiện: (1) đây thuần tuý là màu sắc, nó KHÔNG chặn
+                      hay mở một thao tác nào; (2) bốn vai hệ thống bất biến — xem
+                      `SystemRoles.cs`, sửa được thì một cú bấm nhầm có thể thu hết quyền
+                      của Owner.
+
+                      Cách đúng hơn là `UserListItem.isOwner` từ backend. Hợp đồng hiện
+                      chưa có trường đó; ghi vào việc-tiếp-theo. Ngày nào cần CHẶN theo
+                      chủ sở hữu thì phải có nó — đừng bao giờ chặn bằng phép so tên này.
+                    -->
+                    <span class="vai" [class.vai--chu]="user.roleName === 'Owner'">
+                      {{ user.roleName }}
+                    </span>
                   </td>
 
                   <td>
@@ -559,6 +572,11 @@
 
           <p class="o__meo" style="margin-top: 12px; line-height: 1.6">
             {{ 'users.permissionNote' | translate }}
+            <!-- Liên kết tách khỏi câu dịch, không nhúng HTML vào file .json: nhúng thẻ
+                 vào bản dịch thì mỗi ngôn ngữ mới lại là một cơ hội gõ hỏng thẻ, và
+                 `translate` phải chuyển sang `innerHTML` — tức mở cửa cho XSS ở đúng chỗ
+                 không cần nó. -->
+            <a class="link" routerLink="/admin/roles">{{ 'nav.roles' | translate }}</a>
           </p>
         }
       </div>

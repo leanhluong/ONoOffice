@@ -221,20 +221,19 @@
                 <div class="hn__ray"><div class="hn__day hn__day--canh" style="width:87%"></div></div>
               </div>
 
-              <div class="hn__hang">
-                <div class="hn__dau">
-                  <span class="hn__ten">Phòng ban</span>
-                  <span class="hn__so">6 / không giới hạn</span>
-                </div>
-                <div class="hn__ray"><div class="hn__day" style="width:8%"></div></div>
-              </div>
+              <!-- Cố ý CHỈ hai dòng. Bản trước có thêm "Phòng ban · 6 / không giới hạn":
+                   một thanh đo mà trần là vô hạn thì nó đo cái gì? Thanh luôn gần 0% và
+                   không bao giờ đổi màu — nó chiếm chỗ của hai dòng thật sự có trần. -->
             </div>
           </div>
 
           <!-- ── Phím tắt ── -->
           <div class="the__khoi">
             <h3>Phím tắt</h3>
-            <p class="mota">Sáu việc quản trị viên làm nhiều nhất. Ba cái đầu đã chạy thật.</p>
+            <!-- KHÔNG viết con số vào câu này. Bản trước ghi "Sáu việc" rồi gỡ bớt một
+                 phím tắt, và câu chữ nói sai chính khối nằm ngay dưới nó. Con số đếm
+                 được bằng mắt thì đừng viết ra. -->
+            <p class="mota">Những việc quản trị viên làm nhiều nhất. Ba cái đầu đã chạy thật.</p>
 
             <div class="pt">
               <a href="../org/nhan-su.html">
@@ -283,16 +282,9 @@
                 Cây phòng ban
               </button>
 
-              <button data-soon="Hạn ngạch">
-                <span class="pt__o">
-                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
-                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <ellipse cx="10" cy="5.4" rx="6.5" ry="2.6"/>
-                    <path d="M3.5 5.4v9.2c0 1.4 2.9 2.6 6.5 2.6s6.5-1.2 6.5-2.6V5.4"/>
-                  </svg>
-                </span>
-                Hạn ngạch
-              </button>
+              <!-- Bỏ phím tắt "Hạn ngạch": nó trỏ tới đúng khối đang nằm NGAY TRÊN màn
+                   này, và sidebar cũng đã có mục đó. Một phím tắt dẫn tới chỗ người dùng
+                   đang đứng thì không phải phím tắt. -->
 
               <button data-soon="Nhật ký hoạt động">
                 <span class="pt__o">
@@ -343,7 +335,7 @@
                 <div class="ud__ten">Vũ Đức Minh</div>
                 <div class="ud__mo">minh.vu@congty.vn</div>
               </div>
-              <span class="the">hôm qua</span>
+              <span class="the">1 ngày</span>
             </div>
 
             <a class="nut nut--nho" style="margin-top:14px"
@@ -364,9 +356,13 @@
               </span>
               <div class="ud__giua">
                 <div class="ud__ten">Trao đổi</div>
-                <div class="ud__mo">Nhắn tin nội bộ</div>
+                <!-- TẮT, và ghi "chưa phát hành". Bản trước bật sẵn kèm chữ "Nhắn tin nội
+                     bộ" — nhìn như app đã chạy, trong khi module Comm chưa có một dòng
+                     code nào. Công tắc bật sẵn cho một thứ không tồn tại là kiểu nói dối
+                     khó phát hiện nhất của giao diện quản trị. -->
+                <div class="ud__mo">Chưa phát hành</div>
               </div>
-              <label class="congtac"><input type="checkbox" checked disabled><span class="congtac__ray"></span></label>
+              <label class="congtac"><input type="checkbox" disabled><span class="congtac__ray"></span></label>
             </div>
 
             <div class="ud__hang">

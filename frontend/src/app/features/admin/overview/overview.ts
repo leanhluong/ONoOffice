@@ -5,7 +5,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { PopupService } from '../../../core/ui/popup.service';
 import { UserService } from '../../../core/users/user.service';
-import { UserStatusFilter } from '../../../core/models/user.model';
+import { UserStatusFilter, type UserListItem } from '../../../core/models/user.model';
 
 /** Bốn con số ở đầu màn. `null` = chưa nạp xong. */
 interface Stats {
@@ -14,6 +14,9 @@ interface Stats {
   readonly disabled: number;
   readonly roles: number;
 }
+
+/** Số người hiện trong thẻ "Cần bạn xử lý" trước khi phải bấm "xem cả …". */
+const CAN_XU_LY = 3;
 
 /**
  * Tổng quan tổ chức — trang gốc của vùng quản trị.
@@ -51,6 +54,15 @@ export class AdminOverview {
   protected readonly stats = signal<Stats | null>(null);
   protected readonly failed = signal(false);
 
+  /**
+   * Vài người đầu tiên còn mật khẩu tạm.
+   *
+   * Lấy KÈM trong cùng lời gọi đếm: `?status=PendingFirstLogin&pageSize=3` vừa cho
+   * `totalCount` để hiện con số, vừa cho ba dòng đầu để hiện danh sách. Gọi hai lần cho
+   * cùng một bộ lọc là trả tiền hai lần cho một câu hỏi.
+   */
+  protected readonly canXuLy = signal<readonly UserListItem[]>([]);
+
   /** Ngưỡng tô cảnh báo cho thanh hạn ngạch. 80 chứ không phải 100: lúc chạm trần thì
    *  người dùng đã bị chặn tạo tài khoản và không hiểu vì sao. */
   protected readonly canhNguong = 80;
@@ -61,9 +73,20 @@ export class AdminOverview {
 
     forkJoin({
       total: count(),
-      pending: count(UserStatusFilter.PendingFirstLogin),
       disabled: count(UserStatusFilter.Disabled),
       roles: this.users.roles().pipe(map((list) => list.length)),
+
+      // Một lời gọi, hai câu trả lời: `totalCount` cho ô số, `items` cho danh sách bên
+      // cột phụ. Đây là bộ lọc DUY NHẤT màn này cần cả hai.
+      pending: this.users
+        .list({ status: UserStatusFilter.PendingFirstLogin, pageSize: CAN_XU_LY })
+        .pipe(
+          map((page) => {
+            this.canXuLy.set(page.items);
+
+            return page.totalCount;
+          }),
+        ),
     })
       .pipe(
         catchError(() => {
@@ -90,4 +113,32 @@ export class AdminOverview {
   }
 
   protected readonly filter = UserStatusFilter;
+
+  /**
+   * Chữ cái đầu làm ảnh đại diện tạm: chữ đầu của TỪ ĐẦU và TỪ CUỐI.
+   *
+   * Không cắt hai ký tự đầu chuỗi — tên Việt "Đỗ Ngọc Hà" sẽ ra "Đỗ", tức là cả họ, mà
+   * họ thì trùng nhau đầy công ty.
+   */
+  protected initials(name: string): string {
+    const words = name.trim().split(/\s+/).filter(Boolean);
+
+    if (words.length === 0) {
+      return '?';
+    }
+
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  }
+
+  /**
+   * Số ngày kể từ lúc tạo tài khoản.
+   *
+   * Để càng lâu thì mật khẩu tạm càng nguy: nó đã đi qua Zalo, qua lời nói, và có thể còn
+   * nằm trong lịch sử tin nhắn của ai đó. Quá một tuần thì tô cảnh báo.
+   */
+  protected daysOld(createdAtUtc: string): number {
+    const ms = Date.now() - new Date(createdAtUtc).getTime();
+
+    return Math.max(0, Math.floor(ms / 86_400_000));
+  }
 }

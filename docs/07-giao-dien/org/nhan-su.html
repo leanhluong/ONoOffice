@@ -14,6 +14,12 @@
   Vẽ sẵn hai cột luôn rỗng thì bảng đầy dấu gạch ngang — trông như dữ liệu bị thiếu, chứ
   không như một tính năng chưa tới. Chúng quay lại nguyên vẹn khi Org có API.
 
+  ⚠️ ĐÃ GỠ ngày 2026-08-25: chấm TRỰC TUYẾN trên ảnh đại diện.
+  Không có bảng nào lưu trạng thái online, và cũng chưa có đường realtime nào để cập nhật
+  nó — `Luong.Kernel.Realtime` còn chưa được tham chiếu ở đâu cả. Một chấm xanh đứng yên
+  vĩnh viễn không phải "thiếu dữ liệu", nó là NÓI SAI: người quản trị nhìn vào rồi kết
+  luận đồng nghiệp đang ngồi máy. Chấm quay lại cùng lúc với SignalR.
+
   Mở thẳng bằng trình duyệt là chạy.
 -->
 <meta charset="utf-8">
@@ -179,7 +185,7 @@
                   <td><input type="checkbox" aria-label="Chọn Lê Anh Lượng"></td>
                   <td>
                     <div class="bang__nguoi">
-                      <span class="mat mat--nho">LL<span class="online"></span></span>
+                      <span class="mat mat--nho">LL</span>
                       <span><span class="bang__ten">Lê Anh Lượng</span><br><span class="bang__mail">chu@congty.vn</span></span>
                     </div>
                   </td>
@@ -193,7 +199,7 @@
                   <td><input type="checkbox" aria-label="Chọn Trần Bình"></td>
                   <td>
                     <div class="bang__nguoi">
-                      <span class="mat mat--nho">TB<span class="online"></span></span>
+                      <span class="mat mat--nho">TB</span>
                       <span><span class="bang__ten">Trần Bình</span><br><span class="bang__mail">binh.tran@congty.vn</span></span>
                     </div>
                   </td>
@@ -207,7 +213,7 @@
                   <td><input type="checkbox" aria-label="Chọn Nguyễn An"></td>
                   <td>
                     <div class="bang__nguoi">
-                      <span class="mat mat--nho">NA<span class="online online--xa"></span></span>
+                      <span class="mat mat--nho">NA</span>
                       <span><span class="bang__ten">Nguyễn An</span><br><span class="bang__mail">an.nguyen@congty.vn</span></span>
                     </div>
                   </td>
@@ -221,7 +227,7 @@
                   <td><input type="checkbox" aria-label="Chọn Phạm Hà"></td>
                   <td>
                     <div class="bang__nguoi">
-                      <span class="mat mat--nho">PH<span class="online online--xa"></span></span>
+                      <span class="mat mat--nho">PH</span>
                       <span><span class="bang__ten">Phạm Hà</span><br><span class="bang__mail">ha.pham@congty.vn</span></span>
                     </div>
                   </td>
@@ -426,7 +432,7 @@
 
   <div class="keo" role="dialog" aria-modal="true" aria-labelledby="tdChiTiet">
     <div class="keo__dau">
-      <span class="mat">TB<span class="online"></span></span>
+      <span class="mat">TB</span>
       <div style="flex:1;min-width:0">
         <h2 id="tdChiTiet" style="font-size:15px">Trần Bình</h2>
         <div style="font-size:12px;color:var(--ink-faint)">binh.tran@congty.vn</div>
@@ -466,14 +472,25 @@
           <span class="o__meo">Đổi vai trò có hiệu lực ở lần gọi tiếp theo của người đó, không cần họ đăng nhập lại.</span>
         </div>
 
+        <!--
+          ĐÚNG một quyền, và đó là con số THẬT của vai Manager.
+
+          Bản trước ở đây ghi "Quyền đang có (7)" rồi liệt kê bảy chip, trong đó
+          `conversation.read` và `conversation.write` KHÔNG TỒN TẠI — `Permissions.cs` có
+          12 quyền và không có quyền nào tên `conversation.*`. Đây là lần thứ hai bản dựng
+          bịa số quyền cho đẹp; lần đầu là màn Vai trò (ghi Manager 6 quyền, Member 4).
+
+          Số thật, chép từ `SystemRoles.cs`:
+            Owner 12 · Admin 11 (thiếu workspace.transfer-ownership) · Manager 1 · Member 1
+
+          Manager trùng khít Member cho tới khi có `leave.approve` — có test canh, và nó
+          sẽ đỏ vào ngày quyền đó ra đời.
+        -->
         <div class="ben__nhan" style="margin:18px 0 8px;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint)">
-          Quyền đang có (7)
+          Quyền đang có (1)
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:6px">
-          <span class="vai">employee.read</span><span class="vai">employee.write</span>
-          <span class="vai">department.read</span><span class="vai">conversation.read</span>
-          <span class="vai">conversation.write</span><span class="vai">user.read</span>
-          <span class="vai">role.read</span>
+          <span class="vai">employee.read</span>
         </div>
         <p class="o__meo" style="margin-top:10px">
           Quyền đến TỪ vai trò, không gán lẻ cho từng người. Muốn khác đi thì tạo vai trò mới ở

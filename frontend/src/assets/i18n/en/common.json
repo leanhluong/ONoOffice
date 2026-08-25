@@ -100,7 +100,11 @@
     "resetPassword": "Reset password",
     "apps": "Apps",
     "appsHint": "Turn each app on or off for the whole workspace.",
-    "notReleased": "Not released"
+    "notReleased": "Not released",
+    "needsAttention": "Needs your attention",
+    "needsAttentionHint": "A temporary password travels through chat and spoken words, and it lives until the person signs in for the first time.",
+    "daysAgo": "{{count}} days",
+    "seeAll": "See all {{count}} people"
   },
   "brandfoot": {
     "internal": "Internal",
