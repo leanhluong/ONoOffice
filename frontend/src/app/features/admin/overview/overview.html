@@ -48,7 +48,9 @@
           </a>
 
           <a routerLink="/admin/roles">
-            <div class="hangso__nhan">{{ 'nav.roles' | translate }}</div>
+            <!-- "Vai trò", không phải "Vai trò & quyền": đây là một ô ĐẾM, và nhãn của nó
+                 phải nói đúng thứ đang đếm. Đếm vai trò chứ không đếm quyền. -->
+            <div class="hangso__nhan">{{ 'admin.rolesShort' | translate }}</div>
             <div class="hangso__so" [class.hangso__so--cho]="!stats()">
               {{ stats()?.roles ?? '—' }}
             </div>

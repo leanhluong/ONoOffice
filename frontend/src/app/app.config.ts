@@ -7,9 +7,11 @@ import {
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { catchError, firstValueFrom, of } from 'rxjs';
+import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { AuthService } from './core/auth/auth.service';
 import { AuthStore } from './core/auth/auth.store';
+import { demoInterceptor } from './core/demo/demo.interceptor';
 import { authInterceptor } from './core/http/auth.interceptor';
 import { correlationIdInterceptor } from './core/http/correlation-id.interceptor';
 import { errorInterceptor } from './core/http/error.interceptor';
@@ -54,6 +56,24 @@ export const appConfig: ApplicationConfig = {
         refreshInterceptor,
         authInterceptor,
         errorInterceptor,
+
+        /**
+         * CHẾ ĐỘ DEMO đứng CUỐI, và chỗ đứng này là cố ý.
+         *
+         * Cuối chuỗi nghĩa là request đã đi qua đủ bốn interceptor thật trước khi bị chặn
+         * — nó vẫn được gắn correlation-id, vẫn mang access token, và câu trả lời giả vẫn
+         * đi ngược qua `errorInterceptor` để thành `AppError` chuẩn. Nói cách khác: bấm
+         * thử ở chế độ demo là bấm thử ĐÚNG đường mà request thật sẽ đi, chỉ thay mỗi
+         * đoạn ra mạng.
+         *
+         * Đặt nó lên đầu thì ngược lại: mọi lớp hạ tầng bị nhảy cóc, và demo sẽ xanh ở
+         * đúng những chỗ sản phẩm thật hỏng.
+         *
+         * Và nó chỉ được ĐĂNG KÝ khi `environment.demo` bật. Bản production có
+         * `demo: false`, nên mảng interceptor ở đó đúng bốn phần tử — demo không nằm
+         * trong chuỗi xử lý, chứ không phải nằm trong đó rồi tự bỏ qua.
+         */
+        ...(environment.demo ? [demoInterceptor] : []),
       ]),
     ),
 

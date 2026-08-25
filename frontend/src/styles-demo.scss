@@ -1,0 +1,22 @@
+/*
+  Chỗ ngồi cho dải báo CHẾ ĐỘ DEMO.
+
+  Tách khỏi `styles.scss` vì file đó được SINH TỰ ĐỘNG từ bản dựng
+  (`node tools/sync-shell.mjs`) — thêm gì vào đó sẽ bị lần chạy sau xoá mất. Và cũng
+  không nên: chế độ demo là công cụ của người phát triển, nó không có mặt trong bản dựng
+  mà người duyệt nhìn.
+
+  Mọi luật ở đây đều nằm dưới `html.demo`. Lớp đó do `App` gắn, và chỉ gắn được khi
+  `environment.demo` là `true` — tức là không bao giờ ở bản production. Nên ở sản phẩm
+  thật, những dòng này có mặt trong CSS nhưng không khớp được với gì cả.
+*/
+
+html.demo body {
+  padding-top: 26px;
+}
+
+/* `.khung` (khuôn app) và `.qt` (khuôn quản trị) đều cao 100vh. */
+html.demo .khung,
+html.demo .qt {
+  height: calc(100vh - 26px);
+}

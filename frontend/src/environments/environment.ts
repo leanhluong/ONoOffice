@@ -12,4 +12,8 @@ import type { AppEnvironment } from './environment.model';
 export const environment: AppEnvironment = {
   production: true,
   apiBaseUrl: '',
+
+  // KHÔNG BAO GIỜ đổi thành `true`. Một API giả lọt vào bản production nghĩa là người
+  // dùng thật đăng nhập được bằng mật khẩu bất kỳ và nhìn thấy dữ liệu bịa.
+  demo: false,
 };

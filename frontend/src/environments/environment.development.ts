@@ -7,4 +7,8 @@ import type { AppEnvironment } from './environment.model';
 export const environment: AppEnvironment = {
   production: false,
   apiBaseUrl: 'http://localhost:5000',
+
+  // Mở cửa cho chế độ demo, nhưng mặc định vẫn TẮT: `npm start` vẫn nói chuyện với
+  // backend .NET thật như trước. Bật bằng `?demo=1`.
+  demo: true,
 };

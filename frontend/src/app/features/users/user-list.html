@@ -5,7 +5,10 @@
   (`node tools/sync-shell.mjs`). Chỗ duy nhất phải giữ đồng bộ bằng tay là đánh dấu.
 -->
 <header class="trangdau">
-  <h1>{{ 'nav.employees' | translate }}</h1>
+  <!-- `admin.members`, KHÔNG phải `nav.employees`. Sidebar quản trị gọi màn này là "Thành
+     viên"; để tiêu đề trang là "Nhân sự" thì cùng một màn mang hai tên, và người dùng
+     phải tự đoán rằng chúng là một. -->
+<h1>{{ 'admin.members' | translate }}</h1>
 
   @if (page(); as list) {
     <span class="trangdau__phu">{{ 'users.count' | translate: { count: list.totalCount } }}</span>
