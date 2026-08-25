@@ -17,4 +17,14 @@
     <ProjectReference Include="..\..\Identity\ONoOffice.Identity.Contracts\ONoOffice.Identity.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!--
+      Handler để `internal` là cố ý: ngoài MediatR ra thì không ai được gọi thẳng chúng.
+      Test thì cần, và mở đúng cho một assembly test rẻ hơn nhiều so với việc nới mọi
+      handler thành `public` — nới ra thì tầng Api có thể gọi tắt qua handler và đi vòng
+      hết ba pipeline behavior (validation, transaction, logging).
+    -->
+    <InternalsVisibleTo Include="ONoOffice.Org.UnitTests" />
+  </ItemGroup>
+
 </Project>

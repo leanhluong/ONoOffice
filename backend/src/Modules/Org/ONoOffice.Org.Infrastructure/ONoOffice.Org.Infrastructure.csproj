@@ -12,6 +12,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Cùng bộ và cùng phiên bản với Identity.Infrastructure: hai module dùng chung một
+         database, nên lệch phiên bản driver là lệch cả cách sinh SQL. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ONoOffice.Org.UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ONoOffice.Org.Application\ONoOffice.Org.Application.csproj" />
   </ItemGroup>
 
