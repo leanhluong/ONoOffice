@@ -214,6 +214,57 @@ for (const { source, target } of SCREENS) {
 
   mkdirSync(DICH, { recursive: true });
 
+  /*
+    ── Bước 4a: sinh bản LOCKUP DÙNG TRONG GIAO DIỆN ────────────────────
+
+    Cái tam giác caramel ở cuối lockup bị cắt. Ở kích thước thật (32px chiều cao) nó ra một
+    dấu nhỏ nằm ngay sau chữ "office", và mắt đọc nó là **mũi tên xổ menu** chứ không phải
+    một chi tiết thương hiệu — nghĩa sai hẳn, vì nó đứng cạnh một khối chữ trong một giao
+    diện đầy menu thật.
+
+    Ba quyết định ở đây, và cái thứ ba là cái dễ bỏ sót nhất:
+
+    1. Cắt bằng BỘ SINH, không sửa file gốc. `logo-lockup.svg` là tài sản thương hiệu, giữ
+       nguyên như lúc nhận. Muốn lấy lại tam giác thì xoá khối này rồi chạy lại bộ sinh.
+
+    2. Bản dẫn xuất mang tên riêng (`-app`) và nằm CẠNH bản gốc, không đè lên nó. Nhìn thư
+       mục là thấy ngay cái nào người vẽ, cái nào máy sinh.
+
+    3. **Bản dựng và sản phẩm cùng trỏ vào bản `-app` này.** Nếu chỉ cắt lúc chép sang
+       `public/` thì bản dựng còn tam giác còn sản phẩm thì không — hai thứ người duyệt so
+       với nhau lại khác nhau, mà `npm run parity` KHÔNG bắt được vì logo nằm ở cột trái,
+       vùng bộ so ảnh cố ý bỏ qua. Lệch kiểu đó sống rất lâu.
+  */
+  {
+    // Khớp cả `<path .../>` lẫn `<path ...></path>`, và cả hai màu fill khác nhau của bản
+    // thường với bản `-light`. Bản đầu của biểu thức này chỉ viết `/>` — phép kiểm ngay
+    // dưới bắt được ở lần chạy đầu tiên, đúng việc của nó.
+    const CAT_TAMGIAC = /\s*<path d="M362 30 L375 30 L375 43 Z"[^>]*>(?:<\/path>)?/;
+
+    for (const [goc, dan] of [
+      ['logo-lockup.svg', 'logo-lockup-app.svg'],
+      ['logo-lockup-light.svg', 'logo-lockup-app-light.svg'],
+    ]) {
+      const svg = readFileSync(join(NGUON, goc), 'utf8');
+      const rut = svg.replace(CAT_TAMGIAC, '');
+
+      // Không khớp thì DỪNG, đừng ghi im lặng. Ai đó đổi file gốc mà biểu thức không còn
+      // trúng thì tam giác lặng lẽ quay lại, và không có gì báo.
+      if (rut === svg) {
+        throw new Error(
+          `${goc}: không tìm thấy tam giác để cắt. File gốc đã đổi? ` +
+            'Sửa CAT_TAMGIAC trong tools/sync-shell.mjs, hoặc bỏ hẳn bước cắt nếu không cần.',
+        );
+      }
+
+      writeFileSync(
+        join(NGUON, dan),
+        rut.replace('<svg ', `<!-- SINH TỰ ĐỘNG từ ${goc} — đừng sửa tay. -->\n<svg `),
+      );
+    }
+  }
+
+  // ── Bước 4b: chép sang public/ ───────────────────────────────────────
   // Chỉ .svg — README.md và tokens.css là tài liệu cho người, không phải thứ đem ship.
   const files = readdirSync(NGUON).filter((f) => f.endsWith('.svg'));
 
@@ -221,5 +272,5 @@ for (const { source, target } of SCREENS) {
     copyFileSync(join(NGUON, file), join(DICH, file));
   }
 
-  console.log(`${DICH}/  ←  ${NGUON}/  (${files.length} tệp svg)`);
+  console.log(`${DICH}/  ←  ${NGUON}/  (${files.length} tệp svg · 2 bản -app đã cắt tam giác)`);
 }

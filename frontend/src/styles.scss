@@ -1426,10 +1426,19 @@ body {
   chiếm 54/70 chiều cao. Ở 26px chúng ra đúng 20,0px — chạm sàn, không còn biên nào cho
   bất kỳ lần chỉnh nào sau này. 32px cho 24,7px, thoải mái ở trên ngưỡng.
 */
+/*
+  ⚠️ Trỏ vào bản `-app`, KHÔNG phải bản gốc.
+
+  `logo-lockup-app*.svg` do `tools/sync-shell.mjs` sinh ra từ `logo-lockup*.svg` bằng cách
+  cắt cái tam giác caramel ở cuối — ở 32px nó đọc như mũi tên xổ menu ngay sau chữ
+  "office". Bản dựng và sản phẩm dùng CHUNG file này; trỏ mỗi bên một file thì hai thứ
+  người duyệt đem so với nhau lại khác nhau, và `npm run parity` không bắt được vì logo
+  nằm ở cột trái — vùng bộ so ảnh cố ý bỏ qua.
+*/
 .logo--lockup {
   height: 32px;
   aspect-ratio: 380 / 70;
-  background-image: url(/brand/logo-lockup-light.svg);
+  background-image: url(/brand/logo-lockup-app-light.svg);
 }
 
 /* Mark 108×66 — hai vòng tròn lồng nhau, không chữ. Ở đây vòng tròn chiếm gần trọn chiều
@@ -1441,7 +1450,7 @@ body {
 }
 
 /* ── Bộ Giấy: nền sáng, đổi sang bản thường ───────────────────────── */
-:root[data-theme="giay"] .logo--lockup { background-image: url(/brand/logo-lockup.svg); }
+:root[data-theme="giay"] .logo--lockup { background-image: url(/brand/logo-lockup-app.svg); }
 :root[data-theme="giay"] .logo--mark   { background-image: url(/brand/logo-mark.svg); }
 
 /*
@@ -1454,7 +1463,7 @@ body {
   nên `:not(...)` không bao giờ khớp và khối này vô hại.
 */
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme]) .logo--lockup { background-image: url(/brand/logo-lockup.svg); }
+  :root:not([data-theme]) .logo--lockup { background-image: url(/brand/logo-lockup-app.svg); }
   :root:not([data-theme]) .logo--mark   { background-image: url(/brand/logo-mark.svg); }
 }
 
