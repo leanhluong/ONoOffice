@@ -8,6 +8,10 @@
     "signIn": "Sign in",
     "signOut": "Sign out",
     "cancel": "Cancel",
+    "collapse": "Collapse",
+    "delete": "Delete",
+    "expand": "Expand",
+    "rename": "Rename",
     "retry": "Try again",
     "close": "Close",
     "save": "Save changes"
@@ -70,7 +74,18 @@
     "emptyTitle": "No departments yet",
     "emptyHint": "The org tree filters the directory, and later it is what chat channels bind to. Start with one root — usually the company name or \"Executive\".",
     "countNote": "The number beside each department counts people directly in it, not rolled up from child departments. A department with children or people cannot be deleted.",
-    "loadFailed": "Could not load the department tree."
+    "loadFailed": "Could not load the department tree.",
+    "name": "Department name",
+    "namePlaceholder": "For example: Engineering",
+    "nameRequired": "The department name is required.",
+    "parent": "Reports to",
+    "rootOption": "— Top level —",
+    "parentHint": "A department cannot be placed inside its own branch — that would detach the branch from the root and make it disappear from the tree.",
+    "saved": "Department saved.",
+    "deleted": "Department deleted.",
+    "deleteTitle": "Delete department?",
+    "deleteBody": "Remove {{name}} from the org tree. This cannot be undone.",
+    "deleteRules": "A department with child departments or employees cannot be deleted — including people who have left, because their profiles still point at it."
   },
   "contacts": {
     "title": "Directory",

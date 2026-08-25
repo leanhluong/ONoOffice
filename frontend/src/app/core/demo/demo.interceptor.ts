@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { Permissions } from './demo.permissions';
 import { kho } from './demo.state';
 import { UserStatusFilter, type UserListItem } from '../models/user.model';
+import type { DepartmentTreeItem } from '../models/org.model';
 
 /**
  * CHẾ ĐỘ DEMO — bắt mọi request tới `/api/…` và trả dữ liệu giả từ bộ nhớ.
@@ -142,6 +143,57 @@ const loi = (status: number, code: string, detail: string) =>
         error: { type: 'about:blank', title: code, status, detail, code, errors: [] },
       }),
   ).pipe(delay(TRE));
+
+/* ── Ba phép đi cây, dùng chung cho bốn endpoint phòng ban ────────────── */
+
+/** Tìm một nút ở BẤT KỲ độ sâu nào. */
+function tim(nodes: DepartmentTreeItem[], id: string): DepartmentTreeItem | null {
+  for (const n of nodes) {
+    if (n.id === id) {
+      return n;
+    }
+
+    const trong = tim(n.children, id);
+
+    if (trong) {
+      return trong;
+    }
+  }
+
+  return null;
+}
+
+/** So tên KHÔNG phân biệt hoa thường, giống `EfDepartmentRepository.NameTakenAsync`. */
+function timTheoTen(nodes: DepartmentTreeItem[], ten: string): DepartmentTreeItem | null {
+  const can = ten.toLowerCase();
+
+  for (const n of nodes) {
+    if (n.name.toLowerCase() === can) {
+      return n;
+    }
+
+    const trong = timTheoTen(n.children, ten);
+
+    if (trong) {
+      return trong;
+    }
+  }
+
+  return null;
+}
+
+/** Gỡ một nút khỏi cha hiện tại, giữ nguyên nhánh con của nó. */
+function go(nodes: DepartmentTreeItem[], id: string): boolean {
+  const i = nodes.findIndex((n) => n.id === id);
+
+  if (i >= 0) {
+    nodes.splice(i, 1);
+
+    return true;
+  }
+
+  return nodes.some((n) => go(n.children, id));
+}
 
 /** Mật khẩu tạm sinh theo ràng buộc ĐỌC ĐƯỢC QUA ĐIỆN THOẠI — bỏ `0/O` và `1/l/I`. */
 function matKhauTam(): string {
@@ -299,6 +351,127 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
   // ── Phòng ban ───────────────────────────────────────────────────────
   if (duong === '/api/departments' && req.method === 'GET') {
     return ok(kho.phongBan);
+  }
+
+  if (duong === '/api/departments' && req.method === 'POST') {
+    const body = req.body as { name?: string; parentId?: string | null } | null;
+    const ten = (body?.name ?? '').trim();
+
+    if (!ten) {
+      return loi(400, 'Department.NameEmpty', 'Tên phòng ban không được để trống.');
+    }
+
+    if (timTheoTen(kho.phongBan, ten)) {
+      return loi(409, 'Department.NameTaken', 'Workspace đã có phòng ban trùng tên này.');
+    }
+
+    const moi = {
+      id: `d-${Date.now()}`,
+      name: ten,
+      parentId: body?.parentId ?? null,
+      headEmployeeId: null,
+      headName: null,
+      employeeCount: 0,
+      children: [],
+    };
+
+    if (moi.parentId === null) {
+      kho.phongBan.push(moi);
+    } else {
+      const cha = tim(kho.phongBan, moi.parentId);
+
+      if (!cha) {
+        return loi(404, 'Department.NotFound', 'Không tìm thấy phòng ban.');
+      }
+
+      cha.children.push(moi);
+    }
+
+    return ok(moi);
+  }
+
+  const khopPhong = /^\/api\/departments\/([^/]+)(\/move)?$/.exec(duong);
+
+  if (khopPhong) {
+    const id = khopPhong[1];
+    const phong = tim(kho.phongBan, id);
+
+    if (!phong) {
+      return loi(404, 'Department.NotFound', 'Không tìm thấy phòng ban.');
+    }
+
+    // ── Đổi tên ──
+    if (!khopPhong[2] && req.method === 'PATCH') {
+      const ten = ((req.body as { name?: string } | null)?.name ?? '').trim();
+
+      if (!ten) {
+        return loi(400, 'Department.NameEmpty', 'Tên phòng ban không được để trống.');
+      }
+
+      // Trùng tên phải LOẠI TRỪ chính nó — nếu không thì đổi "Kỹ thuật" thành "Kỹ thuật"
+      // bị từ chối vì trùng với chính mình, và thông báo lỗi đọc như một lời nói dối.
+      const trung = timTheoTen(kho.phongBan, ten);
+
+      if (trung && trung.id !== id) {
+        return loi(409, 'Department.NameTaken', 'Workspace đã có phòng ban trùng tên này.');
+      }
+
+      phong.name = ten;
+
+      return trong();
+    }
+
+    // ── Điều chuyển ──
+    if (khopPhong[2] && req.method === 'POST') {
+      const chaMoi = (req.body as { parentId?: string | null } | null)?.parentId ?? null;
+
+      // Luật quan trọng nhất của màn này: chuyển một phòng vào chính nhánh của nó thì
+      // nhánh đó tách khỏi gốc và BIẾN MẤT khỏi cây — dựng cây bắt đầu từ những nút
+      // `parentId = null`, mà vòng lặp thì không có nút nào như vậy.
+      if (chaMoi !== null && (chaMoi === id || tim(phong.children, chaMoi))) {
+        return loi(
+          409,
+          'Department.WouldCreateCycle',
+          'Không thể chuyển một phòng ban vào bên trong chính nhánh của nó.',
+        );
+      }
+
+      go(kho.phongBan, id);
+      phong.parentId = chaMoi;
+
+      if (chaMoi === null) {
+        kho.phongBan.push(phong);
+      } else {
+        tim(kho.phongBan, chaMoi)!.children.push(phong);
+      }
+
+      return trong();
+    }
+
+    // ── Xoá ──
+    if (!khopPhong[2] && req.method === 'DELETE') {
+      if (phong.children.length > 0) {
+        return loi(
+          409,
+          'Department.HasChildren',
+          'Phòng ban còn phòng ban con. Hãy chuyển hoặc xoá các phòng con trước.',
+        );
+      }
+
+      // Đếm cả người đã nghỉ: hồ sơ của họ vẫn trỏ vào phòng này, và xoá phòng đi thì
+      // mất luôn thông tin "từng làm ở đâu".
+      if (kho.hoSo.some((h) => h.departmentId === id)) {
+        return loi(
+          409,
+          'Department.HasEmployees',
+          'Phòng ban còn nhân viên. Hãy điều chuyển họ sang phòng khác trước.',
+        );
+      }
+
+      go(kho.phongBan, id);
+
+      return trong();
+    }
   }
 
   // ── Danh bạ ─────────────────────────────────────────────────────────

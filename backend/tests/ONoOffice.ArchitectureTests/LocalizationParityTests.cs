@@ -95,7 +95,24 @@ public partial class LocalizationParityTests
     // ── Đọc nguồn ────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Đọc THẲNG file <c>IdentityErrors.cs</c> thay vì dùng phản chiếu.
+    /// Mọi file <c>*Errors.cs</c> của MỌI module.
+    ///
+    /// <b>Bản đầu chỉ đọc <c>IdentityErrors.cs</c>, và đó là một lỗ hổng thật:</b> khi
+    /// module Org ra đời, 22 mã lỗi của nó không có một bản dịch nào — cả ba test trên
+    /// vẫn xanh, vì chúng không biết file đó tồn tại. Người dùng tiếng Anh sẽ nhận câu
+    /// tiếng Việt viết cứng trong <c>Error.Conflict(...)</c>.
+    ///
+    /// Nay danh sách này QUÉT theo mẫu tên. Thêm module thứ ba mà quên dịch thì test đỏ
+    /// ngay, không cần ai nhớ sửa chỗ này.
+    /// </summary>
+    private static readonly string[] ErrorSources =
+    [
+        Path.Combine("Identity", "ONoOffice.Identity.Domain", "IdentityErrors.cs"),
+        Path.Combine("Org", "ONoOffice.Org.Domain", "OrgErrors.cs"),
+    ];
+
+    /// <summary>
+    /// Đọc THẲNG mã nguồn thay vì dùng phản chiếu.
     ///
     /// Phản chiếu chỉ thấy được những mã đã biên dịch vào assembly, nên nếu ai đó khai
     /// mã ở một file khác thì test này im lặng bỏ qua. Đọc mã nguồn thì thấy đúng thứ
@@ -103,15 +120,32 @@ public partial class LocalizationParityTests
     /// </summary>
     private static HashSet<string> ErrorCodesFromSource()
     {
-        string path = Path.Combine(
-            SolutionRoot(),
-            "src", "Modules", "Identity", "ONoOffice.Identity.Domain", "IdentityErrors.cs");
+        var codes = ErrorSources
+            .Select(rel => Path.Combine(SolutionRoot(), "src", "Modules", rel))
+            .SelectMany(path => ErrorCall().Matches(File.ReadAllText(path)))
+            .Select(m => m.Groups[1].Value);
 
-        return ErrorCall()
-            .Matches(File.ReadAllText(path))
-            .Select(m => m.Groups[1].Value)
-            .Concat(KernelCodes)
-            .ToHashSet(StringComparer.Ordinal);
+        return codes.Concat(KernelCodes).ToHashSet(StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// Bẫy tự thân số hai: mỗi file nguồn phải THẬT SỰ đọc được.
+    ///
+    /// Đường dẫn hỏng thì <c>SelectMany</c> ở trên chỉ đơn giản là đóng góp 0 mã, và cả
+    /// ba test đối chiếu vẫn xanh — đúng cái cách module Org lọt lưới suốt.
+    /// </summary>
+    [Fact]
+    public void MoiFileMaLoi_DeuDocDuoc()
+    {
+        foreach (string rel in ErrorSources)
+        {
+            string path = Path.Combine(SolutionRoot(), "src", "Modules", rel);
+
+            Assert.True(File.Exists(path), $"Không đọc được file mã lỗi: {path}");
+            Assert.True(
+                ErrorCall().Matches(File.ReadAllText(path)).Count >= 5,
+                $"File {rel} khai quá ít mã lỗi — nhiều khả năng biểu thức đọc đã hỏng.");
+        }
     }
 
     private static HashSet<string> KeysFromResx(string language)

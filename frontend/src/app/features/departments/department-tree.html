@@ -13,7 +13,7 @@
 
   <div class="trangdau__day"></div>
 
-  <button type="button" class="nut nut--chinh" (click)="notBuiltYet($event, 'departments.add')">
+  <button type="button" class="nut nut--chinh" (click)="openAdd(null)">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
       <path d="M8 3.5v9M3.5 8h9" />
     </svg>
@@ -45,7 +45,7 @@
           </span>
           <h2>{{ 'departments.emptyTitle' | translate }}</h2>
           <p>{{ 'departments.emptyHint' | translate }}</p>
-          <button type="button" class="nut nut--chinh nut--nho" (click)="notBuiltYet($event, 'departments.add')">
+          <button type="button" class="nut nut--chinh nut--nho" (click)="openAdd(null)">
             {{ 'departments.addFirst' | translate }}
           </button>
         </div>
@@ -53,7 +53,12 @@
         <div class="the__khoi">
           <div class="cay">
             @for (node of list; track node.id) {
-              <app-department-node [node]="node" (notBuilt)="notBuiltYet($event.event, $event.labelKey)" />
+              <app-department-node
+                [node]="node"
+                (rename)="openRename($event)"
+                (move)="openMove($event)"
+                (remove)="openDelete($event)"
+              />
             }
           </div>
         </div>
@@ -61,5 +66,122 @@
         <p class="o__meo" style="margin-top: 12px">{{ 'departments.countNote' | translate }}</p>
       }
     }
+  </div>
+</div>
+
+<!--
+  MỘT hộp thoại cho ba việc (thêm · đổi tên · chuyển), đổi tiêu đề và đổi ô nhập theo việc
+  đang làm. Ba hộp riêng thì ba lần chép cùng một khung, và sớm muộn chúng lệch nhau — nút
+  Huỷ ở chỗ khác, phím Esc chỉ đóng được hai trong ba.
+-->
+<div class="man" [class.man--hien]="viec() !== null">
+  <button
+    type="button"
+    class="man__nen"
+    [attr.aria-label]="'action.close' | translate"
+    (click)="close()"
+  ></button>
+
+  <div class="hop" role="dialog" aria-modal="true">
+    <div class="hop__dau">
+      <h2>{{ dialogTitleKey() | translate }}</h2>
+      <button type="button" class="nuti" [attr.aria-label]="'action.close' | translate" (click)="close()">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+          <path d="m5 5 8 8M13 5l-8 8" />
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="hop__than">
+        <div class="luoi">
+          <!-- Chuyển phòng KHÔNG đụng tới tên, nên ô tên biến mất hẳn ở việc đó. Hiện nó
+               ra rồi khoá lại thì người dùng phải đoán vì sao nó ở đấy. -->
+          @if (viec() !== 'chuyen') {
+            <div
+              class="o luoi--rong"
+              [class.o--hong]="form.controls.name.touched && form.controls.name.invalid"
+            >
+              <label class="o__nhan" for="pbTen">
+                {{ 'departments.name' | translate }} <span class="o__batbuoc">*</span>
+              </label>
+              <input id="pbTen" type="text" formControlName="name" [placeholder]="'departments.namePlaceholder' | translate" />
+              <span class="o__loi">{{ 'departments.nameRequired' | translate }}</span>
+            </div>
+          }
+
+          @if (viec() !== 'doiTen') {
+            <div class="o luoi--rong">
+              <label class="o__nhan" for="pbCha">{{ 'departments.parent' | translate }}</label>
+              <select id="pbCha" formControlName="parentId">
+                <!-- `[value]` trên chính thẻ <select> thì Angular đặt thuộc tính đó TRƯỚC
+                     khi các <option> kịp tồn tại, không khớp giá trị nào, và Chrome đặt
+                     selectedIndex = -1 → ô trống trơn. `formControlName` không dính lỗi
+                     đó, nhưng ghi lại vì nó đã cắn một lần ở màn Thành viên. -->
+                <option value="">{{ 'departments.rootOption' | translate }}</option>
+                @for (option of parentOptions(); track option.id) {
+                  <option [value]="option.id">
+                    {{ '— '.repeat(option.depth) }}{{ option.name }}
+                  </option>
+                }
+              </select>
+              <span class="o__meo">{{ 'departments.parentHint' | translate }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="hop__chan">
+        <button type="button" class="nut nut--pha" (click)="close()">
+          {{ 'action.cancel' | translate }}
+        </button>
+        <button type="submit" class="nut nut--chinh" [disabled]="saving()">
+          {{ 'action.save' | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!--
+  Hộp XOÁ tách riêng, không gộp vào hộp trên. Xoá là thao tác khó đảo và nó cần một câu
+  hỏi khẳng định chứ không phải một biểu mẫu — người dùng phải ĐỌC chứ không phải điền.
+-->
+<div class="man" [class.man--hien]="deleting() !== null">
+  <button
+    type="button"
+    class="man__nen"
+    [attr.aria-label]="'action.close' | translate"
+    (click)="close()"
+  ></button>
+
+  <div class="hop" role="dialog" aria-modal="true" style="max-width: 420px">
+    <div class="hop__dau">
+      <h2>{{ 'departments.deleteTitle' | translate }}</h2>
+      <button type="button" class="nuti" [attr.aria-label]="'action.close' | translate" (click)="close()">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+          <path d="m5 5 8 8M13 5l-8 8" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="hop__than">
+      @if (deleting(); as node) {
+        <p class="mota" style="margin: 0">
+          {{ 'departments.deleteBody' | translate: { name: node.name } }}
+        </p>
+      }
+      <!-- Nói TRƯỚC hai luật chặn, không để người dùng bấm rồi mới biết. -->
+      <p class="o__meo" style="margin-top: 12px">{{ 'departments.deleteRules' | translate }}</p>
+    </div>
+
+    <div class="hop__chan">
+      <button type="button" class="nut nut--pha" (click)="close()">
+        {{ 'action.cancel' | translate }}
+      </button>
+      <button type="button" class="nut nut--nguy" [disabled]="saving()" (click)="confirmDelete()">
+        {{ 'action.delete' | translate }}
+      </button>
+    </div>
   </div>
 </div>

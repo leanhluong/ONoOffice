@@ -38,17 +38,17 @@
   }
 
   <span class="cay__thao">
-    <button type="button" class="nuti" [attr.aria-label]="'action.rename' | translate" (click)="chuaLam($event, 'action.rename')">
+    <button type="button" class="nuti" [attr.aria-label]="'action.rename' | translate" (click)="rename.emit(node())">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M13.5 3.5 16.5 6.5 7 16H4v-3z" />
       </svg>
     </button>
-    <button type="button" class="nuti" [attr.aria-label]="'departments.move' | translate" (click)="chuaLam($event, 'departments.move')">
+    <button type="button" class="nuti" [attr.aria-label]="'departments.move' | translate" (click)="move.emit(node())">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 7h9l-3-3M16 13H7l3 3" />
       </svg>
     </button>
-    <button type="button" class="nuti" [attr.aria-label]="'action.delete' | translate" (click)="chuaLam($event, 'action.delete')">
+    <button type="button" class="nuti" [attr.aria-label]="'action.delete' | translate" (click)="remove.emit(node())">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 6h12M8 6V4h4v2M6.5 6l.7 10h5.6l.7-10" />
       </svg>
@@ -59,7 +59,14 @@
 @if (node().children.length > 0) {
   <div class="cay__con" [hidden]="!open()">
     @for (child of node().children; track child.id) {
-      <app-department-node [node]="child" (notBuilt)="notBuilt.emit($event)" />
+      <!-- Chuyển tiếp sự kiện của nút cháu lên trên. Không có ba dòng này thì thao tác
+           chỉ chạy ở cấp một, và cây càng sâu càng nhiều nút bấm không ăn. -->
+      <app-department-node
+        [node]="child"
+        (rename)="rename.emit($event)"
+        (move)="move.emit($event)"
+        (remove)="remove.emit($event)"
+      />
     }
   </div>
 }

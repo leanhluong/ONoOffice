@@ -164,4 +164,79 @@
   <data name="User.NewPasswordSameAsCurrent" xml:space="preserve">
     <value>The new password must be different from the current one.</value>
   </data>
+  <data name="WorkEmail.Invalid" xml:space="preserve">
+    <value>The contact email is not a valid address.</value>
+  </data>
+  <data name="WorkEmail.TooLong" xml:space="preserve">
+    <value>The contact email must be 254 characters or fewer.</value>
+  </data>
+  <data name="Department.TenantRequired" xml:space="preserve">
+    <value>A department must belong to a workspace.</value>
+  </data>
+  <data name="Department.NameEmpty" xml:space="preserve">
+    <value>The department name is required.</value>
+  </data>
+  <data name="Department.NameTooLong" xml:space="preserve">
+    <value>The department name must be 100 characters or fewer.</value>
+  </data>
+  <data name="Department.CannotBeItsOwnParent" xml:space="preserve">
+    <value>A department cannot be its own parent.</value>
+  </data>
+  <data name="Department.WouldCreateCycle" xml:space="preserve">
+    <value>A department cannot be moved inside its own branch.</value>
+  </data>
+  <data name="Department.NameTaken" xml:space="preserve">
+    <value>A department with this name already exists in the workspace.</value>
+  </data>
+  <data name="Department.NotFound" xml:space="preserve">
+    <value>Department not found.</value>
+  </data>
+  <data name="Department.HasChildren" xml:space="preserve">
+    <value>This department still has child departments. Move or delete them first.</value>
+  </data>
+  <data name="Department.HasEmployees" xml:space="preserve">
+    <value>This department still has employees. Transfer them elsewhere first.</value>
+  </data>
+  <data name="Employee.TenantRequired" xml:space="preserve">
+    <value>An employee must belong to a workspace.</value>
+  </data>
+  <data name="Employee.CodeEmpty" xml:space="preserve">
+    <value>The employee code is required.</value>
+  </data>
+  <data name="Employee.CodeTooLong" xml:space="preserve">
+    <value>The employee code must be 30 characters or fewer.</value>
+  </data>
+  <data name="Employee.CodeTaken" xml:space="preserve">
+    <value>An employee with this code already exists in the workspace.</value>
+  </data>
+  <data name="Employee.FullNameEmpty" xml:space="preserve">
+    <value>The full name is required.</value>
+  </data>
+  <data name="Employee.FullNameTooLong" xml:space="preserve">
+    <value>The full name must be 200 characters or fewer.</value>
+  </data>
+  <data name="Employee.JobTitleTooLong" xml:space="preserve">
+    <value>The job title must be 100 characters or fewer.</value>
+  </data>
+  <data name="Employee.PhoneTooLong" xml:space="preserve">
+    <value>The phone number must be 30 characters or fewer.</value>
+  </data>
+  <data name="Employee.NotFound" xml:space="preserve">
+    <value>Employee not found.</value>
+  </data>
+  <data name="Employee.AlreadyInThatDepartment" xml:space="preserve">
+    <value>This employee is already in that department.</value>
+  </data>
+  <data name="Employee.AlreadyLeft" xml:space="preserve">
+    <value>This employee has already left.</value>
+  </data>
+  <data name="Employee.NotLeft" xml:space="preserve">
+    <value>This employee is still working here, so there is nothing to reinstate.</value>
+  </data>
+  <data name="Employee.AlreadyLinked" xml:space="preserve">
+    <value>This profile is already linked to an account. Unlink it first.</value>
+  </data>
+  <data name="Employee.NotLinked" xml:space="preserve">
+    <value>This profile is not linked to any account.</value>
+  </data>
 </root>

@@ -322,12 +322,99 @@
   </div>
 </div>
 
+<!-- ══════════════ HỘP THOẠI: THÊM / ĐỔI TÊN / CHUYỂN ══════════════
+     MỘT hộp thoại cho ba việc, đổi tiêu đề và đổi ô nhập theo việc đang làm.
+
+     Ba hộp riêng thì ba lần chép cùng một khung, và sớm muộn chúng lệch nhau — nút Huỷ ở
+     chỗ khác, phím Esc chỉ đóng được hai trong ba. Đây cũng là cách màn Thành viên làm. -->
+<div class="man" id="manSua">
+  <button type="button" class="man__nen" data-dong aria-label="Đóng"></button>
+
+  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdSua">
+    <div class="hop__dau">
+      <h2 id="tdSua">Thêm phòng ban</h2>
+      <button class="nuti" data-dong aria-label="Đóng">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg>
+      </button>
+    </div>
+
+    <div class="hop__than">
+      <div class="luoi">
+        <div class="o luoi--rong" id="oTen">
+          <label class="o__nhan" for="pbTen">Tên phòng ban <span class="o__batbuoc">*</span></label>
+          <input id="pbTen" type="text" placeholder="Ví dụ: Khối Kỹ thuật">
+          <span class="o__loi">Workspace đã có phòng ban trùng tên này.</span>
+        </div>
+
+        <div class="o luoi--rong" id="oCha">
+          <label class="o__nhan" for="pbCha">Trực thuộc</label>
+          <select id="pbCha">
+            <option>— Là phòng gốc —</option>
+            <option>Ban giám đốc</option>
+            <option>Khối Kỹ thuật</option>
+            <option>Kinh doanh</option>
+            <option>Nhân sự</option>
+          </select>
+          <span class="o__meo">
+            Không chọn được phòng nằm trong nhánh của chính nó — làm thế thì cả nhánh tách
+            khỏi gốc và biến mất khỏi cây.
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hop__chan">
+      <button class="nut nut--pha" data-dong>Huỷ</button>
+      <button class="nut nut--chinh" data-soon="Lưu phòng ban">Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ HỘP THOẠI XOÁ ══════════════
+     Hộp RIÊNG, không gộp vào hộp trên. Xoá là thao tác khó đảo, và nó cần một câu hỏi
+     khẳng định chứ không phải một biểu mẫu — người dùng phải ĐỌC chứ không phải điền. -->
+<div class="man" id="manXoa">
+  <button type="button" class="man__nen" data-dong aria-label="Đóng"></button>
+
+  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdXoa" style="max-width:420px">
+    <div class="hop__dau">
+      <h2 id="tdXoa">Xoá phòng ban?</h2>
+      <button class="nuti" data-dong aria-label="Đóng">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg>
+      </button>
+    </div>
+
+    <div class="hop__than">
+      <p class="mota" style="margin:0">
+        Xoá <b>Nhân sự</b> khỏi cây tổ chức. Thao tác này không hoàn tác được.
+      </p>
+      <!-- Nói TRƯỚC hai luật chặn, không để người dùng bấm rồi mới biết. -->
+      <p class="o__meo" style="margin-top:12px">
+        Phòng còn <b>phòng ban con</b> hoặc còn <b>nhân viên</b> thì không xoá được — kể cả
+        nhân viên đã nghỉ việc, vì hồ sơ của họ vẫn trỏ vào phòng này.
+      </p>
+    </div>
+
+    <div class="hop__chan">
+      <button class="nut nut--pha" data-dong>Huỷ</button>
+      <button class="nut nut--nguy" data-soon="Xoá phòng ban">Xoá</button>
+    </div>
+  </div>
+</div>
+
 <div class="popups" id="popups" aria-live="polite"></div>
 
 <div class="states">
   <span>Trạng thái</span>
   <button data-state="co" aria-pressed="true">Có cây</button>
   <button data-state="rong" aria-pressed="false">Chưa có phòng nào</button>
+  <span class="states__vach"></span>
+  <button data-mo="manSua">Hộp thêm/sửa</button>
+  <!-- Trạng thái LỖI của ô tên. Không có nút này thì câu "Workspace đã có phòng ban trùng
+       tên" nằm trong đánh dấu mà không ai xem được — người duyệt chốt một hộp thoại chưa
+       từng nhìn thấy ở trạng thái hỏng, và đó là trạng thái hay gặp nhất của nó. -->
+  <button data-mo="manSua" data-loi>Hộp thêm/sửa · tên trùng</button>
+  <button data-mo="manXoa">Hộp xoá</button>
 </div>
 
 <script type="module">
@@ -356,7 +443,25 @@ document.querySelectorAll('.cay__mo:not(.cay__mo--trong)').forEach(nut =>
     if (con?.classList.contains('cay__con')) con.hidden = !mo;
   }));
 
+// ── Hộp thoại ──────────────────────────────────────────────────────
+const mo = (id) => document.getElementById(id).classList.add('man--hien');
+const dong = () => document.querySelectorAll('.man').forEach(m => m.classList.remove('man--hien'));
+
+document.querySelectorAll('.states [data-mo]').forEach(b =>
+  b.addEventListener('click', () => {
+    // `o--hong` là lớp Angular gắn bằng `[class.o--hong]`. Bản dựng bật nó ở đây để người
+    // duyệt xem được trạng thái lỗi — và để hai bên có cùng tập lớp, thứ `ui-parity` canh.
+    document.getElementById('oTen').classList.toggle('o--hong', 'loi' in b.dataset);
+    mo(b.dataset.mo);
+  }));
+
+document.querySelectorAll('[data-dong]').forEach(b => b.addEventListener('click', dong));
+
+// Esc đóng. Thiếu chỗ này thì người dùng bàn phím bị kẹt trong hộp thoại.
+document.addEventListener('keydown', e => e.key === 'Escape' && dong());
+
 const q = new URLSearchParams(location.search);
 if (q.get('state')) noi.dataset.state = q.get('state');
+if (q.get('mo')) mo(q.get('mo'));
 if (q.has('bare')) document.querySelector('.states')?.remove();
 </script>

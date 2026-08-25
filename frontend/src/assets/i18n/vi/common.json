@@ -8,6 +8,10 @@
     "signIn": "Đăng nhập",
     "signOut": "Đăng xuất",
     "cancel": "Huỷ",
+    "collapse": "Thu gọn",
+    "delete": "Xoá",
+    "expand": "Mở rộng",
+    "rename": "Đổi tên",
     "retry": "Thử lại",
     "close": "Đóng",
     "save": "Lưu thay đổi"
@@ -70,7 +74,18 @@
     "emptyTitle": "Chưa có phòng ban nào",
     "emptyHint": "Cây tổ chức giúp lọc danh bạ và sau này là nơi kênh trao đổi tự khớp theo phòng. Bắt đầu bằng một phòng gốc — thường là tên công ty hoặc \"Ban giám đốc\".",
     "countNote": "Số bên cạnh mỗi phòng là số người trực tiếp thuộc phòng đó, không cộng dồn phòng con. Phòng còn phòng con hoặc còn nhân viên thì không xoá được.",
-    "loadFailed": "Không tải được cây phòng ban."
+    "loadFailed": "Không tải được cây phòng ban.",
+    "name": "Tên phòng ban",
+    "namePlaceholder": "Ví dụ: Khối Kỹ thuật",
+    "nameRequired": "Tên phòng ban không được để trống.",
+    "parent": "Trực thuộc",
+    "rootOption": "— Là phòng gốc —",
+    "parentHint": "Không chọn được phòng nằm trong nhánh của chính nó — làm thế thì cả nhánh tách khỏi gốc và biến mất khỏi cây.",
+    "saved": "Đã lưu phòng ban.",
+    "deleted": "Đã xoá phòng ban.",
+    "deleteTitle": "Xoá phòng ban?",
+    "deleteBody": "Xoá {{name}} khỏi cây tổ chức. Thao tác này không hoàn tác được.",
+    "deleteRules": "Phòng còn phòng ban con hoặc còn nhân viên thì không xoá được — kể cả nhân viên đã nghỉ việc, vì hồ sơ của họ vẫn trỏ vào phòng này."
   },
   "contacts": {
     "title": "Danh bạ",

@@ -164,4 +164,79 @@
   <data name="User.NewPasswordSameAsCurrent" xml:space="preserve">
     <value>Mật khẩu mới phải khác mật khẩu hiện tại.</value>
   </data>
+  <data name="WorkEmail.Invalid" xml:space="preserve">
+    <value>Email liên hệ không đúng định dạng.</value>
+  </data>
+  <data name="WorkEmail.TooLong" xml:space="preserve">
+    <value>Email liên hệ không được dài quá 254 ký tự.</value>
+  </data>
+  <data name="Department.TenantRequired" xml:space="preserve">
+    <value>Phòng ban phải thuộc về một workspace.</value>
+  </data>
+  <data name="Department.NameEmpty" xml:space="preserve">
+    <value>Tên phòng ban không được để trống.</value>
+  </data>
+  <data name="Department.NameTooLong" xml:space="preserve">
+    <value>Tên phòng ban không được dài quá 100 ký tự.</value>
+  </data>
+  <data name="Department.CannotBeItsOwnParent" xml:space="preserve">
+    <value>Một phòng ban không thể là phòng ban cha của chính nó.</value>
+  </data>
+  <data name="Department.WouldCreateCycle" xml:space="preserve">
+    <value>Không thể chuyển một phòng ban vào bên trong chính nhánh của nó.</value>
+  </data>
+  <data name="Department.NameTaken" xml:space="preserve">
+    <value>Workspace đã có phòng ban trùng tên này.</value>
+  </data>
+  <data name="Department.NotFound" xml:space="preserve">
+    <value>Không tìm thấy phòng ban.</value>
+  </data>
+  <data name="Department.HasChildren" xml:space="preserve">
+    <value>Phòng ban còn phòng ban con. Hãy chuyển hoặc xoá các phòng con trước.</value>
+  </data>
+  <data name="Department.HasEmployees" xml:space="preserve">
+    <value>Phòng ban còn nhân viên. Hãy điều chuyển họ sang phòng khác trước.</value>
+  </data>
+  <data name="Employee.TenantRequired" xml:space="preserve">
+    <value>Nhân viên phải thuộc về một workspace.</value>
+  </data>
+  <data name="Employee.CodeEmpty" xml:space="preserve">
+    <value>Mã nhân viên không được để trống.</value>
+  </data>
+  <data name="Employee.CodeTooLong" xml:space="preserve">
+    <value>Mã nhân viên không được dài quá 30 ký tự.</value>
+  </data>
+  <data name="Employee.CodeTaken" xml:space="preserve">
+    <value>Workspace đã có nhân viên mang mã này.</value>
+  </data>
+  <data name="Employee.FullNameEmpty" xml:space="preserve">
+    <value>Họ tên không được để trống.</value>
+  </data>
+  <data name="Employee.FullNameTooLong" xml:space="preserve">
+    <value>Họ tên không được dài quá 200 ký tự.</value>
+  </data>
+  <data name="Employee.JobTitleTooLong" xml:space="preserve">
+    <value>Chức danh không được dài quá 100 ký tự.</value>
+  </data>
+  <data name="Employee.PhoneTooLong" xml:space="preserve">
+    <value>Số điện thoại không được dài quá 30 ký tự.</value>
+  </data>
+  <data name="Employee.NotFound" xml:space="preserve">
+    <value>Không tìm thấy nhân viên.</value>
+  </data>
+  <data name="Employee.AlreadyInThatDepartment" xml:space="preserve">
+    <value>Nhân viên đã thuộc phòng ban này.</value>
+  </data>
+  <data name="Employee.AlreadyLeft" xml:space="preserve">
+    <value>Nhân viên đã nghỉ việc.</value>
+  </data>
+  <data name="Employee.NotLeft" xml:space="preserve">
+    <value>Nhân viên đang làm việc, không cần nhận lại.</value>
+  </data>
+  <data name="Employee.AlreadyLinked" xml:space="preserve">
+    <value>Hồ sơ này đã nối với một tài khoản. Hãy gỡ liên kết cũ trước.</value>
+  </data>
+  <data name="Employee.NotLinked" xml:space="preserve">
+    <value>Hồ sơ này chưa nối với tài khoản nào.</value>
+  </data>
 </root>

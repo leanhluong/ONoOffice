@@ -37,8 +37,18 @@ import type { DepartmentTreeItem } from '../../core/models/org.model';
 export class DepartmentNode {
   readonly node = input.required<DepartmentTreeItem>();
 
-  /** Bấm một nút thao tác chưa làm. Đẩy lên cha để chỉ một chỗ dựng popup. */
-  readonly notBuilt = output<{ event: Event; labelKey: string }>();
+  /**
+   * Ba thao tác, đẩy NGƯỢC lên `DepartmentTree`.
+   *
+   * Component này không gọi API và không mở hộp thoại — nó chỉ vẽ một nút và báo lên
+   * rằng người dùng vừa bấm gì. Nhờ vậy chỉ có đúng MỘT chỗ biết cách nói chuyện với
+   * server, dù cây sâu bao nhiêu cấp.
+   */
+  readonly rename = output<DepartmentTreeItem>();
+
+  readonly move = output<DepartmentTreeItem>();
+
+  readonly remove = output<DepartmentTreeItem>();
 
   /**
    * Mở sẵn ở mọi cấp.
@@ -51,9 +61,5 @@ export class DepartmentNode {
 
   protected toggle(): void {
     this.open.update((v) => !v);
-  }
-
-  protected chuaLam(event: Event, labelKey: string): void {
-    this.notBuilt.emit({ event, labelKey });
   }
 }
