@@ -1,0 +1,10 @@
+:root {
+  --ono-brown: #5A3E2B;
+  --ono-caramel: #B98A5E;
+  --ono-cream: #F4EEE6;
+  --ono-ink: #2E2723;
+  --ono-line: #E4DBD0;
+
+  --ono-font-display: "Outfit", Helvetica, Arial, sans-serif;
+  --ono-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}

@@ -1,7 +1,7 @@
 /**
  * ⚠️ FILE NÀY ĐƯỢC SINH TỰ ĐỘNG — ĐỪNG SỬA TAY.
  *
- * Nguồn:    docs/07-giao-dien/chung/_shell.css  +  docs/07-giao-dien/chung/_khung.css  +  docs/07-giao-dien/chung/_dieukhien.css
+ * Nguồn:    docs/07-giao-dien/chung/_shell.css  +  docs/07-giao-dien/chung/_khung.css  +  docs/07-giao-dien/chung/_khung-quantri.css  +  docs/07-giao-dien/chung/_dieukhien.css  +  docs/07-giao-dien/chung/_brand.css
  * Sinh lại: node tools/sync-shell.mjs
  *
  * Sửa ở đây thì lần chạy bộ sinh tiếp theo sẽ xoá mất, và tệ hơn: bản dựng mà người
@@ -393,28 +393,41 @@ body {
 
 
 /*
-  KHUNG ỨNG DỤNG v3 — một cột điều hướng có CHỮ, không có thanh ngang toàn chiều rộng.
+  KHUNG ỨNG DỤNG v4 — rail biểu tượng + cột ngữ cảnh + nội dung.
 
   ══════════════════════════════════════════════════════════════════════
-   BA BẢN, VÀ VÌ SAO ĐỔI HAI LẦN
+   BỐN BẢN, VÀ VÌ SAO ĐỔI BA LẦN
   ══════════════════════════════════════════════════════════════════════
 
   v1 · thanh ngang 52px + thanh dọc 216px.
-       Hỏng ở chỗ: ăn 52px chiều cao của MỌI màn để hiện mỗi tên sản phẩm, và chia điều
-       hướng làm hai nơi nên mắt phải quét hai lần.
+       Hỏng: ăn 52px chiều cao của MỌI màn chỉ để hiện tên sản phẩm, và chia điều hướng
+       làm hai nơi nên mắt phải quét hai lần.
 
   v2 · cột biểu tượng 60px, không chữ.
-       Gọn hơn thật, nhưng biểu tượng trần bắt người dùng đoán, và không còn chỗ nào để
-       hiện SỐ ĐẾM — mà "9 việc chờ duyệt" là thứ người ta cần thấy ngay khi mở app.
+       Gọn hơn thật, nhưng biểu tượng trần bắt người dùng đoán, và **không còn chỗ nào
+       hiện SỐ ĐẾM** — mà "9 việc chờ duyệt" là thứ phải thấy ngay khi mở app.
 
-  v3 · cột 212px: ảnh đại diện + ô tìm kiếm toàn cục + danh sách trang có chữ và số đếm,
-       thu gọn được về 56px khi cần chỗ. Đây là khuôn của Lark, và nó hợp với app nội bộ
-       vì app nội bộ có NHIỀU module (nhân sự, phòng ban, vai trò, trao đổi, duyệt đơn…)
-       chứ không phải một việc duy nhất.
+  v3 · cột 212px có chữ và số đếm.
+       Sửa được chỗ v2 hỏng, nhưng đổi lại lấy mất khuôn app-suite: một cột chữ duy nhất
+       chính là khuôn của TRANG QUẢN TRỊ. Nó chạy được với bốn màn, và chật ngay khi có
+       sáu app — mỗi app lại còn cần danh sách riêng (hội thoại, tài liệu, phòng ban).
 
-  Vẫn giữ nguyên nguyên tắc của v2: **không có thanh ngang toàn chiều rộng**. Mỗi trang tự
-  dựng tiêu đề riêng bên trong vùng nội dung — tiêu đề màn chat nói về kênh đang mở, tiêu
-  đề màn nhân sự nói về bộ lọc đang bật. Một thanh chung thì không nói được gì cụ thể.
+  v4 · **rail 56px + cột ngữ cảnh 260px.**
+
+       Chỗ v2 và v3 đều giải sai một câu hỏi sai. Câu hỏi không phải "biểu tượng HAY chữ";
+       Lark, Zalo PC, Slack và Google đều dùng CẢ HAI, và mỗi bên gánh một việc khác nhau:
+
+           rail          → chuyển giữa các APP · badge dạng chấm · logo · tài khoản
+                           luôn có mặt, không đổi, là danh tính của sản phẩm
+           cột ngữ cảnh  → nội dung của app ĐANG MỞ, có chữ và số đếm đầy đủ
+                           mỗi app tự dựng cột của mình; app nào không cần thì bỏ
+
+       "9 việc chờ duyệt" — thứ v2 làm mất — nay đọc được ở CẢ HAI chỗ: chấm số trên
+       biểu tượng ở rail, và số đầy đủ trong cột khi mở app đó.
+
+  Vẫn giữ nguyên nguyên tắc từ v2: **không có thanh ngang toàn chiều rộng**. Mỗi trang tự
+  dựng tiêu đề riêng — tiêu đề màn chat nói về kênh đang mở, tiêu đề màn nhân sự nói về bộ
+  lọc đang bật. Một thanh chung không nói được gì cụ thể mà vẫn ăn 56px của mọi màn.
 
   Dùng cùng bộ token với `_shell.css` — nạp file đó TRƯỚC file này.
 
@@ -427,38 +440,153 @@ body {
 .khung { display: flex; height: 100vh; overflow: hidden; }
 
 /* ══════════════════════════════════════════════════════════════════════
-   CỘT ĐIỀU HƯỚNG
+   BA MẶT PHẲNG
+
+   rail `--surface-2`  →  cột ngữ cảnh `--surface`  →  nội dung `--ground`
+
+   Ba nền khác nhau, không phải ba đường viền. Viền thì ở bộ Giấy gần như tàng hình
+   (`--line` là `#DEDEDA` trên nền trắng); mặt phẳng thì mỗi bộ màu tự khai giá trị hợp
+   với chính nó, nên đúng ở cả bốn mà không phải khai thêm gì.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════════════
+   RAIL — chuyển giữa các app
+   ══════════════════════════════════════════════════════════════════════ */
+.rail {
+  width: 56px; flex: none;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 10px 0 8px;
+  background: var(--surface-2);
+  border-right: 1px solid var(--line);
+}
+
+/* Chỗ của logo trong app là ĐÂY, và chỉ ở đây.
+   Khung v3 không có chỗ nào cho logo nên nó chỉ sống ở màn đăng nhập. Rail thì có: đỉnh
+   rail là nơi Lark, Slack, Zalo PC đều đặt dấu sản phẩm, vì đó là điểm cố định duy nhất
+   trên toàn giao diện. Dùng bản MARK (hai vòng, không chữ) — xem `_brand.css`. */
+.rail__logo { flex: none; margin-bottom: 12px; }
+
+.rail__ds {
+  flex: 1; min-height: 0; width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  overflow-y: auto;
+  /* Ẩn thanh cuộn: rail chỉ rộng 56px, một thanh cuộn 12px ăn hơn 1/5 bề ngang. */
+  scrollbar-width: none;
+}
+.rail__ds::-webkit-scrollbar { display: none; }
+
+.rail__muc {
+  position: relative; flex: none;
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 12px; background: transparent;
+  color: var(--ink-soft); cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.rail__muc:hover { background: var(--surface); color: var(--ink); }
+.rail__muc svg { width: 20px; height: 20px; }
+
+.rail__muc[aria-current="page"] {
+  background: color-mix(in srgb, var(--accent) 17%, transparent);
+  color: var(--accent);
+}
+/* Vạch dọc sát mép trái. Ở bộ Giấy nền pha 17% gần trùng nền, nên chỉ dựa vào màu nền thì
+   app đang mở biến mất ở đúng một bộ màu trong bốn. */
+.rail__muc[aria-current="page"]::before {
+  content: ""; position: absolute; left: -8px; top: 9px; bottom: 9px;
+  width: 3px; border-radius: 0 3px 3px 0; background: var(--accent);
+}
+
+/* Số đếm ở rail. Khác cột ngữ cảnh ở chỗ: đây chỉ trả lời "CÓ hay KHÔNG có việc", con số
+   chính xác để dành cho cột. Quá 9 thì hiện "9+" — ba chữ số trên một viên 18px thì không
+   đọc được, mà "có 47 hay 52 tin chưa đọc" không đổi hành vi của ai cả. */
+.rail__dem {
+  position: absolute; top: 1px; right: 1px;
+  min-width: 17px; height: 17px; padding: 0 4px;
+  display: grid; place-items: center;
+  border: 2px solid var(--surface-2); border-radius: 999px;
+  background: var(--accent); color: var(--accent-ink);
+  font-size: 9.5px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+/* Việc không gấp đếm bằng CHẤM, không phải số. Cái gì cũng có số thì không cái nào còn
+   nghĩa là "cần xử lý". */
+.rail__dem--cham {
+  min-width: 9px; height: 9px; padding: 0; font-size: 0;
+  top: 5px; right: 5px;
+  background: var(--ink-faint);
+}
+
+/* Nhãn khi rê chuột — BẮT BUỘC ở rail, vì rail vĩnh viễn chỉ có biểu tượng. Đây đúng là
+   chỗ v2 đã hỏng: biểu tượng trần bắt người dùng đoán. */
+.rail__meo {
+  position: absolute; left: calc(100% + 12px); top: 50%; transform: translateY(-50%);
+  padding: 6px 11px; z-index: 80;
+  background: var(--ink); color: var(--ground);
+  border-radius: 8px; font-size: 12.5px; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity 120ms ease;
+}
+.rail__muc:hover .rail__meo,
+.rail__muc:focus-visible .rail__meo { opacity: 1; }
+
+.rail__vach { flex: none; width: 24px; height: 1px; margin: 7px 0; background: var(--line); }
+
+.rail__duoi {
+  flex: none; width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding-top: 8px;
+}
+
+/* Ảnh đại diện kiêm cửa vào menu tài khoản. Ở v3 nó nằm đầu cột chữ; nay xuống đáy rail,
+   đúng chỗ Slack và Lark đặt nó — và quan trọng hơn: nó KHÔNG còn đổi theo app đang mở. */
+.rail__toi {
+  flex: none;
+  width: 34px; height: 34px; padding: 0;
+  border: 0; border-radius: 11px; background: transparent;
+  cursor: pointer;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CỘT NGỮ CẢNH — nội dung của app đang mở
+
+   Mỗi app tự dựng cột của mình. `.nav` dưới đây là bản MẶC ĐỊNH, dùng cho app mà cột chỉ
+   là một danh sách trang (Quản trị, Danh bạ). App có cột giàu hơn thì dựng riêng — màn
+   Trao đổi dùng `.ds` với ảnh đại diện, câu cuối và giờ.
+
+   App KHÔNG cần cột thì bỏ hẳn (Lịch chiếm trọn bề ngang). Đó là lý do cột này là một
+   phần tử riêng chứ không phải một phần của `.khung`.
    ══════════════════════════════════════════════════════════════════════ */
 .nav {
-  width: 212px; flex: none;
+  width: 260px; flex: none;
   display: flex; flex-direction: column; min-height: 0;
   background: var(--surface);
   border-right: 1px solid var(--line);
-  transition: width 140ms ease;
-}
-.khung--gon .nav { width: 56px; }
-.khung--gon .nav__chu, .khung--gon .nav__nhan, .khung--gon .nav__phim { display: none; }
-
-/* ── Tài khoản ────────────────────────────────────────────────────── */
-.nav__toi {
-  flex: none;
-  display: flex; align-items: center; gap: 9px;
-  width: calc(100% - 16px); margin: 8px; padding: 7px;
-  border: 0; border-radius: 11px; background: transparent;
-  color: inherit; font-family: inherit; text-align: left; cursor: pointer;
-}
-.nav__toi:hover { background: var(--surface-2); }
-.khung--gon .nav__toi { width: 40px; margin: 8px; padding: 3px; justify-content: center; }
-
-.nav__ten { flex: 1; min-width: 0; overflow: hidden; }
-.nav__ten b { display: block; font-size: 13px; font-weight: 600; color: var(--ink); }
-.nav__ten span {
-  display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  font-size: 11.5px; color: var(--ink-faint);
 }
 
-/* ── Tìm kiếm toàn cục ────────────────────────────────────────────── */
-.nav__tim { flex: none; position: relative; margin: 0 8px 10px; }
+/* Ẩn hẳn cột, không thu nhỏ nó.
+   v3 thu 212px → 56px, nhưng ở v4 thu nhỏ là vô nghĩa: rail đã gánh phần biểu tượng rồi,
+   một cột 56px thứ hai chỉ là hai hàng biểu tượng cạnh nhau. Lark và Slack cũng ẩn hẳn
+   (Ctrl+\), và đó là thứ người dùng thật sự muốn khi bấm nút đó: thêm chỗ cho nội dung. */
+.khung--gon .nav { display: none; }
+
+/* Tiêu đề của APP. Cao đúng 56px để thẳng hàng với `.trangdau` của vùng nội dung — lệch
+   một hai điểm ảnh ở đây thì cả giao diện trông như bị xô. */
+.nav__dau {
+  flex: none; min-height: 56px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 8px 0 16px;
+  border-bottom: 1px solid var(--line);
+}
+.nav__dau h2 {
+  margin: 0; flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 15.5px;
+  letter-spacing: -0.02em; color: var(--ink);
+}
+
+/* ── Tìm kiếm trong app đang mở ───────────────────────────────────── */
+/* Ở v3 đây là ô tìm TOÀN CỤC. Ở v4 nó tìm trong app đang mở, vì cột này là của app —
+   một ô tìm toàn cục nằm trong cột của Trao đổi thì không ai đoán được nó tìm cái gì. */
+.nav__tim { flex: none; position: relative; margin: 10px 8px; }
 .nav__tim svg {
   position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
   width: 14px; height: 14px; color: var(--ink-faint); pointer-events: none;
@@ -471,7 +599,6 @@ body {
 }
 .nav__tim input::placeholder { color: var(--ink-faint); }
 .nav__tim input:focus { outline: none; border-color: var(--accent); }
-.khung--gon .nav__tim input { padding-right: 10px; }
 
 /* Phím tắt hiện sẵn, không giấu trong tài liệu hướng dẫn. Người dùng chỉ học được phím
    tắt khi nhìn thấy nó ở đúng chỗ họ đang định bấm chuột. */
@@ -482,7 +609,7 @@ body {
   font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10px;
 }
 
-/* ── Danh sách trang ──────────────────────────────────────────────── */
+/* ── Danh sách trang trong app ────────────────────────────────────── */
 .nav__ds { flex: 1; min-height: 0; overflow-y: auto; padding: 0 8px 8px; }
 
 .nav__nhan {
@@ -501,14 +628,11 @@ body {
   text-decoration: none; white-space: nowrap; cursor: pointer;
 }
 .nav__muc:hover { background: var(--surface-2); color: var(--ink); }
-.khung--gon .nav__muc { justify-content: center; padding: 8px; }
 
 .nav__muc[aria-current="page"] {
   background: color-mix(in srgb, var(--accent) 15%, transparent);
   color: var(--accent); font-weight: 600;
 }
-/* Vạch dọc bên trái. Ở bộ Giấy, nền pha 15% gần như trùng nền trắng — chỉ dựa vào màu nền
-   thì mục đang mở biến mất ở đúng một bộ màu trong bốn. */
 .nav__muc[aria-current="page"]::before {
   content: ""; position: absolute; left: -8px; top: 8px; bottom: 8px;
   width: 3px; border-radius: 0 3px 3px 0; background: var(--accent);
@@ -517,45 +641,19 @@ body {
 .nav__icon { width: 17px; height: 17px; flex: none; }
 .nav__chu { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
-/* Số đếm. Đây là thứ bản v2 (chỉ biểu tượng) không có chỗ để hiện, và là lý do quay lại
-   cột có chữ: "9 đơn chờ duyệt" phải đọc được ngay khi mở app, không phải bấm vào mới biết. */
+/* Số đếm ĐẦY ĐỦ — đây là chỗ con số chính xác sống, đối lại với chấm ở rail. */
 .nav__dem {
   flex: none; min-width: 18px; height: 18px; padding: 0 5px;
   display: grid; place-items: center;
   border-radius: 999px; background: var(--accent); color: var(--accent-ink);
   font-size: 10.5px; font-weight: 700; font-variant-numeric: tabular-nums;
 }
-/* Việc không gấp thì đếm bằng chữ xám, không phải viên màu. Cái gì cũng đỏ thì không cái
-   nào còn nghĩa là "gấp". */
+/* Số ĐO ĐẠC (38 nhân viên) chứ không phải số VIỆC PHẢI LÀM (4 tin chưa đọc). */
 .nav__dem--nhat { background: transparent; color: var(--ink-faint); font-weight: 500; }
-
-.khung--gon .nav__dem {
-  position: absolute; top: 3px; right: 3px;
-  min-width: 8px; height: 8px; padding: 0; font-size: 0;
-}
-
-/* Nhãn hiện khi rê chuột — CHỈ khi đã thu gọn. */
-.nav__meo {
-  position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%);
-  padding: 5px 10px; z-index: 60;
-  background: var(--ink); color: var(--ground);
-  border-radius: 7px; font-size: 12px; white-space: nowrap;
-  opacity: 0; pointer-events: none; transition: opacity 120ms ease;
-}
-.khung--gon .nav__muc:hover .nav__meo,
-.khung--gon .nav__muc:focus-visible .nav__meo { opacity: 1; }
-.khung:not(.khung--gon) .nav__meo { display: none; }
-
-/* ── Đáy cột ──────────────────────────────────────────────────────── */
-.nav__duoi {
-  flex: none; display: flex; align-items: center; gap: 4px;
-  padding: 8px; border-top: 1px solid var(--line);
-}
-.khung--gon .nav__duoi { flex-direction: column; }
 
 /* ── Menu bật ra ──────────────────────────────────────────────────── */
 .popover {
-  position: absolute; z-index: 70;
+  position: absolute; z-index: 90;
   min-width: 240px; padding: 8px;
   background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
@@ -579,6 +677,22 @@ body {
 .popover__nut svg { width: 15px; height: 15px; flex: none; }
 .popover__vach { height: 1px; margin: 6px 4px; background: var(--line); }
 
+/* Mũi tên chéo = "đi ra khỏi chỗ đang đứng".
+   Zalo dùng đúng dấu này cho "Nâng cấp tài khoản", và ở đây nó cũng nói đúng chuyện đó:
+   bấm vào là rời khung app sang khung quản trị — mất rail, đổi cả bố cục. Không báo
+   trước thì người dùng tưởng app hỏng. */
+.popover__ngoai { margin-left: auto; width: 13px; height: 13px; color: var(--ink-faint); }
+
+.nuti {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 10px; background: transparent;
+  color: var(--ink-faint); cursor: pointer;
+}
+.nuti:hover { background: var(--surface); color: var(--ink); }
+.nuti[aria-pressed="true"] { background: var(--surface); color: var(--accent); }
+.nuti svg { width: 17px; height: 17px; }
+
 /* ══════════════════════════════════════════════════════════════════════
    VÙNG NỘI DUNG
    ══════════════════════════════════════════════════════════════════════ */
@@ -586,54 +700,288 @@ body {
    ngược lại thì mọi màn toàn khung phải đi gỡ lề của cha. */
 .noidung { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 
-/* Tiêu đề của TRANG, không phải của sản phẩm. Mỗi màn tự dựng. */
-.trangdau {
-  flex: none; min-height: 56px;
-  display: flex; align-items: center; gap: 10px;
-  padding: 0 18px;
-  border-bottom: 1px solid var(--line);
-}
-.trangdau h1 {
-  margin: 0;
-  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 16px;
-  letter-spacing: -0.02em;
-}
-.trangdau__phu { color: var(--ink-faint); font-size: 12.5px; }
-.trangdau__phu::before { content: "·"; margin: 0 9px; }
-.trangdau__day { flex: 1; }
-
-/* Vùng cuộn của trang thường (không phải màn toàn khung như chat). */
-.trang { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 18px 32px; }
-.trang--hep { max-width: 760px; }
+/* `.trangdau` và `.trang` KHÔNG nằm ở đây — chúng đã chuyển sang `_dieukhien.css`.
+   Lý do: chúng là chrome của TRANG, không phải của KHUNG, và cả hai khung đều cần chúng.
+   Để ở đây thì màn quản trị (chỉ nạp `_khung-quantri.css`) mất sạch tiêu đề trang —
+   đã thật sự xảy ra một lần, và nó hỏng im lặng: HTML vẫn đó, chỉ là không luật nào áp. */
 
 /* ── Màn hẹp ──────────────────────────────────────────────────────── */
-/* Dưới 900px tự thu gọn: 212px là một phần tư màn hình 900px, quá đắt cho điều hướng. */
-@media (max-width: 900px) {
-  .nav { width: 56px; }
-  .nav .nav__chu, .nav .nav__nhan, .nav .nav__phim { display: none; }
-  .nav .nav__muc { justify-content: center; padding: 8px; }
-  .nav .nav__toi { width: 40px; padding: 3px; justify-content: center; }
-  .nav .nav__ten { display: none; }
-  .nav__duoi { flex-direction: column; }
+/*
+  Dưới 1000px: bỏ CỘT NGỮ CẢNH, giữ rail.
+
+  Ngược với v3 (v3 thu cột chữ thành cột biểu tượng). Ở v4 rail đã là cột biểu tượng rồi,
+  nên thứ phải nhường chỗ là cột thứ hai — 260px là hơn một phần tư màn hình 1000px, quá
+  đắt cho một danh sách trong khi nội dung mới là thứ người ta mở app để xem.
+*/
+@media (max-width: 1000px) {
+  .nav { display: none; }
 }
 
-/* Dưới 720px cột dọc thành thanh NGANG dưới đáy — ngón cái với tới được, và đó là chỗ mọi
+/* Dưới 720px rail thành thanh NGANG dưới đáy — ngón cái với tới được, và đó là chỗ mọi
    ứng dụng điện thoại đặt điều hướng. */
 @media (max-width: 720px) {
   .khung { flex-direction: column-reverse; }
-  .nav {
+
+  .rail {
     width: auto; height: 56px;
-    flex-direction: row; align-items: center;
+    flex-direction: row; justify-content: space-around; align-items: center;
+    padding: 0 6px;
     border-right: 0; border-top: 1px solid var(--line);
   }
-  .nav__toi, .nav__tim, .nav__duoi { display: none; }
-  .nav__ds { display: flex; align-items: center; justify-content: space-around; padding: 0 8px; overflow: visible; }
-  .nav__muc[aria-current="page"]::before {
+  /* Logo và ô tìm biến mất: trên điện thoại, 56px chiều ngang phải dành cho việc đi lại,
+     không phải cho nhận diện thương hiệu. */
+  .rail__logo { display: none; }
+  .rail__ds {
+    flex-direction: row; justify-content: space-around; align-items: center;
+    overflow: visible;
+  }
+  .rail__vach { display: none; }
+  .rail__duoi { width: auto; flex-direction: row; padding: 0; }
+  .rail__meo { display: none; }
+
+  .rail__muc[aria-current="page"]::before {
     left: 50%; right: auto; top: -1px; bottom: auto;
     width: 22px; height: 3px; transform: translateX(-50%); border-radius: 0 0 3px 3px;
   }
-  .nav__meo { display: none; }
-  .trang { padding: 16px 14px 28px; }
+}
+
+
+/*
+  KHUNG QUẢN TRỊ — thanh ngang trên cùng + sidebar 240px + nội dung dạng thẻ.
+
+  ══════════════════════════════════════════════════════════════════════
+   ĐÂY LÀ KHUNG THỨ HAI, VÀ NÓ KHÔNG CÓ RAIL. CỐ Ý.
+  ══════════════════════════════════════════════════════════════════════
+
+  Bản thiết kế trước của tôi coi quản trị là "một app trên rail", cùng hàng với Trao đổi
+  và Lịch. Sai, và Lark Admin cho thấy vì sao: **nó là một sản phẩm khác**, chạy ở một
+  tên miền khác (`admin.larksuite.com`), và nó bỏ hẳn rail để lấy lại một thanh ngang.
+
+  Ba lý do khuôn quản trị ngược hẳn khuôn app:
+
+  1. **Điều hướng quản trị SÂU, không RỘNG.** App có 6–8 app ngang hàng — rail 56px là
+     vừa. Quản trị có 12 nhóm, mỗi nhóm 3–6 trang con (Tổ chức → Thành viên, Bộ phận,
+     Cơ cấu…). Cây hai cấp gập được thì phải có chữ, và phải có 240px để chứa chữ đó.
+
+  2. **Ở đây người ta ĐỌC, không LƯỚT.** Màn chat tối ưu cho chuyển kênh mười lần một
+     phút; màn quản trị tối ưu cho ngồi đọc một bảng số rồi quyết định. Thanh ngang ăn
+     56px chiều cao — đắt với chat, rẻ với một trang cuộn dọc.
+
+  3. **Thanh ngang là chỗ DUY NHẤT đặt được thứ chỉ quản trị mới có:** tên tổ chức, gói
+     đang dùng, và lối ra về lại app. Rail không có chỗ cho bất kỳ cái nào trong ba.
+
+  Đánh đổi phải trả: rời khỏi app là **mất rail**, tức mất đường tắt sang Trao đổi. Bù
+  bằng nút "Về không gian làm việc" đứng ngay đầu sidebar — xem `.qt__ve`.
+
+  Nạp SAU `_shell.css`. KHÔNG nạp cùng `_khung.css` — hai khung không bao giờ cùng xuất
+  hiện trên một trang.
+*/
+
+.qt { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   THANH NGANG
+   ══════════════════════════════════════════════════════════════════════ */
+.qt__tren {
+  flex: none; height: 56px;
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.qt__logo { flex: none; display: flex; align-items: center; gap: 9px; }
+.qt__logo b {
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 14.5px;
+  letter-spacing: -0.01em; color: var(--ink);
+}
+
+/* Thẻ chế độ — "Quản lý tổ chức" / "Cài đặt sản phẩm".
+   Đây là cấp điều hướng CAO NHẤT của màn quản trị, cao hơn cả sidebar: đổi thẻ là đổi
+   luôn nội dung sidebar. Để nó ở sidebar thì sidebar tự chứa gốc của chính nó. */
+.qt__the {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 13px;
+  border: 0; border-radius: 9px; background: transparent;
+  color: var(--ink-soft); font-family: inherit; font-size: 13px; white-space: nowrap;
+  text-decoration: none; cursor: pointer;
+}
+.qt__the:hover { background: var(--surface-2); color: var(--ink); }
+.qt__the[aria-current="page"] {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent); font-weight: 600;
+}
+.qt__the svg { width: 16px; height: 16px; flex: none; }
+
+/* Ô tìm ở giữa, rộng — nó tìm CẢ tính năng lẫn người lẫn cài đặt.
+   Màn quản trị có hơn 40 trang con; không có ô này thì người ta đi lạc trong cây menu.
+   Đây là thứ Lark Admin đặt ở chính giữa thanh, và đó là chỗ đúng: nó là công cụ chính
+   để đi lại, không phải một tiện ích phụ. */
+.qt__tim { flex: 1; max-width: 520px; position: relative; margin: 0 auto; }
+.qt__tim svg {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  width: 15px; height: 15px; color: var(--ink-faint); pointer-events: none;
+}
+.qt__tim input {
+  width: 100%; box-sizing: border-box;
+  padding: 8px 12px 8px 34px;
+  background: var(--surface-2); border: 1px solid transparent; border-radius: 999px;
+  color: var(--ink); font-family: inherit; font-size: 12.5px;
+}
+.qt__tim input::placeholder { color: var(--ink-faint); }
+.qt__tim input:focus { outline: none; border-color: var(--accent); background: var(--surface); }
+
+.qt__phai { flex: none; display: flex; align-items: center; gap: 4px; }
+
+/* Khối tài khoản: ảnh + tên + VAI TRÒ.
+   Vai trò hiện ngay dưới tên, không giấu trong menu. Ở màn quản trị, "tôi đang thao tác
+   với quyền gì" là câu hỏi phải trả lời trước mọi cú bấm — Lark Admin ghi "Người sáng
+   lập" ở đúng chỗ này vì lý do đó. */
+.qt__toi {
+  display: flex; align-items: center; gap: 9px;
+  margin-left: 6px; padding: 5px 9px 5px 5px;
+  border: 0; border-radius: 999px; background: transparent;
+  color: inherit; font-family: inherit; cursor: pointer;
+}
+.qt__toi:hover { background: var(--surface-2); }
+.qt__ten { text-align: left; line-height: 1.25; }
+.qt__ten b { display: block; font-size: 13px; font-weight: 600; color: var(--ink); }
+.qt__ten span { display: block; font-size: 11px; color: var(--ink-faint); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   THÂN — sidebar + nội dung
+   ══════════════════════════════════════════════════════════════════════ */
+.qt__than { flex: 1; min-height: 0; display: flex; }
+
+.qt__ben {
+  width: 240px; flex: none;
+  display: flex; flex-direction: column; min-height: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+}
+.qt--gon .qt__ben { display: none; }
+
+.qt__ds { flex: 1; min-height: 0; overflow-y: auto; padding: 8px; }
+
+/* ── Đường về app ─────────────────────────────────────────────────── */
+/*
+  Đứng ĐẦU sidebar, không phải cuối.
+
+  Rời app là mất rail, nên đây là đường về duy nhất. Đặt nó ở đáy — chỗ mắt quét sau
+  cùng — thì người ta sẽ bấm nút Back của trình duyệt, và với một app một trang thì Back
+  đưa họ tới chỗ không đoán trước được.
+*/
+.qt__ve {
+  display: flex; align-items: center; gap: 9px;
+  width: 100%; box-sizing: border-box;
+  padding: 8px 10px; margin-bottom: 6px;
+  border: 0; border-radius: 9px; background: transparent;
+  color: var(--ink-soft); font-family: inherit; font-size: 12.5px; text-align: left;
+  text-decoration: none; cursor: pointer;
+}
+.qt__ve:hover { background: var(--surface-2); color: var(--ink); }
+.qt__ve svg { width: 15px; height: 15px; flex: none; }
+
+/* ── Mục và nhóm gập được ─────────────────────────────────────────── */
+.qt__muc {
+  position: relative;
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; box-sizing: border-box;
+  padding: 9px 10px; margin-bottom: 1px;
+  border: 0; border-radius: 9px; background: transparent;
+  color: var(--ink-soft); font-family: inherit; font-size: 13px; text-align: left;
+  text-decoration: none; cursor: pointer;
+}
+.qt__muc:hover { background: var(--surface-2); color: var(--ink); }
+.qt__muc svg { width: 17px; height: 17px; flex: none; }
+.qt__muc span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.qt__muc[aria-current="page"] {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent); font-weight: 600;
+}
+.qt__muc[aria-current="page"]::before {
+  content: ""; position: absolute; left: -8px; top: 8px; bottom: 8px;
+  width: 3px; border-radius: 0 3px 3px 0; background: var(--accent);
+}
+
+/* Mũi tên gập. Xoay bằng transform chứ không đổi ký tự: đổi ký tự thì lúc chuyển trạng
+   thái nó nhảy, còn xoay thì mắt theo được và hiểu là "mở ra từ đây". */
+.qt__mui {
+  flex: none; width: 14px; height: 14px;
+  color: var(--ink-faint);
+  transition: transform 140ms ease;
+}
+.qt__muc[aria-expanded="true"] .qt__mui { transform: rotate(90deg); }
+
+.qt__con { padding: 1px 0 4px 0; }
+.qt__con[hidden] { display: none; }
+
+.qt__conmuc {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; box-sizing: border-box;
+  padding: 7px 10px 7px 37px; margin-bottom: 1px;
+  border: 0; border-radius: 8px; background: transparent;
+  color: var(--ink-soft); font-family: inherit; font-size: 12.5px; text-align: left;
+  text-decoration: none; cursor: pointer;
+}
+.qt__conmuc:hover { background: var(--surface-2); color: var(--ink); }
+.qt__conmuc[aria-current="page"] { color: var(--accent); font-weight: 600; }
+.qt__dem {
+  margin-left: auto;
+  font-size: 11.5px; color: var(--ink-faint); font-variant-numeric: tabular-nums;
+}
+
+/* ── Đáy sidebar ──────────────────────────────────────────────────── */
+.qt__day {
+  flex: none;
+  padding: 8px; border-top: 1px solid var(--line);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   NỘI DUNG
+   ══════════════════════════════════════════════════════════════════════ */
+/* Nền `--ground`, thẻ `--surface` — ngược với khuôn app, nơi nội dung nằm thẳng trên
+   nền. Ở đây mọi thứ là thẻ, vì màn quản trị là nhiều khối rời không liên quan nhau
+   (thông tin tổ chức · gói cước · phím tắt · biểu đồ), và thẻ là thứ nói "hết khối này
+   sang khối khác" mà không cần một đường kẻ nào. */
+/*
+  Là một cột flex, KHÔNG phải một hộp cuộn.
+
+  Hai loại trang quản trị cần hai kiểu cuộn khác nhau, và chỗ này phải chứa được cả hai:
+
+    · trang THẺ (Tổng quan)   → cả trang cuộn, dùng `.qt__luoi`
+    · trang BẢNG (Thành viên) → tiêu đề DÍNH trên, chỉ bảng cuộn, dùng `.trangdau` + `.trang`
+
+  Đặt `overflow-y: auto` thẳng ở đây thì trang bảng mất tiêu đề dính: cuộn tới người thứ
+  30 là không còn thấy tên cột lẫn ô lọc, và không ai biết cột thứ tư đang là gì.
+*/
+.qt__noi {
+  flex: 1; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column;
+  background: var(--ground);
+}
+
+/* Hai cột: chính và phụ. Cột phụ giữ những thứ ĐỌC THÌ TỐT MÀ KHÔNG ĐỌC CŨNG XONG VIỆC
+   (danh sách ứng dụng, trợ lý). Dưới 1240px nó rơi xuống dưới cột chính, không biến mất —
+   biến mất thì có nội dung chỉ tồn tại trên màn rộng, và không ai biết mình đang thiếu gì. */
+.qt__luoi {
+  flex: 1; min-height: 0; overflow-y: auto;
+  display: grid; grid-template-columns: minmax(0, 1fr) 344px; gap: 16px;
+  align-items: start;
+  padding: 18px;
+}
+@media (max-width: 1240px) {
+  .qt__luoi { grid-template-columns: minmax(0, 1fr); }
+}
+
+.qt__cot { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+/* ── Màn hẹp ──────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .qt__ben { display: none; }
+  .qt__tim { display: none; }
+  .qt__luoi { padding: 14px; }
 }
 
 
@@ -662,6 +1010,39 @@ body {
 /* ══════════════════════════════════════════════════════════════════════
    ẢNH ĐẠI DIỆN
    ══════════════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════════
+   CHROME CỦA TRANG — dùng chung cho CẢ HAI khung
+
+   Trước đây hai khối này nằm trong `_khung.css`. Sai chỗ: khung app và khung quản trị là
+   hai file loại trừ nhau, nhưng tiêu đề trang thì màn nào cũng cần. Hệ quả khi để nhầm
+   chỗ: mọi màn quản trị mất tiêu đề, mất đường kẻ, mất cả vùng cuộn — mà HTML vẫn nguyên
+   nên nhìn code không thấy gì sai, phải mở trình duyệt ra mới lộ.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Tiêu đề của TRANG, không phải của sản phẩm. Mỗi màn tự dựng. */
+.trangdau {
+  flex: none; min-height: 56px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--line);
+}
+.trangdau h1 {
+  margin: 0;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 16px;
+  letter-spacing: -0.02em;
+}
+.trangdau__phu { color: var(--ink-faint); font-size: 12.5px; }
+.trangdau__phu::before { content: "·"; margin: 0 9px; }
+.trangdau__day { flex: 1; }
+
+/* Vùng cuộn của trang thường (không phải màn toàn khung như chat). */
+.trang { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 18px 32px; }
+.trang--hep { max-width: 760px; }
+
+@media (max-width: 720px) {
+  .trang { padding: 16px 14px 28px; }
+}
+
 .mat {
   position: relative; flex: none;
   width: 36px; height: 36px;
@@ -958,6 +1339,124 @@ body {
 }
 .states button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .states__vach { width: 1px; height: 18px; background: var(--line); margin: 0 3px; }
+
+
+/*
+  NHẬN DIỆN THƯƠNG HIỆU — logo ONoOffice.
+
+  Tệp gốc: `../brand/` (hướng dẫn đầy đủ ở `../brand/README.md`).
+
+  ══════════════════════════════════════════════════════════════════════
+   VẤN ĐỀ: MỘT LOGO, BỐN BỘ MÀU
+  ══════════════════════════════════════════════════════════════════════
+
+  Sản phẩm ship bốn bộ màu (Mực · Hải đăng · Rêu tối, Giấy sáng) và người dùng tự chọn.
+  Logo thì KHÔNG được đổi màu theo — hướng dẫn thương hiệu nói rõ: không đổi màu ngoài
+  bảng nâu `#5A3E2B` / caramel `#B98A5E` / kem `#F4EEE6` / mực `#2E2723`.
+
+  Hai chuyện đó chỉ mâu thuẫn nếu cố nhuộm logo theo `--accent`. Không nhuộm thì hết mâu
+  thuẫn — chỉ còn một việc phải làm cho đúng: **chọn đúng bản**.
+
+      ba bộ TỐI  (Mực, Hải đăng, Rêu)  →  bản `-light`  (chữ kem, vòng caramel)
+      bộ SÁNG    (Giấy)                →  bản thường    (chữ mực, vòng nâu)
+
+  Chọn nhầm thì logo không "xấu" — nó BIẾN MẤT. Chữ mực `#2E2723` trên nền Mực `#0B0C0E`
+  chênh nhau chưa tới 1.2:1, tức là gần như không nhìn thấy gì. Đây đúng là kiểu lỗi
+  người dựng giao diện trên nền sáng không bao giờ tự phát hiện.
+
+  ══════════════════════════════════════════════════════════════════════
+   VÌ SAO LOCKUP CHỈ DÙNG Ở MÀN CÔNG KHAI
+  ══════════════════════════════════════════════════════════════════════
+
+  `logo-lockup.svg` vẽ chữ bằng thẻ `<text>` với phông **Outfit**. Không nạp được Outfit
+  thì nó rơi về Helvetica — vẫn đọc được, nhưng nét và bề ngang khác đi, và `npm run
+  parity` sẽ thấy hai bên lệch tuỳ theo bên nào tải phông xong trước. Vì vậy:
+
+    · Lockup (có chữ)  → chỉ ở màn đăng nhập và đăng ký, nơi Outfit ĐƯỢC NẠP tường minh.
+    · Mark (hai vòng)  → không có chữ nên không phụ thuộc phông; dùng được ở mọi nơi,
+                         kể cả favicon và icon app.
+
+  Khung ứng dụng v3 cố ý KHÔNG có chỗ nào hiện tên sản phẩm (ảnh đại diện đứng ở đầu cột,
+  không phải logo) — nên bên trong app, logo chỉ xuất hiện ở favicon. Đó là dụng ý của
+  khung, không phải chỗ bị bỏ sót: người dùng nội bộ mở app này mười lần một ngày, họ
+  không cần được nhắc mình đang dùng phần mềm gì.
+
+  Nạp SAU `_shell.css`.
+*/
+
+/*
+  Bảng màu thương hiệu, để nguyên tên gốc.
+
+  Chúng KHÔNG phải bộ màu thứ năm của sản phẩm và không thay thế `--accent`. Để đây vì
+  hướng dẫn thương hiệu cấm dùng màu ngoài bảng — có sẵn biến thì người thêm chi tiết
+  thương hiệu sau này không phải đi tra lại mã hex rồi gõ nhầm một chữ số.
+*/
+:root {
+  --ono-brown:   #5A3E2B;
+  --ono-caramel: #B98A5E;
+  --ono-cream:   #F4EEE6;
+  --ono-ink:     #2E2723;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LOGO
+   ══════════════════════════════════════════════════════════════════════ */
+/*
+  Dựng bằng `background-image` chứ không phải thẻ `<img>`.
+
+  Lý do là phải đổi bản theo bộ màu. Với `<img>` thì phải để hai thẻ rồi ẩn một — tức là
+  trình duyệt tải cả hai file, và trình đọc màn hình gặp hai ảnh cùng nhãn "ONoOffice".
+  Với `background-image` thì chỉ một quy tắc CSS thắng, và chỉ một file được tải.
+
+  `role="img"` + `aria-label` trên thẻ HTML lo phần trình đọc màn hình.
+*/
+.logo {
+  display: block;
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+}
+
+/*
+  Lockup 380×70. Đặt bề CAO rồi để `aspect-ratio` tính bề ngang — ghim cả hai số thì một
+  ngày nào đó ai đó sửa một số và logo bị kéo méo.
+
+  Vì sao 32px chứ không phải 26px (bằng chữ "ONoOffice" viết tay mà nó thay thế): hướng
+  dẫn thương hiệu đặt sàn **mark tối thiểu 20px**, và trong lockup thì hai vòng tròn chỉ
+  chiếm 54/70 chiều cao. Ở 26px chúng ra đúng 20,0px — chạm sàn, không còn biên nào cho
+  bất kỳ lần chỉnh nào sau này. 32px cho 24,7px, thoải mái ở trên ngưỡng.
+*/
+.logo--lockup {
+  height: 32px;
+  aspect-ratio: 380 / 70;
+  background-image: url(/brand/logo-lockup-light.svg);
+}
+
+/* Mark 108×66 — hai vòng tròn lồng nhau, không chữ. Ở đây vòng tròn chiếm gần trọn chiều
+   cao, nên 24px là đã trên sàn 20px. */
+.logo--mark {
+  height: 24px;
+  aspect-ratio: 108 / 66;
+  background-image: url(/brand/logo-mark-light.svg);
+}
+
+/* ── Bộ Giấy: nền sáng, đổi sang bản thường ───────────────────────── */
+:root[data-theme="giay"] .logo--lockup { background-image: url(/brand/logo-lockup.svg); }
+:root[data-theme="giay"] .logo--mark   { background-image: url(/brand/logo-mark.svg); }
+
+/*
+  Máy để chế độ SÁNG mà người dùng chưa chọn bộ nào → sản phẩm rơi về bộ Giấy (xem khối
+  cùng điều kiện trong `styles.scss`, do `tools/sync-shell.mjs` sinh ra). Logo phải đi
+  theo, nếu không thì đúng những người chưa từng chạm vào phần cài đặt — tức phần lớn
+  người dùng — sẽ thấy chữ kem trên nền trắng.
+
+  Ở bản dựng, `:root` LUÔN có `data-theme` (thanh chọn bộ màu đặt nó ngay khi trang mở),
+  nên `:not(...)` không bao giờ khớp và khối này vô hại.
+*/
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .logo--lockup { background-image: url(/brand/logo-lockup.svg); }
+  :root:not([data-theme]) .logo--mark   { background-image: url(/brand/logo-mark.svg); }
+}
 
 /* ══════════════════════════════════════════════════════════════════════════════
    Ba khối dưới đây CHỈ có ở sản phẩm, không có trong bản dựng.

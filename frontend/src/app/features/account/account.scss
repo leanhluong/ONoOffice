@@ -9,51 +9,17 @@
  * lại bộ sinh.
  */
 
-.dau {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 22px;
-}
-.dau__ten {
-  margin: 0 0 3px;
-  font-family: 'Sora', system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 20px;
-  letter-spacing: -0.02em;
-}
-.dau__phu {
-  font-size: 13px;
-  color: var(--ink-faint);
-}
-.khoi {
-  display: none;
-}
-.khoi--hien {
-  display: block;
-}
+.dau { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+.dau__ten { margin: 0 0 3px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 20px; letter-spacing: -0.02em; }
+.dau__phu { font-size: 13px; color: var(--ink-faint); }
+.khoi { display: none; }
+.khoi--hien { display: block; }
 
 .hang {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid var(--line);
 }
-.hang:last-child {
-  border-bottom: 0;
-}
-.hang__giua {
-  flex: 1;
-  min-width: 0;
-}
-.hang__ten {
-  font-size: 13.5px;
-  color: var(--ink);
-}
-.hang__phu {
-  font-size: 12px;
-  color: var(--ink-faint);
-  margin-top: 2px;
-  line-height: 1.55;
-}
+.hang:last-child { border-bottom: 0; }
+.hang__giua { flex: 1; min-width: 0; }
+.hang__ten { font-size: 13.5px; color: var(--ink); }
+.hang__phu { font-size: 12px; color: var(--ink-faint); margin-top: 2px; line-height: 1.55; }

@@ -9,191 +9,71 @@
  * lại bộ sinh.
  */
 
-.hai {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-}
+.hai { flex: 1; min-height: 0; display: flex; }
 
 /* ── Cột danh sách vai trò ────────────────────────────────────────── */
-.dsvai {
-  width: 252px;
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  border-right: 1px solid var(--line);
-}
-.dsvai__cuon {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 10px 8px;
-}
+.dsvai { width: 252px; flex: none; display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); }
+.dsvai__cuon { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 8px; }
 .dsvai__nhan {
   padding: 12px 8px 5px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--ink-faint);
 }
 
 .vaimuc {
-  position: relative;
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  margin-bottom: 2px;
-  border: 0;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--ink-soft);
-  font-family: inherit;
-  text-align: left;
-  cursor: pointer;
+  position: relative; width: 100%; box-sizing: border-box;
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; margin-bottom: 2px;
+  border: 0; border-radius: 10px; background: transparent;
+  color: var(--ink-soft); font-family: inherit; text-align: left; cursor: pointer;
 }
-.vaimuc:hover {
-  background: var(--surface-2);
-}
-.vaimuc[aria-current='true'] {
-  background: color-mix(in srgb, var(--accent) 13%, transparent);
-}
+.vaimuc:hover { background: var(--surface-2); }
+.vaimuc[aria-current="true"] { background: color-mix(in srgb, var(--accent) 13%, transparent); }
 
-.vaimuc__giua {
-  flex: 1;
-  min-width: 0;
-}
-.vaimuc__ten {
-  display: block;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--ink);
-}
-.vaimuc[aria-current='true'] .vaimuc__ten {
-  color: var(--accent);
-  font-weight: 600;
-}
-.vaimuc__phu {
-  display: block;
-  font-size: 11.5px;
-  color: var(--ink-faint);
-  margin-top: 2px;
-}
-.vaimuc__khoa {
-  width: 13px;
-  height: 13px;
-  flex: none;
-  color: var(--ink-faint);
-}
+.vaimuc__giua { flex: 1; min-width: 0; }
+.vaimuc__ten { display: block; font-size: 13.5px; font-weight: 500; color: var(--ink); }
+.vaimuc[aria-current="true"] .vaimuc__ten { color: var(--accent); font-weight: 600; }
+.vaimuc__phu { display: block; font-size: 11.5px; color: var(--ink-faint); margin-top: 2px; }
+.vaimuc__khoa { width: 13px; height: 13px; flex: none; color: var(--ink-faint); }
 
 /* ── Cột chi tiết ─────────────────────────────────────────────────── */
-.chitiet {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-.chitiet__cuon {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 18px;
-}
+.chitiet { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+.chitiet__cuon { flex: 1; min-height: 0; overflow-y: auto; padding: 18px; }
 
 /* Dải nói vì sao vai trò này khoá. Đặt NGAY TRÊN bảng quyền — nếu để cuối trang thì người
    dùng bấm ba lần vào công tắc không nhúc nhích rồi mới đọc tới. */
 .khoabao {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-  padding: 11px 14px;
-  border: 1px solid color-mix(in srgb, var(--canh) 40%, var(--line));
-  border-radius: 12px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; padding: 11px 14px;
+  border: 1px solid color-mix(in srgb, var(--canh) 40%, var(--line)); border-radius: 12px;
   background: color-mix(in srgb, var(--canh) 10%, var(--surface));
-  font-size: 12.5px;
-  color: var(--ink-soft);
-  line-height: 1.55;
+  font-size: 12.5px; color: var(--ink-soft); line-height: 1.55;
 }
-.khoabao svg {
-  width: 16px;
-  height: 16px;
-  flex: none;
-  color: var(--canh);
-}
-.khoabao b {
-  color: var(--ink);
-}
+.khoabao svg { width: 16px; height: 16px; flex: none; color: var(--canh); }
+.khoabao b { color: var(--ink); }
+
 
 /* ── Bảng quyền ───────────────────────────────────────────────────── */
-.nhomq {
-  margin-bottom: 12px;
-}
+.nhomq { margin-bottom: 12px; }
 .nhomq__dau {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex; align-items: center; gap: 10px;
   padding: 10px 14px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: 12px 12px 0 0;
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px 12px 0 0;
 }
-.nhomq__ten {
-  flex: 1;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink);
-}
-.nhomq__dem {
-  font-size: 11.5px;
-  color: var(--ink-faint);
-  font-variant-numeric: tabular-nums;
-}
-.nhomq__than {
-  border: 1px solid var(--line);
-  border-top: 0;
-  border-radius: 0 0 12px 12px;
-}
+.nhomq__ten { flex: 1; font-size: 13px; font-weight: 600; color: var(--ink); }
+.nhomq__dem { font-size: 11.5px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.nhomq__than { border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px; }
 
-.quyen {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 11px 14px;
-  border-bottom: 1px solid var(--line);
-}
-.quyen:last-child {
-  border-bottom: 0;
-}
-.quyen__giua {
-  flex: 1;
-  min-width: 0;
-}
-.quyen__ten {
-  font-size: 13px;
-  color: var(--ink);
-}
+.quyen { display: flex; align-items: center; gap: 14px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+.quyen:last-child { border-bottom: 0; }
+.quyen__giua { flex: 1; min-width: 0; }
+.quyen__ten { font-size: 13px; color: var(--ink); }
 .quyen__ma {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 11px;
-  color: var(--ink-faint);
+  font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; color: var(--ink-faint);
   margin-top: 2px;
 }
-.quyen__mota {
-  font-size: 12px;
-  color: var(--ink-faint);
-  margin-top: 3px;
-  line-height: 1.5;
-}
+.quyen__mota { font-size: 12px; color: var(--ink-faint); margin-top: 3px; line-height: 1.5; }
 
 /* Quyền bị khoá thì công tắc mờ VÀ không bấm được. Chỉ làm mờ mà vẫn bấm được là tệ nhất:
    người dùng bấm, nó đổi, rồi lưu xong quay lại như cũ mà không có lời giải thích nào. */
-.congtac {
-  opacity: 0.55;
-  pointer-events: none;
-}
+.congtac { opacity: 0.55; pointer-events: none; }

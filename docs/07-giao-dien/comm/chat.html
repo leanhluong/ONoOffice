@@ -34,6 +34,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../chung/_shell.css">
+<link rel="stylesheet" href="../chung/_brand.css">
 <link rel="stylesheet" href="../chung/_khung.css">
 <link rel="stylesheet" href="../chung/_dieukhien.css">
 
@@ -541,7 +542,10 @@
 </style>
 
 <div class="khung khung--ben" id="khung" data-kieu="kenh">
-  <nav id="nav"></nav>
+  <!-- Rail của khung app. Cột `.ds` bên dưới CHÍNH LÀ cột ngữ cảnh của app Trao đổi —
+     nó không dùng `.nav` mặc định vì danh sách hội thoại cần ảnh đại diện, câu cuối và
+     giờ, thứ mà một danh sách trang thường không có. -->
+<nav id="rail"></nav>
 
   <div class="noidung">
     <!-- ══════════════ DANH SÁCH HỘI THOẠI ══════════════ -->
@@ -968,9 +972,10 @@
 </div>
 
 <script type="module">
-import { mountNav, mountChuaLam, popup } from '../chung/_shell.js';
+import { mountRail, mountChuaLam, popup } from '../chung/_shell.js';
 
-mountNav(document.getElementById('nav'), 'trao-doi');
+// App MẶC ĐỊNH: mở ONoOffice là vào thẳng đây, giống Lark và Zalo.
+mountRail(document.getElementById('rail'), 'trao-doi');
 mountChuaLam();
 
 const khung = document.getElementById('khung');

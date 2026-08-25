@@ -27,6 +27,12 @@ const STYLES = join(SRC, 'styles.scss');
 const CUA_CHUNG = [
   'khung',
   'nav',
+
+  // Khung v4: `rail` là cột app của khung APP, `qt` là toàn bộ khung QUẢN TRỊ. Cả hai
+  // sinh từ bản dựng nên template gõ sai một chữ là mất trắng phần tô mà không ai báo —
+  // đúng loại lỗi bộ canh này sinh ra để bắt.
+  'rail',
+  'qt',
   'noidung',
   'trangdau',
   'trang',
@@ -50,6 +56,11 @@ const CUA_CHUNG = [
   'keo',
   'rong',
   'doi',
+
+  // Sinh từ `_brand.css`. Đáng canh hơn phần còn lại một bậc: gõ sai `.logo--lockup` thì
+  // `background-image` không được áp, và chỗ đó để lại một khoảng TRẮNG đúng kích thước —
+  // trông y hệt như logo đang tải dở, nên rất dễ bị bỏ qua khi soi ảnh chụp.
+  'logo',
 ];
 
 function laCuaChung(ten: string): boolean {

@@ -1,0 +1,116 @@
+/*
+  NHẬN DIỆN THƯƠNG HIỆU — logo ONoOffice.
+
+  Tệp gốc: `../brand/` (hướng dẫn đầy đủ ở `../brand/README.md`).
+
+  ══════════════════════════════════════════════════════════════════════
+   VẤN ĐỀ: MỘT LOGO, BỐN BỘ MÀU
+  ══════════════════════════════════════════════════════════════════════
+
+  Sản phẩm ship bốn bộ màu (Mực · Hải đăng · Rêu tối, Giấy sáng) và người dùng tự chọn.
+  Logo thì KHÔNG được đổi màu theo — hướng dẫn thương hiệu nói rõ: không đổi màu ngoài
+  bảng nâu `#5A3E2B` / caramel `#B98A5E` / kem `#F4EEE6` / mực `#2E2723`.
+
+  Hai chuyện đó chỉ mâu thuẫn nếu cố nhuộm logo theo `--accent`. Không nhuộm thì hết mâu
+  thuẫn — chỉ còn một việc phải làm cho đúng: **chọn đúng bản**.
+
+      ba bộ TỐI  (Mực, Hải đăng, Rêu)  →  bản `-light`  (chữ kem, vòng caramel)
+      bộ SÁNG    (Giấy)                →  bản thường    (chữ mực, vòng nâu)
+
+  Chọn nhầm thì logo không "xấu" — nó BIẾN MẤT. Chữ mực `#2E2723` trên nền Mực `#0B0C0E`
+  chênh nhau chưa tới 1.2:1, tức là gần như không nhìn thấy gì. Đây đúng là kiểu lỗi
+  người dựng giao diện trên nền sáng không bao giờ tự phát hiện.
+
+  ══════════════════════════════════════════════════════════════════════
+   VÌ SAO LOCKUP CHỈ DÙNG Ở MÀN CÔNG KHAI
+  ══════════════════════════════════════════════════════════════════════
+
+  `logo-lockup.svg` vẽ chữ bằng thẻ `<text>` với phông **Outfit**. Không nạp được Outfit
+  thì nó rơi về Helvetica — vẫn đọc được, nhưng nét và bề ngang khác đi, và `npm run
+  parity` sẽ thấy hai bên lệch tuỳ theo bên nào tải phông xong trước. Vì vậy:
+
+    · Lockup (có chữ)  → chỉ ở màn đăng nhập và đăng ký, nơi Outfit ĐƯỢC NẠP tường minh.
+    · Mark (hai vòng)  → không có chữ nên không phụ thuộc phông; dùng được ở mọi nơi,
+                         kể cả favicon và icon app.
+
+  Khung ứng dụng v3 cố ý KHÔNG có chỗ nào hiện tên sản phẩm (ảnh đại diện đứng ở đầu cột,
+  không phải logo) — nên bên trong app, logo chỉ xuất hiện ở favicon. Đó là dụng ý của
+  khung, không phải chỗ bị bỏ sót: người dùng nội bộ mở app này mười lần một ngày, họ
+  không cần được nhắc mình đang dùng phần mềm gì.
+
+  Nạp SAU `_shell.css`.
+*/
+
+/*
+  Bảng màu thương hiệu, để nguyên tên gốc.
+
+  Chúng KHÔNG phải bộ màu thứ năm của sản phẩm và không thay thế `--accent`. Để đây vì
+  hướng dẫn thương hiệu cấm dùng màu ngoài bảng — có sẵn biến thì người thêm chi tiết
+  thương hiệu sau này không phải đi tra lại mã hex rồi gõ nhầm một chữ số.
+*/
+:root {
+  --ono-brown:   #5A3E2B;
+  --ono-caramel: #B98A5E;
+  --ono-cream:   #F4EEE6;
+  --ono-ink:     #2E2723;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LOGO
+   ══════════════════════════════════════════════════════════════════════ */
+/*
+  Dựng bằng `background-image` chứ không phải thẻ `<img>`.
+
+  Lý do là phải đổi bản theo bộ màu. Với `<img>` thì phải để hai thẻ rồi ẩn một — tức là
+  trình duyệt tải cả hai file, và trình đọc màn hình gặp hai ảnh cùng nhãn "ONoOffice".
+  Với `background-image` thì chỉ một quy tắc CSS thắng, và chỉ một file được tải.
+
+  `role="img"` + `aria-label` trên thẻ HTML lo phần trình đọc màn hình.
+*/
+.logo {
+  display: block;
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+}
+
+/*
+  Lockup 380×70. Đặt bề CAO rồi để `aspect-ratio` tính bề ngang — ghim cả hai số thì một
+  ngày nào đó ai đó sửa một số và logo bị kéo méo.
+
+  Vì sao 32px chứ không phải 26px (bằng chữ "ONoOffice" viết tay mà nó thay thế): hướng
+  dẫn thương hiệu đặt sàn **mark tối thiểu 20px**, và trong lockup thì hai vòng tròn chỉ
+  chiếm 54/70 chiều cao. Ở 26px chúng ra đúng 20,0px — chạm sàn, không còn biên nào cho
+  bất kỳ lần chỉnh nào sau này. 32px cho 24,7px, thoải mái ở trên ngưỡng.
+*/
+.logo--lockup {
+  height: 32px;
+  aspect-ratio: 380 / 70;
+  background-image: url(../brand/logo-lockup-light.svg);
+}
+
+/* Mark 108×66 — hai vòng tròn lồng nhau, không chữ. Ở đây vòng tròn chiếm gần trọn chiều
+   cao, nên 24px là đã trên sàn 20px. */
+.logo--mark {
+  height: 24px;
+  aspect-ratio: 108 / 66;
+  background-image: url(../brand/logo-mark-light.svg);
+}
+
+/* ── Bộ Giấy: nền sáng, đổi sang bản thường ───────────────────────── */
+:root[data-skin="giay"] .logo--lockup { background-image: url(../brand/logo-lockup.svg); }
+:root[data-skin="giay"] .logo--mark   { background-image: url(../brand/logo-mark.svg); }
+
+/*
+  Máy để chế độ SÁNG mà người dùng chưa chọn bộ nào → sản phẩm rơi về bộ Giấy (xem khối
+  cùng điều kiện trong `styles.scss`, do `tools/sync-shell.mjs` sinh ra). Logo phải đi
+  theo, nếu không thì đúng những người chưa từng chạm vào phần cài đặt — tức phần lớn
+  người dùng — sẽ thấy chữ kem trên nền trắng.
+
+  Ở bản dựng, `:root` LUÔN có `data-skin` (thanh chọn bộ màu đặt nó ngay khi trang mở),
+  nên `:not(...)` không bao giờ khớp và khối này vô hại.
+*/
+@media (prefers-color-scheme: light) {
+  :root:not([data-skin]) .logo--lockup { background-image: url(../brand/logo-lockup.svg); }
+  :root:not([data-skin]) .logo--mark   { background-image: url(../brand/logo-mark.svg); }
+}

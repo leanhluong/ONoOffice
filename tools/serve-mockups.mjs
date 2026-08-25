@@ -34,6 +34,9 @@ const INDEX = `<!doctype html><meta charset="utf-8">
   body { display: grid; place-items: center; min-height: 100vh; }
   main { width: min(520px, calc(100vw - 40px)); }
   h1 { font-family: "Sora", system-ui, sans-serif; font-size: 22px; margin: 0 0 4px; }
+  h2 { font-family: "Sora", system-ui, sans-serif; font-size: 12px; font-weight: 600;
+       letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint);
+       margin: 22px 0 8px; }
   p  { color: var(--ink-soft); margin: 0 0 24px; font-size: 14px; }
   a  { display: flex; justify-content: space-between; align-items: center; gap: 16px;
        padding: 14px 16px; margin-bottom: 10px;
@@ -46,12 +49,20 @@ const INDEX = `<!doctype html><meta charset="utf-8">
 <main>
   <h1>Bản dựng giao diện</h1>
   <p>Mỗi màn có thanh đổi trạng thái ở đáy và bốn chấm đổi bộ màu ở góc.</p>
+  <h2>Người ngoài công ty</h2>
   <a href="/identity/dang-nhap.html">Đăng nhập <small>identity/dang-nhap.html</small></a>
   <a href="/identity/dang-ky.html">Đăng ký workspace <small>identity/dang-ky.html</small></a>
-  <a href="/org/nhan-su.html">Nhân sự <small>org/nhan-su.html</small></a>
+
+  <h2>Khuôn A · app &nbsp;<small>rail + cột ngữ cảnh</small></h2>
+  <a href="/comm/chat.html">Trao đổi nội bộ <small>app mặc định</small></a>
   <a href="/identity/tai-khoan.html">Hồ sơ &amp; cài đặt <small>identity/tai-khoan.html</small></a>
+
+  <h2>Khuôn B · quản trị &nbsp;<small>thanh ngang + sidebar</small></h2>
+  <a href="/khung/quan-tri.html">Tổng quan · gói &amp; hạn ngạch <small>khung/quan-tri.html</small></a>
+  <a href="/org/nhan-su.html">Thành viên <small>org/nhan-su.html</small></a>
   <a href="/identity/vai-tro.html">Vai trò &amp; quyền <small>identity/vai-tro.html</small></a>
-  <a href="/comm/chat.html">Trao đổi nội bộ <small>comm/chat.html</small></a>
+
+  <h2>Khác</h2>
   <a href="/wireframes.html">Wireframe 6 màn <small>wireframes.html</small></a>
 </main>
 `;
@@ -78,10 +89,7 @@ createServer((req, res) => {
   res.end(readFileSync(file));
 }).listen(PORT, () => {
   console.log(`Bản dựng đang chạy ở  http://localhost:${PORT}`);
-  console.log(`  đăng nhập  http://localhost:${PORT}/identity/dang-nhap.html`);
-  console.log(`  đăng ký    http://localhost:${PORT}/identity/dang-ky.html`);
-  console.log(`  nhân sự    http://localhost:${PORT}/org/nhan-su.html`);
-  console.log(`  tài khoản  http://localhost:${PORT}/identity/tai-khoan.html`);
-  console.log(`  vai trò    http://localhost:${PORT}/identity/vai-tro.html`);
-  console.log(`  trao đổi   http://localhost:${PORT}/comm/chat.html`);
+  console.log('');
+  console.log(`  🟢 vùng làm việc   http://localhost:${PORT}/khung/nguoi-dung.html`);
+  console.log(`  🔴 vùng quản trị   http://localhost:${PORT}/khung/quan-tri.html`);
 });

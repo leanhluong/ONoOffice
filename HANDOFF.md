@@ -53,11 +53,15 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
 | **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **104** |
 | **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 104)* |
-| **Khung ứng dụng v3** | 🟢 Cột điều hướng có chữ, sinh từ `_khung.css` · 18 biến màu chết đã sửa | *(trong 104)* |
+| **Khung ứng dụng v4** | 🟢 **Rail 56px + cột ngữ cảnh** — khuôn Lark Messenger / Zalo PC | *(trong 104)* |
+| **Khung quản trị (khuôn B)** | 🟢 **Thanh ngang + sidebar 240px** — khuôn Lark Admin, **không có rail** | *(trong 104)* |
+| **Tách hai vùng** | 🟢 `/` `/me` ↔ `/admin/*` · guard ở route cha · 3 redirect từ đường dẫn cũ | *(trong 104)* |
+| **Nhận diện thương hiệu** | 🟢 Logo tự đổi bản sáng/tối theo bộ màu · favicon · bộ sinh tự chép sang `public/` | *(trong 104)* |
 | **Frontend · Nhân sự** | 🟢 **Đã chạy thật**: lọc, phân trang, thêm người hai bước, ngăn kéo chi tiết | *(trong 104)* |
 | **Frontend · Hồ sơ & cài đặt** | 🟢 Sửa tên · đổi mật khẩu · bộ màu/ngôn ngữ | *(trong 104)* |
 | **Frontend · Vai trò & quyền** | 🟢 Bốn vai, bảng quyền đầy đủ — **chỉ xem** | *(trong 104)* |
-| Frontend · các màn còn lại | ⬜ Dashboard vẫn là khung rỗng | — |
+| **Frontend · Tổng quan quản trị** | 🟡 4 số THẬT (không cần endpoint mới) · gói & hạn ngạch **chưa nối**, có đeo nhãn | *(trong 104)* |
+| Frontend · các màn còn lại | ⬜ Dashboard vẫn là khung rỗng · Trao đổi mới có bản dựng | — |
 | Tài liệu | 🟢 7 thư mục · 4 ADR · `05-api` · wireframe · bản dựng màu | — |
 
 ```bash
@@ -96,6 +100,32 @@ curl -X POST http://localhost:5000/api/auth/login \
 
 ---
 
+## 🧭 Ba khuôn màn hình — đọc trước khi vẽ bất cứ màn nào
+
+```
+người ngoài   /login · /dang-ky        không khung nào, mỗi màn tự dựng
+🟢 KHUNG A     /  ·  /me                rail 56px + cột ngữ cảnh 260px  (Lark Messenger, Zalo PC)
+🔴 KHUNG B     /admin/*                 thanh ngang + sidebar 240px      (Lark Admin)
+```
+
+**Luật ranh giới, một câu, kiểm được:** màn thao tác lên **người khác** hoặc lên **cấu hình
+workspace** → khung B. Màn thao tác lên **chính mình** hoặc lên dữ liệu công việc hằng ngày
+→ khung A. Nên `/me` ở A còn `/admin/users` ở B, dù cả hai đều sửa một bản ghi `User`.
+
+**Vì sao B không dùng chung khung với A** (đã thiết kế sai một lần rồi sửa): điều hướng app
+thì **rộng** — 6 app ngang hàng, rail 56px là vừa. Điều hướng quản trị thì **sâu** — nhiều
+nhóm × vài trang con, bắt buộc có chữ, và không có chữ thì *"Tuân thủ"* với *"Bảo mật"* là
+hai biểu tượng khiên giống hệt nhau. Chi tiết ở [`_khung-quantri.css`](./docs/07-giao-dien/chung/_khung-quantri.css).
+
+Lối vào B nằm ở **menu ảnh đại diện** (khuôn Zalo PC), không phải một biểu tượng trên rail —
+rail là app dùng hằng ngày, quản trị thì mỗi tháng vào một lần.
+
+⚠️ **Đổi khung thì `.trangdau` / `.trang` phải ở `_dieukhien.css`, KHÔNG phải `_khung.css`.**
+Chúng là chrome của *trang*, cả hai khung đều cần. Để nhầm chỗ một lần rồi: mọi màn quản trị
+mất sạch tiêu đề, mà build + lint + test đều xanh.
+
+---
+
 ## ⏭️ VIỆC TIẾP THEO
 
 **Việc số 0, mất năm phút:** bật `node tools/serve-mockups.mjs` rồi mở
@@ -106,6 +136,19 @@ thật — việc còn lại chỉ là nối giao diện.
 Sau đó:
 
 ```
+🔴 BẤM TAY QUA VÙNG QUẢN TRỊ — khung B chưa từng chạy với dữ liệu thật.
+     Cần `docker compose up -d` (máy này Docker Desktop đang TẮT). Sau đó:
+     đăng nhập → menu ảnh đại diện → "Quản trị & gói cước" → xem 4 con số.
+⬜ Trao đổi (chat) — bản dựng đã xong và rất chi tiết, code thì CHƯA CÓ MỘT DÒNG.
+     Trước khi bắt đầu phải sửa hai chỗ `chat.md` nói sai về hệ thống:
+       · mục 2 hứa quyền `conversation.read` — Permissions.cs KHÔNG có quyền đó
+       · mục 7 hứa SignalR — `Luong.Kernel.Realtime` chưa được tham chiếu ở đâu cả
+⬜ Nối bốn gói kernel còn lại: Messaging · Realtime · Caching · Jobs.
+     ⚠️ Outbox đang GHI VÀO HƯ KHÔNG: bảng `outbox_messages` được tạo và
+     `InsertOutboxMessagesInterceptor` vẫn ghi vào đó, nhưng không có
+     `BackgroundService`/`IHostedService` nào trong toàn backend để rút ra.
+⬜ Plan / Quota / Usage — ba khái niệm mới, chưa có bảng nào. Màn Tổng quan
+     đang vẽ sẵn và đeo nhãn "chưa nối backend".
 ⬜ Tạo / sửa / xoá VAI TRÒ — màn Vai trò hiện chỉ xem được, thiếu ba endpoint
 ⬜ Thao tác hàng loạt ở màn Nhân sự · xuất Excel · bộ lọc trên URL
 ⬜ Đặt lại mật khẩu HỘ người khác — cùng luồng hai bước như lúc tạo tài khoản
@@ -342,10 +385,22 @@ người dùng sẽ tưởng app hỏng. Màn đăng nhập phải có trạng t
 ## Xem nhanh thiết kế
 
 ```
-docs/07-giao-dien/wireframes.html             · bố cục 6 màn (đơn sắc, có chú thích)
-docs/07-giao-dien/identity/dang-nhap.html     · bản dựng màu — 4 bộ, 5 trạng thái
-docs/07-giao-dien/identity/dang-ky.html       · bản dựng màu — 4 bộ, 5 trạng thái
-docs/07-giao-dien/comm/chat.html              · trao đổi nội bộ — 4 bộ, 2 kiểu luồng, 5 trạng thái
+người ngoài
+  docs/07-giao-dien/identity/dang-nhap.html   · 4 bộ màu, 5 trạng thái, có LOGO thật
+  docs/07-giao-dien/identity/dang-ky.html     · 4 bộ màu, 5 trạng thái
+
+🟢 KHUNG A — rail + cột ngữ cảnh
+  docs/07-giao-dien/comm/chat.html            · app MẶC ĐỊNH · 2 kiểu luồng, 5 trạng thái
+  docs/07-giao-dien/identity/tai-khoan.html   · hồ sơ — chỉ có rail, không cột
+
+🔴 KHUNG B — thanh ngang + sidebar
+  docs/07-giao-dien/khung/quan-tri.html       · tổng quan · gói & hạn ngạch
+  docs/07-giao-dien/org/nhan-su.html          · thành viên — bản đầy đủ nhất
+  docs/07-giao-dien/identity/vai-tro.html     · vai trò & quyền
+
+khác
+  docs/07-giao-dien/wireframes.html           · bố cục 6 màn (đơn sắc, có chú thích)
+  docs/07-giao-dien/brand/README.md           · logo, bảng màu, khoảng thở
 ```
 
 Mở thẳng bằng trình duyệt là chạy, hoặc bật máy chủ để xem cả danh sách:
@@ -363,10 +418,17 @@ Ba công cụ giữ chúng dính nhau. Đổi giao diện thì **sửa bản d�
 sửa thẳng vào `.scss` sẽ bị lần chạy sau xoá mất.
 
 ```bash
-node tools/sync-shell.mjs           # bản dựng → styles.scss, login.scss, register.scss
+node tools/sync-shell.mjs           # bản dựng → styles.scss + 6 file .scss + public/brand/
 node tools/sync-error-messages.mjs  # .resx của backend → errors.json của FE
 cd frontend && npm run parity       # chụp cả hai rồi so từng điểm ảnh
 ```
+
+⚠️ **`npm run parity` mới chỉ soi được HAI màn công khai** (`/login`, `/dang-ky`). Mọi màn
+sau đăng nhập thì bộ so ảnh chưa với tới được: nó phục vụ bản build tĩnh rồi chụp một URL,
+mà `authGuard` đá thẳng về `/login`. Muốn soi được khung A và khung B thì cần **gieo phiên
+vào `localStorage` trước khi điều hướng, VÀ có một API giả** — không có API thì bản Angular
+hiện trạng thái lỗi trong khi bản dựng hiện dữ liệu, và bộ so sẽ đỏ vì đúng lý do sai.
+Chưa làm; ghi ra để không ai tưởng hai khung mới đã được canh.
 
 Lệch thì `parity` ghi ba ảnh vào `frontend/.shots/parity/` — ảnh thứ ba tô đỏ đúng chỗ khác nhau.
 

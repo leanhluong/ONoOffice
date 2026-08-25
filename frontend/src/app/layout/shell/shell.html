@@ -1,133 +1,70 @@
 <!--
-  Đánh dấu chép từ `docs/07-giao-dien/chung/_khung.css` và các bản dựng dùng nó
-  (`docs/07-giao-dien/org/nhan-su.html` là bản đầy đủ nhất).
+  KHUNG APP v4 — rail biểu tượng + vùng nội dung.
 
-  CSS thì KHÔNG chép — nó nằm ở `styles.scss` toàn cục, được sinh tự động từ chính file đó
-  (`node tools/sync-shell.mjs`). Chỗ duy nhất phải giữ đồng bộ bằng tay là đánh dấu.
+  Đánh dấu chép từ `docs/07-giao-dien/chung/_shell.js` (hàm `mountRail`) và các bản dựng
+  dùng nó (`docs/07-giao-dien/comm/chat.html` là bản đầy đủ nhất).
+
+  CSS thì KHÔNG chép — nó nằm ở `styles.scss` toàn cục, được sinh tự động từ
+  `_khung.css` (`node tools/sync-shell.mjs`). Chỗ duy nhất phải giữ đồng bộ bằng tay là
+  đánh dấu, và đó chính là chỗ `npm run parity` canh.
+
+  KHÔNG có cột ngữ cảnh ở đây: mỗi app tự dựng cột của mình (màn Trao đổi dùng danh sách
+  hội thoại, màn Hồ sơ không cần cột nào). Dựng một cột rỗng ở khung ngoài thì mọi màn
+  không cần cột phải đi gỡ nó.
 -->
-<div class="khung" [class.khung--gon]="collapsed()">
-  <nav class="nav" [attr.aria-label]="'nav.main' | translate">
-    <!-- Ảnh đại diện kiêm cửa vào menu tài khoản. -->
-    <button
-      type="button"
-      class="nav__toi"
-      [attr.aria-expanded]="openMenu() === 'toi'"
-      (click)="toggleMenu('toi', $event)"
-    >
-      @if (store.user(); as user) {
-        <span class="mat mat--nho"
-          >{{ initials(user.displayName, user.email) }}<span class="online"></span
-        ></span>
-        <span class="nav__ten">
-          <b>{{ user.displayName || user.email }}</b>
-          <span>{{ user.email }}</span>
-        </span>
-      }
-    </button>
+<div class="khung">
+  <nav class="rail" [attr.aria-label]="'nav.apps' | translate">
+    <!-- Dấu sản phẩm. Đây là chỗ DUY NHẤT logo xuất hiện bên trong app — xem `_brand.css`. -->
+    <a
+      class="rail__logo logo logo--mark"
+      routerLink="/dashboard"
+      role="img"
+      aria-label="ONoOffice"
+    ></a>
 
-    <div class="nav__tim">
-      <svg
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.6"
-        aria-hidden="true"
-      >
-        <circle cx="7" cy="7" r="4.5" />
-        <path d="m10.5 10.5 3 3" />
-      </svg>
-      <!--
-        CHƯA NỐI GÌ. Để đây vì bản dựng đã duyệt có nó, và vì chỗ của ô tìm kiếm toàn cục
-        phải cố định ngay từ đầu — chuyển nó đi sau khi người dùng đã quen tay là đắt hơn
-        nhiều so với chừa sẵn.
-      -->
-      <input
-        type="search"
-        [placeholder]="'nav.search' | translate"
-        [attr.aria-label]="'nav.search' | translate"
-        (keydown.enter)="notBuiltYet($event, 'nav.search')"
-      />
-      <span class="nav__phim">Ctrl K</span>
-    </div>
-
-    <div class="nav__ds">
-      @for (group of navGroups; track group.labelKey) {
-        <div class="nav__nhan">{{ group.labelKey | translate }}</div>
-
-        @for (item of group.items; track item.path) {
-          <ng-container *appHasPermission="item.permissions">
+    <div class="rail__ds">
+      @for (app of apps; track app.path) {
+        <ng-container *appHasPermission="app.permissions">
+          @if (app.soon) {
             <!--
-              Trạng thái "đang mở" đánh dấu bằng `aria-current`, KHÔNG bằng một lớp CSS
-              riêng. Bản dựng viết luật là `.nav__muc[aria-current="page"]`, nên thêm một
-              lớp `nav__muc--dang` thì nó không khớp luật nào — mục đang mở mất hẳn màu
-              nhấn mà chẳng có lỗi nào báo. `routerLinkActive` để trống: ở đây chỉ cần
-              `isActive` của nó, không cần nó gắn lớp.
+              App chưa làm: là <button>, không phải <a> trỏ vào hư không.
+              Một <a> không có đích thì trình đọc màn hình vẫn đọc nó là "liên kết", và
+              người dùng bàn phím vẫn tab vào rồi Enter mà không có gì xảy ra.
             -->
+            <button
+              type="button"
+              class="rail__muc"
+              [attr.aria-label]="app.labelKey | translate"
+              (click)="notBuiltYet($event, app.labelKey)"
+            >
+              <ng-container [ngTemplateOutlet]="railIcon" [ngTemplateOutletContext]="{ $implicit: app }" />
+            </button>
+          } @else {
             <a
-              class="nav__muc"
-              [routerLink]="item.path"
+              class="rail__muc"
+              [routerLink]="app.path"
               routerLinkActive=""
               #active="routerLinkActive"
               [attr.aria-current]="active.isActive ? 'page' : null"
+              [attr.aria-label]="app.labelKey | translate"
             >
-              <svg
-                class="nav__icon"
-                viewBox="0 0 20 20"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.6"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                @switch (item.path) {
-                  @case ('/dashboard') {
-                    <rect x="2.5" y="2.5" width="6" height="6" rx="1.8" />
-                    <rect x="11.5" y="2.5" width="6" height="6" rx="1.8" />
-                    <rect x="2.5" y="11.5" width="6" height="6" rx="1.8" />
-                    <rect x="11.5" y="11.5" width="6" height="6" rx="1.8" />
-                  }
-                  @case ('/vai-tro') {
-                    <path d="M10 2.5 4 5v4.5c0 3.4 2.5 6.5 6 8 3.5-1.5 6-4.6 6-8V5z" />
-                    <path d="m7.6 10 1.7 1.7 3.3-3.4" />
-                  }
-                  @case ('/nhan-su') {
-                    <circle cx="7.5" cy="6.8" r="2.9" />
-                    <path d="M2.4 16.6a5.1 5.1 0 0110.2 0" />
-                    <path d="M13.2 4.4a2.9 2.9 0 010 4.8M14.8 16.6a5.1 5.1 0 00-1.7-3.8" />
-                  }
-                }
-              </svg>
-
-              <span class="nav__chu">{{ item.labelKey | translate }}</span>
-
-              @if (item.badge) {
-                <span class="nav__dem" [class.nav__dem--nhat]="item.quiet">{{ item.badge }}</span>
-              }
-
-              <!-- Nhãn khi rê chuột — bắt buộc, vì cột thu gọn chỉ còn biểu tượng. -->
-              <span class="nav__meo">{{ item.labelKey | translate }}</span>
+              <ng-container [ngTemplateOutlet]="railIcon" [ngTemplateOutletContext]="{ $implicit: app }" />
             </a>
-          </ng-container>
-        }
+          }
+        </ng-container>
       }
     </div>
 
-    <div class="nav__duoi">
+    <div class="rail__duoi">
       <button
         type="button"
         class="nuti"
+        aria-haspopup="true"
         [attr.aria-expanded]="openMenu() === 'caidat'"
         [attr.aria-label]="'nav.appearance' | translate"
         (click)="toggleMenu('caidat', $event)"
       >
-        <svg
-          viewBox="0 0 20 20"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.6"
-          aria-hidden="true"
-        >
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
           <circle cx="10" cy="10" r="2.6" />
           <path
             d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7"
@@ -137,32 +74,28 @@
 
       <button
         type="button"
-        class="nuti"
-        [attr.aria-label]="'nav.toggle' | translate"
-        [attr.aria-pressed]="collapsed()"
-        (click)="toggleCollapsed()"
+        class="rail__toi"
+        aria-haspopup="true"
+        [attr.aria-expanded]="openMenu() === 'toi'"
+        [attr.aria-label]="'nav.account' | translate"
+        (click)="toggleMenu('toi', $event)"
       >
-        <svg
-          viewBox="0 0 20 20"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.6"
-          aria-hidden="true"
-        >
-          <rect x="2.5" y="3.5" width="15" height="13" rx="2.5" />
-          <path d="M7.5 3.5v13" />
-        </svg>
+        @if (store.user(); as user) {
+          <span class="mat mat--nho"
+            >{{ initials(user.displayName, user.email) }}<span class="online"></span
+          ></span>
+        }
       </button>
     </div>
 
     <!-- Menu bộ màu & ngôn ngữ -->
-    <div class="popover" [hidden]="openMenu() !== 'caidat'" style="left: 8px; bottom: 52px">
+    <div class="popover" [hidden]="openMenu() !== 'caidat'" style="left: 60px; bottom: 52px">
       <div class="popover__hang">{{ 'nav.appearance' | translate }}</div>
       <div style="padding: 2px 10px 8px"><app-prefs /></div>
     </div>
 
     <!-- Menu tài khoản -->
-    <div class="popover" [hidden]="openMenu() !== 'toi'" style="left: 8px; top: 56px">
+    <div class="popover" [hidden]="openMenu() !== 'toi'" style="left: 60px; bottom: 8px">
       @if (store.user(); as user) {
         <div class="popover__ai">
           <div class="popover__ten">{{ user.displayName || user.email }}</div>
@@ -170,14 +103,39 @@
         </div>
       }
 
-      <a class="popover__nut" routerLink="/tai-khoan" (click)="closeMenu()">
+      <!--
+        Lối vào vùng quản trị nằm ở ĐÂY, không phải một biểu tượng trên rail.
+
+        Rail là các app dùng hằng ngày. Quản trị thì mỗi tháng vào một lần, và nó không
+        phải app — nó là chỗ sửa thứ của người khác. Mũi tên chéo báo trước rằng bấm vào
+        là rời khung app sang một khuôn khác hẳn (mất rail, đổi cả bố cục).
+      -->
+      <a
+        class="popover__nut"
+        *appHasPermission="['user.read', 'role.read']"
+        routerLink="/admin"
+        (click)="closeMenu()"
+      >
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M8 2 3 4v3.6c0 2.7 2 5.2 5 6.4 3-1.2 5-3.7 5-6.4V4z" />
+        </svg>
+        {{ 'nav.admin' | translate }}
         <svg
+          class="popover__ngoai"
           viewBox="0 0 16 16"
           fill="none"
           stroke="currentColor"
           stroke-width="1.6"
+          stroke-linecap="round"
           aria-hidden="true"
         >
+          <path d="M6.5 3.5H12.5V9.5M12.5 3.5 6 10" />
+          <path d="M11 12.5H3.5V5" />
+        </svg>
+      </a>
+
+      <a class="popover__nut" routerLink="/me" (click)="closeMenu()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
           <circle cx="8" cy="5.5" r="2.4" />
           <path d="M3.5 13.2a4.5 4.5 0 019 0" />
         </svg>
@@ -187,16 +145,8 @@
       <div class="popover__vach"></div>
 
       <button type="button" class="popover__nut" (click)="logout()">
-        <svg
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.6"
-          aria-hidden="true"
-        >
-          <path
-            d="M6 14H3.5A1.5 1.5 0 012 12.5v-9A1.5 1.5 0 013.5 2H6M10.5 11 14 8l-3.5-3M14 8H6"
-          />
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M6 14H3.5A1.5 1.5 0 012 12.5v-9A1.5 1.5 0 013.5 2H6M10.5 11 14 8l-3.5-3M14 8H6" />
         </svg>
         {{ 'action.signOut' | translate }}
       </button>
@@ -207,5 +157,69 @@
     <router-outlet />
   </div>
 </div>
+
+<!--
+  Biểu tượng + số đếm của một mục trên rail. Tách ra một template vì hai nhánh ở trên
+  (`<a>` cho app đã làm, `<button>` cho app chưa làm) dùng chung y hệt phần ruột — chép
+  hai lần thì sửa một bên quên bên kia, và không có gì báo.
+-->
+<ng-template #railIcon let-app>
+  <!--
+    Hình vẽ bằng `@switch`, KHÔNG bằng `[innerHTML]`.
+
+    `[innerHTML]` trên một thẻ `<svg>` hỏng theo hai đường cùng lúc: bộ khử trùng của
+    Angular cắt phần lớn thẻ SVG, và phần sống sót được dựng trong namespace HTML chứ
+    không phải SVG — nên trình duyệt coi `<path>` là một thẻ lạ và không vẽ gì. Kết quả là
+    một ô trống 20px, không lỗi, không cảnh báo.
+  -->
+  <svg
+    viewBox="0 0 20 20"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    @switch (app.key) {
+      @case ('dashboard') {
+        <rect x="2.5" y="2.5" width="6" height="6" rx="1.8" />
+        <rect x="11.5" y="2.5" width="6" height="6" rx="1.8" />
+        <rect x="2.5" y="11.5" width="6" height="6" rx="1.8" />
+        <rect x="11.5" y="11.5" width="6" height="6" rx="1.8" />
+      }
+      @case ('chat') {
+        <path d="M17 11.3a3 3 0 01-3 3H8.4L4.5 17.2v-2.9H6a3 3 0 01-3-3V5.7a3 3 0 013-3h8a3 3 0 013 3z" />
+      }
+      @case ('calendar') {
+        <rect x="3" y="4.2" width="14" height="13" rx="2.2" />
+        <path d="M3 8.2h14M7 2.6v3.2M13 2.6v3.2" />
+      }
+      @case ('docs') {
+        <path d="M5 2.8h6.6L15 6.2v11H5z" />
+        <path d="M11.2 2.8v3.6H15" />
+        <path d="M7.6 10.4h4.8M7.6 13.2h3.2" />
+      }
+      @case ('approval') {
+        <path d="M4 3.5h12v13l-3-2-3 2-3-2-3 2z" />
+        <path d="M7 7.5h6M7 10.5h4" />
+      }
+      @case ('contacts') {
+        <circle cx="7.5" cy="6.8" r="2.9" />
+        <path d="M2.4 16.6a5.1 5.1 0 0110.2 0" />
+        <path d="M13.2 4.4a2.9 2.9 0 010 4.8M14.8 16.6a5.1 5.1 0 00-1.7-3.8" />
+      }
+    }
+  </svg>
+
+  @if (app.badge) {
+    <span class="rail__dem">{{ app.badge > 9 ? '9+' : app.badge }}</span>
+  } @else if (app.quiet) {
+    <span class="rail__dem rail__dem--cham"></span>
+  }
+
+  <!-- Nhãn khi rê chuột — BẮT BUỘC, vì rail vĩnh viễn chỉ có biểu tượng. -->
+  <span class="rail__meo">{{ app.labelKey | translate }}</span>
+</ng-template>
 
 <app-popup-host />

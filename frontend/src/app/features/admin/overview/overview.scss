@@ -1,0 +1,109 @@
+/**
+ * ⚠️ FILE NÀY ĐƯỢC SINH TỰ ĐỘNG — ĐỪNG SỬA TAY.
+ *
+ * Nguồn:    docs/07-giao-dien/khung/quan-tri.html
+ * Sinh lại: node tools/sync-shell.mjs
+ *
+ * Sửa ở đây thì lần chạy bộ sinh tiếp theo sẽ xoá mất, và tệ hơn: bản dựng mà người
+ * duyệt nhìn sẽ khác thứ đang chạy thật. Muốn đổi giao diện thì sửa bản dựng rồi chạy
+ * lại bộ sinh.
+ */
+
+/* ── Thẻ nhận diện tổ chức ────────────────────────────────────────── */
+.tc { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.tc__ten { margin: 0 0 2px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 18px; letter-spacing: -0.02em; }
+.tc__ma { font-size: 12px; color: var(--ink-faint); font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+/* ── Hàng bốn số ──────────────────────────────────────────────────── */
+.hangso { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 4px; }
+
+.hangso a { display: block; padding: 4px 0; color: inherit; text-decoration: none; border-radius: 9px; }
+.hangso a:hover .hangso__so { color: var(--accent); }
+
+.hangso__nhan { font-size: 12px; color: var(--ink-faint); }
+/* `tabular-nums`: không có nó thì chữ số 1 hẹp hơn mọi chữ số khác, và bốn con số cạnh
+   nhau lệch chân nhau mỗi lần một số đổi — trông như trang bị giật. */
+.hangso__so {
+  margin-top: 3px;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 26px;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--ink);
+  transition: color 120ms ease;
+}
+.hangso__so--canh { color: var(--canh); }
+
+/* Đang nạp: hiện dấu gạch xám, KHÔNG hiện số 0.
+   Bốn số 0 nhấp nháy rồi nhảy sang "38 · 5 · 3 · 4" thì trong khoảnh khắc đó quản trị
+   viên đọc được một câu trả lời SAI ("workspace trống rỗng"), chứ không phải một câu
+   trả lời thiếu. */
+.hangso__so--cho { color: var(--ink-faint); }
+
+/* ── Dải gói cước ─────────────────────────────────────────────────── */
+/* Viền trái dày thay vì nền kín: nền kín thì ở bộ Giấy phải đổi luôn màu chữ, tức bốn
+   giá trị nữa phải khai và canh. Viền trái đúng ở cả bốn bộ bằng một dòng. */
+.goi {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin-top: 18px; padding: 13px 16px;
+  border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  border-radius: var(--radius, 10px);
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+}
+.goi__ten {
+  padding: 3px 10px; border-radius: 999px;
+  background: var(--accent); color: var(--accent-ink);
+  font-size: 11.5px; font-weight: 700; white-space: nowrap;
+}
+.goi__mo { flex: 1; min-width: 180px; font-size: 12.5px; color: var(--ink-soft); }
+
+/* ── Hạn ngạch ────────────────────────────────────────────────────── */
+.hn { display: flex; flex-direction: column; gap: 15px; }
+.hn__hang { display: block; }
+.hn__dau { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.hn__ten { flex: 1; font-size: 13px; color: var(--ink); }
+.hn__so { font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+
+.hn__ray { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hn__day { height: 100%; border-radius: 999px; background: var(--accent); }
+/* Quá 80% thì đổi tông. Ngưỡng đặt ở 80 chứ không phải 100 vì lúc chạm 100 thì đã muộn —
+   người dùng đã bị chặn không tạo được tài khoản mới và không hiểu vì sao. */
+.hn__day--canh { background: var(--canh); }
+
+/* ── Phím tắt ─────────────────────────────────────────────────────── */
+.pt { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 8px; }
+.pt a, .pt button {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 14px 8px;
+  border: 1px solid transparent; border-radius: 11px; background: transparent;
+  color: var(--ink-soft); font-family: inherit; font-size: 12px; text-align: center;
+  text-decoration: none; cursor: pointer;
+}
+.pt a:hover, .pt button:hover { border-color: var(--line); background: var(--surface-2); color: var(--ink); }
+.pt__o {
+  width: 38px; height: 38px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent);
+}
+.pt__o svg { width: 19px; height: 19px; }
+
+/* ── Nhãn "chưa nối" ──────────────────────────────────────────────── */
+/* Bản dựng nào hứa thứ backend chưa có thì phải NÓI RA ngay trên màn hình. Nhật ký dự án
+   đã ghi hai lần bị cắn vì thiếu chỗ này: bản dựng Vai trò bịa số quyền, bản dựng Nhân sự
+   vẽ ba cột không có dữ liệu. Người duyệt chốt một thứ không tồn tại thì lỗi thuộc về bản
+   dựng, không thuộc về người duyệt. */
+.chuano {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; margin-left: 8px;
+  border: 1px dashed color-mix(in srgb, var(--ink-faint) 60%, transparent);
+  border-radius: 999px;
+  color: var(--ink-faint); font-size: 10.5px; font-weight: 500; white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* ── Cột phụ: danh sách app ───────────────────────────────────────── */
+.ud__hang { display: flex; align-items: center; gap: 11px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.ud__hang:last-child { border-bottom: 0; }
+.ud__o { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 9px; background: var(--surface-2); color: var(--ink-soft); }
+.ud__o svg { width: 17px; height: 17px; }
+.ud__giua { flex: 1; min-width: 0; }
+.ud__ten { font-size: 13px; color: var(--ink); }
+.ud__mo { font-size: 11.5px; color: var(--ink-faint); }

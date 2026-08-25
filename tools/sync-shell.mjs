@@ -21,8 +21,8 @@
  *
  *   node tools/sync-shell.mjs
  */
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { copyFileSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 const BANNER = (source) => `/**
  * ⚠️ FILE NÀY ĐƯỢC SINH TỰ ĐỘNG — ĐỪNG SỬA TAY.
@@ -86,7 +86,15 @@ function styleBlocks(html) {
  * Hai tên khác nhau là có chủ ý — `skin` nói rõ đây là bản dựng để CHỌN bộ màu, còn
  * `theme` là tính năng thật của sản phẩm. Đổi tên ở đây, một chỗ duy nhất.
  */
-const toProduct = (css) => css.replaceAll('data-skin', 'data-theme');
+const toProduct = (css) =>
+  css
+    .replaceAll('data-skin', 'data-theme')
+
+    // Bản dựng nằm trong `docs/07-giao-dien/chung/`, nên nó trỏ tới logo bằng `../brand/`.
+    // Sản phẩm phục vụ chúng từ `frontend/public/brand/`, tức là gốc site. Không đổi thì
+    // trình duyệt đi tìm `/brand` ở sai chỗ và logo im lặng biến mất — `background-image`
+    // hỏng không báo lỗi gì, chỉ để lại một khoảng trắng đúng kích thước.
+    .replaceAll('url(../brand/', 'url(/brand/');
 
 // ══════════════════════════════════════════════════════════════════════════
 // 1. Nền chung + khung + bộ điều khiển → styles.scss
@@ -97,8 +105,14 @@ const toProduct = (css) => css.replaceAll('data-skin', 'data-theme');
   // nhập file mà không đổi được gì.
   const NGUON = [
     'docs/07-giao-dien/chung/_shell.css',
+    // HAI khung, và chúng không bao giờ cùng xuất hiện trên một trang: `_khung.css` là
+    // khuôn app (rail + cột ngữ cảnh), `_khung-quantri.css` là khuôn quản trị (thanh
+    // ngang + sidebar). Sản phẩm vẫn gộp cả hai vào một `styles.scss` vì Angular chỉ có
+    // một file toàn cục — bộ chọn của hai bên không đụng nhau (`.khung` với `.qt`).
     'docs/07-giao-dien/chung/_khung.css',
+    'docs/07-giao-dien/chung/_khung-quantri.css',
     'docs/07-giao-dien/chung/_dieukhien.css',
+    'docs/07-giao-dien/chung/_brand.css',
   ];
 
   const SOURCE = NGUON.join('  +  ');
@@ -165,6 +179,10 @@ const SCREENS = [
     source: 'docs/07-giao-dien/identity/vai-tro.html',
     target: 'frontend/src/app/features/roles/role-list.scss',
   },
+  {
+    source: 'docs/07-giao-dien/khung/quan-tri.html',
+    target: 'frontend/src/app/features/admin/overview/overview.scss',
+  },
 ];
 
 for (const { source, target } of SCREENS) {
@@ -177,4 +195,31 @@ for (const { source, target } of SCREENS) {
   writeFileSync(target, BANNER(source) + css.trim() + '\n');
 
   console.log(`${target}  ←  ${source}`);
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// 4. Tệp nhận diện thương hiệu → frontend/public/brand/
+// ══════════════════════════════════════════════════════════════════════════
+/*
+  Chép chứ không phải trỏ tới, vì Angular chỉ đóng gói những gì nằm trong `public/`.
+
+  Và chép bằng BỘ SINH chứ không phải bằng tay, vì lý do y hệt phần CSS ở trên: hai bản
+  của cùng một file logo thì sớm muộn sẽ lệch — người thiết kế sửa bản trong `docs/`, sản
+  phẩm vẫn chạy bản cũ, và không ai thấy vì logo nào cũng trông "đúng" khi không có cái
+  kia đặt cạnh. Bản trong `docs/07-giao-dien/brand/` là bản GỐC duy nhất.
+*/
+{
+  const NGUON = 'docs/07-giao-dien/brand';
+  const DICH = 'frontend/public/brand';
+
+  mkdirSync(DICH, { recursive: true });
+
+  // Chỉ .svg — README.md và tokens.css là tài liệu cho người, không phải thứ đem ship.
+  const files = readdirSync(NGUON).filter((f) => f.endsWith('.svg'));
+
+  for (const file of files) {
+    copyFileSync(join(NGUON, file), join(DICH, file));
+  }
+
+  console.log(`${DICH}/  ←  ${NGUON}/  (${files.length} tệp svg)`);
 }

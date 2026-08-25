@@ -9,9 +9,12 @@
   <section class="brand">
     <app-org-weave id="weave" />
 
-    <div class="wordmark">
-      <span class="wordmark__mark" aria-hidden="true">O</span>{{ 'app.name' | translate }}
-    </div>
+    <!--
+      Logo thương hiệu thật. `aria-label` KHÔNG dịch qua ngx-translate: tên sản phẩm là
+      tên riêng, nó giống nhau ở mọi ngôn ngữ. Trước đây chỗ này là `'app.name' | translate`,
+      tức là mở đường cho một bản dịch nào đó viết ONoOffice thành chữ khác.
+    -->
+    <div class="logo logo--lockup" role="img" aria-label="ONoOffice"></div>
 
     <div class="pitch">
       <h1>{{ 'app.tagline' | translate }}</h1>

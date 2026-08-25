@@ -29,18 +29,6 @@
 #weave { position: absolute; inset: 0; width: 100%; height: 100%; }
 .brand > *:not(#weave) { position: relative; z-index: 1; }
 
-.wordmark {
-  display: flex; align-items: center; gap: 10px;
-  font-family: "Sora", system-ui, sans-serif;
-  font-weight: 700; font-size: 17px; letter-spacing: -0.01em;
-}
-.wordmark__mark {
-  width: 26px; height: 26px;
-  display: grid; place-items: center;
-  border-radius: 7px;
-  background: var(--accent); color: var(--accent-ink);
-  font-size: 13px; font-weight: 700;
-}
 
 .pitch { max-width: 30ch; }
 .pitch h1 {

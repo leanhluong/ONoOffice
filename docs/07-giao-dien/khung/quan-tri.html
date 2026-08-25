@@ -1,0 +1,459 @@
+<!doctype html>
+<!--
+  Bản dựng KHUNG QUẢN TRỊ — thanh ngang + sidebar 240px + nội dung dạng thẻ.
+
+  Khuôn của Lark Admin, và cố ý KHÔNG có rail: quản trị là một sản phẩm khác, không phải
+  một app thứ bảy. Lý do đầy đủ ở ../chung/_khung-quantri.css. Tóm tắt: điều hướng app thì
+  RỘNG (6 app ngang hàng, biểu tượng đủ), điều hướng quản trị thì SÂU (7 nhóm × 2–3 trang
+  con, bắt buộc có chữ và gập được).
+
+  Vào đây bằng: menu ảnh đại diện ở rail → "Quản trị & gói cước" (có mũi tên chéo, vì bấm
+  là rời khung app). Ra bằng: "Về không gian làm việc" ở đầu sidebar.
+
+  ══════════════════════════════════════════════════════════════════════════
+   ⚠️ BỐN KHỐI Ở ĐÂY BACKEND CHƯA CÓ GÌ — ĐÃ ĐÁNH DẤU TRÊN CHÍNH MÀN HÌNH
+  ══════════════════════════════════════════════════════════════════════════
+
+  Bốn con số ở hàng trên thì CÓ THẬT, và không cần endpoint mới nào:
+
+    GET /api/users?pageSize=1                          → Thành viên
+    GET /api/users?status=PendingFirstLogin&pageSize=1 → Còn mật khẩu tạm
+    GET /api/users?status=Disabled&pageSize=1          → Đang bị vô hiệu
+    GET /api/roles                                     → Vai trò
+
+  Còn GÓI CƯỚC và HẠN NGẠCH thì chưa có một bảng nào, một cột nào, một endpoint nào. Ba
+  khái niệm hoàn toàn mới với hệ thống: gói (Plan), giới hạn (Quota), mức đã dùng (Usage).
+  Chúng được vẽ ở đây vì bạn cần duyệt hình dạng trước — nhưng mỗi khối đều đeo nhãn
+  "chưa nối" để không ai nhìn ảnh chụp rồi tưởng nó đã chạy.
+
+  ⚠️ Cố ý KHÔNG vẽ: biểu đồ xu hướng dùng theo ngày (Lark có). Nó cần một bảng ghi số
+  liệu theo ngày mà ta chưa có, và một biểu đồ luôn phẳng ở 0 trông như app hỏng.
+
+  Mở bằng: node tools/serve-mockups.mjs → http://localhost:4300/khung/quan-tri.html
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quản trị · ONoOffice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;700&display=swap">
+<link rel="stylesheet" href="../chung/_shell.css">
+<link rel="stylesheet" href="../chung/_brand.css">
+<link rel="stylesheet" href="../chung/_khung-quantri.css">
+<link rel="stylesheet" href="../chung/_dieukhien.css">
+
+<style>
+/* ── Thẻ nhận diện tổ chức ────────────────────────────────────────── */
+.tc { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.tc__ten { margin: 0 0 2px; font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 18px; letter-spacing: -0.02em; }
+.tc__ma { font-size: 12px; color: var(--ink-faint); font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+/* ── Hàng bốn số ──────────────────────────────────────────────────── */
+.hangso { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 4px; }
+
+.hangso a { display: block; padding: 4px 0; color: inherit; text-decoration: none; border-radius: 9px; }
+.hangso a:hover .hangso__so { color: var(--accent); }
+
+.hangso__nhan { font-size: 12px; color: var(--ink-faint); }
+/* `tabular-nums`: không có nó thì chữ số 1 hẹp hơn mọi chữ số khác, và bốn con số cạnh
+   nhau lệch chân nhau mỗi lần một số đổi — trông như trang bị giật. */
+.hangso__so {
+  margin-top: 3px;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 26px;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--ink);
+  transition: color 120ms ease;
+}
+.hangso__so--canh { color: var(--canh); }
+
+/* Đang nạp: hiện dấu gạch xám, KHÔNG hiện số 0.
+   Bốn số 0 nhấp nháy rồi nhảy sang "38 · 5 · 3 · 4" thì trong khoảnh khắc đó quản trị
+   viên đọc được một câu trả lời SAI ("workspace trống rỗng"), chứ không phải một câu
+   trả lời thiếu. */
+.hangso__so--cho { color: var(--ink-faint); }
+
+/* ── Dải gói cước ─────────────────────────────────────────────────── */
+/* Viền trái dày thay vì nền kín: nền kín thì ở bộ Giấy phải đổi luôn màu chữ, tức bốn
+   giá trị nữa phải khai và canh. Viền trái đúng ở cả bốn bộ bằng một dòng. */
+.goi {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin-top: 18px; padding: 13px 16px;
+  border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  border-radius: var(--radius, 10px);
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+}
+.goi__ten {
+  padding: 3px 10px; border-radius: 999px;
+  background: var(--accent); color: var(--accent-ink);
+  font-size: 11.5px; font-weight: 700; white-space: nowrap;
+}
+.goi__mo { flex: 1; min-width: 180px; font-size: 12.5px; color: var(--ink-soft); }
+
+/* ── Hạn ngạch ────────────────────────────────────────────────────── */
+.hn { display: flex; flex-direction: column; gap: 15px; }
+.hn__hang { display: block; }
+.hn__dau { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.hn__ten { flex: 1; font-size: 13px; color: var(--ink); }
+.hn__so { font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+
+.hn__ray { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hn__day { height: 100%; border-radius: 999px; background: var(--accent); }
+/* Quá 80% thì đổi tông. Ngưỡng đặt ở 80 chứ không phải 100 vì lúc chạm 100 thì đã muộn —
+   người dùng đã bị chặn không tạo được tài khoản mới và không hiểu vì sao. */
+.hn__day--canh { background: var(--canh); }
+
+/* ── Phím tắt ─────────────────────────────────────────────────────── */
+.pt { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 8px; }
+.pt a, .pt button {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 14px 8px;
+  border: 1px solid transparent; border-radius: 11px; background: transparent;
+  color: var(--ink-soft); font-family: inherit; font-size: 12px; text-align: center;
+  text-decoration: none; cursor: pointer;
+}
+.pt a:hover, .pt button:hover { border-color: var(--line); background: var(--surface-2); color: var(--ink); }
+.pt__o {
+  width: 38px; height: 38px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent);
+}
+.pt__o svg { width: 19px; height: 19px; }
+
+/* ── Nhãn "chưa nối" ──────────────────────────────────────────────── */
+/* Bản dựng nào hứa thứ backend chưa có thì phải NÓI RA ngay trên màn hình. Nhật ký dự án
+   đã ghi hai lần bị cắn vì thiếu chỗ này: bản dựng Vai trò bịa số quyền, bản dựng Nhân sự
+   vẽ ba cột không có dữ liệu. Người duyệt chốt một thứ không tồn tại thì lỗi thuộc về bản
+   dựng, không thuộc về người duyệt. */
+.chuano {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; margin-left: 8px;
+  border: 1px dashed color-mix(in srgb, var(--ink-faint) 60%, transparent);
+  border-radius: 999px;
+  color: var(--ink-faint); font-size: 10.5px; font-weight: 500; white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* ── Cột phụ: danh sách app ───────────────────────────────────────── */
+.ud__hang { display: flex; align-items: center; gap: 11px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.ud__hang:last-child { border-bottom: 0; }
+.ud__o { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 9px; background: var(--surface-2); color: var(--ink-soft); }
+.ud__o svg { width: 17px; height: 17px; }
+.ud__giua { flex: 1; min-width: 0; }
+.ud__ten { font-size: 13px; color: var(--ink); }
+.ud__mo { font-size: 11.5px; color: var(--ink-faint); }
+</style>
+
+<div class="qt">
+  <header id="qtTren"></header>
+
+  <div class="qt__than">
+    <nav id="qtBen"></nav>
+
+    <div class="qt__noi">
+      <div class="qt__luoi">
+
+        <!-- ══════════════ CỘT CHÍNH ══════════════ -->
+        <div class="qt__cot">
+
+          <!-- ── Tổ chức + bốn số ── -->
+          <div class="the__khoi">
+            <div class="tc">
+              <span class="mat mat--lon">AC</span>
+              <div>
+                <h2 class="tc__ten">Công ty TNHH ACME</h2>
+                <div class="tc__ma">Mã workspace: acme</div>
+              </div>
+            </div>
+
+            <!-- Mỗi ô là một LIÊN KẾT tới đúng danh sách đã lọc sẵn. Thấy "5 người còn
+                 mật khẩu tạm" rồi phải tự đi lọc lại là chỗ người ta bỏ cuộc. -->
+            <div class="hangso">
+              <a href="../org/nhan-su.html">
+                <div class="hangso__nhan">Thành viên</div>
+                <div class="hangso__so" data-o="tong">38</div>
+              </a>
+              <a href="../org/nhan-su.html?status=PendingFirstLogin">
+                <div class="hangso__nhan">Còn mật khẩu tạm</div>
+                <div class="hangso__so hangso__so--canh" data-o="tam">5</div>
+              </a>
+              <a href="../org/nhan-su.html?status=Disabled">
+                <div class="hangso__nhan">Đang bị vô hiệu</div>
+                <div class="hangso__so" data-o="vohieu">3</div>
+              </a>
+              <a href="../identity/vai-tro.html">
+                <div class="hangso__nhan">Vai trò</div>
+                <div class="hangso__so" data-o="vai">4</div>
+              </a>
+            </div>
+
+            <div class="goi">
+              <span class="goi__ten">MIỄN PHÍ</span>
+              <span class="goi__mo">
+                Tối đa 50 thành viên · 1 GB lưu trữ · lịch sử tin nhắn 90 ngày.
+              </span>
+              <button class="nut nut--chinh nut--nho" data-soon="Nâng cấp gói">Nâng cấp</button>
+              <span class="chuano">chưa nối backend</span>
+            </div>
+          </div>
+
+          <!-- ── Hạn ngạch ── -->
+          <div class="the__khoi">
+            <h3>Hạn ngạch <span class="chuano">chưa nối backend</span></h3>
+            <p class="mota">
+              Chạm trần thì thao tác tương ứng bị chặn — tạo tài khoản, tải tệp lên.
+              Thanh chuyển màu từ mức 80% để còn kịp xử lý.
+            </p>
+
+            <div class="hn">
+              <div class="hn__hang">
+                <div class="hn__dau">
+                  <span class="hn__ten">Thành viên</span>
+                  <span class="hn__so">38 / 50</span>
+                </div>
+                <div class="hn__ray"><div class="hn__day" style="width:76%"></div></div>
+              </div>
+
+              <div class="hn__hang">
+                <div class="hn__dau">
+                  <span class="hn__ten">Dung lượng lưu trữ</span>
+                  <span class="hn__so">0,87 GB / 1 GB</span>
+                </div>
+                <div class="hn__ray"><div class="hn__day hn__day--canh" style="width:87%"></div></div>
+              </div>
+
+              <div class="hn__hang">
+                <div class="hn__dau">
+                  <span class="hn__ten">Phòng ban</span>
+                  <span class="hn__so">6 / không giới hạn</span>
+                </div>
+                <div class="hn__ray"><div class="hn__day" style="width:8%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Phím tắt ── -->
+          <div class="the__khoi">
+            <h3>Phím tắt</h3>
+            <p class="mota">Sáu việc quản trị viên làm nhiều nhất. Ba cái đầu đã chạy thật.</p>
+
+            <div class="pt">
+              <a href="../org/nhan-su.html">
+                <span class="pt__o">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="8" cy="6.8" r="2.9"/><path d="M2.9 16.6a5.1 5.1 0 0110.2 0"/>
+                    <path d="M15 5.5v5M17.5 8h-5"/>
+                  </svg>
+                </span>
+                Thêm thành viên
+              </a>
+
+              <a href="../identity/vai-tro.html">
+                <span class="pt__o">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M10 2.5 4 5v4.5c0 3.4 2.5 6.5 6 8 3.5-1.5 6-4.6 6-8V5z"/>
+                    <path d="m7.6 10 1.7 1.7 3.3-3.4"/>
+                  </svg>
+                </span>
+                Vai trò &amp; quyền
+              </a>
+
+              <a href="../org/nhan-su.html?status=PendingFirstLogin">
+                <span class="pt__o">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="8.6" width="12" height="8" rx="2"/>
+                    <path d="M7 8.6V6.4a3 3 0 016 0v2.2"/>
+                  </svg>
+                </span>
+                Đặt lại mật khẩu
+              </a>
+
+              <button data-soon="Phòng ban">
+                <span class="pt__o">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="7" y="2.5" width="6" height="4.5" rx="1.3"/>
+                    <rect x="2" y="13" width="5.5" height="4.5" rx="1.3"/>
+                    <rect x="12.5" y="13" width="5.5" height="4.5" rx="1.3"/>
+                    <path d="M10 7v3.5M4.75 13v-2.5h10.5V13"/>
+                  </svg>
+                </span>
+                Cây phòng ban
+              </button>
+
+              <button data-soon="Hạn ngạch">
+                <span class="pt__o">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <ellipse cx="10" cy="5.4" rx="6.5" ry="2.6"/>
+                    <path d="M3.5 5.4v9.2c0 1.4 2.9 2.6 6.5 2.6s6.5-1.2 6.5-2.6V5.4"/>
+                  </svg>
+                </span>
+                Hạn ngạch
+              </button>
+
+              <button data-soon="Nhật ký hoạt động">
+                <span class="pt__o">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 2.8h10v14.4H5z"/><path d="M7.6 6.4h4.8M7.6 9.6h4.8M7.6 12.8h2.8"/>
+                  </svg>
+                </span>
+                Nhật ký
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ══════════════ CỘT PHỤ ══════════════ -->
+        <div class="qt__cot">
+
+          <!-- Việc cần xử lý — thứ DUY NHẤT ở cột phụ chạy bằng dữ liệu thật. -->
+          <div class="the__khoi">
+            <h3>Cần bạn xử lý</h3>
+            <p class="mota">
+              Mật khẩu tạm đi qua Zalo và lời nói, và nó sống tới khi người ta đăng nhập
+              lần đầu.
+            </p>
+
+            <div class="ud__hang">
+              <span class="mat mat--nho">NH</span>
+              <div class="ud__giua">
+                <div class="ud__ten">Đỗ Ngọc Hà</div>
+                <div class="ud__mo">ha.do@congty.vn</div>
+              </div>
+              <span class="the the--canh">6 ngày</span>
+            </div>
+
+            <div class="ud__hang">
+              <span class="mat mat--nho">TL</span>
+              <div class="ud__giua">
+                <div class="ud__ten">Trần Thuỳ Linh</div>
+                <div class="ud__mo">linh.tran@congty.vn</div>
+              </div>
+              <span class="the the--canh">4 ngày</span>
+            </div>
+
+            <div class="ud__hang">
+              <span class="mat mat--nho">VM</span>
+              <div class="ud__giua">
+                <div class="ud__ten">Vũ Đức Minh</div>
+                <div class="ud__mo">minh.vu@congty.vn</div>
+              </div>
+              <span class="the">hôm qua</span>
+            </div>
+
+            <a class="nut nut--nho" style="margin-top:14px"
+               href="../org/nhan-su.html?status=PendingFirstLogin">Xem cả 5 người</a>
+          </div>
+
+          <!-- Bật/tắt app — hình dạng của trụ "Cài đặt sản phẩm" bên Lark. -->
+          <div class="the__khoi">
+            <h3>Ứng dụng <span class="chuano">chưa nối backend</span></h3>
+            <p class="mota">Bật tắt từng app cho cả workspace.</p>
+
+            <div class="ud__hang">
+              <span class="ud__o">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17 11.3a3 3 0 01-3 3H8.4L4.5 17.2v-2.9H6a3 3 0 01-3-3V5.7a3 3 0 013-3h8a3 3 0 013 3z"/>
+                </svg>
+              </span>
+              <div class="ud__giua">
+                <div class="ud__ten">Trao đổi</div>
+                <div class="ud__mo">Nhắn tin nội bộ</div>
+              </div>
+              <label class="congtac"><input type="checkbox" checked disabled><span class="congtac__ray"></span></label>
+            </div>
+
+            <div class="ud__hang">
+              <span class="ud__o">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4.2" width="14" height="13" rx="2.2"/>
+                  <path d="M3 8.2h14M7 2.6v3.2M13 2.6v3.2"/>
+                </svg>
+              </span>
+              <div class="ud__giua">
+                <div class="ud__ten">Lịch</div>
+                <div class="ud__mo">Chưa phát hành</div>
+              </div>
+              <label class="congtac"><input type="checkbox" disabled><span class="congtac__ray"></span></label>
+            </div>
+
+            <div class="ud__hang">
+              <span class="ud__o">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 2.8h6.6L15 6.2v11H5z"/><path d="M11.2 2.8v3.6H15"/>
+                </svg>
+              </span>
+              <div class="ud__giua">
+                <div class="ud__ten">Tài liệu</div>
+                <div class="ud__mo">Chưa phát hành</div>
+              </div>
+              <label class="congtac"><input type="checkbox" disabled><span class="congtac__ray"></span></label>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="popups" id="popups" aria-live="polite"></div>
+
+<div class="states">
+  <span>Trạng thái</span>
+  <button data-tt="co" aria-pressed="true">Có dữ liệu</button>
+  <button data-tt="moi" aria-pressed="false">Workspace mới</button>
+  <span class="states__vach"></span>
+  <button data-gon aria-pressed="false">Ẩn điều hướng</button>
+</div>
+
+<script type="module">
+import { mountQuanTri, mountChuaLam } from '../chung/_shell.js';
+
+mountQuanTri(document.getElementById('qtTren'), document.getElementById('qtBen'), 'tong-quan');
+mountChuaLam();
+
+const GIATRI = {
+  co:  { tong: 38, tam: 5, vohieu: 3, vai: 4 },
+  moi: { tong: 1,  tam: 0, vohieu: 0, vai: 4 },
+};
+
+function datTrangThai(tt) {
+  const g = GIATRI[tt];
+
+  for (const khoa of ['tong', 'tam', 'vohieu', 'vai']) {
+    document.querySelector(`[data-o="${khoa}"]`).textContent = g[khoa];
+  }
+
+  // Tô cảnh báo THEO GIÁ TRỊ, không viết cứng: 0 người còn mật khẩu tạm là tin tốt, mà ô
+  // vàng thì đọc như tin xấu.
+  document
+    .querySelector('[data-o="tam"]')
+    .classList.toggle('hangso__so--canh', g.tam > 0);
+
+  document.querySelectorAll('.states button[data-tt]').forEach((b) =>
+    b.setAttribute('aria-pressed', String(b.dataset.tt === tt)));
+}
+
+document.querySelectorAll('.states button[data-tt]').forEach((b) =>
+  b.addEventListener('click', () => datTrangThai(b.dataset.tt)));
+
+const nutGon = document.querySelector('.states [data-gon]');
+nutGon?.addEventListener('click', () => {
+  const gon = document.querySelector('.qt').classList.toggle('qt--gon');
+  nutGon.setAttribute('aria-pressed', String(gon));
+});
+
+const q = new URLSearchParams(location.search);
+if (q.get('tt')) datTrangThai(q.get('tt'));
+if (q.has('bare')) document.querySelector('.states')?.remove();
+</script>

@@ -23,6 +23,39 @@
 /* ══════════════════════════════════════════════════════════════════════
    ẢNH ĐẠI DIỆN
    ══════════════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════════
+   CHROME CỦA TRANG — dùng chung cho CẢ HAI khung
+
+   Trước đây hai khối này nằm trong `_khung.css`. Sai chỗ: khung app và khung quản trị là
+   hai file loại trừ nhau, nhưng tiêu đề trang thì màn nào cũng cần. Hệ quả khi để nhầm
+   chỗ: mọi màn quản trị mất tiêu đề, mất đường kẻ, mất cả vùng cuộn — mà HTML vẫn nguyên
+   nên nhìn code không thấy gì sai, phải mở trình duyệt ra mới lộ.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Tiêu đề của TRANG, không phải của sản phẩm. Mỗi màn tự dựng. */
+.trangdau {
+  flex: none; min-height: 56px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--line);
+}
+.trangdau h1 {
+  margin: 0;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600; font-size: 16px;
+  letter-spacing: -0.02em;
+}
+.trangdau__phu { color: var(--ink-faint); font-size: 12.5px; }
+.trangdau__phu::before { content: "·"; margin: 0 9px; }
+.trangdau__day { flex: 1; }
+
+/* Vùng cuộn của trang thường (không phải màn toàn khung như chat). */
+.trang { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 18px 32px; }
+.trang--hep { max-width: 760px; }
+
+@media (max-width: 720px) {
+  .trang { padding: 16px 14px 28px; }
+}
+
 .mat {
   position: relative; flex: none;
   width: 36px; height: 36px;

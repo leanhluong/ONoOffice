@@ -23,7 +23,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../chung/_shell.css">
-<link rel="stylesheet" href="../chung/_khung.css">
+<link rel="stylesheet" href="../chung/_brand.css">
+<link rel="stylesheet" href="../chung/_khung-quantri.css">
 <link rel="stylesheet" href="../chung/_dieukhien.css">
 
 <style>
@@ -107,12 +108,17 @@
 @media (max-width: 900px) { .an-hep { display: none; } }
 </style>
 
-<div class="khung">
-  <nav id="nav"></nav>
+<!-- KHUNG QUẢN TRỊ (khuôn B), không phải khung app: màn này tạo tài khoản, đổi vai và vô
+     hiệu hoá NGƯỜI KHÁC. Luật ranh giới ở ../chung/_khung-quantri.css. -->
+<div class="qt">
+  <header id="qtTren"></header>
 
-  <div class="noidung">
+  <div class="qt__than">
+    <nav id="qtBen"></nav>
+
+    <div class="qt__noi">
     <header class="trangdau">
-      <h1>Nhân sự</h1>
+      <h1>Thành viên</h1>
       <span class="trangdau__phu" id="soNguoi">38 người · 34 đang hoạt động</span>
       <div class="trangdau__day"></div>
 
@@ -492,6 +498,7 @@
       <button class="nut" data-dong>Đóng</button>
       <button class="nut nut--chinh" data-soon="Lưu thay đổi">Lưu thay đổi</button>
     </div>
+    </div>
   </div>
 </div>
 
@@ -509,12 +516,19 @@
 </div>
 
 <script type="module">
-import { mountNav, mountChuaLam, popup } from '../chung/_shell.js';
+import { mountQuanTri, mountChuaLam, popup } from '../chung/_shell.js';
 
-mountNav(document.getElementById('nav'), 'nhan-su');
+mountQuanTri(
+  document.getElementById('qtTren'),
+  document.getElementById('qtBen'),
+  'tai-khoan-ds',
+);
 mountChuaLam();
 
-const noidung = document.querySelector('.noidung');
+// `.qt__noi` chứ không phải `.noidung`: màn này đã chuyển sang KHUNG QUẢN TRỊ.
+// Trỏ nhầm thì `querySelector` trả null, dòng sau ném lỗi, và toàn bộ phần dựng bảng
+// chết theo — bảng rỗng trơn mà không có gì trên màn hình nói vì sao.
+const noidung = document.querySelector('.qt__noi');
 noidung.dataset.state = 'idle';
 
 // ── Đổi trạng thái để duyệt ─────────────────────────────────────────

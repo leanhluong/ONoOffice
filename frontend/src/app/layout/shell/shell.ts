@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
@@ -15,40 +16,54 @@ import { HasPermissionDirective } from '../../shared/directives/has-permission.d
 import { PopupHost } from '../../shared/ui/popup-host/popup-host';
 import { Prefs } from '../../shared/ui/prefs/prefs';
 
-/** Một mục trên cột điều hướng. */
-interface NavItem {
+/** Một app trên rail. */
+interface RailApp {
+  /** Khoá chọn hình vẽ trong `@switch` của template. */
+  readonly key: string;
+
   /** Khoá dịch, KHÔNG phải câu chữ — nếu không thì menu vĩnh viễn một thứ tiếng. */
   readonly labelKey: string;
+
+  /** Rỗng khi app chưa làm — lúc đó nó là `<button>`, không phải link. */
   readonly path: string;
 
-  /** Quyền cần có để thấy mục này. Rỗng = ai đăng nhập cũng thấy. */
+  /** Quyền cần có để thấy app này. Rỗng = ai đăng nhập cũng thấy. */
   readonly permissions: readonly string[];
 
-  /** Số việc đang chờ. `null` = không có gì để đếm. */
+  /** Số việc đang chờ. Quá 9 thì template hiện "9+". */
   readonly badge?: number;
 
   /**
-   * `true` thì số hiện bằng chữ xám thay vì viên màu nhấn.
+   * `true` thì hiện một CHẤM xám thay vì viên số màu nhấn.
    *
-   * Dùng cho số ĐO ĐẠC (38 nhân viên) chứ không phải số VIỆC PHẢI LÀM (4 tin chưa đọc).
-   * Cái gì cũng tô màu nhấn thì không cái nào còn nghĩa là "cần xử lý".
+   * Dùng cho "có gì đó mới" chứ không phải "có việc phải làm". Cái gì cũng có số thì
+   * không cái nào còn nghĩa là cần xử lý.
    */
   readonly quiet?: boolean;
+
+  /** Chưa làm: bấm vào thì nói thẳng, không phải một link chết. */
+  readonly soon?: boolean;
 }
 
 /**
- * Khung ngoài của phần app đã đăng nhập: cột điều hướng + vùng nội dung.
+ * Khung ngoài của phần app đã đăng nhập — <b>bản v4</b>: rail biểu tượng + vùng nội dung.
  *
- * Vì sao là một route cha có `children` chứ không phải component bọc trong từng màn: làm
- * thế này thì chuyển trang chỉ vẽ lại phần `<router-outlet>` bên trong, cột điều hướng giữ
- * nguyên trạng thái. Nếu mỗi màn tự nhúng shell thì cả cột bị dựng lại mỗi lần.
+ * <b>Vì sao đổi khỏi v3 (một cột chữ 212px):</b> cột chữ duy nhất chính là khuôn của một
+ * TRANG QUẢN TRỊ. Nó chạy được với bốn màn, và chật ngay khi có sáu app — mỗi app lại còn
+ * cần danh sách riêng của nó (hội thoại, tài liệu, phòng ban). Lark, Zalo PC và Slack đều
+ * dùng rail + cột ngữ cảnh, và lý do là mỗi bên gánh một việc khác: rail để CHUYỂN app,
+ * cột để làm việc BÊN TRONG app. Xem `docs/07-giao-dien/chung/_khung.css`.
  *
- * <b>KHÔNG có thanh ngang toàn chiều rộng.</b> Mỗi trang tự dựng tiêu đề riêng — tiêu đề
+ * <b>Không có cột ngữ cảnh ở đây.</b> Mỗi app tự dựng cột của mình — màn Trao đổi dùng
+ * danh sách hội thoại có ảnh và câu cuối, màn Hồ sơ không cần cột nào. Dựng một cột rỗng
+ * ở khung ngoài thì mọi màn không cần cột phải đi gỡ nó.
+ *
+ * <b>Không có thanh ngang toàn chiều rộng.</b> Mỗi trang tự dựng tiêu đề riêng — tiêu đề
  * màn nhân sự nói về bộ lọc đang bật, tiêu đề màn chat nói về kênh đang mở. Một thanh
- * chung thì không nói được gì cụ thể, mà vẫn ăn 52px chiều cao của mọi màn.
+ * chung không nói được gì cụ thể mà vẫn ăn 56px chiều cao của mọi màn.
  *
- * Nguồn thiết kế: `docs/07-giao-dien/chung/_khung.css`. Toàn bộ CSS của khung nằm ở
- * `styles.scss` và được SINH từ file đó, nên component này không có style riêng.
+ * Nguồn thiết kế: `docs/07-giao-dien/chung/_khung.css` + hàm `mountRail` trong `_shell.js`.
+ * Toàn bộ CSS nằm ở `styles.scss` và được SINH từ đó, nên component này không có style riêng.
  */
 @Component({
   selector: 'app-shell',
@@ -57,6 +72,7 @@ interface NavItem {
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
+    NgTemplateOutlet,
     HasPermissionDirective,
     TranslatePipe,
     Prefs,
@@ -73,32 +89,26 @@ export class Shell {
 
   protected readonly store = inject(AuthStore);
 
-  /** Thu gọn cột còn bề rộng biểu tượng. */
-  protected readonly collapsed = signal(false);
-
   /** Menu đang mở: `'toi'`, `'caidat'`, hoặc `null`. */
   protected readonly openMenu = signal<'toi' | 'caidat' | null>(null);
 
-  protected readonly navGroups: readonly {
-    readonly labelKey: string;
-    readonly items: readonly NavItem[];
-  }[] = [
-    {
-      labelKey: 'nav.groupWork',
-      items: [{ labelKey: 'nav.dashboard', path: '/dashboard', permissions: [] }],
-    },
-    {
-      labelKey: 'nav.groupOrg',
-      items: [
-        {
-          labelKey: 'nav.employees',
-          path: '/nhan-su',
-          permissions: ['user.read'],
-          quiet: true,
-        },
-        { labelKey: 'nav.roles', path: '/vai-tro', permissions: ['role.read'] },
-      ],
-    },
+  /**
+   * Các app trên rail.
+   *
+   * Bốn app cuối để `soon: true` — chúng CHƯA có route lẫn backend. Cố ý giữ chúng trên
+   * rail thay vì giấu đi: rail là danh tính của sản phẩm, và người dùng cần thấy trước
+   * sản phẩm sẽ có những gì. Bấm vào thì `notBuiltYet()` nói thẳng, không im lặng.
+   *
+   * Thứ tự KHÔNG tuỳ tiện. Khi màn Trao đổi xong, nó sẽ lên đầu và thành app mặc định —
+   * mở ONoOffice là vào thẳng chat, giống Lark và Zalo.
+   */
+  protected readonly apps: readonly RailApp[] = [
+    { key: 'dashboard', labelKey: 'nav.dashboard', path: '/dashboard', permissions: [] },
+    { key: 'chat', labelKey: 'nav.chat', path: '', permissions: [], soon: true },
+    { key: 'calendar', labelKey: 'nav.calendar', path: '', permissions: [], soon: true },
+    { key: 'docs', labelKey: 'nav.docs', path: '', permissions: [], soon: true },
+    { key: 'approval', labelKey: 'nav.approvals', path: '', permissions: [], soon: true },
+    { key: 'contacts', labelKey: 'nav.contacts', path: '', permissions: [], soon: true },
   ];
 
   /**
@@ -115,10 +125,6 @@ export class Shell {
     }
 
     return (words[0][0] + words[words.length - 1][0]).toUpperCase();
-  }
-
-  protected toggleCollapsed(): void {
-    this.collapsed.update((value) => !value);
   }
 
   protected closeMenu(): void {
