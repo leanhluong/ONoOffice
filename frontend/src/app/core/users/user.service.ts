@@ -56,6 +56,33 @@ export class UserService {
     return this.http.get<PagedList<UserListItem>>(this.url('/api/users'), { params });
   }
 
+  // ── Vai trò ───────────────────────────────────────────────────────
+
+  /**
+   * Tạo một vai TỰ ĐẶT. Vai mới ra đời **không có quyền nào** — bật từng cái sau.
+   *
+   * Bắt chọn đủ 12 quyền ngay trong hộp thoại tạo thì người dùng phải quyết định 12 chuyện
+   * cùng lúc trước khi thấy vai trò tồn tại. Và một vai chưa có quyền nào thì chưa hại ai.
+   */
+  createRole(name: string, permissions: string[]): Observable<{ id: string }> {
+    return this.http.post<{ id: string }>(this.url('/api/roles'), { name, permissions });
+  }
+
+  /**
+   * Đổi tên và ĐẶT LẠI bộ quyền — `PUT`, không phải `PATCH`.
+   *
+   * Thân request là trạng thái mong muốn của cả vai trò, không phải một phần thay đổi:
+   * hiểu thành "thêm" thì bỏ tick một quyền chẳng gỡ được gì, và quyền chỉ có tăng.
+   */
+  updateRole(id: string, name: string, permissions: string[]): Observable<void> {
+    return this.http.put<void>(this.url(`/api/roles/${id}`), { name, permissions });
+  }
+
+  /** Xoá CỨNG. Backend từ chối nếu vai còn người giữ, hoặc nếu đó là vai hệ thống. */
+  deleteRole(id: string): Observable<void> {
+    return this.http.delete<void>(this.url(`/api/roles/${id}`));
+  }
+
   create(request: CreateUserRequest): Observable<CreateUserResponse> {
     return this.http.post<CreateUserResponse>(this.url('/api/users'), request);
   }

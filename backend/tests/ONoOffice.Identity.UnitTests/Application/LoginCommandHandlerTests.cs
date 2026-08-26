@@ -36,6 +36,9 @@ internal sealed class LoginFakeUsers : IUserRepository
     public Task<MyProfile?> GetProfileAsync(Guid id, CancellationToken c = default) =>
         throw new NotSupportedException("Đăng nhập không đọc hồ sơ.");
 
+    public Task<int> CountByRoleAsync(Guid roleId, CancellationToken c = default) =>
+        throw new NotSupportedException("Đăng nhập không đếm người theo vai.");
+
     public Task<AuthUserData?> GetForLoginAsync(string email, CancellationToken ct = default)
     {
         EmailDaHoi = email;

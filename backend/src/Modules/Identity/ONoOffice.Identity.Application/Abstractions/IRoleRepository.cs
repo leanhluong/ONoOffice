@@ -53,4 +53,19 @@ public interface IRoleRepository
     /// đặt trùng tên là chuyện bình thường, và tra theo tên sẽ là một lỗi chờ sẵn.
     /// </summary>
     Task<Role?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
+
+    void Add(Role role);
+
+    void Remove(Role role);
+
+    /// <summary>
+    /// Tên vai đã có ai dùng chưa — KHÔNG phân biệt hoa thường.
+    ///
+    /// Phân biệt hoa thường thì "Kế toán" và "kế toán" là hai vai khác nhau, và mọi câu
+    /// "đổi sang vai Kế toán" trở nên mơ hồ. Cùng lý do với tên phòng ban.
+    /// </summary>
+    Task<bool> NameTakenAsync(
+        string name,
+        Guid? exceptId,
+        CancellationToken cancellationToken = default);
 }

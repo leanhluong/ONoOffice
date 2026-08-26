@@ -564,6 +564,83 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
     }
   }
 
+  // ── Vai trò tự đặt: tạo · sửa · xoá ─────────────────────────────────
+  if (duong === '/api/roles' && req.method === 'POST') {
+    const ten = ((req.body as { name?: string } | null)?.name ?? '').trim();
+
+    if (ten === '') {
+      return loi(400, 'Role.NameEmpty', 'Tên vai trò không được để trống.');
+    }
+
+    // So KHÔNG phân biệt hoa thường, giống `EfRoleRepository.NameTakenAsync`. Phân biệt
+    // thì "Kế toán" và "kế toán" thành hai vai, và mọi câu "đổi sang vai Kế toán" mơ hồ.
+    if (kho.roles.some((r) => r.name.toLowerCase() === ten.toLowerCase())) {
+      return loi(409, 'Role.NameTaken', 'Workspace đã có vai trò mang tên này.');
+    }
+
+    const moi = { id: `r-${ten.toLowerCase().replace(/\s+/g, '-')}`, name: ten, isSystem: false, permissions: [], memberCount: 0 };
+
+    kho.roles.push(moi);
+
+    return ok({ id: moi.id });
+  }
+
+  {
+    const vai = /^\/api\/roles\/([^/]+)$/.exec(duong);
+
+    if (vai && (req.method === 'PUT' || req.method === 'DELETE')) {
+      const hien = kho.roles.find((r) => r.id === vai[1]);
+
+      if (!hien) {
+        return loi(404, 'Role.NotFound', 'Vai trò này không tồn tại trong workspace.');
+      }
+
+      // Vai hệ thống dựng lại từ hằng số trong mã nguồn ở mọi workspace — sửa được chúng
+      // thì lần nâng cấp sau ghi đè mà không báo gì.
+      if (hien.isSystem) {
+        return loi(
+          409,
+          'Role.SystemRoleIsImmutable',
+          'Vai trò hệ thống không được phép sửa. Hãy tạo một vai trò mới nếu cần bộ quyền khác.',
+        );
+      }
+
+      if (req.method === 'DELETE') {
+        if (hien.memberCount > 0) {
+          return loi(
+            409,
+            'Role.StillInUse',
+            'Vai trò này vẫn còn người giữ. Hãy đổi vai cho họ trước khi xoá.',
+          );
+        }
+
+        kho.roles.splice(kho.roles.indexOf(hien), 1);
+
+        return trong();
+      }
+
+      const than = req.body as { name?: string; permissions?: string[] } | null;
+      const quyen = than?.permissions ?? [];
+
+      // Quyền chuyển nhượng workspace là TOÀN BỘ ranh giới Admin ↔ Owner. Bỏ phép kiểm
+      // này ở demo thì demo dạy rằng ranh giới đó lỏng hơn thực tế — chỗ tệ nhất để dạy sai.
+      if (quyen.includes(Permissions.TRANSFER_OWNERSHIP)) {
+        return loi(
+          409,
+          'Role.PermissionIsOwnerOnly',
+          'Quyền chuyển nhượng workspace chỉ thuộc về chủ sở hữu, không gán cho vai trò khác được.',
+        );
+      }
+
+      hien.name = (than?.name ?? hien.name).trim();
+
+      // ĐẶT LẠI cả bộ, không cộng thêm — thân request là trạng thái mong muốn.
+      hien.permissions = [...quyen];
+
+      return trong();
+    }
+  }
+
   // ── Chuyển quyền sở hữu workspace ───────────────────────────────────
   //
   // Mô phỏng đủ CẢ BỐN cửa chặn. Bỏ bớt một cái thì demo dạy người dùng một hành vi mà hệ

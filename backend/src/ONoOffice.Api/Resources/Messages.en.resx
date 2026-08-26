@@ -254,4 +254,13 @@
   <data name="Tenant.NewOwnerMustBeActive" xml:space="preserve">
     <value>Ownership cannot be transferred to a disabled account.</value>
   </data>
+  <data name="Role.NameTaken" xml:space="preserve">
+    <value>A role with that name already exists in this workspace.</value>
+  </data>
+  <data name="Role.StillInUse" xml:space="preserve">
+    <value>This role still has members. Move them to another role before deleting it.</value>
+  </data>
+  <data name="Role.PermissionIsOwnerOnly" xml:space="preserve">
+    <value>Transferring the workspace belongs to the owner alone; it cannot be granted to another role.</value>
+  </data>
 </root>

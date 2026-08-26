@@ -99,4 +99,12 @@ public interface IUserRepository
 
     /// <summary>Hồ sơ của chính người đang đăng nhập. Bản chiếu, không phải thực thể.</summary>
     Task<Me.GetProfile.MyProfile?> GetProfileAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Bao nhiêu tài khoản đang giữ vai này — dùng để chặn xoá một vai còn người dùng.
+    ///
+    /// Trả về SỐ chứ không trả danh sách: nơi gọi chỉ cần biết "có ai không", và nạp cả
+    /// danh sách để so với 0 là nạp thừa.
+    /// </summary>
+    Task<int> CountByRoleAsync(Guid roleId, CancellationToken cancellationToken = default);
 }

@@ -209,6 +209,33 @@ public static class IdentityErrors
         public static readonly Error SystemRoleIsImmutable = Error.Conflict(
             "Role.SystemRoleIsImmutable",
             "Vai trò hệ thống không được phép sửa. Hãy tạo một vai trò mới nếu cần bộ quyền khác.");
+
+        public static readonly Error NameTaken =
+            Error.Conflict("Role.NameTaken", "Workspace đã có vai trò mang tên này.");
+
+        /// <summary>
+        /// Vai còn người giữ thì không xoá.
+        ///
+        /// Xoá đi thì những người đó mang một mã vai không còn tồn tại — mất SẠCH quyền
+        /// ngay lập tức, và màn Thành viên hiện một ô vai trống. Bắt điều chuyển họ trước
+        /// thì người quản trị buộc phải quyết định họ sẽ thành vai gì.
+        /// </summary>
+        public static readonly Error StillInUse = Error.Conflict(
+            "Role.StillInUse",
+            "Vai trò này vẫn còn người giữ. Hãy đổi vai cho họ trước khi xoá.");
+
+        /// <summary>
+        /// <c>workspace.transfer-ownership</c> chỉ thuộc về vai <c>Owner</c>.
+        ///
+        /// Nó là TOÀN BỘ ranh giới giữa Admin và Owner (xem <c>SystemRoles.cs</c>). Cho nó
+        /// rơi vào một vai tự đặt thì màn Vai trò hiện một dòng quyền không bao giờ làm
+        /// được gì — <c>TransferOwnershipCommandHandler</c> vẫn đọc <c>Tenant.OwnerUserId</c>
+        /// từ database và từ chối — và người quản trị tin rằng họ vừa trao đi thứ mình
+        /// không trao.
+        /// </summary>
+        public static readonly Error PermissionIsOwnerOnly = Error.Conflict(
+            "Role.PermissionIsOwnerOnly",
+            "Quyền chuyển nhượng workspace chỉ thuộc về chủ sở hữu, không gán cho vai trò khác được.");
     }
 
     public static class Auth

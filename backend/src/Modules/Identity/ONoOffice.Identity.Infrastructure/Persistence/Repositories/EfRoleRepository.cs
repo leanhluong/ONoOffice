@@ -8,6 +8,30 @@ internal sealed class EfRoleRepository(IdentityDbContext context) : IRoleReposit
 {
     public void AddRange(IEnumerable<Role> roles) => context.Roles.AddRange(roles);
 
+    public void Add(Role role) => context.Roles.Add(role);
+
+    public void Remove(Role role) => context.Roles.Remove(role);
+
+    /// <summary>
+    /// So tên KHÔNG phân biệt hoa thường, giống <c>EfDepartmentRepository.NameTakenAsync</c>.
+    ///
+    /// <c>ToLower()</c> dịch sang <c>lower()</c> của Postgres, nên phép so chạy ở database
+    /// chứ không kéo cả bảng vai trò về rồi lọc ở C#.
+    /// </summary>
+    public Task<bool> NameTakenAsync(
+        string name,
+        Guid? exceptId,
+        CancellationToken cancellationToken = default)
+    {
+        string canh = name.Trim().ToLower();
+
+        return context.Roles
+            .AsNoTracking()
+            .AnyAsync(
+                role => role.Name.ToLower() == canh && (exceptId == null || role.Id != exceptId),
+                cancellationToken);
+    }
+
     /// <summary>
     /// Có theo dõi thay đổi (không <c>AsNoTracking</c>): vai trò nạp về đây là để GÁN, và
     /// những lời gọi sau sẽ sửa nó. Nạp không theo dõi thì mọi thay đổi rơi vào hư không

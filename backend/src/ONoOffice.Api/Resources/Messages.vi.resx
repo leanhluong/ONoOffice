@@ -254,4 +254,13 @@
   <data name="Tenant.NewOwnerMustBeActive" xml:space="preserve">
     <value>Không thể chuyển nhượng cho một tài khoản đang bị vô hiệu hoá.</value>
   </data>
+  <data name="Role.NameTaken" xml:space="preserve">
+    <value>Workspace đã có vai trò mang tên này.</value>
+  </data>
+  <data name="Role.StillInUse" xml:space="preserve">
+    <value>Vai trò này vẫn còn người giữ. Hãy đổi vai cho họ trước khi xoá.</value>
+  </data>
+  <data name="Role.PermissionIsOwnerOnly" xml:space="preserve">
+    <value>Quyền chuyển nhượng workspace chỉ thuộc về chủ sở hữu, không gán cho vai trò khác được.</value>
+  </data>
 </root>

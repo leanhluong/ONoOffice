@@ -362,6 +362,19 @@
       "roleManageWhy": "Anyone with this can raise their own permissions. Give it only to real administrators.",
       "departmentRead": "View the department tree",
       "departmentManage": "Create, edit and reorder departments"
-    }
+    },
+    "create": "New role",
+    "createTitle": "Create a role",
+    "name": "Role name",
+    "nameHint": "The name shows in the role column on the members screen, so pick something colleagues will understand.",
+    "startsEmpty": "A new role starts with no permissions. Turn them on in the table on the right after creating it.",
+    "created": "Role created.",
+    "saved": "Role permissions saved.",
+    "deleted": "Role deleted.",
+    "revert": "Undo changes",
+    "delete": "Delete role",
+    "deleteTitle": "Delete the role \"{{name}}\"?",
+    "deleteText": "The role is deleted for good. Anyone still holding it must be moved to another role first — the system refuses otherwise.",
+    "customRoles": "Your own roles"
   }
 }

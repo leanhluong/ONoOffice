@@ -10,6 +10,20 @@
     {{ 'roles.summary' | translate: { roles: roles().length, permissions: totalPermissions } }}
   </span>
   <div class="trangdau__day"></div>
+
+  <button class="nut nut--chinh" type="button" (click)="openCreate()">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      aria-hidden="true"
+    >
+      <path d="M8 3v10M3 8h10" />
+    </svg>
+    {{ 'roles.create' | translate }}
+  </button>
 </header>
 
 <div class="hai">
@@ -111,16 +125,19 @@
                   </div>
 
                   <!--
-                    Công tắc mờ VÀ không bấm được (CSS đã khoá). Chỉ làm mờ mà vẫn bấm được
-                    là tệ nhất: người dùng bấm, nó đổi, rồi lưu xong quay lại như cũ mà
+                    Vai HỆ THỐNG: công tắc mờ VÀ không bấm được. Chỉ làm mờ mà vẫn bấm được
+                    là tệ nhất — người dùng bấm, nó đổi, rồi lưu xong quay lại như cũ mà
                     không có lời giải thích nào.
+
+                    Vai TỰ ĐẶT thì bật được, nhưng chỉ đổi bản NHÁP; phải bấm Lưu.
                   -->
                   <label class="congtac">
                     <input
                       type="checkbox"
-                      disabled
+                      [disabled]="!canEdit()"
                       [checked]="row.granted"
                       [attr.aria-label]="row.info.labelKey | translate"
+                      (change)="toggle(row.code)"
                     />
                     <span class="congtac__ray"></span>
                   </label>
@@ -132,4 +149,132 @@
       </div>
     }
   </section>
+</div>
+
+<!--
+  THANH LƯU — chỉ hiện với vai TỰ ĐẶT.
+
+  Đứng yên dưới đáy, không cuộn theo bảng quyền: bảng có 12 dòng chia 5 nhóm, nên để nút
+  Lưu ở cuối vùng cuộn thì người bật một quyền ở nhóm đầu phải cuộn hết xuống mới thấy nó —
+  và nhiều người sẽ tưởng là đã tự lưu.
+
+  Với vai hệ thống thì thanh này KHÔNG tồn tại, chứ không phải hiện ra rồi mờ đi.
+-->
+@if (canEdit()) {
+  <div class="chitiet__chan tuchon">
+    @if (canDelete()) {
+      <button class="nut nut--nguy nut--nho" type="button" (click)="askDelete()">
+        {{ 'roles.delete' | translate }}
+      </button>
+    }
+
+    <div style="flex: 1"></div>
+
+    @if (dirty()) {
+      <button class="nut" type="button" [disabled]="saving()" (click)="revert()">
+        {{ 'roles.revert' | translate }}
+      </button>
+      <button class="nut nut--chinh" type="button" [disabled]="saving()" (click)="save()">
+        {{ 'action.save' | translate }}
+      </button>
+    }
+  </div>
+}
+
+<!-- ══════════════ TẠO VAI TRÒ ══════════════
+     Chỉ hỏi TÊN. Bảng 12 công tắc đã có ở màn chính; nhét cả vào hộp thoại thì hộp cao gấp
+     ba màn hình và người dùng phải quyết định 12 chuyện trước khi thấy vai trò tồn tại. -->
+<div class="man" [class.man--hien]="showCreate()">
+  <button
+    type="button"
+    class="man__nen"
+    [attr.aria-label]="'action.close' | translate"
+    (click)="closeCreate()"
+  ></button>
+
+  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdVai" style="max-width: 420px">
+    <div class="hop__dau">
+      <h2 id="tdVai">{{ 'roles.createTitle' | translate }}</h2>
+      <button
+        class="nuti"
+        type="button"
+        [attr.aria-label]="'action.close' | translate"
+        (click)="closeCreate()"
+      >
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+          <path d="m5 5 8 8M13 5l-8 8" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="hop__than" [formGroup]="createForm">
+      <div class="o">
+        <label class="o__nhan" for="tenVaiMoi">
+          {{ 'roles.name' | translate }} <span class="o__batbuoc">*</span>
+        </label>
+        <input id="tenVaiMoi" type="text" formControlName="name" placeholder="Kế toán" />
+        <span class="o__meo">{{ 'roles.nameHint' | translate }}</span>
+      </div>
+
+      <p class="mota" style="margin-top: 14px">{{ 'roles.startsEmpty' | translate }}</p>
+    </div>
+
+    <div class="hop__chan">
+      <button class="nut nut--pha" type="button" (click)="closeCreate()">
+        {{ 'action.cancel' | translate }}
+      </button>
+      <button class="nut nut--chinh" type="button" [disabled]="saving()" (click)="submitCreate()">
+        {{ 'roles.create' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ XOÁ VAI TRÒ ══════════════
+     Hộp riêng, cùng lý do với hộp xoá phòng ban: xoá cần một câu hỏi khẳng định chứ không
+     phải một biểu mẫu. Người dùng phải ĐỌC, không phải điền. -->
+<div class="man" [class.man--hien]="askingDelete()">
+  <button
+    type="button"
+    class="man__nen"
+    [attr.aria-label]="'action.close' | translate"
+    (click)="closeDelete()"
+  ></button>
+
+  @if (selected(); as role) {
+    <div
+      class="hop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tdXoaVai"
+      style="max-width: 420px"
+    >
+      <div class="hop__dau">
+        <h2 id="tdXoaVai">{{ 'roles.deleteTitle' | translate: { name: role.name } }}</h2>
+        <button
+          class="nuti"
+          type="button"
+          [attr.aria-label]="'action.close' | translate"
+          (click)="closeDelete()"
+        >
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="m5 5 8 8M13 5l-8 8" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="hop__than">
+        <p class="mota">{{ 'roles.deleteText' | translate }}</p>
+      </div>
+
+      <div class="hop__chan">
+        <button class="nut nut--pha" type="button" (click)="closeDelete()">
+          {{ 'action.cancel' | translate }}
+        </button>
+        <button class="nut nut--nguy" type="button" [disabled]="saving()" (click)="confirmDelete()">
+          {{ 'roles.delete' | translate }}
+        </button>
+      </div>
+    </div>
+  }
 </div>

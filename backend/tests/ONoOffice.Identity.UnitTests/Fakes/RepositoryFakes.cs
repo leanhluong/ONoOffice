@@ -24,6 +24,12 @@ public class FakeUserRepository : IUserRepository
 {
     public readonly List<User> Added = [];
 
+    /// <summary>Số người đang giữ một vai bất kỳ — dùng cho phép kiểm "vai còn người giữ".</summary>
+    public int CountByRole;
+
+    public virtual Task<int> CountByRoleAsync(Guid roleId, CancellationToken cancellationToken = default) =>
+        Task.FromResult(CountByRole);
+
     /// <summary>Email bị coi là đã có người dùng. <c>null</c> = mọi email đều trống.</summary>
     public string? TakenEmail;
 
@@ -86,6 +92,20 @@ public class FakeRoleRepository : IRoleRepository
 
     public virtual Task<Role?> GetByNameAsync(string name, CancellationToken cancellationToken = default) =>
         Task.FromResult(Existing?.Name == name ? Existing : null);
+
+    public readonly List<Role> Removed = [];
+
+    /// <summary>Đặt `true` để mọi phép kiểm trùng tên trả về "đã có người dùng".</summary>
+    public bool NameTaken;
+
+    public virtual void Add(Role role) => Added.Add(role);
+
+    public virtual void Remove(Role role) => Removed.Add(role);
+
+    public virtual Task<bool> NameTakenAsync(
+        string name,
+        Guid? exceptId,
+        CancellationToken cancellationToken = default) => Task.FromResult(NameTaken);
 }
 
 public class FakeTenantRepository : ITenantRepository

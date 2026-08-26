@@ -362,6 +362,19 @@
       "roleManageWhy": "Ai có quyền này thì tự nâng quyền cho chính mình được. Chỉ trao cho người thật sự quản trị.",
       "departmentRead": "Xem cây phòng ban",
       "departmentManage": "Tạo, sửa, sắp xếp phòng ban"
-    }
+    },
+    "create": "Tạo vai trò",
+    "createTitle": "Tạo vai trò mới",
+    "name": "Tên vai trò",
+    "nameHint": "Tên hiện ở cột vai trò của màn Thành viên, nên hãy đặt thứ đồng nghiệp đọc là hiểu.",
+    "startsEmpty": "Vai mới tạo ra chưa có quyền nào. Bật từng quyền ở bảng bên phải sau khi tạo.",
+    "created": "Đã tạo vai trò.",
+    "saved": "Đã lưu quyền của vai trò.",
+    "deleted": "Đã xoá vai trò.",
+    "revert": "Hoàn tác",
+    "delete": "Xoá vai trò",
+    "deleteTitle": "Xoá vai trò \"{{name}}\"?",
+    "deleteText": "Vai trò này bị xoá hẳn. Những người đang giữ nó phải được đổi sang vai khác trước — hệ thống sẽ từ chối nếu còn ai.",
+    "customRoles": "Của công ty bạn"
   }
 }

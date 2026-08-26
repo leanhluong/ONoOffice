@@ -338,4 +338,15 @@ internal sealed class EfUserRepository(IdentityDbContext context) : IUserReposit
             row.MustChangePassword,
             permissions.ToHashSet(StringComparer.OrdinalIgnoreCase));
     }
+    /// <summary>
+    /// Đếm người đang giữ một vai — chạy ở DATABASE, không kéo cả bảng tài khoản về.
+    ///
+    /// <c>role_ids</c> là mảng <c>uuid[]</c>, và Npgsql dịch được <c>Contains</c> trên mảng
+    /// thành toán tử <c>= ANY</c> của Postgres.
+    ///
+    /// Khác <c>EfRoleRepository.GetAllAsync</c>: ở đó cần đếm cho MỌI vai một lượt nên nạp
+    /// về rồi đếm ở C# là rẻ hơn; ở đây chỉ hỏi về đúng một vai.
+    /// </summary>
+    public Task<int> CountByRoleAsync(Guid roleId, CancellationToken cancellationToken = default) =>
+        context.Users.AsNoTracking().CountAsync(user => user.RoleIds.Contains(roleId), cancellationToken);
 }

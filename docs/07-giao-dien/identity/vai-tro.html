@@ -10,9 +10,14 @@
   trong mã nguồn và seeder dựng lại chúng ở mọi workspace, nên một workspace sửa đi thì lần
   nâng cấp sau sẽ ghi đè mà không báo. Cần bộ quyền khác thì tạo vai trò mới.
 
-  ⚠️ Màn này hiện CHỈ XEM. Backend mới có GET /api/roles; chưa có endpoint tạo, đổi tên
-  hay sửa quyền của một vai trò. Vẽ sẵn nút "Tạo vai trò" rồi báo "đang phát triển" thì
-  người dùng bấm vào mới biết — thà đừng vẽ. Chúng quay lại khi có endpoint.
+  VAI TỰ ĐẶT thì sửa được đủ: tạo, đổi tên, bật/tắt từng quyền, xoá. Đó là đường DUY NHẤT
+  để một workspace có bộ quyền khác bốn bộ dựng sẵn — và cũng là thứ màn này vẫn luôn hứa
+  ("muốn khác đi thì tạo một vai trò mới") mà mãi tới nay mới làm được.
+
+  ⚠️ Quyền `workspace.transfer-ownership` KHÔNG bao giờ hiện trong bảng của vai tự đặt.
+  Nó là toàn bộ ranh giới giữa Admin và Owner; cho nó rơi vào một vai tự đặt thì bảng phân
+  quyền nói dối về chính ranh giới đó. Backend cũng từ chối bằng `Role.PermissionIsOwnerOnly`
+  — hai lớp, vì danh sách trên màn có thể cũ vài giây.
 
   Mở thẳng bằng trình duyệt là chạy.
 -->
@@ -58,6 +63,20 @@
 /* ── Cột chi tiết ─────────────────────────────────────────────────── */
 .chitiet { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
 .chitiet__cuon { flex: 1; min-height: 0; overflow-y: auto; padding: 18px; }
+
+/* Thanh lưu ĐỨNG YÊN dưới đáy, không cuộn theo bảng quyền. Bảng có 12 dòng chia 5 nhóm;
+   để nút Lưu ở cuối vùng cuộn thì người bật một quyền ở nhóm đầu phải cuộn hết xuống mới
+   thấy nút — và nhiều người sẽ tưởng là đã tự lưu. */
+.chitiet__chan {
+  flex: none; display: flex; align-items: center; gap: 8px;
+  padding: 12px 18px; border-top: 1px solid var(--line);
+}
+
+/* Chỉ vai TỰ ĐẶT mới có thanh lưu và nút xoá. Với vai hệ thống chúng không tồn tại, chứ
+   không phải hiện ra rồi mờ đi — nút mờ vẫn mời người ta bấm thử. */
+.tuchon { display: none; }
+[data-vai="tuchon"] .tuchon { display: flex; }
+[data-vai="tuchon"] .khoabao { display: none; }
 
 /* Dải nói vì sao vai trò này khoá. Đặt NGAY TRÊN bảng quyền — nếu để cuối trang thì người
    dùng bấm ba lần vào công tắc không nhúc nhích rồi mới đọc tới. */
@@ -108,9 +127,15 @@
     <div class="qt__noi" data-vai="hethong">
     <header class="trangdau">
       <h1>Vai trò &amp; quyền</h1>
-      <span class="trangdau__phu">4 vai trò · 12 quyền</span>
+      <span class="trangdau__phu">5 vai trò · 12 quyền</span>
       <div class="trangdau__day"></div>
 
+      <button class="nut nut--chinh" data-mo="manVai">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <path d="M8 3v10M3 8h10"/>
+        </svg>
+        Tạo vai trò
+      </button>
     </header>
 
     <div class="hai">
@@ -163,6 +188,18 @@
             </svg>
           </button>
 
+          <!-- Vai TỰ ĐẶT: không có biểu tượng ổ khoá, và sửa được đủ. Nhóm riêng để mắt
+               phân biệt ngay cái nào công ty tự tạo. -->
+          <div class="dsvai__nhan">Của công ty bạn</div>
+
+          <button class="vaimuc" data-loai="tuchon" data-ten="Kế toán"
+                  data-mota="Xem danh bạ và phòng ban, không sửa được gì." data-so="2 người" data-q="2">
+            <span class="vaimuc__giua">
+              <span class="vaimuc__ten">Kế toán</span>
+              <span class="vaimuc__phu">2 người · 2 quyền</span>
+            </span>
+          </button>
+
         </div>
       </aside>
 
@@ -188,7 +225,7 @@
             <span>
               <b>Bốn vai hệ thống — chỉ xem, không sửa được.</b> Chúng dựng lại ở mọi workspace
               từ cùng một định nghĩa trong mã nguồn, nên sửa ở đây sẽ bị lần nâng cấp sau ghi đè
-              mà không báo gì. Tạo vai trò riêng của công ty là việc tiếp theo — chưa có.
+              mà không báo gì. Cần bộ quyền khác thì <b>tạo vai trò riêng</b> của công ty.
             </span>
           </div>
 
@@ -321,8 +358,88 @@
             </div>
           </div>
         </div>
+
+        <!--
+          Thanh LƯU chỉ hiện với vai tự đặt, và chỉ khi đã đổi gì.
+
+          Lưu tự động theo từng công tắc thì bấm nhầm một cái là quyền đổi ngay, không có
+          đường lùi và cũng không có chỗ nào để huỷ. Bộ quyền là thứ người ta cân nhắc cả
+          cụm — bật ba cái rồi tắt một cái — nên nó cần một điểm dừng để xem lại.
+        -->
+        <div class="chitiet__chan tuchon">
+          <button class="nut nut--nguy nut--nho" data-mo="manXoaVai">Xoá vai trò</button>
+          <div style="flex:1"></div>
+          <button class="nut" data-soon="Hoàn tác">Hoàn tác</button>
+          <button class="nut nut--chinh" data-soon="Lưu thay đổi">Lưu thay đổi</button>
+        </div>
       </section>
     </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ TẠO VAI TRÒ ══════════════
+
+     Chỉ hỏi TÊN. Quyền để lại cho màn chính, nơi đã có sẵn bảng 12 công tắc chia 5 nhóm.
+
+     Nhét cả bảng đó vào hộp thoại thì hộp cao gấp ba màn hình và người dùng phải quyết
+     định 12 chuyện cùng lúc trước khi thấy vai trò tồn tại. Tạo trước rồi tick sau cho họ
+     một điểm dừng — và một vai mới không có quyền nào thì cũng chưa hại được ai.
+     ══════════════════════════════════════════════════════════════ -->
+<div class="man" id="manVai">
+  <button type="button" class="man__nen" data-dong aria-label="Đóng"></button>
+
+  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdVai" style="max-width:420px">
+    <div class="hop__dau">
+      <h2 id="tdVai">Tạo vai trò mới</h2>
+      <button class="nuti" data-dong aria-label="Đóng"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg></button>
+    </div>
+
+    <div class="hop__than">
+      <div class="o">
+        <label class="o__nhan" for="tenVaiMoi">Tên vai trò <span class="o__batbuoc">*</span></label>
+        <input id="tenVaiMoi" type="text" placeholder="Kế toán">
+        <span class="o__meo">
+          Tên hiện ở cột vai trò của màn Thành viên, nên hãy đặt thứ đồng nghiệp đọc là hiểu.
+        </span>
+      </div>
+
+      <p class="mota" style="margin-top:14px">
+        Vai mới tạo ra <b>chưa có quyền nào</b>. Bật từng quyền ở bảng bên phải sau khi tạo.
+      </p>
+    </div>
+
+    <div class="hop__chan">
+      <button class="nut nut--pha" data-dong>Huỷ</button>
+      <button class="nut nut--chinh" data-soon="Tạo vai trò">Tạo vai trò</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ XOÁ VAI TRÒ ══════════════
+
+     Hộp XOÁ tách riêng khỏi hộp tạo/sửa, cùng lý do với hộp xoá phòng ban: xoá cần một câu
+     hỏi khẳng định chứ không phải một biểu mẫu. Người dùng phải ĐỌC, không phải điền.
+     ══════════════════════════════════════════════════════════════ -->
+<div class="man" id="manXoaVai">
+  <button type="button" class="man__nen" data-dong aria-label="Đóng"></button>
+
+  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdXoaVai" style="max-width:420px">
+    <div class="hop__dau">
+      <h2 id="tdXoaVai">Xoá vai trò "Kế toán"?</h2>
+      <button class="nuti" data-dong aria-label="Đóng"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg></button>
+    </div>
+
+    <div class="hop__than">
+      <p class="mota">
+        Vai trò này bị xoá hẳn. Những người đang giữ nó phải được đổi sang vai khác
+        <b>trước</b> — hệ thống sẽ từ chối nếu còn ai.
+      </p>
+    </div>
+
+    <div class="hop__chan">
+      <button class="nut nut--pha" data-dong>Huỷ</button>
+      <button class="nut nut--nguy" data-soon="Xoá vai trò">Xoá vai trò</button>
     </div>
   </div>
 </div>
@@ -354,6 +471,9 @@ const BO = {
   // nghỉ phép. Ghi rõ ở SystemRoles.cs, và có test canh để nhắc quay lại.
   Manager: ['employee.read'],
   Member: ['employee.read'],
+
+  // Vai TỰ ĐẶT của công ty — không có trong `SystemRoles.cs`, workspace tự dựng lấy.
+  'Kế toán': ['employee.read', 'department.read'],
 };
 
 function veQuyen(tenVai) {
@@ -390,9 +510,25 @@ document.querySelectorAll('.vaimuc').forEach(b => b.addEventListener('click', ()
 // Vẽ ngay khi mở, không chờ người dùng bấm đổi vai trò.
 veQuyen(document.querySelector('.vaimuc[aria-current="true"]').dataset.ten);
 
+// ── Hộp thoại ──────────────────────────────────────────────────────
+function mo(id) { document.getElementById(id)?.classList.add('man--hien'); }
+function dongHet() { document.querySelectorAll('.man').forEach(m => m.classList.remove('man--hien')); }
+
+document.querySelectorAll('[data-mo]').forEach(b =>
+  b.addEventListener('click', e => { e.stopPropagation(); mo(b.dataset.mo); }));
+
+document.querySelectorAll('[data-dong]').forEach(b => b.addEventListener('click', dongHet));
+
+// Bấm ra nền tối thì đóng — nhưng CHỈ khi bấm đúng nền, không phải bên trong hộp.
+document.querySelectorAll('.man').forEach(m =>
+  m.addEventListener('click', e => { if (e.target === m) dongHet(); }));
+
+document.addEventListener('keydown', e => e.key === 'Escape' && dongHet());
+
 const q = new URLSearchParams(location.search);
 
 // ?vai=Admin — mở thẳng một vai trò để chụp ảnh gửi duyệt.
 if (q.get('vai')) document.querySelector(`.vaimuc[data-ten="${q.get('vai')}"]`)?.click();
+if (q.get('mo')) mo(q.get('mo'));
 if (q.has('bare')) document.querySelector('.states')?.remove();
 </script>
