@@ -64,6 +64,14 @@
 [data-buoc="xong"] .buoc--xong { display: block; }
 [data-buoc="nhap"] .chan--xong, [data-buoc="xong"] .chan--nhap { display: none; }
 
+/* ── Hộp thoại cấp tài khoản có HAI CHẾ ĐỘ ─────────────────────────
+   Nối vào tài khoản đã có, hoặc tạo tài khoản mới. Cùng một câu hỏi — "cho người này
+   một tài khoản kiểu gì?" — nên chúng là hai thẻ trong một hộp, không phải hai mục
+   trong một menu xổ. Xem chú thích ở `#manNoi` để biết vì sao không dùng menu. */
+.che { display: none; }
+[data-che="noi"] .che--noi { display: block; }
+[data-che="tao"] .che--tao { display: block; }
+
 .xong__dau { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .xong__vong {
   width: 40px; height: 40px; flex: none; display: grid; place-items: center;

@@ -89,6 +89,14 @@
 [data-buoc="xong"] .buoc--xong { display: block; }
 [data-buoc="nhap"] .chan--xong, [data-buoc="xong"] .chan--nhap { display: none; }
 
+/* ── Hộp thoại cấp tài khoản có HAI CHẾ ĐỘ ─────────────────────────
+   Nối vào tài khoản đã có, hoặc tạo tài khoản mới. Cùng một câu hỏi — "cho người này
+   một tài khoản kiểu gì?" — nên chúng là hai thẻ trong một hộp, không phải hai mục
+   trong một menu xổ. Xem chú thích ở `#manNoi` để biết vì sao không dùng menu. */
+.che { display: none; }
+[data-che="noi"] .che--noi { display: block; }
+[data-che="tao"] .che--tao { display: block; }
+
 .xong__dau { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .xong__vong {
   width: 40px; height: 40px; flex: none; display: grid; place-items: center;
@@ -469,37 +477,119 @@
      có chủ là bắt người dùng bấm rồi mới biết bị từ chối, trong khi ta đã có sẵn cả danh
      sách trong tay. Backend vẫn chặn bằng `Employee.UserAlreadyLinked` — hai lớp, vì
      danh sách trên màn có thể cũ vài giây.
+
+     ── HAI CHẾ ĐỘ, KHÔNG PHẢI MỘT MENU XỔ ──────────────────────────────
+
+     Người thiếu tài khoản có đúng hai đường đi: nối vào một tài khoản ĐÃ CÓ, hoặc tạo
+     một tài khoản MỚI. Bản đầu định treo hai lựa chọn đó lên menu ba chấm của từng dòng,
+     và bỏ vì hai lý do:
+
+     · Menu xổ trong bảng bị CẮT. `.bangcuon` có `overflow-x: auto`, mà đặt overflow một
+       chiều thì chiều kia thành `auto` theo — nên menu absolute bên trong bị cắt cụt.
+       Gỡ được bằng `position: fixed` cộng đóng-khi-cuộn, nhưng đó là ba thứ mới cho một
+       việc mà hộp thoại làm được.
+     · Và nó tách một câu hỏi làm hai chỗ. Người dùng đang hỏi "cho người này một tài
+       khoản kiểu gì?" — đó là MỘT câu hỏi với hai câu trả lời, nên nó thuộc về một hộp
+       thoại có hai thẻ, không phải hai mục nằm trong một menu.
      ══════════════════════════════════════════════════════════════ -->
 <div class="man" id="manNoi">
   <button type="button" class="man__nen" data-dong aria-label="Đóng"></button>
 
-  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdNoi" style="max-width:460px">
+  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdNoi" data-che="noi" data-buoc="nhap" id="hopNoi" style="max-width:460px">
     <div class="hop__dau">
-      <h2 id="tdNoi">Nối tài khoản cho Đỗ Ngọc Hà</h2>
+      <h2 id="tdNoi">Cấp tài khoản cho Đỗ Ngọc Hà</h2>
       <button class="nuti" data-dong aria-label="Đóng"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg></button>
     </div>
 
-    <div class="hop__than">
-      <div class="o">
-        <label class="o__nhan" for="chonNoi">
-          Tài khoản đăng nhập
-          <span class="tip" tabindex="0" role="note" aria-label="Chỉ hiện những tài khoản chưa nối với hồ sơ nào.">?
-            <span class="tip__bubble">Chỉ hiện tài khoản <b>chưa nối</b> với hồ sơ nào.</span>
-          </span>
-        </label>
-        <select id="chonNoi">
-          <option value="">— Chọn tài khoản —</option>
-          <option>backup-bot · bot@congty.vn</option>
-        </select>
-        <span class="o__meo">
-          Nối xong, hai dòng gộp làm một. Gỡ lại được bất cứ lúc nào ở ngăn kéo chi tiết.
-        </span>
+    <!-- Thẻ biến mất ở bước hiện mật khẩu tạm: lúc đó việc đã xong, đổi thẻ chỉ vứt mất
+         thứ duy nhất người dùng còn phải lấy ra khỏi màn hình này. -->
+    <div class="buoc buoc--nhap">
+      <div class="tab" style="padding:0 16px">
+        <button aria-selected="true" data-che="noi">Nối tài khoản có sẵn</button>
+        <button aria-selected="false" data-che="tao">Tạo tài khoản mới</button>
       </div>
     </div>
 
-    <div class="hop__chan">
+    <div class="hop__than">
+      <div class="buoc buoc--nhap">
+      <div class="che che--noi">
+        <div class="o">
+          <label class="o__nhan" for="chonNoi">
+            Tài khoản đăng nhập
+            <span class="tip" tabindex="0" role="note" aria-label="Chỉ hiện những tài khoản chưa nối với hồ sơ nào.">?
+              <span class="tip__bubble">Chỉ hiện tài khoản <b>chưa nối</b> với hồ sơ nào.</span>
+            </span>
+          </label>
+          <select id="chonNoi">
+            <option value="">— Chọn tài khoản —</option>
+            <option>backup-bot · bot@congty.vn</option>
+          </select>
+          <span class="o__meo">
+            Nối xong, hai dòng gộp làm một. Gỡ lại được bất cứ lúc nào ở ngăn kéo chi tiết.
+          </span>
+        </div>
+      </div>
+
+      <div class="che che--tao">
+        <div class="luoi">
+          <div class="o luoi--rong">
+            <label class="o__nhan" for="mailCap">Email đăng nhập <span class="o__batbuoc">*</span></label>
+            <input id="mailCap" type="email" value="ha.do@congty.vn">
+            <span class="o__meo">Điền sẵn từ email trên hồ sơ. Sửa được nếu người này đăng nhập bằng địa chỉ khác.</span>
+          </div>
+
+          <div class="o luoi--rong">
+            <label class="o__nhan" for="vaiCap">Vai trò</label>
+            <select id="vaiCap">
+              <option>Member — chỉ xem phần của mình</option>
+              <option>Manager — quản lý phòng ban của mình</option>
+              <option>Admin — quản trị toàn workspace</option>
+            </select>
+          </div>
+        </div>
+
+        <p class="mota" style="margin-top:14px">
+          Tạo xong sẽ hiện <b>mật khẩu tạm</b> đúng một lần, và tài khoản mới được nối luôn
+          vào hồ sơ này.
+        </p>
+      </div>
+      </div>
+
+      <!-- Bước hai BẮT BUỘC phải có ở đây, cùng lý do với hộp "Thêm người": mật khẩu tạm
+           chỉ tồn tại đúng một lần, ngay tại phản hồi của lời gọi tạo. Vẽ hộp này mà bỏ
+           bước hai thì bản dựng mô tả một luồng không dùng được. -->
+      <div class="buoc buoc--xong">
+        <div class="xong__dau">
+          <div class="xong__vong"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg></div>
+          <div>
+            <div class="xong__ten">Đã tạo tài khoản cho Đỗ Ngọc Hà</div>
+            <div class="xong__mail">ha.do@congty.vn · Member</div>
+          </div>
+        </div>
+
+        <div class="o" style="margin-bottom:14px">
+          <span class="o__nhan">Mật khẩu tạm</span>
+          <div class="matkhau">
+            <code>k7np-2wqx-hs4m</code>
+            <button class="nut nut--nho" data-soon="Chép mật khẩu">Chép</button>
+          </div>
+        </div>
+
+        <p class="mota">
+          <b>Đây là lần duy nhất bạn thấy mật khẩu này.</b> Đóng hộp thoại là nó biến mất —
+          quên thì phải đặt lại mật khẩu. Hãy đưa tận tay hoặc nhắn riêng cho
+          <b>Đỗ Ngọc Hà</b> ngay bây giờ.
+        </p>
+      </div>
+    </div>
+
+    <div class="hop__chan chan--nhap">
       <button class="nut nut--pha" data-dong>Huỷ</button>
-      <button class="nut nut--chinh" data-soon="Nối">Nối</button>
+      <button class="nut nut--chinh" id="nutCap">Xác nhận</button>
+    </div>
+
+    <div class="hop__chan chan--xong">
+      <button class="nut nut--chinh" data-dong>Xong</button>
     </div>
   </div>
 </div>
@@ -678,6 +768,26 @@ document.getElementById('themNua').addEventListener('click', () => {
   hopThem.dataset.buoc = 'nhap';
 });
 
+// Hai chế độ của hộp cấp tài khoản. Thẻ tab ở đây KHÔNG dùng chung bộ xử lý với thẻ tab
+// của ngăn kéo chi tiết: bộ kia ẩn/hiện theo `.keo__than > div`, mà hộp này ẩn/hiện bằng
+// `[data-che]` — dùng chung thì một trong hai sẽ ẩn nhầm khối của bên kia.
+const hopNoi = document.getElementById('hopNoi');
+
+hopNoi.querySelectorAll('.tab button[data-che]').forEach((tab) => {
+  tab.addEventListener('click', () => {
+    hopNoi.querySelectorAll('.tab button[data-che]').forEach((t) =>
+      t.setAttribute('aria-selected', String(t === tab)));
+    hopNoi.dataset.che = tab.dataset.che;
+  });
+});
+
+// Cho người duyệt bấm sang bước hiện mật khẩu tạm, giống nút "Tạo tài khoản" của hộp
+// Thêm người. Chỉ có nghĩa ở chế độ "tạo mới" — nối vào tài khoản có sẵn thì không sinh
+// mật khẩu nào.
+document.getElementById('nutCap').addEventListener('click', () => {
+  if (hopNoi.dataset.che === 'tao') hopNoi.dataset.buoc = 'xong';
+});
+
 document.querySelectorAll('[data-dong]').forEach(b => b.addEventListener('click', dongHet));
 
 // Bấm ra nền tối thì đóng — nhưng CHỈ khi bấm đúng nền, không phải khi bấm bên trong hộp.
@@ -695,11 +805,15 @@ document.querySelectorAll('#than tr').forEach(tr => {
 });
 
 // ── Thẻ tab trong ngăn kéo ──────────────────────────────────────────
-document.querySelectorAll('.tab button').forEach(tab => {
+// Quét trong NGĂN KÉO thôi, không quét cả trang: hộp cấp tài khoản cũng có `.tab`, và
+// một bộ xử lý chung sẽ ẩn nhầm khối của bên kia rồi để lại một hộp thoại trống.
+const keo = document.querySelector('.keo');
+
+keo.querySelectorAll('.tab button[data-tab]').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab button').forEach(t =>
+    keo.querySelectorAll('.tab button[data-tab]').forEach(t =>
       t.setAttribute('aria-selected', String(t === tab)));
-    document.querySelectorAll('.keo__than > div').forEach(k =>
+    keo.querySelectorAll('.keo__than > div').forEach(k =>
       k.hidden = k.dataset.tab !== tab.dataset.tab);
   });
 });

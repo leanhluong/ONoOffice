@@ -219,7 +219,14 @@
       "undone": "Đã gỡ liên kết.",
       "linkAccount": "Nối tài khoản",
       "linkProfile": "Nối hồ sơ",
-      "noCandidate": "Không còn hồ sơ hay tài khoản nào chưa nối để chọn."
+      "noCandidate": "Không còn hồ sơ hay tài khoản nào chưa nối để chọn.",
+      "newAccount": "Tạo tài khoản mới",
+      "newProfile": "Tạo hồ sơ mới",
+      "emailPrefilled": "Điền sẵn từ email trên hồ sơ. Sửa được nếu người này đăng nhập bằng địa chỉ khác.",
+      "newAccountNote": "Tạo xong sẽ hiện mật khẩu tạm đúng một lần, và tài khoản mới được nối luôn vào hồ sơ này.",
+      "newProfileNote": "Hồ sơ mới được nối luôn vào tài khoản này. Phòng ban và điện thoại điền sau ở màn Danh bạ.",
+      "codeNote": "Mã nằm trên hợp đồng và thẻ nhân viên, nên không đổi được sau khi tạo.",
+      "jobTitle": "Chức danh"
     },
     "noAccount": "Chưa có tài khoản",
     "noProfile": "Chưa có hồ sơ",

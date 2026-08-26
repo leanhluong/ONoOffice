@@ -7,6 +7,8 @@ import type {
   ContactListItem,
   ContactQuery,
   CreateDepartmentRequest,
+  CreateEmployeeRequest,
+  CreateEmployeeResponse,
   DepartmentTreeItem,
   MemberListItem,
 } from '../models/org.model';
@@ -83,6 +85,11 @@ export class OrgService {
   /** Gỡ liên kết. Không mất gì: hồ sơ còn, tài khoản còn, chỉ tách lại thành hai dòng. */
   unlinkAccount(employeeId: string): Observable<void> {
     return this.http.post<void>(this.url(`/api/employees/${employeeId}/unlink-account`), {});
+  }
+
+  /** Tạo hồ sơ nhân sự. Trả về `id` để bên gọi nối luôn vào một tài khoản nếu cần. */
+  createEmployee(request: CreateEmployeeRequest): Observable<CreateEmployeeResponse> {
+    return this.http.post<CreateEmployeeResponse>(this.url('/api/employees'), request);
   }
 
   // ── Danh bạ ───────────────────────────────────────────────────────

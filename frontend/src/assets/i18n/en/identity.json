@@ -219,7 +219,14 @@
       "undone": "Unlinked.",
       "linkAccount": "Link an account",
       "linkProfile": "Link a profile",
-      "noCandidate": "There is no unlinked profile or account left to pick."
+      "noCandidate": "There is no unlinked profile or account left to pick.",
+      "newAccount": "Create a new account",
+      "newProfile": "Create a new profile",
+      "emailPrefilled": "Prefilled from the email on the profile. Change it if this person signs in with a different address.",
+      "newAccountNote": "You will see a temporary password once, and the new account is linked to this profile straight away.",
+      "newProfileNote": "The new profile is linked to this account straight away. Department and phone can be filled in later from the directory.",
+      "codeNote": "The code is on the contract and the badge, so it cannot be changed after creation.",
+      "jobTitle": "Job title"
     },
     "noAccount": "No account",
     "noProfile": "No profile",

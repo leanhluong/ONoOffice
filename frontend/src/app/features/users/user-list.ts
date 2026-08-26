@@ -119,6 +119,16 @@ export class UserList {
   /** Khoá của ứng viên đang chọn trong danh sách xổ. `''` = chưa chọn ai. */
   protected readonly linkTarget = signal('');
 
+  /**
+   * Hai đường đi cho một người còn thiếu một nửa: nối vào thứ ĐÃ CÓ, hoặc tạo thứ MỚI.
+   *
+   * Chúng là hai thẻ trong MỘT hộp thoại chứ không phải hai mục trong một menu xổ, vì
+   * người dùng đang hỏi đúng một câu — "cho người này một tài khoản kiểu gì?". Ngoài ra
+   * menu xổ đặt trong bảng thì bị `.bangcuon { overflow-x: auto }` cắt cụt: đặt overflow
+   * một chiều thì chiều kia thành `auto` theo, nên nội dung absolute bên trong bị cắt.
+   */
+  protected readonly linkMode = signal<'noi' | 'tao'>('noi');
+
   private readonly searchInput = new Subject<string>();
 
   protected readonly hasFilter = computed(
@@ -155,6 +165,18 @@ export class UserList {
   protected readonly detailForm = this.fb.nonNullable.group({
     fullName: ['', [notBlank, Validators.maxLength(200)]],
     roleId: ['', [Validators.required]],
+  });
+
+  /**
+   * Biểu mẫu tạo HỒ SƠ cho một dòng chỉ có tài khoản.
+   *
+   * Chỉ có mã nhân viên là bắt buộc — tên lấy thẳng từ tài khoản, còn chức danh và phòng
+   * ban điền sau được. `Employee.Create` từ chối mã rỗng, nên gửi đi mà chưa điền là một
+   * vòng mạng chắc chắn thất bại.
+   */
+  protected readonly employeeForm = this.fb.nonNullable.group({
+    code: ['', [notBlank, Validators.maxLength(30)]],
+    jobTitle: [''],
   });
 
   /** Lỗi do backend từ chối, gắn vào đúng ô — chỉ có "email đã có tài khoản". */
@@ -555,17 +577,42 @@ export class UserList {
 
   protected openLink(member: MemberListItem): void {
     this.linkFor.set(member);
+    this.linkTarget.set('');
+    this.createStep.set('nhap');
+    this.created.set(null);
+    this.rejectedEmail.set(null);
+    this.employeeForm.reset({ code: '', jobTitle: '' });
 
-    // Không còn ai để nối thì nói thẳng thay vì mở một danh sách xổ rỗng — người dùng sẽ
-    // đi tìm xem mình đã lọc nhầm gì. Workspace mà mọi tài khoản đều đã nối là bình thường.
-    if (this.linkCandidates().length === 0) {
-      this.linkFor.set(null);
-      this.popups.show(this.translate.instant('users.link.noCandidate') as string);
+    // Không còn ai để nối thì mở thẳng chế độ TẠO MỚI thay vì một danh sách xổ rỗng.
+    // Đóng hộp lại là bảo người dùng rằng người này vĩnh viễn không thể có tài khoản,
+    // trong khi vẫn còn đúng một đường đi.
+    this.setLinkMode(this.linkCandidates().length === 0 ? 'tao' : 'noi');
+  }
 
+  /** Đổi thẻ, và điền sẵn biểu mẫu tạo mới từ chính dòng đang đứng. */
+  protected setLinkMode(mode: 'noi' | 'tao'): void {
+    this.linkMode.set(mode);
+
+    const nguon = this.linkFor();
+
+    if (mode !== 'tao' || nguon === null) {
       return;
     }
 
-    this.linkTarget.set('');
+    // Điền sẵn từ dòng đang đứng. Bắt gõ lại cái tên đang hiện ngay trên màn hình là việc
+    // thừa, và mỗi lần gõ lại là một cơ hội gõ khác đi — rồi hồ sơ và tài khoản của cùng
+    // một người mang hai cái tên, mà không có gì báo.
+    if (nguon.userId === null) {
+      this.createForm.patchValue({ fullName: nguon.fullName, email: nguon.email ?? '' });
+      this.createForm.markAsUntouched();
+    } else {
+      this.employeeForm.patchValue({ code: '', jobTitle: nguon.jobTitle ?? '' });
+      this.employeeForm.markAsUntouched();
+    }
+  }
+
+  protected onLinkModeChange(mode: 'noi' | 'tao'): void {
+    this.setLinkMode(mode);
   }
 
   protected closeLink(): void {
@@ -586,9 +633,20 @@ export class UserList {
    */
   protected submitLink(): void {
     const nguon = this.linkFor();
+
+    if (nguon === null) {
+      return;
+    }
+
+    if (this.linkMode() === 'tao') {
+      this.taoRoiNoi(nguon);
+
+      return;
+    }
+
     const chon = this.linkTarget();
 
-    if (nguon === null || chon === '') {
+    if (chon === '') {
       return;
     }
 
@@ -617,6 +675,117 @@ export class UserList {
       error: (error: unknown) => {
         this.saving.set(false);
         this.showError(error);
+      },
+    });
+  }
+
+  /**
+   * Tạo nửa còn thiếu rồi nối luôn — HAI lời gọi HTTP nối tiếp, không phải một giao dịch.
+   *
+   * Đây là đánh đổi có chủ ý. Làm ở backend thì cần một cổng GHI liên module (nay
+   * `IUserDirectory` mới chỉ đọc), mà `CompositeUnitOfWork` cũng chỉ chốt hai transaction
+   * nối tiếp chứ không phải một — nên hỏng giữa chừng vẫn để lại đúng trạng thái đó, chỉ
+   * là giấu vào chỗ người dùng không thấy.
+   *
+   * Ở đây thì nó <b>hỏng lành và nhìn thấy được</b>: bước nối trượt thì có một dòng
+   * chỉ-tài-khoản nằm ngay cạnh dòng chỉ-hồ-sơ, và nút "Nối" ở ngay đó sửa được.
+   */
+  private taoRoiNoi(nguon: MemberListItem): void {
+    // Thiếu tài khoản → tạo tài khoản. Thiếu hồ sơ → tạo hồ sơ.
+    if (nguon.userId === null) {
+      this.capTaiKhoan(nguon);
+
+      return;
+    }
+
+    if (this.employeeForm.invalid) {
+      this.employeeForm.markAllAsTouched();
+
+      return;
+    }
+
+    const body = this.employeeForm.getRawValue();
+
+    this.saving.set(true);
+
+    this.org
+      .createEmployee({
+        code: body.code.trim(),
+        fullName: nguon.fullName,
+        jobTitle: body.jobTitle.trim() === '' ? null : body.jobTitle.trim(),
+        workEmail: nguon.email,
+        phone: null,
+        departmentId: null,
+      })
+      .subscribe({
+        next: (hoSo) => this.noiSauKhiTao(hoSo.id, nguon.userId!),
+        error: (error: unknown) => {
+          this.saving.set(false);
+          this.showError(error);
+        },
+      });
+  }
+
+  /**
+   * Tạo TÀI KHOẢN cho một hồ sơ, rồi nối.
+   *
+   * Vẫn đi qua bước hai hiện mật khẩu tạm, y như luồng "Thêm người" — mật khẩu đó chỉ tồn
+   * tại đúng một lần trong phản hồi. Nối xong rồi đóng hộp thoại luôn thì người vừa được
+   * cấp tài khoản không có cách nào đăng nhập lần đầu.
+   */
+  private capTaiKhoan(nguon: MemberListItem): void {
+    if (this.createForm.invalid) {
+      this.createForm.markAllAsTouched();
+
+      return;
+    }
+
+    this.saving.set(true);
+    this.rejectedEmail.set(null);
+
+    const body = this.createForm.getRawValue();
+
+    this.users.create({ ...body, fullName: body.fullName.trim() }).subscribe({
+      next: (taiKhoan) => {
+        this.created.set(taiKhoan);
+        this.createStep.set('xong');
+        this.noiSauKhiTao(nguon.employeeId!, taiKhoan.id);
+      },
+      error: (error: unknown) => {
+        this.saving.set(false);
+
+        if (isAppError(error) && error.code === 'Email.Taken') {
+          this.rejectedEmail.set(this.errorMessages.resolve(error));
+          this.createForm.controls.email.markAsTouched();
+        }
+
+        this.showError(error);
+      },
+    });
+  }
+
+  /**
+   * Bước hai của "tạo rồi nối".
+   *
+   * KHÔNG đóng hộp thoại ở đây khi vừa tạo tài khoản: hộp đang ở bước hiện mật khẩu tạm.
+   * Đóng nó là vứt mất thứ duy nhất người dùng cần lấy ra.
+   */
+  private noiSauKhiTao(employeeId: string, userId: string): void {
+    this.org.linkAccount(employeeId, userId).subscribe({
+      next: () => {
+        this.saving.set(false);
+
+        if (this.createStep() !== 'xong') {
+          this.linkFor.set(null);
+          this.popups.show(this.translate.instant('users.link.done') as string);
+        }
+
+        this.load();
+      },
+      error: (error: unknown) => {
+        this.saving.set(false);
+        this.showError(error);
+        this.load();
       },
     });
   }

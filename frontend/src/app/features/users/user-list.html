@@ -663,12 +663,21 @@
   </div>
 </div>
 
-<!--
-  HỘP THOẠI NỐI HỒ SƠ ↔ TÀI KHOẢN — một hộp cho CẢ HAI chiều.
 
-  Mở từ dòng "chỉ hồ sơ" thì nó hỏi chọn tài khoản; mở từ dòng "chỉ tài khoản" thì hỏi
-  chọn hồ sơ. Cùng một phép nối, chỉ khác phía nào đã biết. Hai hộp riêng là chép cùng một
-  khung hai lần, và sớm muộn chúng lệch nhau.
+<!--
+  HỘP THOẠI NỐI / CẤP — một hộp cho CẢ HAI chiều và CẢ HAI cách.
+
+  Chiều: mở từ dòng "chỉ hồ sơ" thì hỏi về tài khoản; mở từ dòng "chỉ tài khoản" thì hỏi
+  về hồ sơ. Cùng một phép nối, chỉ khác phía nào đã biết.
+
+  Cách: nối vào thứ ĐÃ CÓ, hoặc tạo thứ MỚI. Đó là hai câu trả lời cho MỘT câu hỏi, nên
+  chúng là hai thẻ trong một hộp — không phải hai mục trong menu ba chấm của từng dòng.
+  Menu xổ trong bảng còn bị `.bangcuon { overflow-x: auto }` cắt cụt: đặt overflow một
+  chiều thì chiều kia thành `auto` theo.
+
+  Bật/tắt bằng CSS (`data-buoc`, `data-che`) chứ không bằng `@if`, giống hệt hộp thoại
+  "Thêm người" ngay trên — cùng một khuôn thì dùng cùng một cơ chế, để `ui-parity` so được
+  tập lớp với bản dựng.
 -->
 <div class="man" [class.man--hien]="linkFor() !== null">
   <button
@@ -685,6 +694,8 @@
       aria-modal="true"
       aria-labelledby="tdNoi"
       style="max-width: 460px"
+      [attr.data-buoc]="createStep()"
+      [attr.data-che]="linkMode()"
     >
       <div class="hop__dau">
         <h2 id="tdNoi">
@@ -693,49 +704,195 @@
               | translate: { name: nguon.fullName }
           }}
         </h2>
-        <button class="nuti" type="button" [attr.aria-label]="'action.close' | translate" (click)="closeLink()">
-          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+        <button
+          class="nuti"
+          type="button"
+          [attr.aria-label]="'action.close' | translate"
+          (click)="closeLink()"
+        >
+          <svg
+            viewBox="0 0 18 18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
             <path d="m5 5 8 8M13 5l-8 8" />
           </svg>
         </button>
       </div>
 
-      <div class="hop__than">
-        <div class="o">
-          <label class="o__nhan" for="chonNoi">
+      <!--
+        Thẻ biến mất ở bước hiện mật khẩu tạm: lúc đó việc đã xong, và đổi thẻ chỉ vứt mất
+        thứ duy nhất người dùng còn phải lấy ra khỏi màn hình này.
+      -->
+      <div class="buoc buoc--nhap">
+        <div class="tab" style="padding: 0 16px">
+          <button
+            type="button"
+            [attr.aria-selected]="linkMode() === 'noi'"
+            [disabled]="linkCandidates().length === 0"
+            (click)="onLinkModeChange('noi')"
+          >
             {{
               (nguon.userId === null ? 'users.link.pickAccount' : 'users.link.pickProfile')
                 | translate
             }}
-            <app-tip [text]="'users.link.onlyUnlinked' | translate" />
-          </label>
-
-          <select id="chonNoi" [value]="linkTarget()" (change)="onLinkTargetChange($event)">
-            <option value="" [selected]="linkTarget() === ''">
-              {{ 'users.link.choose' | translate }}
-            </option>
-            @for (ungVien of linkCandidates(); track rowKey(ungVien)) {
-              <option [value]="rowKey(ungVien)" [selected]="linkTarget() === rowKey(ungVien)">
-                {{ ungVien.fullName }}{{ ungVien.email ? ' · ' + ungVien.email : '' }}
-              </option>
-            }
-          </select>
-
-          <span class="o__meo">{{ 'users.link.hint' | translate }}</span>
+          </button>
+          <button
+            type="button"
+            [attr.aria-selected]="linkMode() === 'tao'"
+            (click)="onLinkModeChange('tao')"
+          >
+            {{
+              (nguon.userId === null ? 'users.link.newAccount' : 'users.link.newProfile')
+                | translate
+            }}
+          </button>
         </div>
       </div>
 
-      <div class="hop__chan">
+      <div class="hop__than">
+        <div class="buoc buoc--nhap">
+          <!-- ── Chế độ 1: nối vào thứ đã có ── -->
+          <div class="che che--noi">
+            <div class="o">
+              <label class="o__nhan" for="chonNoi">
+                {{
+                  (nguon.userId === null ? 'users.link.pickAccount' : 'users.link.pickProfile')
+                    | translate
+                }}
+                <app-tip [text]="'users.link.onlyUnlinked' | translate" />
+              </label>
+
+              <select id="chonNoi" [value]="linkTarget()" (change)="onLinkTargetChange($event)">
+                <option value="" [selected]="linkTarget() === ''">
+                  {{ 'users.link.choose' | translate }}
+                </option>
+                @for (ungVien of linkCandidates(); track rowKey(ungVien)) {
+                  <option [value]="rowKey(ungVien)" [selected]="linkTarget() === rowKey(ungVien)">
+                    {{ ungVien.fullName }}{{ ungVien.email ? ' · ' + ungVien.email : '' }}
+                  </option>
+                }
+              </select>
+
+              <span class="o__meo">{{ 'users.link.hint' | translate }}</span>
+            </div>
+          </div>
+
+          <!-- ── Chế độ 2: tạo nửa còn thiếu ── -->
+          <div class="che che--tao">
+            @if (nguon.userId === null) {
+              <!-- Thiếu TÀI KHOẢN. Tên đã có từ hồ sơ, chỉ còn email và vai trò. -->
+              <div class="luoi" [formGroup]="createForm">
+                <div class="o luoi--rong" [class.o--hong]="emailError() !== null">
+                  <label class="o__nhan" for="mailCap">
+                    {{ 'users.field.email' | translate }} <span class="o__batbuoc">*</span>
+                  </label>
+                  <input id="mailCap" type="email" formControlName="email" />
+                  @if (emailError(); as loi) {
+                    <span class="o__loi">{{ loi }}</span>
+                  } @else {
+                    <span class="o__meo">{{ 'users.link.emailPrefilled' | translate }}</span>
+                  }
+                </div>
+
+                <div class="o luoi--rong">
+                  <label class="o__nhan" for="vaiCap">{{ 'users.field.role' | translate }}</label>
+                  <select id="vaiCap" formControlName="roleId">
+                    @for (role of roles(); track role.id) {
+                      <option [value]="role.id">{{ role.name }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <p class="mota" style="margin-top: 14px">
+                {{ 'users.link.newAccountNote' | translate }}
+              </p>
+            } @else {
+              <!-- Thiếu HỒ SƠ. Mã nhân viên là thứ DUY NHẤT bắt buộc. -->
+              <div class="luoi" [formGroup]="employeeForm">
+                <div class="o luoi--rong">
+                  <label class="o__nhan" for="maCap">
+                    {{ 'users.column.code' | translate }} <span class="o__batbuoc">*</span>
+                  </label>
+                  <input id="maCap" type="text" formControlName="code" placeholder="NV010" />
+                  <span class="o__meo">{{ 'users.link.codeNote' | translate }}</span>
+                </div>
+
+                <div class="o luoi--rong">
+                  <label class="o__nhan" for="chucCap">
+                    {{ 'users.link.jobTitle' | translate }}
+                  </label>
+                  <input id="chucCap" type="text" formControlName="jobTitle" />
+                </div>
+              </div>
+
+              <p class="mota" style="margin-top: 14px">
+                {{ 'users.link.newProfileNote' | translate }}
+              </p>
+            }
+          </div>
+        </div>
+
+        <!-- ── Bước 2: mật khẩu tạm, chỉ hiện đúng một lần ── -->
+        <div class="buoc buoc--xong">
+          @if (created(); as result) {
+            <div class="xong__dau">
+              <div class="xong__vong">
+                <svg
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <path d="m4 10.5 4 4 8-9" />
+                </svg>
+              </div>
+              <div>
+                <div class="xong__ten">
+                  {{ 'users.done.title' | translate: { name: result.fullName } }}
+                </div>
+                <div class="xong__mail">{{ result.email }} · {{ result.roleName }}</div>
+              </div>
+            </div>
+
+            <div class="o" style="margin-bottom: 14px">
+              <span class="o__nhan">{{ 'users.done.password' | translate }}</span>
+              <div class="matkhau">
+                <code>{{ result.temporaryPassword }}</code>
+                <button class="nut nut--nho" type="button" (click)="copyPassword()">
+                  {{ 'users.done.copy' | translate }}
+                </button>
+              </div>
+            </div>
+
+            <p class="mota">
+              {{ 'users.done.warning' | translate: { name: result.fullName } }}
+            </p>
+          }
+        </div>
+      </div>
+
+      <div class="hop__chan chan--nhap">
         <button class="nut nut--pha" type="button" (click)="closeLink()">
           {{ 'action.cancel' | translate }}
         </button>
         <button
           class="nut nut--chinh"
           type="button"
-          [disabled]="saving() || linkTarget() === ''"
+          [disabled]="saving() || (linkMode() === 'noi' && linkTarget() === '')"
           (click)="submitLink()"
         >
           {{ 'users.link.confirm' | translate }}
+        </button>
+      </div>
+
+      <div class="hop__chan chan--xong">
+        <button class="nut nut--chinh" type="button" (click)="closeLink()">
+          {{ 'users.done.finish' | translate }}
         </button>
       </div>
     </div>

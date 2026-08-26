@@ -525,6 +525,39 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
     }
   }
 
+  // ── Tạo hồ sơ nhân sự ───────────────────────────────────────────────
+  if (duong === '/api/employees' && req.method === 'POST') {
+    const than = req.body as { code?: string; fullName?: string; jobTitle?: string | null } | null;
+    const ma = (than?.code ?? '').trim().toUpperCase();
+
+    // VIẾT HOA rồi mới kiểm trùng, giống `Employee.Create`. Kiểm trên chuỗi thô thì
+    // "nv001" và "NV001" lọt thành hai người, và ràng buộc UNIQUE thật mới nổ sau đó.
+    if (ma === '') {
+      return loi(400, 'Employee.CodeEmpty', 'Mã nhân viên không được để trống.');
+    }
+
+    if (kho.hoSo.some((h) => h.code.toUpperCase() === ma)) {
+      return loi(409, 'Employee.CodeTaken', 'Workspace đã có nhân viên mang mã này.');
+    }
+
+    const moi = {
+      id: `e-${ma.toLowerCase()}`,
+      code: ma,
+      fullName: than?.fullName ?? '',
+      jobTitle: than?.jobTitle ?? null,
+      workEmail: null,
+      phone: null,
+      departmentId: null,
+      departmentName: null,
+      isActive: true,
+      userId: null,
+    };
+
+    kho.hoSo.push(moi);
+
+    return ok({ id: moi.id, code: moi.code, fullName: moi.fullName });
+  }
+
   // ── Nối / gỡ hồ sơ ↔ tài khoản ──────────────────────────────────────
   //
   // Mô phỏng đủ HAI phép kiểm của backend, không chỉ phép nối. Bỏ bớt một cái thì demo dạy

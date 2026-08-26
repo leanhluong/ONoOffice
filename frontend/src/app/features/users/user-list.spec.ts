@@ -112,6 +112,14 @@ class FakeUserService {
     return of(undefined);
   }
 
+  employees: unknown[] = [];
+
+  createEmployee(request: unknown): Observable<{ id: string }> {
+    this.employees.push(request);
+
+    return of({ id: 'e-moi' });
+  }
+
   createdWith: CreateUserRequest | null = null;
   createResult: Observable<CreateUserResponse> = of({
     id: 'u-1',
@@ -534,13 +542,126 @@ describe('UserList', () => {
     expect(service.links).toHaveLength(0);
   });
 
+  // ── Cấp tài khoản / tạo hồ sơ MỚI ─────────────────────────────────
+
   /**
-   * Không có ứng viên nào thì nói thẳng, đừng mở một hộp thoại rỗng.
+   * Chế độ "tạo mới" điền sẵn từ dòng đang đứng.
    *
-   * Workspace mà mọi tài khoản đều đã nối là chuyện bình thường. Mở ra một danh sách xổ
-   * chỉ có dòng "— Chọn —" thì người dùng đi tìm xem mình đã lọc nhầm gì.
+   * Bắt quản trị viên gõ lại cái tên đang hiện ngay trên màn hình là việc thừa, và mỗi
+   * lần gõ lại là một cơ hội gõ khác đi — rồi hồ sơ và tài khoản của cùng một người mang
+   * hai cái tên, mà không có gì báo.
    */
-  it('không còn ai để nối thì không mở hộp thoại', () => {
+  it('chuyển sang "tạo mới" thì điền sẵn tên và email của dòng đang đứng', () => {
+    const chiHoSo = user({
+      fullName: 'Đỗ Ngọc Hà',
+      email: 'ha.do@congty.vn',
+      userId: null,
+      roleName: null,
+    });
+
+    service.result = [chiHoSo, user({ employeeId: null, code: null })];
+
+    const component = make();
+
+    component['openLink'](chiHoSo);
+    component['setLinkMode']('tao');
+
+    expect(component['createForm'].getRawValue()).toMatchObject({
+      fullName: 'Đỗ Ngọc Hà',
+      email: 'ha.do@congty.vn',
+    });
+  });
+
+  /**
+   * Tạo tài khoản xong thì NỐI LUÔN, không bắt người dùng làm bước hai bằng tay.
+   *
+   * Đây là hai lời gọi HTTP nối tiếp, không phải một giao dịch. Nếu bước nối trượt thì có
+   * một dòng chỉ-tài-khoản nằm ngay cạnh dòng chỉ-hồ-sơ, và nút "Nối" sửa được — hỏng
+   * lành, và nhìn thấy được. Đó là lý do chấp nhận làm ở client thay vì thêm một cổng GHI
+   * liên module.
+   */
+  it('tạo tài khoản xong thì nối luôn vào hồ sơ đang đứng', () => {
+    const chiHoSo = user({ fullName: 'Đỗ Ngọc Hà', userId: null, roleName: null });
+
+    service.result = [chiHoSo, user({ employeeId: null, code: null })];
+
+    const component = make();
+
+    component['openLink'](chiHoSo);
+    component['setLinkMode']('tao');
+    component['submitLink']();
+
+    expect(service.createdWith).toMatchObject({ fullName: 'Đỗ Ngọc Hà' });
+    expect(service.links).toEqual([{ employeeId: chiHoSo.employeeId, userId: 'u-1' }]);
+  });
+
+  /**
+   * Mật khẩu tạm vẫn phải hiện, y như luồng "Thêm người".
+   *
+   * Nó chỉ tồn tại đúng một lần trong phản hồi. Nối xong rồi đóng hộp thoại luôn thì
+   * người vừa được cấp tài khoản không có cách nào đăng nhập lần đầu.
+   */
+  it('cấp tài khoản xong thì hiện mật khẩu tạm', () => {
+    const chiHoSo = user({ userId: null, roleName: null });
+
+    service.result = [chiHoSo, user({ employeeId: null, code: null })];
+
+    const component = make();
+
+    component['openLink'](chiHoSo);
+    component['setLinkMode']('tao');
+    component['submitLink']();
+
+    expect(component['created']()!.temporaryPassword).toBe('k7np-2wqx-hs4m');
+  });
+
+  /**
+   * Từ phía TÀI KHOẢN thì "tạo mới" nghĩa là tạo HỒ SƠ, và mã nhân viên là bắt buộc.
+   *
+   * `Employee.Create` từ chối mã rỗng, nên gửi đi mà chưa điền là một vòng mạng chắc chắn
+   * thất bại — chặn tại chỗ.
+   */
+  it('tạo hồ sơ mà chưa có mã nhân viên thì KHÔNG gọi backend', () => {
+    const chiTaiKhoan = user({ fullName: 'backup-bot', employeeId: null, code: null });
+
+    service.result = [chiTaiKhoan, user({ userId: null, roleName: null })];
+
+    const component = make();
+
+    component['openLink'](chiTaiKhoan);
+    component['setLinkMode']('tao');
+    component['submitLink']();
+
+    expect(service.employees).toHaveLength(0);
+    expect(service.links).toHaveLength(0);
+  });
+
+  it('tạo hồ sơ xong thì nối luôn vào tài khoản đang đứng', () => {
+    const chiTaiKhoan = user({ fullName: 'backup-bot', employeeId: null, code: null });
+
+    service.result = [chiTaiKhoan, user({ userId: null, roleName: null })];
+
+    const component = make();
+
+    component['openLink'](chiTaiKhoan);
+    component['setLinkMode']('tao');
+    component['employeeForm'].patchValue({ code: 'NV010' });
+    component['submitLink']();
+
+    expect(service.employees).toEqual([
+      expect.objectContaining({ code: 'NV010', fullName: 'backup-bot' }),
+    ]);
+    expect(service.links).toEqual([{ employeeId: 'e-moi', userId: chiTaiKhoan.userId }]);
+  });
+
+  /**
+   * Không còn ai để nối thì hộp thoại vẫn phải MỞ, ở chế độ "tạo mới".
+   *
+   * Trước khi có chế độ này thì không có ứng viên nghĩa là không làm được gì, nên hộp
+   * đóng luôn. Nay vẫn còn một đường đi — và đóng cửa lại là bảo người dùng rằng người
+   * này vĩnh viễn không thể có tài khoản.
+   */
+  it('không còn ai để nối thì mở thẳng chế độ "tạo mới"', () => {
     const chiHoSo = user({ userId: null, roleName: null });
 
     service.result = [chiHoSo];
@@ -549,7 +670,8 @@ describe('UserList', () => {
 
     component['openLink'](chiHoSo);
 
-    expect(component['linkFor']()).toBeNull();
+    expect(component['linkFor']()).toBe(chiHoSo);
+    expect(component['linkMode']()).toBe('tao');
   });
 
   it('gỡ liên kết xong thì nạp lại danh sách và đóng ngăn kéo', () => {

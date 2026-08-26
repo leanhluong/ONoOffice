@@ -72,6 +72,28 @@ export interface ContactListItem {
  * Backend nối hai nguồn bằng `Employee.UserId`, <b>không đoán theo email</b>: phòng kinh
  * doanh dùng chung `sales@` thì đoán theo email sẽ gộp hai người thành một dòng.
  */
+/**
+ * Thân của `POST /api/employees`.
+ *
+ * `code` là thứ DUY NHẤT bắt buộc ngoài tên — nó nằm trên hợp đồng và thẻ nhân viên, và
+ * backend chặn mã rỗng ở `Employee.Create`. Mọi thứ còn lại điền sau được.
+ */
+export interface CreateEmployeeRequest {
+  code: string;
+  fullName: string;
+  jobTitle: string | null;
+  workEmail: string | null;
+  phone: string | null;
+  departmentId: string | null;
+}
+
+/** Trả về của `POST /api/employees` — xem `CreateEmployeeResponse` bên backend. */
+export interface CreateEmployeeResponse {
+  id: string;
+  code: string;
+  fullName: string;
+}
+
 export interface MemberListItem {
   employeeId: string | null;
   userId: string | null;
