@@ -245,8 +245,8 @@
               <button
                 class="nuti"
                 type="button"
-                [attr.aria-label]="'users.openDetail' | translate"
-                (click)="openDetail(user)"
+                [attr.aria-label]="rowActionKey(user) | translate"
+                (click)="rowAction(user)"
               >
                 <svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
                   <circle cx="9" cy="4" r="1.4" />
@@ -553,6 +553,31 @@
             </dd>
           </dl>
 
+          <!--
+            Gỡ liên kết đứng RIÊNG, không nằm trong vùng nguy hiểm.
+
+            Nó không mất gì cả: hồ sơ còn nguyên, tài khoản còn nguyên, chỉ là hai dòng
+            tách ra như trước khi nối. Xếp nó cạnh "vô hiệu hoá tài khoản" thì nó mượn một
+            sắc thái nguy hiểm mà nó không có, và người ta ngại bấm đúng cái nút để sửa một
+            liên kết sai.
+          -->
+          @if (user.employeeId !== null) {
+            <div class="the__khoi" style="margin-top: 18px">
+              <h3>{{ 'users.link.title' | translate }}</h3>
+              <p class="mota">
+                {{ 'users.link.text' | translate: { code: user.code ?? '—' } }}
+              </p>
+              <button
+                class="nut nut--nho"
+                type="button"
+                [disabled]="saving()"
+                (click)="unlink(user)"
+              >
+                {{ 'users.link.unlink' | translate }}
+              </button>
+            </div>
+          }
+
           <div class="the__khoi" style="margin-top: 18px">
             <h3>{{ 'users.danger.title' | translate }}</h3>
             <p class="mota">{{ 'users.danger.text' | translate }}</p>
@@ -636,4 +661,83 @@
       </div>
     }
   </div>
+</div>
+
+<!--
+  HỘP THOẠI NỐI HỒ SƠ ↔ TÀI KHOẢN — một hộp cho CẢ HAI chiều.
+
+  Mở từ dòng "chỉ hồ sơ" thì nó hỏi chọn tài khoản; mở từ dòng "chỉ tài khoản" thì hỏi
+  chọn hồ sơ. Cùng một phép nối, chỉ khác phía nào đã biết. Hai hộp riêng là chép cùng một
+  khung hai lần, và sớm muộn chúng lệch nhau.
+-->
+<div class="man" [class.man--hien]="linkFor() !== null">
+  <button
+    type="button"
+    class="man__nen"
+    [attr.aria-label]="'action.close' | translate"
+    (click)="closeLink()"
+  ></button>
+
+  @if (linkFor(); as nguon) {
+    <div
+      class="hop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tdNoi"
+      style="max-width: 460px"
+    >
+      <div class="hop__dau">
+        <h2 id="tdNoi">
+          {{
+            (nguon.userId === null ? 'users.link.titleForProfile' : 'users.link.titleForAccount')
+              | translate: { name: nguon.fullName }
+          }}
+        </h2>
+        <button class="nuti" type="button" [attr.aria-label]="'action.close' | translate" (click)="closeLink()">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="m5 5 8 8M13 5l-8 8" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="hop__than">
+        <div class="o">
+          <label class="o__nhan" for="chonNoi">
+            {{
+              (nguon.userId === null ? 'users.link.pickAccount' : 'users.link.pickProfile')
+                | translate
+            }}
+            <app-tip [text]="'users.link.onlyUnlinked' | translate" />
+          </label>
+
+          <select id="chonNoi" [value]="linkTarget()" (change)="onLinkTargetChange($event)">
+            <option value="" [selected]="linkTarget() === ''">
+              {{ 'users.link.choose' | translate }}
+            </option>
+            @for (ungVien of linkCandidates(); track rowKey(ungVien)) {
+              <option [value]="rowKey(ungVien)" [selected]="linkTarget() === rowKey(ungVien)">
+                {{ ungVien.fullName }}{{ ungVien.email ? ' · ' + ungVien.email : '' }}
+              </option>
+            }
+          </select>
+
+          <span class="o__meo">{{ 'users.link.hint' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="hop__chan">
+        <button class="nut nut--pha" type="button" (click)="closeLink()">
+          {{ 'action.cancel' | translate }}
+        </button>
+        <button
+          class="nut nut--chinh"
+          type="button"
+          [disabled]="saving() || linkTarget() === ''"
+          (click)="submitLink()"
+        >
+          {{ 'users.link.confirm' | translate }}
+        </button>
+      </div>
+    </div>
+  }
 </div>

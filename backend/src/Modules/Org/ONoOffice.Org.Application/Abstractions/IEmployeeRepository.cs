@@ -36,6 +36,18 @@ public interface IEmployeeRepository
     Task<bool> CodeTakenAsync(string code, Guid? exceptId, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Đã có hồ sơ nào nhận tài khoản này chưa.
+    ///
+    /// <c>Employee.UserId</c> không có ràng buộc UNIQUE — Luật 3 cấm ràng buộc xuyên
+    /// schema, mà đây là khoá của module khác. Nên phép kiểm "một tài khoản chỉ thuộc về
+    /// một người" phải hỏi bằng câu này, database không canh giúp.
+    ///
+    /// <paramref name="exceptId"/> bỏ qua chính hồ sơ đang xét, để nối lại đúng tài khoản
+    /// cũ không tự báo trùng với chính mình.
+    /// </summary>
+    Task<bool> UserLinkedAsync(Guid userId, Guid? exceptId, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Cặp <c>(hồ sơ, tài khoản)</c> của những hồ sơ ĐÃ nối tài khoản.
     ///
     /// Trả riêng thay vì nhét <c>UserId</c> vào <see cref="ContactListItem"/>: danh bạ

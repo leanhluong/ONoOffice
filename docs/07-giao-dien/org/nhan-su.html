@@ -265,7 +265,7 @@
                   <td><span class="thieu">chưa có tài khoản</span></td>
                   <td class="an-hep"><span class="thieu">chưa xếp</span></td>
                   <td><span class="the the--canh">Chưa có tài khoản</span></td>
-                  <td class="bang__phai"><button class="nuti" data-soon="Cấp tài khoản" aria-label="Thao tác"><svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="4" r="1.4"/><circle cx="9" cy="9" r="1.4"/><circle cx="9" cy="14" r="1.4"/></svg></button></td>
+                  <td class="bang__phai"><button class="nuti" data-mo="manNoi" aria-label="Nối tài khoản"><svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="4" r="1.4"/><circle cx="9" cy="9" r="1.4"/><circle cx="9" cy="14" r="1.4"/></svg></button></td>
                 </tr>
 
                 <tr data-ten="backup-bot">
@@ -280,7 +280,7 @@
                   <td><span class="vai">Admin</span></td>
                   <td class="an-hep"><span class="thieu">chưa xếp</span></td>
                   <td><span class="the the--tot">Đang hoạt động</span></td>
-                  <td class="bang__phai"><button class="nuti" data-soon="Tạo hồ sơ" aria-label="Thao tác"><svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="4" r="1.4"/><circle cx="9" cy="9" r="1.4"/><circle cx="9" cy="14" r="1.4"/></svg></button></td>
+                  <td class="bang__phai"><button class="nuti" data-mo="manNoi" aria-label="Nối hồ sơ"><svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="4" r="1.4"/><circle cx="9" cy="9" r="1.4"/><circle cx="9" cy="14" r="1.4"/></svg></button></td>
                 </tr>
 
                 <tr data-ten="Vũ Thị Mai">
@@ -456,6 +456,54 @@
   </div>
 </div>
 
+<!-- ══════════════ HỘP THOẠI NỐI HỒ SƠ ↔ TÀI KHOẢN ══════════════
+
+     MỘT hộp cho CẢ HAI chiều, không phải hai hộp.
+
+     Nhìn từ dòng "chỉ hồ sơ" thì việc cần làm là chọn một tài khoản; nhìn từ dòng "chỉ
+     tài khoản" thì là chọn một hồ sơ. Cùng một phép nối, chỉ khác phía nào đã biết. Tách
+     làm hai hộp là chép cùng một khung hai lần, và sớm muộn chúng lệch nhau — đúng cái
+     đã học ở hộp thoại phòng ban.
+
+     Danh sách xổ chỉ chứa những dòng CHƯA NỐI của phía kia. Cho chọn một tài khoản đã
+     có chủ là bắt người dùng bấm rồi mới biết bị từ chối, trong khi ta đã có sẵn cả danh
+     sách trong tay. Backend vẫn chặn bằng `Employee.UserAlreadyLinked` — hai lớp, vì
+     danh sách trên màn có thể cũ vài giây.
+     ══════════════════════════════════════════════════════════════ -->
+<div class="man" id="manNoi">
+  <button type="button" class="man__nen" data-dong aria-label="Đóng"></button>
+
+  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdNoi" style="max-width:460px">
+    <div class="hop__dau">
+      <h2 id="tdNoi">Nối tài khoản cho Đỗ Ngọc Hà</h2>
+      <button class="nuti" data-dong aria-label="Đóng"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg></button>
+    </div>
+
+    <div class="hop__than">
+      <div class="o">
+        <label class="o__nhan" for="chonNoi">
+          Tài khoản đăng nhập
+          <span class="tip" tabindex="0" role="note" aria-label="Chỉ hiện những tài khoản chưa nối với hồ sơ nào.">?
+            <span class="tip__bubble">Chỉ hiện tài khoản <b>chưa nối</b> với hồ sơ nào.</span>
+          </span>
+        </label>
+        <select id="chonNoi">
+          <option value="">— Chọn tài khoản —</option>
+          <option>backup-bot · bot@congty.vn</option>
+        </select>
+        <span class="o__meo">
+          Nối xong, hai dòng gộp làm một. Gỡ lại được bất cứ lúc nào ở ngăn kéo chi tiết.
+        </span>
+      </div>
+    </div>
+
+    <div class="hop__chan">
+      <button class="nut nut--pha" data-dong>Huỷ</button>
+      <button class="nut nut--chinh" data-soon="Nối">Nối</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════ NGĂN KÉO CHI TIẾT ══════════════ -->
 <div class="man" id="manChiTiet">
   <button type="button" class="man__nen" data-dong aria-label="Đóng"></button>
@@ -484,6 +532,23 @@
           <dt>Ngày tạo</dt><dd>02/01/2025</dd>
           <dt>Trạng thái</dt><dd><span class="the the--tot">Đang hoạt động</span></dd>
         </dl>
+
+        <!--
+          Gỡ liên kết đứng RIÊNG, không nằm trong vùng nguy hiểm.
+
+          Nó không mất gì cả: hồ sơ còn nguyên, tài khoản còn nguyên, chỉ là hai dòng tách
+          ra như trước khi nối. Xếp nó cạnh "vô hiệu hoá tài khoản" thì nó mượn một sắc
+          thái nguy hiểm mà nó không có, và người ta ngại bấm đúng cái nút để sửa một liên
+          kết sai.
+        -->
+        <div class="the__khoi" style="margin-top:18px">
+          <h3>Liên kết tài khoản</h3>
+          <p class="mota">
+            Hồ sơ <b>NV002</b> đang nối với tài khoản này. Gỡ ra thì cả hai vẫn còn, chỉ
+            tách lại thành hai dòng — dùng khi nối nhầm người.
+          </p>
+          <button class="nut nut--nho" data-soon="Gỡ liên kết">Gỡ liên kết</button>
+        </div>
 
         <div class="the__khoi" style="margin-top:18px">
           <h3>Vùng nguy hiểm</h3>
@@ -597,8 +662,8 @@ function mo(id) {
 }
 function dongHet() { document.querySelectorAll('.man').forEach(m => m.classList.remove('man--hien')); }
 
-document.querySelectorAll('.states button[data-mo]').forEach(b =>
-  b.addEventListener('click', () => mo(b.dataset.mo)));
+document.querySelectorAll('[data-mo]').forEach(b =>
+  b.addEventListener('click', e => { e.stopPropagation(); mo(b.dataset.mo); }));
 
 document.getElementById('moThem').addEventListener('click', () => mo('manThem'));
 

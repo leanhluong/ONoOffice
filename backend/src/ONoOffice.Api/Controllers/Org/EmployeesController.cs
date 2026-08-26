@@ -31,10 +31,8 @@ namespace ONoOffice.Api.Controllers.Org;
 /// (nhân viên mới), hoặc có tài khoản mà không phải nhân viên (tài khoản bot chạy sao
 /// lưu). Xem chú thích đầu <c>Employee.cs</c>.
 ///
-/// ⚠️ CHƯA CÓ: nối hồ sơ với tài khoản (<c>Employee.LinkAccount</c>). Nó cần hỏi module
-/// Identity xem <c>userId</c> có thật không, mà hai project <c>*.Contracts</c> hiện còn
-/// rỗng — chưa có cổng liên module nào. Làm bừa bằng cách tin con số client gửi lên thì
-/// nối được hồ sơ vào một tài khoản không tồn tại, và không lớp nào phía dưới bắt được.
+/// Nối hai khái niệm đó lại là <c>link-account</c> ở cuối file. Nó hỏi được module Identity
+/// nhờ <c>Identity.Contracts.IUserDirectory</c> — cổng liên module đầu tiên của dự án.
 /// </summary>
 [ApiController]
 [Route("api/employees")]

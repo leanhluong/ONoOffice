@@ -51,6 +51,14 @@ internal sealed class LinkAccountCommandHandler(
             return Error.NotFound("User.NotFound", "Không tìm thấy tài khoản.");
         }
 
+        // Một tài khoản chỉ thuộc về MỘT người. `Employee.LinkAccount` không thấy được luật
+        // này — nó chỉ biết về chính nó, và từ góc nhìn của hồ sơ thứ hai thì mọi thứ đều
+        // hợp lệ: hồ sơ chưa nối ai, tài khoản có thật. Phải đọc cả bảng mới trả lời được.
+        if (await employees.UserLinkedAsync(command.UserId, command.EmployeeId, cancellationToken))
+        {
+            return OrgErrors.Employees.UserAlreadyLinked;
+        }
+
         return nguoi.LinkAccount(command.UserId);
     }
 }

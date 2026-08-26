@@ -87,8 +87,19 @@ internal sealed class GetMembersQueryHandler(
 
         // `UserId` của những hồ sơ đã nối — dùng để biết tài khoản nào CÒN LẠI chưa có hồ sơ.
         var daNoi = await employees.LinkedUserIdsAsync(cancellationToken);
-        var theoUserId = daNoi.ToDictionary(x => x.UserId, x => x.EmployeeId);
 
+        // `ToHashSet`, KHÔNG `ToDictionary`. Hai hồ sơ trỏ vào cùng một tài khoản là trạng
+        // thái không hợp lệ — `LinkAccountCommandHandler` chặn ở đường ghi — nhưng
+        // `Employee.UserId` không có ràng buộc UNIQUE (Luật 3 cấm ràng buộc xuyên schema),
+        // nên database không canh giúp và một lần sửa tay là đủ để nó xảy ra.
+        //
+        // Với `ToDictionary` thì đúng lúc đó cả màn Thành viên trả 500: một dòng hỏng làm
+        // mù toàn bộ danh sách người, ngay lúc quản trị viên cần nhìn vào đó để sửa. Ở đây
+        // ta chỉ cần biết "tài khoản này đã có ai nhận chưa", nên tập hợp là đủ.
+        var daCoChu = daNoi.Select(x => x.UserId).ToHashSet();
+
+        // Chiều ngược lại thì khoá là `EmployeeId` — một hồ sơ chỉ mang được MỘT `UserId`,
+        // nên chiều này không thể trùng.
         var theoEmployeeId = daNoi.ToDictionary(x => x.EmployeeId, x => x.UserId);
         var tenTaiKhoan = taiKhoan.ToDictionary(u => u.Id);
 
@@ -123,7 +134,7 @@ internal sealed class GetMembersQueryHandler(
                 tk?.MustChangePassword ?? false));
         }
 
-        foreach (var tk in taiKhoan.Where(u => !theoUserId.ContainsKey(u.Id)))
+        foreach (var tk in taiKhoan.Where(u => !daCoChu.Contains(u.Id)))
         {
             ketQua.Add(new MemberListItem(
                 null,

@@ -44,7 +44,7 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Phần | Trạng thái | Số test |
 |---|---|---|
 | `Luong.Kernel` (8 gói) | 🟢 Đủ dùng cho lát 1 | **202** |
-| ONoOffice · Domain | 🟢 Identity xong · Org xong | 214 + 64 |
+| ONoOffice · Domain | 🟢 Identity xong · Org xong | 214 + 69 |
 | ONoOffice · Application | 🟢 Auth · Users · Me · Roles · **Departments · Employees · Contacts · Members** | *(trong 214)* |
 | ONoOffice · Infrastructure | 🟢 EF · Argon2id · JWT · repository · seeder · sinh mật khẩu tạm | *(trong 214)* |
 | ONoOffice · Api | 🟢 **27 endpoint · 8 controller** · phân quyền động · CORS · i18n · header an toàn | 32 |
@@ -52,24 +52,25 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Test kiến trúc + i18n + luật Controller | 🟢 | 15 |
 | **Database** | 🟢 Postgres 16 · 2 migration · dữ liệu mồi — đã chạy THẬT | **52** |
 | **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
-| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **126** |
-| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 126)* |
-| **Khung ứng dụng v4** | 🟢 **Rail 56px + cột ngữ cảnh** — khuôn Lark Messenger / Zalo PC | *(trong 126)* |
-| **Khung quản trị (khuôn B)** | 🟢 **Thanh ngang + sidebar 240px** — khuôn Lark Admin, **không có rail** | *(trong 126)* |
-| **Tách hai vùng** | 🟢 `/` `/me` ↔ `/admin/*` · guard ở route cha · 3 redirect từ đường dẫn cũ | *(trong 126)* |
-| **Nhận diện thương hiệu** | 🟢 Logo tự đổi bản sáng/tối theo bộ màu · favicon · bộ sinh tự chép sang `public/` | *(trong 126)* |
-| **Frontend · Thành viên (GỘP)** | 🟢 Đọc `/api/members` — **ba loại dòng**: có cả hai · chỉ hồ sơ · chỉ tài khoản | *(trong 126)* |
-| **Frontend · Phòng ban + Danh bạ** | 🟢 Cây sửa được (thêm/đổi tên/chuyển/xoá) · danh bạ lọc theo phòng | *(trong 126)* |
-| **Frontend · Hồ sơ & cài đặt** | 🟢 Sửa tên · đổi mật khẩu · bộ màu/ngôn ngữ | *(trong 126)* |
-| **Frontend · Vai trò & quyền** | 🟢 Bốn vai, bảng quyền đầy đủ — **chỉ xem** | *(trong 126)* |
-| **Frontend · Tổng quan quản trị** | 🟡 4 số THẬT (không cần endpoint mới) · gói & hạn ngạch **chưa nối**, có đeo nhãn | *(trong 126)* |
+| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **132** |
+| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 132)* |
+| **Khung ứng dụng v4** | 🟢 **Rail 56px + cột ngữ cảnh** — khuôn Lark Messenger / Zalo PC | *(trong 132)* |
+| **Khung quản trị (khuôn B)** | 🟢 **Thanh ngang + sidebar 240px** — khuôn Lark Admin, **không có rail** | *(trong 132)* |
+| **Tách hai vùng** | 🟢 `/` `/me` ↔ `/admin/*` · guard ở route cha · 3 redirect từ đường dẫn cũ | *(trong 132)* |
+| **Nhận diện thương hiệu** | 🟢 Logo tự đổi bản sáng/tối theo bộ màu · favicon · bộ sinh tự chép sang `public/` | *(trong 132)* |
+| **Frontend · Thành viên (GỘP)** | 🟢 Đọc `/api/members` — **ba loại dòng**: có cả hai · chỉ hồ sơ · chỉ tài khoản | *(trong 132)* |
+| **Nối / gỡ hồ sơ ↔ tài khoản** | 🟢 Một hộp thoại cho **cả hai chiều** · gỡ được ở ngăn kéo · có trong demo | *(trong 132)* |
+| **Frontend · Phòng ban + Danh bạ** | 🟢 Cây sửa được (thêm/đổi tên/chuyển/xoá) · danh bạ lọc theo phòng | *(trong 132)* |
+| **Frontend · Hồ sơ & cài đặt** | 🟢 Sửa tên · đổi mật khẩu · bộ màu/ngôn ngữ | *(trong 132)* |
+| **Frontend · Vai trò & quyền** | 🟢 Bốn vai, bảng quyền đầy đủ — **chỉ xem** | *(trong 132)* |
+| **Frontend · Tổng quan quản trị** | 🟡 4 số THẬT (không cần endpoint mới) · gói & hạn ngạch **chưa nối**, có đeo nhãn | *(trong 132)* |
 | Frontend · các màn còn lại | ⬜ Dashboard vẫn là khung rỗng · Trao đổi mới có bản dựng | — |
 | Tài liệu | 🟢 7 thư mục · 4 ADR · `05-api` · wireframe · bản dựng màu | — |
 
 ```bash
 docker compose up -d                          # Postgres 16 ở cổng 5433
-cd backend && dotnet build && dotnet test     # 325 xanh không cần Docker · +52 test database nếu có
-cd frontend && npm test && npm run parity     # 126 xanh · hai màn lệch 0,02%
+cd backend && dotnet build && dotnet test     # 330 xanh không cần Docker · +52 test database nếu có
+cd frontend && npm test && npm run parity     # 132 xanh · hai màn lệch 0,02%
 ```
 
 ### Đã kiểm chứng tới đâu (2026-08-24) — và chỗ nào thì CHƯA
@@ -143,6 +144,11 @@ nhìn đúng ba loại dòng: **Đỗ Ngọc Hà** có mã NV005 mà cột vai t
 **backup-bot** có vai Admin mà cột mã ghi *chưa có hồ sơ*; còn lại là người bình thường có
 cả hai. Thử ô *Lọc theo loại* — nó lọc tại chỗ, không đi hỏi server lần nào.
 
+Rồi bấm thử phép **nối**: Đỗ Ngọc Hà cố ý xuất hiện **hai lần** — một dòng hồ sơ NV005, một
+dòng tài khoản `ha.do@congty.vn`, cùng một người mà chưa nối. Bấm nút ba chấm ở một trong
+hai dòng đó → chọn dòng kia → *Nối*. Hai dòng gộp làm một. Mở lại ngăn kéo chi tiết của
+người đó thì có nút *Gỡ liên kết* để tách ra như cũ.
+
 ⬜ **Vẫn CHƯA bấm tay qua màn này với backend thật**, vì Docker trên máy còn kẹt ở lớp thứ
 ba (xem bảng bên dưới — cần đăng xuất Windows rồi đăng nhập lại). Chế độ demo mô phỏng phép
 gộp giống hệt handler, nhưng nó không chứng minh được SQL và `IUserDirectory` chạy đúng.
@@ -180,11 +186,11 @@ Sau đó:
      Cần thêm cột + migration, HOẶC sửa bản dựng cho khớp thực tế.
      (Bản dựng còn hứa cả vị trí "Hà Nội" — cái đó cần GeoIP, là việc riêng.)
 ⬜ Màn quản lý chat — bản dựng comm/chat.html đã có, chưa duyệt chốt
-⬜ `LinkAccount` — nối một hồ sơ đã có vào một tài khoản đã có. Cổng
-     `IUserDirectory.ExistsAsync` đã sẵn sàng cho việc này; còn thiếu lệnh,
-     endpoint, và hai thao tác trên dòng ở màn Thành viên ("Cấp tài khoản"
-     cho dòng chỉ-hồ-sơ, "Tạo hồ sơ" cho dòng chỉ-tài-khoản — bản dựng đã vẽ
-     sẵn cả hai trong menu ba chấm).
+⬜ TẠO tài khoản hộ cho một hồ sơ đã có (và ngược lại). Nối hai thứ ĐÃ CÓ thì
+     xong rồi; tạo mới ở module bên kia thì chưa, vì `IUserDirectory` mới chỉ
+     ĐỌC. Cần một cổng GHI liên module, hoặc chấp nhận hai lời gọi từ FE
+     (tạo tài khoản → nối). Cách hai hỏng lành: nếu bước nối trượt thì có một
+     dòng chỉ-tài-khoản nằm ngay cạnh dòng chỉ-hồ-sơ, và nút "Nối" sửa được.
 ⬜ Tìm nhân sự theo MỘT PHẦN email — cần đổi ánh xạ Email sang kiểu sở hữu
 ⬜ docs/04-database — sơ đồ bảng, quan hệ, chỉ mục
 ⬜ Giới hạn tần suất cho /api/auth/register-workspace — nó đang mở cho Internet
@@ -258,11 +264,11 @@ quyền chỉ đổi mức toàn vẹn, nó không nạp thêm nhóm mới. Mọ
 | Bộ | Số test | Cần gì | Trả lời câu hỏi |
 |---|---|---|---|
 | `Identity.UnitTests` | 214 | không | Luật nghiệp vụ của Identity có đúng không |
-| `Org.UnitTests` | 64 | không | Luật nghiệp vụ của Org (phòng ban, nhân viên) |
+| `Org.UnitTests` | 69 | không | Luật nghiệp vụ của Org (phòng ban, nhân viên) |
 | `ArchitectureTests` | 15 | không | Ranh giới tầng và luật Controller có bị phá không |
 | `Api.IntegrationTests` | 32 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
 | `Api.DatabaseTests` | 52 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập/đăng ký/tạo tài khoản có chạy THẬT không |
-| `frontend` (vitest) | 126 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
+| `frontend` (vitest) | 132 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
 | `npm run parity` | 2 màn | **Chrome** | Bản Angular trông có **giống hệt bản dựng đã duyệt** không |
 
 Bộ thứ tư tự dựng Postgres bằng **Testcontainers**, không nối vào `docker compose`. Cố ý:
@@ -270,7 +276,7 @@ test nối vào compose sẽ im lặng bỏ qua trên máy chưa `up` và trên 
 thì tệ hơn cả không có, vì nhìn danh sách vẫn thấy nó nằm đó.
 
 ```bash
-cd backend  && dotnet build && dotnet test      # 325 xanh không cần Docker · +52 test database nếu có
+cd backend  && dotnet build && dotnet test      # 330 xanh không cần Docker · +52 test database nếu có
 cd frontend && npm test && npm run build && npm run lint && npm run parity
 ```
 
@@ -306,9 +312,9 @@ cd frontend && npm test && npm run build && npm run lint && npm run parity
 
 ---
 
-## ⚠️ Hai mươi cái bẫy đã gặp — đừng dẫm lại
+## ⚠️ Hai mươi mốt cái bẫy đã gặp — đừng dẫm lại
 
-### Hai cái gặp khi cho một handler chạm HAI module (2026-08-26)
+### Ba cái gặp khi cho một handler chạm HAI module (2026-08-26)
 
 **`TransactionBehavior` chốt đúng MỘT `IUnitOfWork` — module thứ hai mất dữ liệu, im lặng.**
 Behavior của kernel giải một `IUnitOfWork` từ DI và gọi `SaveChanges` trên nó. Handler nào
@@ -318,6 +324,17 @@ không exception, không log, thay đổi chỉ đơn giản là biến mất. S
 thắng. Đã gỡ đăng ký ra một lần để chứng minh test đỏ.
 ⚠️ Nó là **hai transaction nối tiếp**, không phải một — cái thứ hai hỏng thì cái thứ nhất đã
 nằm trong DB rồi. Hai pha thật thì phải qua outbox, và outbox đã có sẵn trong kernel.
+
+**Khoá không có ràng buộc UNIQUE thì phép kiểm trùng phải nằm ở handler — và phía ĐỌC cũng
+phải chịu được khi nó vẫn trùng.** `LinkAccountCommandHandler` bản đầu kiểm "hồ sơ này đã
+nối chưa" và "tài khoản có thật không", nhưng **không** kiểm "tài khoản này đã có hồ sơ khác
+nhận chưa" — mà `Employee.UserId` không phải khoá ngoại và không có UNIQUE, nên database
+cũng không canh. Hệ quả ở đầu kia: `GetMembersQueryHandler` dựng `ToDictionary` trên
+`UserId`, và hai hồ sơ trùng là **ném `ArgumentException`, cả màn Thành viên trả 500** — một
+dòng hỏng làm mù toàn bộ danh sách người, đúng lúc cần nhìn vào đó để sửa. Vá cả hai đầu:
+`UserLinkedAsync` ở đường ghi, `ToHashSet` ở đường đọc. Luật rút ra: **mỗi phép kiểm trùng
+đặt ở tầng ứng dụng đều phải có một câu hỏi kèm theo — "nếu nó vẫn trùng thì bên đọc chết
+kiểu gì?"**
 
 **Nối hai module bằng EMAIL là bẫy, dù email trông y hệt một khoá tự nhiên.** Phòng kinh
 doanh dùng chung `sales@congty.vn` thì phép gộp biến hai người thành một dòng, và người
@@ -567,7 +584,7 @@ bản dựng theo luật 8.
 
 Bắt đầu bằng việc chạy `cd ONoOffice/backend && dotnet build && dotnet test`
 và `cd ONoOffice/frontend && npm test && npm run parity` để xác nhận
-325 + 126 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
+330 + 132 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
 trước khi làm gì. 52 test database sẽ ĐỎ nếu chưa `docker compose up -d` —
 đó là hỏng môi trường, không phải hỏng code.
 ```

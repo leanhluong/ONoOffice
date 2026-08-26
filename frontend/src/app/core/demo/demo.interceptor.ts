@@ -525,6 +525,57 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
     }
   }
 
+  // ── Nối / gỡ hồ sơ ↔ tài khoản ──────────────────────────────────────
+  //
+  // Mô phỏng đủ HAI phép kiểm của backend, không chỉ phép nối. Bỏ bớt một cái thì demo dạy
+  // người dùng một hành vi mà sản phẩm thật không có — và họ chỉ phát hiện ra khi bấm trên
+  // hệ thống thật, lúc đó lỗi trông như hỏng hóc chứ không như một luật.
+  {
+    const noi = /^\/api\/employees\/([^/]+)\/(link|unlink)-account$/.exec(duong);
+
+    if (noi && req.method === 'POST') {
+      const hoSo = kho.hoSo.find((h) => h.id === noi[1]);
+
+      if (!hoSo) {
+        return loi(404, 'Employee.NotFound', 'Không tìm thấy hồ sơ nhân sự.');
+      }
+
+      if (noi[2] === 'unlink') {
+        if (hoSo.userId === null) {
+          return loi(409, 'Employee.NotLinked', 'Hồ sơ này chưa nối với tài khoản nào.');
+        }
+
+        hoSo.userId = null;
+
+        return trong();
+      }
+
+      const userId = (req.body as { userId?: string } | null)?.userId ?? '';
+
+      if (hoSo.userId !== null) {
+        return loi(
+          409,
+          'Employee.AlreadyLinked',
+          'Hồ sơ này đã nối với một tài khoản. Hãy gỡ liên kết cũ trước.',
+        );
+      }
+
+      if (!kho.users.some((u) => u.id === userId)) {
+        return loi(404, 'User.NotFound', 'Không tìm thấy tài khoản.');
+      }
+
+      // Một tài khoản chỉ thuộc về MỘT người. Thiếu phép kiểm này thì hai hồ sơ cùng "là"
+      // một tài khoản, và mọi thao tác lên tài khoản đó hiện ở cả hai dòng.
+      if (kho.hoSo.some((h) => h.userId === userId)) {
+        return loi(409, 'Employee.UserAlreadyLinked', 'Tài khoản này đã nối với một hồ sơ khác.');
+      }
+
+      hoSo.userId = userId;
+
+      return trong();
+    }
+  }
+
   // ── Danh bạ ─────────────────────────────────────────────────────────
   if (duong === '/api/contacts' && req.method === 'GET') {
     const p = req.params;

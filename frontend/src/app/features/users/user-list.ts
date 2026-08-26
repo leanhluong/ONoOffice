@@ -107,6 +107,18 @@ export class UserList {
   protected readonly detail = signal<MemberListItem | null>(null);
   protected readonly detailTab = signal<'tt' | 'qu'>('tt');
 
+  /**
+   * Dòng đang mở hộp thoại NỐI. `null` = hộp đang đóng.
+   *
+   * Một hộp cho CẢ HAI chiều: mở từ dòng "chỉ hồ sơ" thì nó hỏi chọn tài khoản, mở từ
+   * dòng "chỉ tài khoản" thì hỏi chọn hồ sơ. Cùng một phép nối, chỉ khác phía nào đã
+   * biết — tách làm hai hộp là chép cùng một khung hai lần rồi để chúng lệch nhau.
+   */
+  protected readonly linkFor = signal<MemberListItem | null>(null);
+
+  /** Khoá của ứng viên đang chọn trong danh sách xổ. `''` = chưa chọn ai. */
+  protected readonly linkTarget = signal('');
+
   private readonly searchInput = new Subject<string>();
 
   protected readonly hasFilter = computed(
@@ -515,6 +527,128 @@ export class UserList {
     });
   }
 
+  // ── Nối hồ sơ ↔ tài khoản ───────────────────────────────────────────
+
+  /**
+   * Ứng viên để nối — luôn là những dòng CHƯA nối của phía ĐỐI DIỆN.
+   *
+   * Đang đứng ở một hồ sơ thì cần một tài khoản, và ngược lại. Lọc theo `allMembers` chứ
+   * không theo `page()`: ứng viên có thể đang nằm ở trang khác hoặc bị bộ lọc hiện tại
+   * giấu đi, mà việc nối thì không liên quan gì tới bộ lọc đang bật.
+   *
+   * Chỉ hiện dòng chưa nối: cho chọn một tài khoản đã có chủ là bắt người dùng bấm rồi
+   * mới biết bị từ chối, trong khi ta đã có sẵn cả danh sách trong tay. Backend vẫn chặn
+   * bằng `Employee.UserAlreadyLinked` — hai lớp, vì danh sách trên màn có thể cũ vài giây.
+   */
+  protected readonly linkCandidates = computed<readonly MemberListItem[]>(() => {
+    const nguon = this.linkFor();
+
+    if (nguon === null) {
+      return [];
+    }
+
+    // Đứng ở dòng thiếu TÀI KHOẢN thì đi tìm dòng thiếu HỒ SƠ, và ngược lại.
+    return nguon.userId === null
+      ? this.allMembers().filter((m) => m.employeeId === null)
+      : this.allMembers().filter((m) => m.userId === null);
+  });
+
+  protected openLink(member: MemberListItem): void {
+    this.linkFor.set(member);
+
+    // Không còn ai để nối thì nói thẳng thay vì mở một danh sách xổ rỗng — người dùng sẽ
+    // đi tìm xem mình đã lọc nhầm gì. Workspace mà mọi tài khoản đều đã nối là bình thường.
+    if (this.linkCandidates().length === 0) {
+      this.linkFor.set(null);
+      this.popups.show(this.translate.instant('users.link.noCandidate') as string);
+
+      return;
+    }
+
+    this.linkTarget.set('');
+  }
+
+  protected closeLink(): void {
+    this.linkFor.set(null);
+  }
+
+  protected onLinkTargetChange(event: Event): void {
+    this.linkTarget.set((event.target as HTMLSelectElement).value);
+  }
+
+  /**
+   * Gửi lệnh nối.
+   *
+   * Endpoint là `POST /api/employees/{employeeId}/link-account` — nó GHI vào hồ sơ, nên
+   * <b>hồ sơ luôn là tham số đầu</b> dù người dùng mở hộp thoại từ phía nào. Đảo hai tham
+   * số khi mở từ dòng tài khoản thì lời gọi đi tới một `employeeId` không tồn tại, và lỗi
+   * trả về nói "không tìm thấy nhân viên" trong khi người dùng đang đứng ở một tài khoản.
+   */
+  protected submitLink(): void {
+    const nguon = this.linkFor();
+    const chon = this.linkTarget();
+
+    if (nguon === null || chon === '') {
+      return;
+    }
+
+    const dich = this.linkCandidates().find((m) => this.rowKey(m) === chon);
+
+    if (dich === undefined) {
+      return;
+    }
+
+    const employeeId = nguon.employeeId ?? dich.employeeId;
+    const userId = nguon.userId ?? dich.userId;
+
+    if (employeeId === null || employeeId === undefined || userId === null || userId === undefined) {
+      return;
+    }
+
+    this.saving.set(true);
+
+    this.org.linkAccount(employeeId, userId).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.linkFor.set(null);
+        this.popups.show(this.translate.instant('users.link.done') as string);
+        this.load();
+      },
+      error: (error: unknown) => {
+        this.saving.set(false);
+        this.showError(error);
+      },
+    });
+  }
+
+  /**
+   * Gỡ liên kết — hai dòng tách lại như trước khi nối.
+   *
+   * Không mất gì cả: hồ sơ còn nguyên, tài khoản còn nguyên. Vì vậy nó KHÔNG nằm trong
+   * "vùng nguy hiểm" của ngăn kéo — xếp cạnh "vô hiệu hoá tài khoản" thì nó mượn một sắc
+   * thái nguy hiểm mà nó không có, và người ta ngại bấm đúng cái nút để sửa một liên kết sai.
+   */
+  protected unlink(member: MemberListItem): void {
+    if (member.employeeId === null) {
+      return;
+    }
+
+    this.saving.set(true);
+
+    this.org.unlinkAccount(member.employeeId).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.detail.set(null);
+        this.popups.show(this.translate.instant('users.link.undone') as string);
+        this.load();
+      },
+      error: (error: unknown) => {
+        this.saving.set(false);
+        this.showError(error);
+      },
+    });
+  }
+
   protected setActive(user: MemberListItem, isActive: boolean): void {
     if (user.userId === null) {
       return;
@@ -549,6 +683,33 @@ export class UserList {
   protected onEscape(): void {
     this.showCreate.set(false);
     this.detail.set(null);
+    this.linkFor.set(null);
+  }
+
+  /**
+   * Nút thao tác của một dòng làm gì — phụ thuộc vào dòng đó THIẾU gì.
+   *
+   * Dòng đủ cả hai thì mở ngăn kéo chi tiết. Dòng còn thiếu một nửa thì việc cần làm rõ
+   * ràng là nối nửa còn lại — mở ngăn kéo cho nó là dẫn vào một biểu mẫu sửa vai trò của
+   * một tài khoản không tồn tại.
+   */
+  protected rowAction(member: MemberListItem): void {
+    if (member.employeeId === null || member.userId === null) {
+      this.openLink(member);
+
+      return;
+    }
+
+    this.openDetail(member);
+  }
+
+  /** Nhãn của nút thao tác — phải nói ĐÚNG việc nó sắp làm, vì cùng một biểu tượng ba chấm. */
+  protected rowActionKey(member: MemberListItem): string {
+    if (member.userId === null) {
+      return 'users.link.linkAccount';
+    }
+
+    return member.employeeId === null ? 'users.link.linkProfile' : 'users.openDetail';
   }
 
   protected closeDetail(): void {

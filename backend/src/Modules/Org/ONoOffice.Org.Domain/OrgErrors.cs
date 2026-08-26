@@ -102,5 +102,15 @@ public static class OrgErrors
 
         public static readonly Error NotLinked =
             Error.Conflict("Employee.NotLinked", "Hồ sơ này chưa nối với tài khoản nào.");
+
+        /// <summary>
+        /// Nhìn từ phía TÀI KHOẢN, khác <see cref="AlreadyLinked"/> nhìn từ phía hồ sơ.
+        ///
+        /// Hai câu phải khác nhau vì cách sửa khác nhau: <c>AlreadyLinked</c> thì gỡ hồ sơ
+        /// đang mở ra là xong; còn ở đây phải đi tìm hồ sơ KHÁC đang giữ tài khoản đó.
+        /// </summary>
+        public static readonly Error UserAlreadyLinked = Error.Conflict(
+            "Employee.UserAlreadyLinked",
+            "Tài khoản này đã nối với một hồ sơ khác.");
     }
 }

@@ -67,8 +67,22 @@ export class OrgService {
     return this.http.get<MemberListItem[]>(this.url('/api/members'));
   }
 
+  /**
+   * Nối một hồ sơ nhân sự với một tài khoản đăng nhập.
+   *
+   * Đường dẫn nằm dưới `/api/employees` chứ không phải `/api/members`: nó GHI vào hồ sơ —
+   * `Employee.UserId` — nên nó thuộc về module sở hữu dữ liệu đó. `/api/members` chỉ đọc.
+   *
+   * Backend đòi `user.manage` chứ không phải `employee.write`: nối là quyết định về việc
+   * AI ĐĂNG NHẬP ĐƯỢC dưới danh nghĩa hồ sơ nào — một quyết định về tài khoản.
+   */
   linkAccount(employeeId: string, userId: string): Observable<void> {
     return this.http.post<void>(this.url(`/api/employees/${employeeId}/link-account`), { userId });
+  }
+
+  /** Gỡ liên kết. Không mất gì: hồ sơ còn, tài khoản còn, chỉ tách lại thành hai dòng. */
+  unlinkAccount(employeeId: string): Observable<void> {
+    return this.http.post<void>(this.url(`/api/employees/${employeeId}/unlink-account`), {});
   }
 
   // ── Danh bạ ───────────────────────────────────────────────────────

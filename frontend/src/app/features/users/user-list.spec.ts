@@ -97,6 +97,21 @@ class FakeUserService {
     return of(this.result);
   }
 
+  links: { employeeId: string; userId: string }[] = [];
+  unlinks: string[] = [];
+
+  linkAccount(employeeId: string, userId: string): Observable<void> {
+    this.links.push({ employeeId, userId });
+
+    return of(undefined);
+  }
+
+  unlinkAccount(employeeId: string): Observable<void> {
+    this.unlinks.push(employeeId);
+
+    return of(undefined);
+  }
+
   createdWith: CreateUserRequest | null = null;
   createResult: Observable<CreateUserResponse> = of({
     id: 'u-1',
@@ -440,6 +455,116 @@ describe('UserList', () => {
       fullName: 'Phạm Hà',
       roleId: 'r-admin',
     });
+  });
+
+  // ── Nối hồ sơ ↔ tài khoản ─────────────────────────────────────────
+
+  /**
+   * MỘT hộp thoại cho CẢ HAI chiều, và nó phải chọn đúng phía để hỏi.
+   *
+   * Mở từ dòng "chỉ hồ sơ" thì việc cần làm là chọn một TÀI KHOẢN; mở từ dòng "chỉ tài
+   * khoản" thì là chọn một HỒ SƠ. Chọn nhầm phía thì danh sách xổ hiện đúng cái người
+   * dùng đang đứng trên đó — họ nối một người vào chính họ.
+   */
+  it('mở từ dòng chỉ-hồ-sơ thì hỏi chọn TÀI KHOẢN', () => {
+    const chiHoSo = user({ fullName: 'Đỗ Ngọc Hà', userId: null, roleName: null });
+    const chiTaiKhoan = user({ fullName: 'backup-bot', employeeId: null, code: null });
+
+    service.result = [chiHoSo, chiTaiKhoan, user({ fullName: 'Đã nối' })];
+
+    const component = make();
+
+    component['openLink'](chiHoSo);
+
+    expect(component['linkFor']()).toBe(chiHoSo);
+
+    // Chỉ những dòng CHƯA nối của phía kia. Dòng "Đã nối" có cả hai nên không được
+    // xuất hiện: cho chọn một tài khoản đã có chủ là bắt người dùng bấm rồi mới biết
+    // bị từ chối, trong khi ta đã có sẵn cả danh sách trong tay.
+    expect(component['linkCandidates']().map((m) => m.fullName)).toEqual(['backup-bot']);
+  });
+
+  it('mở từ dòng chỉ-tài-khoản thì hỏi chọn HỒ SƠ', () => {
+    const chiHoSo = user({ fullName: 'Đỗ Ngọc Hà', userId: null, roleName: null });
+    const chiTaiKhoan = user({ fullName: 'backup-bot', employeeId: null, code: null });
+
+    service.result = [chiHoSo, chiTaiKhoan];
+
+    const component = make();
+
+    component['openLink'](chiTaiKhoan);
+
+    expect(component['linkCandidates']().map((m) => m.fullName)).toEqual(['Đỗ Ngọc Hà']);
+  });
+
+  /**
+   * Dù mở từ phía nào, lời gọi luôn là <c>(employeeId, userId)</c>.
+   *
+   * Endpoint nằm dưới `/api/employees/{id}/link-account` — nó ghi vào hồ sơ. Đảo hai tham
+   * số khi mở từ dòng tài khoản thì lời gọi đi tới một `employeeId` không tồn tại, và lỗi
+   * trả về nói về "không tìm thấy nhân viên" trong khi người dùng đang đứng ở một tài khoản.
+   */
+  it('nối từ phía TÀI KHOẢN vẫn gửi đúng thứ tự (hồ sơ, tài khoản)', () => {
+    const chiHoSo = user({ fullName: 'Đỗ Ngọc Hà', userId: null, roleName: null });
+    const chiTaiKhoan = user({ fullName: 'backup-bot', employeeId: null, code: null });
+
+    service.result = [chiHoSo, chiTaiKhoan];
+
+    const component = make();
+
+    component['openLink'](chiTaiKhoan);
+    component['linkTarget'].set(chiHoSo.employeeId!);
+    component['submitLink']();
+
+    expect(service.links).toEqual([
+      { employeeId: chiHoSo.employeeId, userId: chiTaiKhoan.userId },
+    ]);
+  });
+
+  it('chưa chọn ai thì KHÔNG gọi backend', () => {
+    const chiHoSo = user({ userId: null, roleName: null });
+
+    service.result = [chiHoSo, user({ employeeId: null, code: null })];
+
+    const component = make();
+
+    component['openLink'](chiHoSo);
+    component['submitLink']();
+
+    expect(service.links).toHaveLength(0);
+  });
+
+  /**
+   * Không có ứng viên nào thì nói thẳng, đừng mở một hộp thoại rỗng.
+   *
+   * Workspace mà mọi tài khoản đều đã nối là chuyện bình thường. Mở ra một danh sách xổ
+   * chỉ có dòng "— Chọn —" thì người dùng đi tìm xem mình đã lọc nhầm gì.
+   */
+  it('không còn ai để nối thì không mở hộp thoại', () => {
+    const chiHoSo = user({ userId: null, roleName: null });
+
+    service.result = [chiHoSo];
+
+    const component = make();
+
+    component['openLink'](chiHoSo);
+
+    expect(component['linkFor']()).toBeNull();
+  });
+
+  it('gỡ liên kết xong thì nạp lại danh sách và đóng ngăn kéo', () => {
+    const target = user();
+
+    service.result = [target];
+
+    const component = make();
+
+    component['openDetail'](target);
+    component['unlink'](target);
+
+    expect(service.unlinks).toEqual([target.employeeId]);
+    expect(component['detail']()).toBeNull();
+    expect(service.loads).toBe(2);
   });
 
   it('vô hiệu hoá gọi đúng endpoint và đóng ngăn kéo', () => {

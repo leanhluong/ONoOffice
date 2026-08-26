@@ -239,4 +239,7 @@
   <data name="Employee.NotLinked" xml:space="preserve">
     <value>This profile is not linked to any account.</value>
   </data>
+  <data name="Employee.UserAlreadyLinked" xml:space="preserve">
+    <value>That account is already linked to a different profile.</value>
+  </data>
 </root>

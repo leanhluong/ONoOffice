@@ -147,6 +147,34 @@ public sealed class GetMembersQueryTests
         Assert.Equal(["An", "Zét"], ketQua.Select(m => m.FullName));
     }
 
+    /// <summary>
+    /// Hai hồ sơ trỏ vào CÙNG một tài khoản thì danh sách vẫn phải dựng được.
+    ///
+    /// Đây không phải trạng thái hợp lệ, và <c>LinkAccountCommandHandler</c> đã chặn nó ở
+    /// đường ghi. Nhưng <c>Employee.UserId</c> <b>không phải khoá ngoại và không có ràng
+    /// buộc UNIQUE</b> — Luật 3 cấm ràng buộc xuyên schema — nên database không canh giúp.
+    /// Một lần sửa tay trên Postgres, một migration cũ, hay một lỗi ở đường ghi nào đó sau
+    /// này là đủ để dữ liệu rơi vào trạng thái này.
+    ///
+    /// Bản đầu dùng <c>ToDictionary</c> nên nó <b>ném exception</b>, và cả màn Thành viên
+    /// trả 500 — một dòng hỏng làm mù toàn bộ danh sách người của workspace, đúng lúc quản
+    /// trị viên cần nhìn vào đó để sửa. Nay dòng thừa bị bỏ qua, phần còn lại vẫn hiện.
+    /// </summary>
+    [Fact]
+    public async Task HaiHoSoNoiCungMotTaiKhoan_ThiVanDungDuocDanhSach()
+    {
+        var ketQua = await Chay(
+            [HoSo(NvLuong, "NV001", "Lê Anh Lượng"), HoSo(NvMoi, "NV005", "Đỗ Ngọc Hà")],
+            [new EmployeeAccountLink(NvLuong, UserLuong), new EmployeeAccountLink(NvMoi, UserLuong)],
+            [TaiKhoan(UserLuong, "Lê Anh Lượng", "chu@congty.vn", "Owner")]);
+
+        // Hai hồ sơ vẫn là hai dòng — không ai biến mất khỏi danh sách.
+        Assert.Equal(2, ketQua.Count);
+
+        // Và tài khoản KHÔNG bị đếm thêm một dòng "chưa có hồ sơ": nó đã nối rồi.
+        Assert.DoesNotContain(ketQua, m => m.EmployeeId is null);
+    }
+
     private sealed class RepoHoSo(ContactListItem[] hoSo, EmployeeAccountLink[] noi)
         : FakeEmployeeRepository
     {

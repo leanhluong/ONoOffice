@@ -1,5 +1,7 @@
+using ONoOffice.Identity.Contracts;
 using ONoOffice.Org.Application.Employees.Create;
 using ONoOffice.Org.Application.Employees.Leave;
+using ONoOffice.Org.Application.Employees.LinkAccount;
 using ONoOffice.Org.Application.Employees.Transfer;
 using ONoOffice.Org.Application.Employees.Update;
 using ONoOffice.Org.Domain;
@@ -205,10 +207,113 @@ public sealed class EmployeeHandlerTests
         Assert.Equal(OrgErrors.Employees.AlreadyLeft, lanHai.Error);
     }
 
+    // ══════════════════════════════════════════════════════════════════
+    // Nối hồ sơ với tài khoản — chỗ hai module gặp nhau
+    // ══════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public async Task NoiVaoTaiKhoanKhongTonTai_ThiBiTuChoi()
+    {
+        // `Employee.UserId` KHÔNG phải khoá ngoại (Luật 3 cấm ràng buộc xuyên schema), nên
+        // database không canh giúp. Tin thẳng con số client gửi lên thì hồ sơ nối vào một
+        // tài khoản không tồn tại, và không lớp nào phía dưới bắt được.
+        var nguoi = NhanVien();
+
+        var ketQua = await new LinkAccountCommandHandler(
+                new RepoCoNguoi(nguoi),
+                new FakeUserDirectory())
+            .Handle(new LinkAccountCommand(nguoi.Id, TaiKhoanA), CancellationToken.None);
+
+        Assert.Equal("User.NotFound", ketQua.Error.Code);
+        Assert.Null(nguoi.UserId);
+    }
+
+    /// <summary>
+    /// Một tài khoản chỉ được nối vào ĐÚNG MỘT hồ sơ.
+    ///
+    /// <c>Employee.LinkAccount</c> không thấy được luật này — nó chỉ biết về chính nó, và
+    /// từ góc nhìn của hồ sơ thứ hai thì mọi thứ đều hợp lệ: hồ sơ chưa nối ai, tài khoản
+    /// có thật. Phải đọc cả bảng mới trả lời được, nên luật nằm ở handler.
+    ///
+    /// Hỏng thế nào nếu thiếu: hai người cùng "là" một tài khoản. Mọi thao tác lên tài
+    /// khoản đó — đổi vai, vô hiệu hoá — hiện lên ở cả hai dòng, và quản trị viên không có
+    /// cách nào biết mình vừa chạm vào ai.
+    /// </summary>
+    [Fact]
+    public async Task NoiVaoTaiKhoanNguoiKhacDangDung_ThiBiTuChoi()
+    {
+        var nguoi = NhanVien("NV002", "Nguyễn An");
+
+        var ketQua = await new LinkAccountCommandHandler(
+                new RepoTaiKhoanDaCoChu(nguoi),
+                new FakeUserDirectory(TaiKhoan(TaiKhoanA)))
+            .Handle(new LinkAccountCommand(nguoi.Id, TaiKhoanA), CancellationToken.None);
+
+        Assert.Equal(OrgErrors.Employees.UserAlreadyLinked, ketQua.Error);
+        Assert.Null(nguoi.UserId);
+    }
+
+    [Fact]
+    public async Task NoiBinhThuong_ThiHoSoMangUserId()
+    {
+        var nguoi = NhanVien();
+
+        var ketQua = await new LinkAccountCommandHandler(
+                new RepoCoNguoi(nguoi),
+                new FakeUserDirectory(TaiKhoan(TaiKhoanA)))
+            .Handle(new LinkAccountCommand(nguoi.Id, TaiKhoanA), CancellationToken.None);
+
+        Assert.True(ketQua.IsSuccess);
+        Assert.Equal(TaiKhoanA, nguoi.UserId);
+    }
+
+    /// <summary>
+    /// Gỡ rồi nối lại sang tài khoản khác — đường thoát khi nối nhầm.
+    ///
+    /// <c>LinkAccount</c> cố ý KHÔNG gán đè, nên nếu không có đường gỡ thì một cú nối nhầm
+    /// là vĩnh viễn, và cách duy nhất để sửa là vào thẳng database.
+    /// </summary>
+    [Fact]
+    public async Task GoRoiNoiLai_ThiSangDuocTaiKhoanKhac()
+    {
+        var nguoi = NhanVien();
+        var repo = new RepoCoNguoi(nguoi);
+
+        await new LinkAccountCommandHandler(repo, new FakeUserDirectory(TaiKhoan(TaiKhoanA)))
+            .Handle(new LinkAccountCommand(nguoi.Id, TaiKhoanA), CancellationToken.None);
+
+        Assert.True((await new UnlinkAccountCommandHandler(repo)
+            .Handle(new UnlinkAccountCommand(nguoi.Id), CancellationToken.None)).IsSuccess);
+
+        var noiLai = await new LinkAccountCommandHandler(
+                repo,
+                new FakeUserDirectory(TaiKhoan(TaiKhoanB)))
+            .Handle(new LinkAccountCommand(nguoi.Id, TaiKhoanB), CancellationToken.None);
+
+        Assert.True(noiLai.IsSuccess);
+        Assert.Equal(TaiKhoanB, nguoi.UserId);
+    }
+
     // ── Tiện ích ──────────────────────────────────────────────────────
+
+    private static readonly Guid TaiKhoanA = Guid.Parse("aaaaaaaa-0000-0000-0000-00000000000a");
+    private static readonly Guid TaiKhoanB = Guid.Parse("aaaaaaaa-0000-0000-0000-00000000000b");
+
+    private static UserSummary TaiKhoan(Guid id)
+        => new(id, "a@congty.vn", "A", "Member", true, false, DateTimeOffset.UnixEpoch);
 
     private static CreateEmployeeCommand Lenh(string ma = "NV001", Guid? phong = null)
         => new(ma, "Trần Bình", null, null, null, phong);
+
+    /// <summary>Hồ sơ tìm thấy, nhưng tài khoản kia đã có hồ sơ KHÁC nhận rồi.</summary>
+    private sealed class RepoTaiKhoanDaCoChu(Employee nguoi) : FakeEmployeeRepository
+    {
+        public override Task<Employee?> GetAsync(Guid id, CancellationToken ct)
+            => Task.FromResult<Employee?>(nguoi);
+
+        public override Task<bool> UserLinkedAsync(Guid userId, Guid? exceptId, CancellationToken ct)
+            => Task.FromResult(true);
+    }
 
     private sealed class RepoTrungMa : FakeEmployeeRepository
     {

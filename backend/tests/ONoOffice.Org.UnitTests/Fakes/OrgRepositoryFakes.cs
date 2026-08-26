@@ -68,6 +68,11 @@ internal class FakeEmployeeRepository : IEmployeeRepository
         Guid? exceptId,
         CancellationToken cancellationToken) => Task.FromResult(false);
 
+    public virtual Task<bool> UserLinkedAsync(
+        Guid userId,
+        Guid? exceptId,
+        CancellationToken cancellationToken) => Task.FromResult(false);
+
     public virtual Task<IReadOnlyList<EmployeeAccountLink>> LinkedUserIdsAsync(
         CancellationToken cancellationToken) => Task.FromResult<IReadOnlyList<EmployeeAccountLink>>([]);
 }

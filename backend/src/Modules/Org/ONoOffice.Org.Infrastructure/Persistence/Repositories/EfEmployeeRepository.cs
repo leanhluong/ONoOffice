@@ -89,4 +89,20 @@ internal sealed class EfEmployeeRepository(OrgDbContext context) : IEmployeeRepo
         => context.Employees
             .AsNoTracking()
             .AnyAsync(e => e.Code == code && (exceptId == null || e.Id != exceptId), cancellationToken);
+
+    /// <summary>
+    /// KHÔNG dùng <c>IgnoreQueryFilters</c>: hồ sơ của workspace khác giữ tài khoản này thì
+    /// đó không phải chuyện của người đang hỏi, và nói ra là rò rỉ thông tin sang tenant
+    /// khác. Bộ lọc tenant vẫn áp như mọi truy vấn thường.
+    ///
+    /// Bộ lọc xoá mềm cũng vẫn áp, và đó là chủ ý: hồ sơ đã xoá thì tài khoản của nó coi
+    /// như tự do. Giữ nguyên thì một hồ sơ nằm trong thùng rác khoá vĩnh viễn một tài
+    /// khoản, mà không màn nào hiện ra để gỡ.
+    /// </summary>
+    public Task<bool> UserLinkedAsync(Guid userId, Guid? exceptId, CancellationToken cancellationToken)
+        => context.Employees
+            .AsNoTracking()
+            .AnyAsync(
+                e => e.UserId == userId && (exceptId == null || e.Id != exceptId),
+                cancellationToken);
 }

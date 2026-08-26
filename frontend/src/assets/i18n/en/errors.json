@@ -30,6 +30,7 @@
   "Employee.NotLinked": "This profile is not linked to any account.",
   "Employee.PhoneTooLong": "The phone number must be 30 characters or fewer.",
   "Employee.TenantRequired": "An employee must belong to a workspace.",
+  "Employee.UserAlreadyLinked": "That account is already linked to a different profile.",
   "RefreshToken.AlreadyRevoked": "This session has already been revoked.",
   "RefreshToken.HashRequired": "The refresh token hash is missing.",
   "RefreshToken.InvalidLifetime": "Refresh token lifetime must be greater than zero.",

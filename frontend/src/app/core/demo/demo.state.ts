@@ -79,15 +79,27 @@ export const NGUOI_DUNG: UserListItem[] = [
   },
 
   /*
-    Đỗ Ngọc Hà CỐ Ý không có mặt ở đây.
+    Đỗ Ngọc Hà xuất hiện HAI LẦN trong danh sách gộp, và đó là chủ ý.
 
-    Cô ấy có hồ sơ (`e-ngocha`) nhưng chưa được cấp tài khoản — đó là loại dòng thứ hai
-    của màn Thành viên gộp, và cũng là trạng thái bình thường của người mới vào. Thêm một
-    tài khoản cho cô ấy thì loại dòng đó biến mất khỏi demo, và người bấm thử sẽ không
-    thấy được nút "Cấp tài khoản" bao giờ.
+    Tài khoản này (`u-ngocha`) và hồ sơ `e-ngocha` là cùng một con người, nhưng CHƯA NỐI
+    với nhau — người này tạo tài khoản, người kia dựng hồ sơ, không ai nối lại. Đây là
+    trạng thái có thật và phổ biến nhất mà tính năng "Nối hồ sơ ↔ tài khoản" sinh ra để sửa.
+
+    Nó cũng là bằng chứng sống cho việc KHÔNG tự ghép theo email: hai dòng có cùng email
+    `ha.do@congty.vn` mà hệ thống vẫn để riêng, chờ người quyết định. Tự ghép thì tiện hơn
+    đúng ở ca này và sai ở ca phòng kinh doanh dùng chung `sales@`.
   */
+  {
+    id: 'u-ngocha',
+    email: 'ha.do@congty.vn',
+    fullName: 'Đỗ Ngọc Hà',
+    isActive: true,
+    mustChangePassword: true,
+    roleName: 'Member',
+    createdAtUtc: ngayTruoc(6),
+  },
 
-  // Hai người còn mật khẩu tạm — đây là thứ thẻ "Cần bạn xử lý" ở màn Tổng quan đọc.
+  // Hai người nữa còn mật khẩu tạm — thẻ "Cần bạn xử lý" ở màn Tổng quan đọc chính chỗ này.
   {
     id: 'u-linh',
     email: 'linh.tran@congty.vn',

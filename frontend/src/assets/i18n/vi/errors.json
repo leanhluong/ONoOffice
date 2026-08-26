@@ -30,6 +30,7 @@
   "Employee.NotLinked": "Hồ sơ này chưa nối với tài khoản nào.",
   "Employee.PhoneTooLong": "Số điện thoại không được dài quá 30 ký tự.",
   "Employee.TenantRequired": "Nhân viên phải thuộc về một workspace.",
+  "Employee.UserAlreadyLinked": "Tài khoản này đã nối với một hồ sơ khác.",
   "RefreshToken.AlreadyRevoked": "Refresh token đã bị thu hồi.",
   "RefreshToken.HashRequired": "Thiếu chuỗi băm của refresh token.",
   "RefreshToken.InvalidLifetime": "Thời hạn refresh token phải lớn hơn 0.",
