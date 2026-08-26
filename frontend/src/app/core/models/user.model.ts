@@ -75,6 +75,19 @@ export interface CreateUserResponse {
   temporaryPassword: string;
 }
 
+/**
+ * Trả về của `POST /api/users/{id}/reset-password`.
+ *
+ * Không có `roleName` như lúc tạo: đặt lại mật khẩu không đụng tới vai trò, và trả kèm một
+ * trường không liên quan chỉ mời người đọc sau tưởng rằng nó có đổi.
+ */
+export interface ResetPasswordResponse {
+  id: string;
+  email: string;
+  fullName: string;
+  temporaryPassword: string;
+}
+
 /** Thân của `PATCH /api/users/{id}`. */
 export interface UpdateUserRequest {
   fullName: string;

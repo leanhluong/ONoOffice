@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using ONoOffice.Identity.Application.Abstractions;
 using ONoOffice.Identity.Application.Users.Create;
 using ONoOffice.Identity.Application.Users.GetList;
+using ONoOffice.Identity.Application.Users.ResetPassword;
 using ONoOffice.Identity.Application.Users.SetActive;
 using ONoOffice.Identity.Application.Users.Update;
 using ONoOffice.Identity.Domain;
@@ -84,6 +85,23 @@ public sealed class UsersController(ISender sender) : ControllerBase
                 new UpdateUserCommand(id, FullName: null, body.RoleId),
                 cancellationToken))
             .ToActionResult();
+
+    /// <summary>
+    /// Đặt lại mật khẩu HỘ một đồng nghiệp — trả về mật khẩu tạm <b>đúng một lần</b>.
+    ///
+    /// Cần vì chưa có dịch vụ gửi email, nên "Quên mật khẩu" ở màn đăng nhập chưa chạy —
+    /// người quên mật khẩu hiện không có đường nào quay lại.
+    ///
+    /// <c>POST</c> chứ không <c>PATCH</c>: đây là một HÀNH ĐỘNG có hậu quả (thu hồi mọi
+    /// phiên đang sống của người đó), không phải một phép sửa trường dữ liệu.
+    ///
+    /// Hai cửa chặn nằm ở handler, và cả hai đều là chuyện an toàn chứ không phải tiện
+    /// dụng — xem <c>ResetUserPasswordCommandHandler</c>.
+    /// </summary>
+    [HttpPost("{id:guid}/reset-password")]
+    [Authorize(Policy = Permissions.Users.Manage)]
+    public async Task<IActionResult> ResetPassword(Guid id, CancellationToken cancellationToken)
+        => (await sender.Send(new ResetUserPasswordCommand(id), cancellationToken)).ToActionResult();
 
     /// <summary>
     /// Vô hiệu hoá một tài khoản — <b>không phải xoá</b>.

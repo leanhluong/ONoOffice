@@ -63,6 +63,8 @@
   "User.CannotChangeOwnerRole": "The owner's role cannot be changed. Transfer ownership first.",
   "User.CannotDisableOwner": "The owner cannot be disabled. Transfer ownership first.",
   "User.CannotDisableSelf": "You cannot disable your own account.",
+  "User.CannotResetOwnerPassword": "The owner's password cannot be reset by anyone else. Only they can do it.",
+  "User.CannotResetOwnPassword": "Change your own password from the profile screen — that one checks your current password.",
   "User.FullNameEmpty": "Full name is required.",
   "User.FullNameTooLong": "Full name must be 200 characters or fewer.",
   "User.NewPasswordSameAsCurrent": "The new password must be different from the current one.",

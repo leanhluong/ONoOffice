@@ -155,6 +155,12 @@
   <data name="User.CannotDisableOwner" xml:space="preserve">
     <value>The owner cannot be disabled. Transfer ownership first.</value>
   </data>
+  <data name="User.CannotResetOwnerPassword" xml:space="preserve">
+    <value>The owner's password cannot be reset by anyone else. Only they can do it.</value>
+  </data>
+  <data name="User.CannotResetOwnPassword" xml:space="preserve">
+    <value>Change your own password from the profile screen — that one checks your current password.</value>
+  </data>
   <data name="User.CannotChangeOwnerRole" xml:space="preserve">
     <value>The owner's role cannot be changed. Transfer ownership first.</value>
   </data>

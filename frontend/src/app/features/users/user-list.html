@@ -592,6 +592,27 @@
             </div>
           }
 
+          <!--
+            Mật khẩu đứng RIÊNG, TRÊN vùng nguy hiểm.
+
+            Nó không phá gì cả — người kia vẫn dùng tài khoản như thường, chỉ phải nhận
+            một mật khẩu mới. Xếp chung với "vô hiệu hoá" thì quản trị viên ngại bấm đúng
+            cái nút mà đồng nghiệp đang cần, và cái họ cần thì gấp: quên mật khẩu nghĩa là
+            đang không làm việc được.
+          -->
+          <div class="the__khoi" style="margin-top: 18px">
+            <h3>{{ 'users.reset.title' | translate }}</h3>
+            <p class="mota">{{ 'users.reset.why' | translate }}</p>
+            <button
+              class="nut nut--nho"
+              type="button"
+              [disabled]="saving()"
+              (click)="openReset(user)"
+            >
+              {{ 'users.reset.action' | translate }}
+            </button>
+          </div>
+
           <div class="the__khoi" style="margin-top: 18px">
             <h3>{{ 'users.danger.title' | translate }}</h3>
             <p class="mota">{{ 'users.danger.text' | translate }}</p>
@@ -1028,6 +1049,116 @@
           } @else {
             {{ 'users.bulk.confirm' | translate: { count: bulkTargets().length } }}
           }
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+<!--
+  ĐẶT LẠI MẬT KHẨU HỘ — hai bước.
+
+  Bước một hỏi, vì thao tác này đá người kia ra khỏi mọi thiết bị đang đăng nhập; làm ngay
+  khi bấm thì một cú bấm nhầm trong ngăn kéo là đủ để một đồng nghiệp đang họp bị đăng
+  xuất giữa chừng, không có đường hoàn tác.
+
+  Bước hai hiện mật khẩu tạm, và nó chỉ tồn tại đúng một lần trong phản hồi.
+-->
+<div class="man" [class.man--hien]="resetFor() !== null">
+  <button
+    type="button"
+    class="man__nen"
+    [attr.aria-label]="'action.close' | translate"
+    (click)="closeReset()"
+  ></button>
+
+  @if (resetFor(); as nguoi) {
+    <div
+      class="hop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tdDl"
+      style="max-width: 440px"
+      [attr.data-buoc]="resetResult() === null ? 'nhap' : 'xong'"
+    >
+      <div class="hop__dau">
+        <h2 id="tdDl">{{ 'users.reset.dialog' | translate: { name: nguoi.fullName } }}</h2>
+        <button
+          class="nuti"
+          type="button"
+          [attr.aria-label]="'action.close' | translate"
+          (click)="closeReset()"
+        >
+          <svg
+            viewBox="0 0 18 18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path d="m5 5 8 8M13 5l-8 8" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="hop__than">
+        <div class="buoc buoc--nhap">
+          <p class="mota">{{ 'users.reset.what' | translate: { name: nguoi.fullName } }}</p>
+          <p class="mota" style="margin-top: 10px">{{ 'users.reset.kicks' | translate }}</p>
+        </div>
+
+        <div class="buoc buoc--xong">
+          @if (resetResult(); as result) {
+            <div class="xong__dau">
+              <div class="xong__vong">
+                <svg
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <path d="m4 10.5 4 4 8-9" />
+                </svg>
+              </div>
+              <div>
+                <div class="xong__ten">{{ 'users.reset.done' | translate }}</div>
+                <div class="xong__mail">{{ result.email }}</div>
+              </div>
+            </div>
+
+            <div class="o" style="margin-bottom: 14px">
+              <span class="o__nhan">{{ 'users.done.password' | translate }}</span>
+              <div class="matkhau">
+                <code>{{ result.temporaryPassword }}</code>
+                <button class="nut nut--nho" type="button" (click)="copyResetPassword()">
+                  {{ 'users.done.copy' | translate }}
+                </button>
+              </div>
+            </div>
+
+            <p class="mota">{{ 'users.reset.onceOnly' | translate }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="hop__chan chan--nhap">
+        <button class="nut nut--pha" type="button" (click)="closeReset()">
+          {{ 'action.cancel' | translate }}
+        </button>
+        <button
+          class="nut nut--chinh"
+          type="button"
+          [disabled]="saving()"
+          (click)="confirmReset()"
+        >
+          {{ 'users.reset.action' | translate }}
+        </button>
+      </div>
+
+      <div class="hop__chan chan--xong">
+        <button class="nut nut--chinh" type="button" (click)="closeReset()">
+          {{ 'users.done.finish' | translate }}
         </button>
       </div>
     </div>

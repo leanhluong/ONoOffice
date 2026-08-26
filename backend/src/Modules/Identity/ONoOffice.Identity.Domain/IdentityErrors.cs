@@ -107,6 +107,27 @@ public static class IdentityErrors
         public static readonly Error CannotChangeOwnerRole =
             Error.Conflict("User.CannotChangeOwnerRole", "Không thể đổi vai trò của chủ sở hữu. Hãy chuyển nhượng quyền sở hữu trước.");
 
+        /// <summary>
+        /// Chặn LEO THANG QUYỀN, không phải chặn nhầm lẫn.
+        ///
+        /// Đặt lại mật khẩu của ai đó nghĩa là đăng nhập được dưới danh nghĩa người đó.
+        /// Admin có 11/12 quyền; thứ duy nhất họ thiếu là chuyển nhượng quyền sở hữu. Cho
+        /// họ đặt lại mật khẩu của chủ sở hữu thì họ đăng nhập thành chủ sở hữu rồi tự
+        /// chuyển nhượng — ranh giới Admin ↔ Owner biến mất, dù bảng phân quyền vẫn đúng.
+        /// </summary>
+        public static readonly Error CannotResetOwnerPassword = Error.Conflict(
+            "User.CannotResetOwnerPassword",
+            "Không thể đặt lại mật khẩu của chủ sở hữu. Chỉ chính họ làm được việc đó.");
+
+        /// <summary>
+        /// Đổi mật khẩu của chính mình phải đi qua <c>POST /api/me/password</c>, vì đường
+        /// đó đòi <b>mật khẩu hiện tại</b>. Cho đi vòng qua đây là bỏ hẳn phép kiểm ấy: một
+        /// máy bỏ quên lúc đang đăng nhập là đủ để người khác chiếm hẳn tài khoản.
+        /// </summary>
+        public static readonly Error CannotResetOwnPassword = Error.Conflict(
+            "User.CannotResetOwnPassword",
+            "Hãy đổi mật khẩu của chính bạn ở màn Hồ sơ — ở đó có kiểm mật khẩu hiện tại.");
+
         public static readonly Error WrongCurrentPassword =
             Error.Validation("User.WrongCurrentPassword", "Mật khẩu hiện tại không đúng.");
 

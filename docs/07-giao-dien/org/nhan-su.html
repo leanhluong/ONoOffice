@@ -597,6 +597,73 @@
   </div>
 </div>
 
+<!-- ══════════════ ĐẶT LẠI MẬT KHẨU HỘ ══════════════
+
+     HAI BƯỚC, cùng lý do với hộp "Thêm người".
+
+     Bước một hỏi, vì thao tác này đá người kia ra khỏi mọi thiết bị đang đăng nhập — làm
+     ngay khi bấm thì một cú bấm nhầm trong ngăn kéo là đủ để một đồng nghiệp đang họp bị
+     đăng xuất giữa chừng, không có đường hoàn tác.
+
+     Bước hai hiện mật khẩu tạm, và nó chỉ tồn tại đúng một lần trong phản hồi. Đóng hộp
+     mà chưa chép là phải đặt lại lần nữa.
+     ══════════════════════════════════════════════════════════════ -->
+<div class="man" id="manDatLai">
+  <button type="button" class="man__nen" data-dong aria-label="Đóng"></button>
+
+  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdDl" data-buoc="nhap" id="hopDatLai" style="max-width:440px">
+    <div class="hop__dau">
+      <h2 id="tdDl">Đặt lại mật khẩu cho Trần Bình</h2>
+      <button class="nuti" data-dong aria-label="Đóng"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg></button>
+    </div>
+
+    <div class="hop__than">
+      <div class="buoc buoc--nhap">
+        <p class="mota">
+          Hệ thống sinh một <b>mật khẩu tạm</b> và hiện ra đúng một lần để bạn đưa tận tay.
+          Trần Bình sẽ phải đổi nó ở lần đăng nhập kế tiếp.
+        </p>
+        <p class="mota" style="margin-top:10px">
+          Mọi thiết bị đang đăng nhập của họ <b>bị đăng xuất ngay</b> — kể cả điện thoại.
+          Đó là chủ ý: lý do hay gặp nhất của việc đặt lại là nghi tài khoản bị chiếm.
+        </p>
+      </div>
+
+      <div class="buoc buoc--xong">
+        <div class="xong__dau">
+          <div class="xong__vong"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg></div>
+          <div>
+            <div class="xong__ten">Đã đặt lại mật khẩu</div>
+            <div class="xong__mail">binh.tran@congty.vn</div>
+          </div>
+        </div>
+
+        <div class="o" style="margin-bottom:14px">
+          <span class="o__nhan">Mật khẩu tạm</span>
+          <div class="matkhau">
+            <code>n4rt-8kqw-vb2z</code>
+            <button class="nut nut--nho" data-soon="Chép mật khẩu">Chép</button>
+          </div>
+        </div>
+
+        <p class="mota">
+          <b>Đây là lần duy nhất bạn thấy mật khẩu này.</b> Đóng hộp thoại là nó biến mất —
+          quên thì phải đặt lại lần nữa.
+        </p>
+      </div>
+    </div>
+
+    <div class="hop__chan chan--nhap">
+      <button class="nut nut--pha" data-dong>Huỷ</button>
+      <button class="nut nut--chinh" id="nutDatLai">Đặt lại mật khẩu</button>
+    </div>
+
+    <div class="hop__chan chan--xong">
+      <button class="nut nut--chinh" data-dong>Xong</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════ XÁC NHẬN THAO TÁC HÀNG LOẠT ══════════════
 
      Thứ QUAN TRỌNG NHẤT ở hộp này là con số "sẽ bỏ qua".
@@ -685,6 +752,23 @@
             tách lại thành hai dòng — dùng khi nối nhầm người.
           </p>
           <button class="nut nut--nho" data-soon="Gỡ liên kết">Gỡ liên kết</button>
+        </div>
+
+        <!--
+          Mật khẩu đứng RIÊNG, trên vùng nguy hiểm.
+
+          Nó không phá gì cả — người kia vẫn dùng tài khoản như thường, chỉ phải nhận một
+          mật khẩu mới. Xếp chung với "vô hiệu hoá" thì quản trị viên ngại bấm đúng cái
+          nút mà đồng nghiệp đang cần, và cái họ cần thì gấp: quên mật khẩu nghĩa là đang
+          không làm việc được.
+        -->
+        <div class="the__khoi" style="margin-top:18px">
+          <h3>Mật khẩu</h3>
+          <p class="mota">
+            Chưa có dịch vụ gửi email nên "Quên mật khẩu" chưa chạy — đây là đường duy nhất
+            để một người quay lại được. Đặt lại sẽ <b>đăng xuất họ khỏi mọi thiết bị</b>.
+          </p>
+          <button class="nut nut--nho" data-mo="manDatLai">Đặt lại mật khẩu</button>
         </div>
 
         <div class="the__khoi" style="margin-top:18px">
@@ -796,6 +880,7 @@ function mo(id) {
   // Mở lại thì luôn về bước NHẬP. Giữ nguyên bước 'xong' thì lần sau người dùng mở ra
   // thấy mật khẩu của người trước — vừa khó hiểu vừa là rò rỉ.
   if (id === 'manThem') hopThem.dataset.buoc = 'nhap';
+  if (id === 'manDatLai') hopDatLai.dataset.buoc = 'nhap';
 }
 function dongHet() { document.querySelectorAll('.man').forEach(m => m.classList.remove('man--hien')); }
 
@@ -833,6 +918,14 @@ hopNoi.querySelectorAll('.tab button[data-che]').forEach((tab) => {
 // mật khẩu nào.
 document.getElementById('nutCap').addEventListener('click', () => {
   if (hopNoi.dataset.che === 'tao') hopNoi.dataset.buoc = 'xong';
+});
+
+// Hộp đặt lại mật khẩu cũng hai bước. Mở lại thì luôn về bước HỎI — giữ nguyên bước hai
+// thì lần sau mở ra người ta thấy mật khẩu của đồng nghiệp trước đó.
+const hopDatLai = document.getElementById('hopDatLai');
+
+document.getElementById('nutDatLai').addEventListener('click', () => {
+  hopDatLai.dataset.buoc = 'xong';
 });
 
 document.querySelectorAll('[data-dong]').forEach(b => b.addEventListener('click', dongHet));

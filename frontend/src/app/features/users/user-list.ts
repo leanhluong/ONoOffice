@@ -21,6 +21,7 @@ import {
   UserStatusFilter,
   type CreateUserResponse,
   type PagedList,
+  type ResetPasswordResponse,
   type RoleListItem,
 } from '../../core/models/user.model';
 import { PopupService } from '../../core/ui/popup.service';
@@ -132,6 +133,12 @@ export class UserList {
 
   protected readonly detail = signal<MemberListItem | null>(null);
   protected readonly detailTab = signal<'tt' | 'qu'>('tt');
+
+  /** Người đang chờ xác nhận đặt lại mật khẩu. `null` = hộp đang đóng. */
+  protected readonly resetFor = signal<MemberListItem | null>(null);
+
+  /** Mật khẩu tạm vừa sinh ra. Tồn tại ĐÚNG một lần — đóng hộp là mất. */
+  protected readonly resetResult = signal<ResetPasswordResponse | null>(null);
 
   /**
    * Dòng đang mở hộp thoại NỐI. `null` = hộp đang đóng.
@@ -651,8 +658,11 @@ export class UserList {
   }
 
   protected async copyPassword(): Promise<void> {
-    const password = this.created()?.temporaryPassword;
+    await this.chep(this.created()?.temporaryPassword);
+  }
 
+  /** Dùng chung cho cả hai chỗ sinh mật khẩu tạm: tạo tài khoản và đặt lại mật khẩu. */
+  private async chep(password: string | undefined): Promise<void> {
     if (!password) {
       return;
     }
@@ -741,6 +751,69 @@ export class UserList {
         this.showError(error);
       },
     });
+  }
+
+  // ── Đặt lại mật khẩu hộ ─────────────────────────────────────────────
+
+  /**
+   * Mở hộp HỎI TRƯỚC, không gọi backend ngay.
+   *
+   * Thao tác này đá người đó ra khỏi mọi thiết bị đang đăng nhập. Làm ngay khi bấm thì
+   * một cú bấm nhầm trong ngăn kéo là đủ để một đồng nghiệp đang họp bị đăng xuất giữa
+   * chừng, và không có đường hoàn tác.
+   */
+  protected openReset(member: MemberListItem): void {
+    // Đặt lại mật khẩu là thao tác lên TÀI KHOẢN. Dòng chưa có tài khoản thì việc cần làm
+    // là cấp tài khoản, và việc đó nằm ở chỗ khác.
+    if (member.userId === null) {
+      return;
+    }
+
+    // Xoá kết quả cũ NGAY khi mở, không đợi lúc đóng: mở lại cho người khác mà còn thấy
+    // mật khẩu của người trước thì vừa khó hiểu vừa là rò rỉ.
+    this.resetResult.set(null);
+    this.resetFor.set(member);
+  }
+
+  protected confirmReset(): void {
+    const member = this.resetFor();
+
+    if (member?.userId == null) {
+      return;
+    }
+
+    this.saving.set(true);
+
+    this.users.resetPassword(member.userId).subscribe({
+      next: (response) => {
+        this.saving.set(false);
+        this.resetResult.set(response);
+      },
+      error: (error: unknown) => {
+        this.saving.set(false);
+        this.showError(error);
+      },
+    });
+  }
+
+  /**
+   * Đóng hộp và nạp lại danh sách.
+   *
+   * Sau khi đặt lại, người đó mang cờ "chờ nhận tài khoản" — cột Trạng thái phải đổi theo.
+   * Không nạp lại thì bảng vẫn ghi "Đang hoạt động", và quản trị viên tưởng thao tác trượt.
+   */
+  protected async copyResetPassword(): Promise<void> {
+    await this.chep(this.resetResult()?.temporaryPassword);
+  }
+
+  protected closeReset(): void {
+    // Chỉ nạp lại khi THẬT SỰ có gì đổi. Bấm Huỷ ở bước hỏi thì chưa có gì để nạp.
+    if (this.resetResult() !== null) {
+      this.load();
+    }
+
+    this.resetFor.set(null);
+    this.resetResult.set(null);
   }
 
   // ── Nối hồ sơ ↔ tài khoản ───────────────────────────────────────────
@@ -1048,6 +1121,10 @@ export class UserList {
     this.detail.set(null);
     this.linkFor.set(null);
     this.bulkAction.set(null);
+
+    // `closeReset` chứ không phải `resetFor.set(null)`: Escape ở bước hiện mật khẩu vẫn
+    // phải nạp lại bảng, nếu không cột Trạng thái nói sai cho tới lần nạp sau.
+    this.closeReset();
   }
 
   /**

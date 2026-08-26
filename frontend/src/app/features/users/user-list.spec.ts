@@ -11,6 +11,7 @@ import {
   type PagedList,
   type RoleListItem,
   type UpdateUserRequest,
+  type ResetPasswordResponse,
   type UserListItem,
   type UserQuery,
 } from '../../core/models/user.model';
@@ -110,6 +111,19 @@ class FakeUserService {
     this.unlinks.push(employeeId);
 
     return of(undefined);
+  }
+
+  resets: string[] = [];
+
+  resetPassword(id: string): Observable<ResetPasswordResponse> {
+    this.resets.push(id);
+
+    return of({
+      id,
+      email: 'an@congty.vn',
+      fullName: 'Nguyễn An',
+      temporaryPassword: 'n4rt-8kqw-vb2z',
+    });
   }
 
   roleChanges: { id: string; roleId: string }[] = [];
@@ -407,6 +421,104 @@ describe('UserList', () => {
     component['load']();
 
     expect(component['selected']().size).toBe(0);
+  });
+
+  // ── Đặt lại mật khẩu hộ ───────────────────────────────────────────
+
+  /**
+   * Hỏi TRƯỚC, đặt lại SAU.
+   *
+   * Thao tác này đá người đó ra khỏi mọi thiết bị đang đăng nhập. Làm ngay khi bấm thì
+   * một cú bấm nhầm trong ngăn kéo chi tiết là đủ để một đồng nghiệp đang họp bị đăng
+   * xuất giữa chừng, và không có đường hoàn tác.
+   */
+  it('bấm đặt lại thì MỞ HỎI, chưa gọi backend', () => {
+    const target = user();
+
+    service.result = [target];
+
+    const component = make();
+
+    component['openDetail'](target);
+    component['openReset'](target);
+
+    expect(component['resetFor']()).toBe(target);
+    expect(service.resets).toHaveLength(0);
+  });
+
+  it('xác nhận thì gọi đúng tài khoản và hiện mật khẩu tạm', () => {
+    const target = user();
+
+    service.result = [target];
+
+    const component = make();
+
+    component['openReset'](target);
+    component['confirmReset']();
+
+    expect(service.resets).toEqual([target.userId]);
+    expect(component['resetResult']()!.temporaryPassword).toBe('n4rt-8kqw-vb2z');
+  });
+
+  /**
+   * Mở lại cho người KHÁC thì không được thấy mật khẩu của người trước.
+   *
+   * Vừa khó hiểu vừa là rò rỉ — cùng cái bẫy đã gặp ở hộp thoại thêm người, và nó quay
+   * lại mỗi lần có thêm một hộp thoại hai bước.
+   */
+  it('mở lại thì KHÔNG còn mật khẩu của người trước', () => {
+    const a = user({ fullName: 'A' });
+    const b = user({ fullName: 'B' });
+
+    service.result = [a, b];
+
+    const component = make();
+
+    component['openReset'](a);
+    component['confirmReset']();
+
+    component['openReset'](b);
+
+    expect(component['resetResult']()).toBeNull();
+  });
+
+  /**
+   * Dòng chưa có tài khoản thì KHÔNG có gì để đặt lại.
+   *
+   * Đặt lại mật khẩu là thao tác lên TÀI KHOẢN. Người mới chưa được cấp tài khoản thì
+   * việc cần làm là cấp, không phải đặt lại — và hai việc đó nằm ở hai chỗ khác nhau.
+   */
+  it('không mở cho dòng chưa có tài khoản', () => {
+    const chiHoSo = user({ userId: null, roleName: null });
+
+    service.result = [chiHoSo];
+
+    const component = make();
+
+    component['openReset'](chiHoSo);
+
+    expect(component['resetFor']()).toBeNull();
+  });
+
+  /**
+   * Đóng hộp thì nạp lại danh sách.
+   *
+   * Sau khi đặt lại, người đó mang cờ "chờ nhận tài khoản" — cột Trạng thái phải đổi theo.
+   * Không nạp lại thì bảng vẫn ghi "Đang hoạt động", và quản trị viên tưởng thao tác trượt.
+   */
+  it('đóng hộp thì nạp lại danh sách', () => {
+    const target = user();
+
+    service.result = [target];
+
+    const component = make();
+
+    component['openReset'](target);
+    component['confirmReset']();
+    component['closeReset']();
+
+    expect(component['resetFor']()).toBeNull();
+    expect(service.loads).toBe(2);
   });
 
   // ── Thao tác hàng loạt ────────────────────────────────────────────

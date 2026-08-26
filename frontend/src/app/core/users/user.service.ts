@@ -7,6 +7,7 @@ import type {
   CreateUserRequest,
   CreateUserResponse,
   PagedList,
+  ResetPasswordResponse,
   RoleListItem,
   UpdateUserRequest,
   UserListItem,
@@ -72,6 +73,16 @@ export class UserService {
    */
   changeRole(id: string, roleId: string): Observable<void> {
     return this.http.post<void>(this.url(`/api/users/${id}/role`), { roleId });
+  }
+
+  /**
+   * Đặt lại mật khẩu HỘ một đồng nghiệp — mật khẩu tạm trả về **đúng một lần**.
+   *
+   * Backend còn thu hồi mọi phiên đang sống của người đó, nên đây là một HÀNH ĐỘNG chứ
+   * không phải một phép sửa: giao diện phải hỏi trước khi gọi.
+   */
+  resetPassword(id: string): Observable<ResetPasswordResponse> {
+    return this.http.post<ResetPasswordResponse>(this.url(`/api/users/${id}/reset-password`), {});
   }
 
   /**

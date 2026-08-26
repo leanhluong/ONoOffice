@@ -155,6 +155,12 @@
   <data name="User.CannotDisableOwner" xml:space="preserve">
     <value>Không thể vô hiệu hoá chủ sở hữu. Hãy chuyển nhượng quyền sở hữu trước.</value>
   </data>
+  <data name="User.CannotResetOwnerPassword" xml:space="preserve">
+    <value>Không thể đặt lại mật khẩu của chủ sở hữu. Chỉ chính họ làm được việc đó.</value>
+  </data>
+  <data name="User.CannotResetOwnPassword" xml:space="preserve">
+    <value>Hãy đổi mật khẩu của chính bạn ở màn Hồ sơ — ở đó có kiểm mật khẩu hiện tại.</value>
+  </data>
   <data name="User.CannotChangeOwnerRole" xml:space="preserve">
     <value>Không thể đổi vai trò của chủ sở hữu. Hãy chuyển nhượng quyền sở hữu trước.</value>
   </data>

@@ -707,13 +707,46 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
     });
   }
 
-  const khop = /^\/api\/users\/([^/]+)(\/(enable|disable|role))?$/.exec(duong);
+  const khop = /^\/api\/users\/([^/]+)(\/(enable|disable|role|reset-password))?$/.exec(duong);
 
   if (khop) {
     const nguoi = kho.users.find((u) => u.id === khop[1]);
 
     if (!nguoi) {
       return loi(404, 'User.NotFound', 'Không tìm thấy tài khoản.');
+    }
+
+    // Đặt lại mật khẩu HỘ. Hai cửa chặn dưới đây đều là chuyện AN TOÀN, không phải tiện
+    // dụng — bỏ chúng ở demo thì demo dạy người dùng một hành vi mà hệ thật từ chối, và
+    // tệ hơn: nó dạy rằng ranh giới Admin ↔ Owner lỏng hơn thực tế.
+    if (khop[3] === 'reset-password' && req.method === 'POST') {
+      // Đặt lại mật khẩu của ai đó = đăng nhập được dưới danh nghĩa người đó. Admin thiếu
+      // đúng một quyền so với Owner (chuyển nhượng workspace); cho họ đặt lại mật khẩu
+      // của Owner thì họ đăng nhập thành Owner rồi tự chuyển nhượng.
+      if (nguoi.roleName === 'Owner' && nguoi.id !== kho.toi.id) {
+        return loi(
+          409,
+          'User.CannotResetOwnerPassword',
+          'Không thể đặt lại mật khẩu của chủ sở hữu. Chỉ chính họ làm được việc đó.',
+        );
+      }
+
+      if (nguoi.id === kho.toi.id && nguoi.roleName !== 'Owner') {
+        return loi(
+          409,
+          'User.CannotResetOwnPassword',
+          'Hãy đổi mật khẩu của chính bạn ở màn Hồ sơ — ở đó có kiểm mật khẩu hiện tại.',
+        );
+      }
+
+      nguoi.mustChangePassword = true;
+
+      return ok({
+        id: nguoi.id,
+        email: nguoi.email,
+        fullName: nguoi.fullName,
+        temporaryPassword: matKhauTam(),
+      });
     }
 
     // Đổi CHỈ vai trò — đường riêng, cố ý không mang tên. Xem `UsersController.ChangeRole`.

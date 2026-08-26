@@ -228,6 +228,16 @@
       "codeNote": "The code is on the contract and the badge, so it cannot be changed after creation.",
       "jobTitle": "Job title"
     },
+    "reset": {
+      "title": "Password",
+      "why": "There is no email service yet, so \"Forgot password\" does not work — this is the only way back in for someone locked out. Resetting signs them out everywhere.",
+      "action": "Reset password",
+      "dialog": "Reset the password for {{name}}",
+      "what": "A temporary password is generated and shown once, for you to hand over. {{name}} will have to change it at their next sign-in.",
+      "kicks": "Every device they are signed in on is signed out immediately, phones included. That is deliberate: the most common reason to reset is a suspected account takeover.",
+      "done": "Password reset",
+      "onceOnly": "This is the only time you will see this password. Closing the dialog loses it — you would have to reset again."
+    },
     "bulk": {
       "department": "Change department",
       "role": "Change role",

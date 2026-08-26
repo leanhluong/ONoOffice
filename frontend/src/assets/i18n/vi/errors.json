@@ -63,6 +63,8 @@
   "User.CannotChangeOwnerRole": "Không thể đổi vai trò của chủ sở hữu. Hãy chuyển nhượng quyền sở hữu trước.",
   "User.CannotDisableOwner": "Không thể vô hiệu hoá chủ sở hữu. Hãy chuyển nhượng quyền sở hữu trước.",
   "User.CannotDisableSelf": "Bạn không thể tự vô hiệu hoá tài khoản của chính mình.",
+  "User.CannotResetOwnerPassword": "Không thể đặt lại mật khẩu của chủ sở hữu. Chỉ chính họ làm được việc đó.",
+  "User.CannotResetOwnPassword": "Hãy đổi mật khẩu của chính bạn ở màn Hồ sơ — ở đó có kiểm mật khẩu hiện tại.",
   "User.FullNameEmpty": "Họ tên không được để trống.",
   "User.FullNameTooLong": "Họ tên không được dài quá 200 ký tự.",
   "User.NewPasswordSameAsCurrent": "Mật khẩu mới phải khác mật khẩu hiện tại.",

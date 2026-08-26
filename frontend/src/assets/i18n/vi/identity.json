@@ -228,6 +228,16 @@
       "codeNote": "Mã nằm trên hợp đồng và thẻ nhân viên, nên không đổi được sau khi tạo.",
       "jobTitle": "Chức danh"
     },
+    "reset": {
+      "title": "Mật khẩu",
+      "why": "Chưa có dịch vụ gửi email nên \"Quên mật khẩu\" chưa chạy — đây là đường duy nhất để một người quay lại được. Đặt lại sẽ đăng xuất họ khỏi mọi thiết bị.",
+      "action": "Đặt lại mật khẩu",
+      "dialog": "Đặt lại mật khẩu cho {{name}}",
+      "what": "Hệ thống sinh một mật khẩu tạm và hiện ra đúng một lần để bạn đưa tận tay. {{name}} sẽ phải đổi nó ở lần đăng nhập kế tiếp.",
+      "kicks": "Mọi thiết bị đang đăng nhập của họ bị đăng xuất ngay — kể cả điện thoại. Đó là chủ ý: lý do hay gặp nhất của việc đặt lại là nghi tài khoản bị chiếm.",
+      "done": "Đã đặt lại mật khẩu",
+      "onceOnly": "Đây là lần duy nhất bạn thấy mật khẩu này. Đóng hộp thoại là nó biến mất — quên thì phải đặt lại lần nữa."
+    },
     "bulk": {
       "department": "Đổi phòng ban",
       "role": "Đổi vai trò",
