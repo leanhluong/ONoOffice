@@ -6,6 +6,7 @@
   "Conversation.AlreadyIn": "That person is already in this conversation.",
   "Conversation.CannotChatWithSelf": "You cannot start a direct conversation with yourself.",
   "Conversation.DirectIsFixed": "A direct conversation has exactly two people and cannot be changed. Start a group instead.",
+  "Conversation.GroupNeedsSomeone": "A group needs at least one person besides you.",
   "Conversation.NameEmpty": "Group name cannot be empty.",
   "Conversation.NameTooLong": "Group name cannot be longer than 120 characters.",
   "Conversation.NotAParticipant": "You are not in this conversation.",

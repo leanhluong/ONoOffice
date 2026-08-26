@@ -201,5 +201,36 @@
       "members": "Tài khoản, vai trò và hồ sơ nhân sự",
       "help": "Những gì hệ thống làm được"
     }
+  },
+  "chat": {
+    "title": "Trao đổi",
+    "conversations": "Danh sách hội thoại",
+    "messages": "Tin nhắn",
+    "newGroup": "Tạo nhóm mới",
+    "createGroup": "Tạo nhóm",
+    "groupName": "Tên nhóm",
+    "invite": "Mời ai vào nhóm",
+    "filterByName": "Lọc theo tên",
+    "noOneMatches": "Không có ai khớp.",
+    "selectedCount": "Đã chọn {{count}} người.",
+    "searchPlaceholder": "Tìm người hoặc nhóm",
+    "groups": "Nhóm",
+    "directs": "Tin nhắn riêng",
+    "noConversations": "Chưa có hội thoại nào. Mở danh bạ và bấm nhắn tin cho một đồng nghiệp, hoặc tạo một nhóm.",
+    "noMessagesYet": "Chưa có tin nhắn nào",
+    "peopleCount": "{{count}} người",
+    "loadOlder": "Xem tin cũ hơn",
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "emptyTitle": "Chọn một hội thoại",
+    "emptyBody": "Chọn một người hoặc một nhóm ở cột bên trái để bắt đầu đọc.",
+    "emptyThreadTitle": "Chưa có tin nhắn nào",
+    "emptyThreadBody": "Gõ câu đầu tiên bên dưới. Mọi người trong hội thoại sẽ thấy nó ngay lần mở tiếp theo.",
+    "composePlaceholder": "Nhắn cho {{name}}",
+    "composeLabel": "Nội dung tin nhắn",
+    "send": "Gửi tin nhắn",
+    "sendFailed": "Không gửi được.",
+    "enterSends": "gửi",
+    "shiftEnterNewline": "xuống dòng"
   }
 }

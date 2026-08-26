@@ -6,6 +6,7 @@
   "Conversation.AlreadyIn": "Người này đã ở trong hội thoại.",
   "Conversation.CannotChatWithSelf": "Không thể mở hội thoại riêng với chính mình.",
   "Conversation.DirectIsFixed": "Hội thoại riêng chỉ có hai người và không đổi được. Hãy mở một nhóm mới.",
+  "Conversation.GroupNeedsSomeone": "Nhóm phải có ít nhất một người khác ngoài bạn.",
   "Conversation.NameEmpty": "Tên nhóm không được để trống.",
   "Conversation.NameTooLong": "Tên nhóm không được dài quá 120 ký tự.",
   "Conversation.NotAParticipant": "Bạn không ở trong hội thoại này.",

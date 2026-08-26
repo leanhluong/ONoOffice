@@ -85,6 +85,19 @@ const CAP: readonly Cap[] = [
   { ten: 'Danh bạ', banDung: 'org/danh-ba.html', angular: ['features/contacts/contact-list.html'] },
   { ten: 'Hướng dẫn', banDung: 'huongdan/tai-lieu.html', angular: ['features/help/help.html'] },
   {
+    /*
+      Cặp với `chat-lat-1.html`, KHÔNG phải `chat.html`.
+
+      `chat.html` là bản dựng ĐÍCH — cảm xúc, chuỗi trả lời, tệp đính kèm, tin ghim, "đang
+      gõ", "đã xem". Ghép với nó thì bộ canh này đỏ vì hàng chục lớp chưa dựng, và cách
+      duy nhất để hết đỏ là nhồi hàng chục dòng vào `BO_QUA` — tức là làm đúng cái việc
+      mà chú thích của `BO_QUA` cấm. Xem chú thích đầu `chat-lat-1.html`.
+    */
+    ten: 'Trao đổi',
+    banDung: 'comm/chat-lat-1.html',
+    angular: ['features/chat/chat.html'],
+  },
+  {
     ten: 'Bảng điều khiển',
     banDung: 'khung/bang-dieu-khien.html',
     angular: ['features/dashboard/dashboard.html'],

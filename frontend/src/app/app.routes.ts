@@ -107,9 +107,23 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./layout/shell/shell').then((m) => m.Shell),
     children: [
-      // Hôm nay là Bảng điều khiển. Khi màn Trao đổi xong thì đây đổi thành `/chat` —
-      // mở ONoOffice là vào thẳng chat, giống Lark và Zalo.
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      /*
+        Vào thẳng Trao đổi, giống Lark và Zalo — đúng thứ đã hẹn từ lúc dựng rail.
+
+        Đây là màn người ta mở ra rồi để đó cả ngày; Bảng điều khiển thì mở khi muốn xem
+        có việc gì cần xử lý, tức là một chủ đích riêng. Trang mặc định nên là thứ người
+        dùng ở lại lâu nhất.
+      */
+      { path: '', redirectTo: 'chat', pathMatch: 'full' },
+      {
+        /*
+          KHÔNG có `permissionGuard`. Module Comm không khai một quyền nào — phân quyền
+          của nó là tư cách THAM GIA, kiểm ở từng handler theo bảng `comm.participants`.
+          Gắn một quyền ở đây là bịa ra một cái tên mà backend không biết.
+        */
+        path: 'chat',
+        loadComponent: () => import('./features/chat/chat').then((m) => m.Chat),
+      },
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),

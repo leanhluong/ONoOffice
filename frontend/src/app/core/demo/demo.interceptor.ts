@@ -971,6 +971,126 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
     }
   }
 
+  // ── Trao đổi ────────────────────────────────────────────────────────
+  /*
+    Màn Trao đổi là TRANG MẶC ĐỊNH của app, nên nó phải chạy được ở chế độ demo — nếu
+    không thì mở `?demo=1` là gặp thẳng một màn 501, và người thử kết luận sai rằng cả bản
+    demo hỏng.
+
+    Bản mô phỏng này giữ đúng những lời hứa mà giao diện dựa vào, và KHÔNG hứa gì hơn:
+    tin gửi ra được lưu lại và hiện ngay; số chưa đọc về 0 khi đánh dấu đã đọc; nhóm mới
+    tạo xuất hiện ở đầu danh sách. Không có realtime — vì sản phẩm thật ở lát 1 cũng chưa
+    có, và một bản demo "sống động hơn sản phẩm" là một lời hứa sai.
+  */
+  if (duong === '/api/conversations' && req.method === 'GET') {
+    return ok(
+      [...kho.hoiThoai]
+        .map((c) => {
+          const tin = kho.tin[c.id] ?? [];
+          const cuoi = tin.at(-1);
+
+          return {
+            ...c,
+            lastMessageBody: cuoi?.body ?? null,
+            lastMessageSenderName: cuoi?.senderName ?? null,
+            lastMessageAtUtc: cuoi?.sentAtUtc ?? null,
+          };
+        })
+        .sort((a, b) => (b.lastMessageAtUtc ?? '').localeCompare(a.lastMessageAtUtc ?? '')),
+    );
+  }
+
+  if (duong === '/api/conversations/direct' && req.method === 'POST') {
+    const body = req.body as { otherUserId?: string } | null;
+    const nguoi = kho.users.find((u) => u.id === body?.otherUserId);
+
+    if (!nguoi) {
+      return loi(404, 'User.NotFound', 'Không tìm thấy tài khoản.');
+    }
+
+    // Idempotent, y như backend: bấm lần thứ hai vào cùng một cái tên phải mở lại đúng
+    // hội thoại cũ, không đẻ ra cái mới.
+    const daCo = kho.hoiThoai.find((c) => c.otherUserId === nguoi.id);
+
+    if (daCo) {
+      return ok({ ...daCo, lastMessageBody: null, lastMessageSenderName: null, lastMessageAtUtc: null });
+    }
+
+    const moi = {
+      id: `c-${nguoi.id}`, kind: 1, displayName: nguoi.fullName, otherUserId: nguoi.id,
+      participantCount: 2, unreadCount: 0,
+    };
+
+    kho.hoiThoai.unshift(moi);
+    kho.tin[moi.id] = [];
+
+    return ok({ ...moi, lastMessageBody: null, lastMessageSenderName: null, lastMessageAtUtc: null });
+  }
+
+  if (duong === '/api/conversations/group' && req.method === 'POST') {
+    const body = req.body as { name?: string; memberUserIds?: string[] } | null;
+
+    if (!body?.name?.trim()) {
+      return loi(400, 'Conversation.NameEmpty', 'Tên nhóm không được để trống.');
+    }
+
+    if (!body.memberUserIds?.length) {
+      return loi(400, 'Conversation.GroupNeedsSomeone', 'Nhóm phải có ít nhất một người khác ngoài bạn.');
+    }
+
+    const moi = {
+      id: `c-nhom-${kho.hoiThoai.length}`, kind: 2, displayName: body.name.trim(),
+      otherUserId: null, participantCount: body.memberUserIds.length + 1, unreadCount: 0,
+    };
+
+    kho.hoiThoai.unshift(moi);
+    kho.tin[moi.id] = [];
+
+    return ok({ ...moi, lastMessageBody: null, lastMessageSenderName: null, lastMessageAtUtc: null });
+  }
+
+  const khopHoiThoai = /^\/api\/conversations\/([^/]+)\/(messages|read)$/.exec(duong);
+
+  if (khopHoiThoai) {
+    const hoiThoai = kho.hoiThoai.find((c) => c.id === khopHoiThoai[1]);
+
+    if (!hoiThoai) {
+      return loi(404, 'Conversation.NotFound', 'Không tìm thấy hội thoại này.');
+    }
+
+    if (khopHoiThoai[2] === 'read' && req.method === 'POST') {
+      hoiThoai.unreadCount = 0;
+
+      return trong();
+    }
+
+    if (khopHoiThoai[2] === 'messages' && req.method === 'GET') {
+      // `hasMore: false` luôn — bộ dữ liệu demo ngắn hơn một trang, và trả `true` thì nút
+      // "xem tin cũ hơn" hiện ra rồi bấm vào không có gì xảy ra.
+      return ok({ items: kho.tin[hoiThoai.id] ?? [], hasMore: false });
+    }
+
+    if (khopHoiThoai[2] === 'messages' && req.method === 'POST') {
+      const body = req.body as { body?: string } | null;
+
+      if (!body?.body?.trim()) {
+        return loi(400, 'Message.Empty', 'Tin nhắn không được để trống.');
+      }
+
+      const moi = {
+        id: `m-demo-${Date.now()}`,
+        senderUserId: kho.toi.id,
+        senderName: kho.toi.fullName,
+        body: body.body.trim(),
+        sentAtUtc: new Date().toISOString(),
+      };
+
+      (kho.tin[hoiThoai.id] ??= []).push(moi);
+
+      return ok(moi);
+    }
+  }
+
   // Endpoint chưa mô phỏng: trả 501 kèm tên đường dẫn, KHÔNG im lặng đi tiếp ra mạng.
   // Đi tiếp thì request rơi vào `ERR_CONNECTION_REFUSED` và người thử tưởng giao diện
   // hỏng, trong khi thật ra chỉ là chỗ này chưa viết.

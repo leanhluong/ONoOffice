@@ -298,11 +298,71 @@ export const HO_SO: DemoHoSo[] = [
   },
 ];
 
+/*
+  ══════════════════════════════════════════════════════════════════════
+   TRAO ĐỔI — hội thoại và tin nhắn
+  ══════════════════════════════════════════════════════════════════════
+
+  Bốn hội thoại, đủ để bấm thử cả hai kiểu luồng và ba trạng thái đáng nhìn:
+
+    · một NHÓM đang mở, có tin của nhiều người → luồng một cột kiểu Slack
+    · một nhóm CÓ TIN CHƯA ĐỌC → huy hiệu đỏ và câu cuối đậm lên
+    · một hội thoại RIÊNG → bong bóng trái–phải kiểu Zalo
+    · một hội thoại riêng RỖNG → trạng thái "chưa có tin nhắn nào"
+
+  Giờ tính từ LÚC CHẠY, không viết cứng: một ngày tháng cố định thì sau vài tuần mọi tin
+  đều nằm ở "12 tháng 8, 2026" và không còn thử được vạch "Hôm nay"/"Hôm qua" — đúng cái
+  phần dễ sai nhất của màn này.
+*/
+const BAY_GIO = Date.now();
+const PHUT = 60_000;
+const truoc = (phut: number) => new Date(BAY_GIO - phut * PHUT).toISOString();
+
+export const HOI_THOAI_DEMO = [
+  {
+    id: 'c-kythuat', kind: 2, displayName: 'Khối Kỹ thuật', otherUserId: null,
+    participantCount: 4, unreadCount: 0,
+  },
+  {
+    id: 'c-nhansu', kind: 2, displayName: 'Thông báo nhân sự', otherUserId: null,
+    participantCount: 6, unreadCount: 3,
+  },
+  {
+    id: 'c-binh', kind: 1, displayName: 'Trần Bình', otherUserId: 'u-binh',
+    participantCount: 2, unreadCount: 1,
+  },
+  {
+    id: 'c-an', kind: 1, displayName: 'Nguyễn An', otherUserId: 'u-an',
+    participantCount: 2, unreadCount: 0,
+  },
+];
+
+export const TIN_DEMO: Record<string, { id: string; senderUserId: string; senderName: string; body: string; sentAtUtc: string }[]> = {
+  'c-kythuat': [
+    { id: 'm-1', senderUserId: 'u-an', senderName: 'Nguyễn An', body: 'Mình vừa đẩy bản vá lên nhánh develop, mọi người kéo về nhé.', sentAtUtc: truoc(1_500) },
+    { id: 'm-2', senderUserId: 'u-an', senderName: 'Nguyễn An', body: 'Có gì lạ báo lại mình ngay.', sentAtUtc: truoc(1_498) },
+    { id: 'm-3', senderUserId: 'u-ha', senderName: 'Phạm Hà', body: 'Bản vá chạy ổn bên mình rồi nhé.', sentAtUtc: truoc(45) },
+    { id: 'm-4', senderUserId: 'u-owner', senderName: 'Lê Anh Lượng', body: 'Cảm ơn An, mình xem rồi sẽ phản hồi trong hôm nay.', sentAtUtc: truoc(41) },
+  ],
+  'c-nhansu': [
+    { id: 'm-5', senderUserId: 'u-ha', senderName: 'Phạm Hà', body: 'Nhắc cả nhà chốt ngày nghỉ phép quý này trước thứ Sáu.', sentAtUtc: truoc(120) },
+    { id: 'm-6', senderUserId: 'u-ha', senderName: 'Phạm Hà', body: 'Ai chưa gửi thì nhắn riêng mình nhé.', sentAtUtc: truoc(119) },
+    { id: 'm-7', senderUserId: 'u-linh', senderName: 'Vũ Thuỳ Linh', body: 'Em gửi rồi ạ.', sentAtUtc: truoc(30) },
+  ],
+  'c-binh': [
+    { id: 'm-8', senderUserId: 'u-owner', senderName: 'Lê Anh Lượng', body: 'Bình ơi, chiều nay em rảnh lúc nào?', sentAtUtc: truoc(20) },
+    { id: 'm-9', senderUserId: 'u-binh', senderName: 'Trần Bình', body: 'Chiều nay họp lúc mấy giờ nhỉ?', sentAtUtc: truoc(8) },
+  ],
+  'c-an': [],
+};
+
 export const kho = {
   users: [...NGUOI_DUNG],
   roles: [...VAI_TRO],
   phongBan: PHONG_BAN,
   hoSo: [...HO_SO],
+  hoiThoai: HOI_THOAI_DEMO.map((c) => ({ ...c })),
+  tin: TIN_DEMO,
   toi: {
     id: 'u-owner',
     tenantId: 't-acme',

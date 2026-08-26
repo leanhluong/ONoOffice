@@ -1,0 +1,300 @@
+<!--
+  Đánh dấu chép từ `docs/07-giao-dien/comm/chat-lat-1.html`.
+  CSS sinh sang `chat.scss` bằng `node tools/sync-shell.mjs` — đừng sửa tay.
+
+  Màn này tự dựng CỘT NGỮ CẢNH của mình (`.ds` — danh sách hội thoại), không dùng `.nav`
+  mặc định: một dòng hội thoại cần ảnh, câu cuối và giờ, thứ mà danh sách trang thường
+  không có. Khung app cố ý không dựng sẵn cột thứ hai.
+-->
+<aside class="ds" [attr.aria-label]="'chat.conversations' | translate">
+  <div class="ds__dau">
+    <h1>{{ 'chat.title' | translate }}</h1>
+    <button
+      type="button"
+      class="nuti"
+      [attr.aria-label]="'chat.newGroup' | translate"
+      (click)="moHopNhom()"
+    >
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+        <path d="M9 3.5v11M3.5 9h11" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="tim">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <circle cx="7" cy="7" r="4.5" />
+      <path d="m10.5 10.5 3 3" />
+    </svg>
+    <input
+      type="search"
+      [formControl]="search"
+      [placeholder]="'chat.searchPlaceholder' | translate"
+      [attr.aria-label]="'chat.searchPlaceholder' | translate"
+    />
+  </div>
+
+  <div class="ds__cuon">
+    @if (trong() && !dangNap()) {
+      <p class="ds__rong">{{ 'chat.noConversations' | translate }}</p>
+    }
+
+    @if (nhomList().length > 0) {
+      <button type="button" class="nhom" [attr.aria-expanded]="moNhom()" (click)="doiNhom(true)">
+        <svg class="nhom__mui" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="m2 4 3 3 3-3" />
+        </svg>
+        {{ 'chat.groups' | translate }}
+        <span class="nhom__so">{{ nhomList().length }}</span>
+      </button>
+
+      @if (moNhom()) {
+        <div class="nhom__than">
+          @for (c of nhomList(); track c.id) {
+            <ng-container [ngTemplateOutlet]="dong" [ngTemplateOutletContext]="{ $implicit: c }" />
+          }
+        </div>
+      }
+    }
+
+    @if (riengList().length > 0) {
+      <button type="button" class="nhom" [attr.aria-expanded]="moRieng()" (click)="doiNhom(false)">
+        <svg class="nhom__mui" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="m2 4 3 3 3-3" />
+        </svg>
+        {{ 'chat.directs' | translate }}
+        <span class="nhom__so">{{ riengList().length }}</span>
+      </button>
+
+      @if (moRieng()) {
+        <div class="nhom__than">
+          @for (c of riengList(); track c.id) {
+            <ng-container [ngTemplateOutlet]="dong" [ngTemplateOutletContext]="{ $implicit: c }" />
+          }
+        </div>
+      }
+    }
+  </div>
+</aside>
+
+<!-- ══════════════ LUỒNG TIN NHẮN ══════════════ -->
+<section
+  class="luong"
+  [class.luong--kenh]="dangMo()?.kind === ConversationKind.Nhom"
+  [class.luong--rieng]="dangMo()?.kind === ConversationKind.Rieng"
+  [attr.aria-label]="'chat.messages' | translate"
+>
+  @if (dangMo(); as mo) {
+    <header class="trangdau">
+      <div class="luong__ten">
+        @if (mo.kind === ConversationKind.Nhom) {
+          <span class="luong__thang">#</span>
+        }
+        <h1>{{ mo.displayName }}</h1>
+      </div>
+      <!--
+        Số người chỉ hiện với NHÓM. Hội thoại riêng luôn có đúng hai người, nên "2 người"
+        không nói thêm được gì — nó chỉ chiếm chỗ và làm người đọc dừng lại một nhịp để
+        hiểu ra rằng nó chẳng có nghĩa gì.
+      -->
+      @if (mo.kind === ConversationKind.Nhom) {
+        <div class="luong__chude">
+          {{ 'chat.peopleCount' | translate: { count: mo.participantCount } }}
+        </div>
+      }
+    </header>
+
+    @if (messages().length === 0) {
+      <div class="rong">
+        <div class="rong__vong">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <path d="M21 11.5a8.4 8.4 0 01-9 8.4L3 21l1.1-3.3A8.4 8.4 0 1121 11.5z" />
+          </svg>
+        </div>
+        <h2>{{ 'chat.emptyThreadTitle' | translate }}</h2>
+        <p>{{ 'chat.emptyThreadBody' | translate }}</p>
+      </div>
+    } @else {
+      <div class="luong__cuon" #cuon>
+        @if (conNua()) {
+          <button type="button" class="nut nut--pha nut--nho themcu" (click)="napThemCu()">
+            {{ 'chat.loadOlder' | translate }}
+          </button>
+        }
+
+        @for (khoi of khoiNgay(); track khoi.nhan) {
+          <div class="ngaykhoi">
+            <div class="ngay"><span>{{ khoi.nhan }}</span></div>
+
+            @for (dong of khoi.tin; track dong.tin.id) {
+              <article
+                class="tin"
+                [class.tin--minh]="dong.cuaToi"
+                [class.tin--noi]="dong.noi"
+                [class.tin--dang]="dong.tin.trangThai === 'dang'"
+                [class.tin--hong]="dong.tin.trangThai === 'hong'"
+              >
+                <span class="mat mat--nho">{{ chuCai(dong.tin.senderName) }}</span>
+                <div class="tin__than">
+                  <div class="tin__dau">
+                    <span class="tin__ai">{{ dong.tin.senderName }}</span>
+                    <span class="tin__gio">{{ gio(dong.tin.sentAtUtc) }}</span>
+                  </div>
+                  <p class="tin__chu">{{ dong.tin.body }}</p>
+                  @if (dong.tin.trangThai === 'hong') {
+                    <p class="tin__hong">
+                      {{ 'chat.sendFailed' | translate }}
+                      <button type="button" (click)="thuLai(dong.tin)">{{ 'action.retry' | translate }}</button>
+                    </p>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!--
+      Ô soạn GIỮ NGUYÊN kể cả khi luồng rỗng: hội thoại chưa có tin nào chính là lúc người
+      dùng cần gõ câu đầu tiên nhất. Giấu nó ở đây là khoá cửa đúng lúc có người muốn vào.
+    -->
+    <form class="soan" (ngSubmit)="gui()">
+      <textarea
+        rows="1"
+        [formControl]="draft"
+        [placeholder]="'chat.composePlaceholder' | translate: { name: mo.displayName }"
+        [attr.aria-label]="'chat.composeLabel' | translate"
+        (keydown)="phim($event)"
+      ></textarea>
+      <div class="soan__day">
+        @if (conLai() < 200) {
+          <span class="soan__dem" [class.soan__dem--gan]="conLai() < 0">{{ conLai() }}</span>
+        }
+        <button
+          type="submit"
+          class="nuti soan__gui"
+          [disabled]="!guiDuoc()"
+          [attr.aria-label]="'chat.send' | translate"
+        >
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="M2.5 9h11M9.5 4.5 14 9l-4.5 4.5" />
+          </svg>
+        </button>
+      </div>
+    </form>
+
+    <p class="meo">
+      <kbd>Enter</kbd> {{ 'chat.enterSends' | translate }} ·
+      <kbd>Shift</kbd>+<kbd>Enter</kbd> {{ 'chat.shiftEnterNewline' | translate }}
+    </p>
+  } @else {
+    <div class="rong">
+      <div class="rong__vong">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M21 11.5a8.4 8.4 0 01-9 8.4L3 21l1.1-3.3A8.4 8.4 0 1121 11.5z" />
+        </svg>
+      </div>
+      <h2>{{ 'chat.emptyTitle' | translate }}</h2>
+      <p>{{ 'chat.emptyBody' | translate }}</p>
+    </div>
+  }
+</section>
+
+<!-- ══════════════ HỘP TẠO NHÓM ══════════════ -->
+@if (hopNhom()) {
+  <div class="man">
+    <button type="button" class="man__nen" [attr.aria-label]="'action.close' | translate" (click)="dongHopNhom()"></button>
+
+    <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdNhom">
+      <div class="hop__dau">
+        <h2 id="tdNhom">{{ 'chat.newGroup' | translate }}</h2>
+        <button class="nuti" [attr.aria-label]="'action.close' | translate" (click)="dongHopNhom()">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="m5 5 8 8M13 5l-8 8" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="hop__than">
+        <div class="o" [class.o--hong]="loiNhom() !== null">
+          <label class="o__nhan" for="tenNhom">
+            {{ 'chat.groupName' | translate }} <span class="o__batbuoc">*</span>
+          </label>
+          <input id="tenNhom" type="text" maxlength="120" [formControl]="tenNhom" />
+          @if (loiNhom(); as loi) {
+            <p class="o__loi">{{ loi }}</p>
+          }
+        </div>
+
+        <div class="o" style="margin-top: 14px">
+          <label class="o__nhan" for="locNguoi">
+            {{ 'chat.invite' | translate }} <span class="o__batbuoc">*</span>
+          </label>
+          <input id="locNguoi" type="search" [formControl]="locNguoi" [placeholder]="'chat.filterByName' | translate" />
+        </div>
+
+        <div class="chon">
+          @for (m of nguoiMoiDuoc(); track m.userId) {
+            <label class="chon__dong">
+              <input type="checkbox" [checked]="daChon(m.userId!)" (change)="doiChon(m.userId!)" />
+              <span class="mat mat--nho">{{ chuCai(m.fullName) }}</span>
+              <span class="chon__ten">{{ m.fullName }}</span>
+            </label>
+          } @empty {
+            <p class="chon__rong">{{ 'chat.noOneMatches' | translate }}</p>
+          }
+        </div>
+
+        <p class="chon__dem">{{ 'chat.selectedCount' | translate: { count: moiAi().length } }}</p>
+      </div>
+
+      <div class="hop__chan">
+        <button type="button" class="nut nut--pha" (click)="dongHopNhom()">
+          {{ 'action.cancel' | translate }}
+        </button>
+        <button type="button" class="nut nut--chinh" [disabled]="dangTao()" (click)="taoNhom()">
+          {{ 'chat.createGroup' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!--
+  Một dòng hội thoại. Tách ra template vì hai nhóm (Nhóm / Tin nhắn riêng) dùng chung y
+  hệt phần ruột — chép hai lần thì sửa một bên quên bên kia, và không có gì báo.
+-->
+<ng-template #dong let-c>
+  <button
+    type="button"
+    class="ht"
+    [class.ht--moi]="c.unreadCount > 0"
+    [attr.aria-current]="selectedId() === c.id ? 'true' : null"
+    (click)="chon(c)"
+  >
+    @if (c.kind === ConversationKind.Nhom) {
+      <span class="mat mat--kenh">#</span>
+    } @else {
+      <span class="mat">{{ chuCai(c.displayName) }}</span>
+    }
+    <span class="ht__giua">
+      <span class="ht__hang">
+        <span class="ht__ten">{{ c.displayName }}</span>
+        <span class="ht__gio">{{ gioNgan(c.lastMessageAtUtc) }}</span>
+      </span>
+      <span class="ht__hang">
+        <span class="ht__xem">
+          @if (c.lastMessageBody) {
+            {{ c.lastMessageSenderName }}: {{ c.lastMessageBody }}
+          } @else {
+            {{ 'chat.noMessagesYet' | translate }}
+          }
+        </span>
+        @if (c.unreadCount > 0) {
+          <span class="chuadoc">{{ c.unreadCount }}</span>
+        }
+      </span>
+    </span>
+  </button>
+</ng-template>

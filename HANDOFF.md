@@ -52,30 +52,31 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Test kiến trúc + i18n + luật Controller | 🟢 | 15 |
 | **Database** | 🟡 Postgres 16 · **3 migration** · dữ liệu mồi — `InitialComm` **chưa chạy thật** (Docker tắt) | **52** |
 | **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
-| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **192** |
-| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 192)* |
-| **Khung ứng dụng v4** | 🟢 **Rail 56px + cột ngữ cảnh** — khuôn Lark Messenger / Zalo PC | *(trong 192)* |
-| **Khung quản trị (khuôn B)** | 🟢 **Thanh ngang + sidebar 240px** — khuôn Lark Admin, **không có rail** | *(trong 192)* |
-| **Tách hai vùng** | 🟢 `/` `/me` ↔ `/admin/*` · guard ở route cha · 3 redirect từ đường dẫn cũ | *(trong 192)* |
-| **Nhận diện thương hiệu** | 🟢 Logo tự đổi bản sáng/tối theo bộ màu · favicon · bộ sinh tự chép sang `public/` | *(trong 192)* |
-| **Frontend · Thành viên (GỘP)** | 🟢 Đọc `/api/members` — **ba loại dòng**: có cả hai · chỉ hồ sơ · chỉ tài khoản | *(trong 192)* |
-| **Nối · cấp tài khoản · tạo hồ sơ** | 🟢 Một hộp thoại, **hai chiều × hai cách** · tạo xong nối luôn · có trong demo | *(trong 192)* |
-| **Thao tác hàng loạt** | 🟢 Đổi phòng ban · đổi vai trò · vô hiệu hoá — chạy **tuần tự**, nói rõ ai bị bỏ qua | *(trong 192)* |
-| **Đặt lại mật khẩu hộ** | 🟢 Hai bước · thu hồi mọi phiên · **chặn Admin leo lên Owner** | *(trong 192)* |
-| **Màn Hướng dẫn** | 🟢 10 bài trong app · cây trái + mục lục phải · **ảnh sinh tự động từ app** | *(trong 192)* |
-| **Chuyển nhượng quyền sở hữu** | 🟢 Đòi mật khẩu · đổi cả cờ lẫn vai · đóng lại **bốn ngõ cụt** | *(trong 192)* |
-| **Frontend · Phòng ban + Danh bạ** | 🟢 Cây sửa được (thêm/đổi tên/chuyển/xoá) · danh bạ lọc theo phòng | *(trong 192)* |
-| **Frontend · Hồ sơ & cài đặt** | 🟢 Sửa tên · đổi mật khẩu · bộ màu/ngôn ngữ | *(trong 192)* |
-| **Frontend · Vai trò & quyền** | 🟢 Vai hệ thống chỉ xem · **vai tự đặt: tạo · sửa quyền · xoá** | *(trong 192)* |
-| **Frontend · Tổng quan quản trị** | 🟡 4 số THẬT (không cần endpoint mới) · gói & hạn ngạch **chưa nối**, có đeo nhãn | *(trong 192)* |
-| **Bảng điều khiển** | 🟢 Việc cần xử lý (số THẬT, bấm được) · lối tắt theo quyền · lời dẫn workspace mới | *(trong 192)* |
-| Frontend · các màn còn lại | ⬜ Trao đổi mới có bản dựng, chưa có code | — |
+| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **215** |
+| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 215)* |
+| **Khung ứng dụng v4** | 🟢 **Rail 56px + cột ngữ cảnh** — khuôn Lark Messenger / Zalo PC | *(trong 215)* |
+| **Khung quản trị (khuôn B)** | 🟢 **Thanh ngang + sidebar 240px** — khuôn Lark Admin, **không có rail** | *(trong 215)* |
+| **Tách hai vùng** | 🟢 `/` `/me` ↔ `/admin/*` · guard ở route cha · 3 redirect từ đường dẫn cũ | *(trong 215)* |
+| **Nhận diện thương hiệu** | 🟢 Logo tự đổi bản sáng/tối theo bộ màu · favicon · bộ sinh tự chép sang `public/` | *(trong 215)* |
+| **Frontend · Thành viên (GỘP)** | 🟢 Đọc `/api/members` — **ba loại dòng**: có cả hai · chỉ hồ sơ · chỉ tài khoản | *(trong 215)* |
+| **Nối · cấp tài khoản · tạo hồ sơ** | 🟢 Một hộp thoại, **hai chiều × hai cách** · tạo xong nối luôn · có trong demo | *(trong 215)* |
+| **Thao tác hàng loạt** | 🟢 Đổi phòng ban · đổi vai trò · vô hiệu hoá — chạy **tuần tự**, nói rõ ai bị bỏ qua | *(trong 215)* |
+| **Đặt lại mật khẩu hộ** | 🟢 Hai bước · thu hồi mọi phiên · **chặn Admin leo lên Owner** | *(trong 215)* |
+| **Màn Hướng dẫn** | 🟢 10 bài trong app · cây trái + mục lục phải · **ảnh sinh tự động từ app** | *(trong 215)* |
+| **Chuyển nhượng quyền sở hữu** | 🟢 Đòi mật khẩu · đổi cả cờ lẫn vai · đóng lại **bốn ngõ cụt** | *(trong 215)* |
+| **Frontend · Phòng ban + Danh bạ** | 🟢 Cây sửa được (thêm/đổi tên/chuyển/xoá) · danh bạ lọc theo phòng | *(trong 215)* |
+| **Frontend · Hồ sơ & cài đặt** | 🟢 Sửa tên · đổi mật khẩu · bộ màu/ngôn ngữ | *(trong 215)* |
+| **Frontend · Vai trò & quyền** | 🟢 Vai hệ thống chỉ xem · **vai tự đặt: tạo · sửa quyền · xoá** | *(trong 215)* |
+| **Frontend · Tổng quan quản trị** | 🟡 4 số THẬT (không cần endpoint mới) · gói & hạn ngạch **chưa nối**, có đeo nhãn | *(trong 215)* |
+| **Bảng điều khiển** | 🟢 Việc cần xử lý (số THẬT, bấm được) · lối tắt theo quyền · lời dẫn workspace mới | *(trong 215)* |
+| **Frontend · Trao đổi (chat)** | 🟢 **Lát 1 xong** · hai kiểu luồng · gửi lạc quan + thử lại · tạo nhóm · có trong demo | *(trong 215)* |
+| Frontend · các màn còn lại | ⬜ Lịch · Tài liệu · Phê duyệt — mới có ô trên rail | — |
 | Tài liệu | 🟢 8 thư mục · 4 ADR · `05-api` · wireframe · bản dựng màu | — |
 
 ```bash
 docker compose up -d                          # Postgres 16 ở cổng 5433
 cd backend && dotnet build && dotnet test     # 398 xanh không cần Docker · +52 test database nếu có
-cd frontend && npm test && npm run parity     # 192 xanh · hai màn lệch 0,02%
+cd frontend && npm test && npm run parity     # 215 xanh · hai màn lệch 0,02%
 ```
 
 ### Đã kiểm chứng tới đâu (2026-08-24) — và chỗ nào thì CHƯA
@@ -196,9 +197,13 @@ Sau đó:
 🔴 BẤM TAY QUA VÙNG QUẢN TRỊ — khung B chưa từng chạy với dữ liệu thật.
      Cần `docker compose up -d` (máy này Docker Desktop đang TẮT). Sau đó:
      đăng nhập → menu ảnh đại diện → "Quản trị & gói cước" → xem 4 con số.
-🟡 Trao đổi (chat) — LÁT 1: **backend XONG, còn màn Angular.**
+🟢 Trao đổi (chat) — **LÁT 1 XONG, đầu tới cuối.**
      Module thứ ba `Comm`, schema `comm`. Domain + Application + EF +
-     6 endpoint, 43 test. Bản dựng `docs/07-giao-dien/comm/chat.html` đã duyệt.
+     6 endpoint (43 test BE) + màn Angular (22 test FE). Có trong chế độ demo.
+     ⚠️ HAI bản dựng: `comm/chat.html` là bản ĐÍCH (cảm xúc, chuỗi trả lời,
+     đính kèm, tin ghim, "đang gõ", "đã xem"); `comm/chat-lat-1.html` là thứ
+     ĐANG dựng thật, và là bản mà `ui-parity` + `sync-shell` trỏ vào.
+     Lát 2 thì CHUYỂN khối tương ứng từ bản đích sang, cùng lúc với code.
      ⚠️ Migration `InitialComm` CHƯA chạy trên Postgres thật (Docker tắt), nên
      câu truy vấn danh sách hội thoại — nặng nhất module, hai truy vấn con —
      chưa từng sinh ra SQL thật một lần nào.
@@ -315,7 +320,7 @@ quyền chỉ đổi mức toàn vẹn, nó không nạp thêm nhóm mới. Mọ
 | `ArchitectureTests` | 16 | không | Ranh giới tầng và luật Controller có bị phá không |
 | `Api.IntegrationTests` | 32 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
 | `Api.DatabaseTests` | 52 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập/đăng ký/tạo tài khoản có chạy THẬT không |
-| `frontend` (vitest) | 192 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
+| `frontend` (vitest) | 215 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
 | `npm run parity` | 2 màn | **Chrome** | Bản Angular trông có **giống hệt bản dựng đã duyệt** không |
 
 Bộ thứ tư tự dựng Postgres bằng **Testcontainers**, không nối vào `docker compose`. Cố ý:
@@ -633,7 +638,7 @@ bản dựng theo luật 8.
 
 Bắt đầu bằng việc chạy `cd ONoOffice/backend && dotnet build && dotnet test`
 và `cd ONoOffice/frontend && npm test && npm run parity` để xác nhận
-398 + 192 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
+398 + 215 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
 trước khi làm gì. 52 test database sẽ ĐỎ nếu chưa `docker compose up -d` —
 đó là hỏng môi trường, không phải hỏng code.
 ```

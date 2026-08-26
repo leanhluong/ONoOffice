@@ -200,6 +200,14 @@ const SCREENS = [
     source: 'docs/07-giao-dien/khung/bang-dieu-khien.html',
     target: 'frontend/src/app/features/dashboard/dashboard.scss',
   },
+  {
+    // `chat-lat-1.html`, KHÔNG phải `chat.html`. Bản kia là bản dựng ĐÍCH — nó vẽ cả cảm
+    // xúc, chuỗi trả lời, tệp đính kèm, tin ghim. Sinh CSS từ nó thì màn hình mang theo
+    // hàng trăm dòng luật cho những khối chưa tồn tại, và không ai biết dòng nào còn
+    // dùng. Xem chú thích đầu `chat-lat-1.html`.
+    source: 'docs/07-giao-dien/comm/chat-lat-1.html',
+    target: 'frontend/src/app/features/chat/chat.scss',
+  },
 ];
 
 for (const { source, target } of SCREENS) {

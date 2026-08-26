@@ -201,5 +201,36 @@
       "members": "Accounts, roles and staff profiles",
       "help": "What the system can do"
     }
+  },
+  "chat": {
+    "title": "Chat",
+    "conversations": "Conversations",
+    "messages": "Messages",
+    "newGroup": "New group",
+    "createGroup": "Create group",
+    "groupName": "Group name",
+    "invite": "Who to invite",
+    "filterByName": "Filter by name",
+    "noOneMatches": "Nobody matches.",
+    "selectedCount": "{{count}} selected.",
+    "searchPlaceholder": "Find a person or group",
+    "groups": "Groups",
+    "directs": "Direct messages",
+    "noConversations": "No conversations yet. Open the directory and message a colleague, or start a group.",
+    "noMessagesYet": "No messages yet",
+    "peopleCount": "{{count}} people",
+    "loadOlder": "Load older messages",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "emptyTitle": "Pick a conversation",
+    "emptyBody": "Choose a person or a group on the left to start reading.",
+    "emptyThreadTitle": "No messages yet",
+    "emptyThreadBody": "Type the first one below. Everyone in the conversation sees it next time they open it.",
+    "composePlaceholder": "Message {{name}}",
+    "composeLabel": "Message body",
+    "send": "Send message",
+    "sendFailed": "Could not send.",
+    "enterSends": "sends",
+    "shiftEnterNewline": "new line"
   }
 }
