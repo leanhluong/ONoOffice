@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ONoOffice.Identity.Application.Abstractions;
+using ONoOffice.Identity.Contracts;
 using ONoOffice.Identity.Infrastructure.Persistence;
 using ONoOffice.Identity.Infrastructure.Persistence.Repositories;
 using ONoOffice.Identity.Infrastructure.Security;
@@ -74,6 +75,11 @@ public static class IdentityModuleRegistration
         services.AddScoped<ITenantRepository, EfTenantRepository>();
         services.AddScoped<IRoleRepository, EfRoleRepository>();
         services.AddScoped<IUserRepository, EfUserRepository>();
+
+        // Cổng LIÊN MODULE: module Org hỏi Identity về tài khoản qua đây. Đăng ký ở phía
+        // Identity vì đây là bên SỞ HỮU dữ liệu — Org chỉ biết mỗi cái interface trong
+        // `Identity.Contracts`, không biết nó được cài bằng EF hay bằng gì.
+        services.AddScoped<IUserDirectory, EfUserDirectory>();
         services.AddScoped<IRefreshTokenRepository, EfRefreshTokenRepository>();
 
         // Băm mật khẩu không giữ trạng thái gì -> Singleton là đủ và rẻ nhất.

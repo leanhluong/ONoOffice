@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using ONoOffice.Identity.Domain;
 using ONoOffice.Org.Application.Employees.Create;
 using ONoOffice.Org.Application.Employees.Leave;
+using ONoOffice.Org.Application.Employees.LinkAccount;
 using ONoOffice.Org.Application.Employees.Transfer;
 using ONoOffice.Org.Application.Employees.Update;
 
@@ -110,6 +111,27 @@ public sealed class EmployeesController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Employees.Write)]
     public async Task<IActionResult> Reinstate(Guid id, CancellationToken cancellationToken)
         => (await sender.Send(new ReinstateEmployeeCommand(id), cancellationToken)).ToActionResult();
+
+    /// <summary>
+    /// Nối hồ sơ với một tài khoản đăng nhập.
+    ///
+    /// Đòi <c>user.manage</c> chứ không phải <c>employee.write</c>: nối là quyết định về
+    /// việc AI ĐĂNG NHẬP ĐƯỢC dưới danh nghĩa hồ sơ nào, tức là một quyết định về tài
+    /// khoản. Người chỉ được sửa hồ sơ nhân sự không nên tự trao cho mình một danh tính.
+    /// </summary>
+    [HttpPost("{id:guid}/link-account")]
+    [Authorize(Policy = Permissions.Users.Manage)]
+    public async Task<IActionResult> LinkAccount(
+        Guid id,
+        LinkAccountRequest request,
+        CancellationToken cancellationToken)
+        => (await sender.Send(new LinkAccountCommand(id, request.UserId), cancellationToken))
+            .ToActionResult();
+
+    [HttpPost("{id:guid}/unlink-account")]
+    [Authorize(Policy = Permissions.Users.Manage)]
+    public async Task<IActionResult> UnlinkAccount(Guid id, CancellationToken cancellationToken)
+        => (await sender.Send(new UnlinkAccountCommand(id), cancellationToken)).ToActionResult();
 }
 
 public sealed record CreateEmployeeRequest(
@@ -129,3 +151,5 @@ public sealed record UpdateEmployeeRequest(
 public sealed record TransferEmployeeRequest(Guid? DepartmentId);
 
 public sealed record LeaveEmployeeRequest(DateOnly LeftOn);
+
+public sealed record LinkAccountRequest(Guid UserId);

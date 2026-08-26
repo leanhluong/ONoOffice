@@ -1,5 +1,6 @@
 using Luong.Kernel.Abstractions;
 using Luong.Kernel.Pagination;
+using ONoOffice.Identity.Contracts;
 using ONoOffice.Org.Application.Abstractions;
 using ONoOffice.Org.Domain.Entities;
 
@@ -66,6 +67,19 @@ internal class FakeEmployeeRepository : IEmployeeRepository
         string code,
         Guid? exceptId,
         CancellationToken cancellationToken) => Task.FromResult(false);
+
+    public virtual Task<IReadOnlyList<EmployeeAccountLink>> LinkedUserIdsAsync(
+        CancellationToken cancellationToken) => Task.FromResult<IReadOnlyList<EmployeeAccountLink>>([]);
+}
+
+/// <summary>Danh bạ tài khoản của module Identity — cổng liên module, nhìn từ phía Org.</summary>
+internal class FakeUserDirectory(params UserSummary[] users) : IUserDirectory
+{
+    public virtual Task<IReadOnlyList<UserSummary>> GetAllAsync(CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<UserSummary>>(users);
+
+    public virtual Task<bool> ExistsAsync(Guid userId, CancellationToken cancellationToken)
+        => Task.FromResult(users.Any(u => u.Id == userId));
 }
 
 /// <summary>Phiên đang đứng trong một workspace cố định.</summary>

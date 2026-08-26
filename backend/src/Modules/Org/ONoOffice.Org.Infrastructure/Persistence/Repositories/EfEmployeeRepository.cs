@@ -77,6 +77,14 @@ internal sealed class EfEmployeeRepository(OrgDbContext context) : IEmployeeRepo
         return PagedList<ContactListItem>.Create(rows, criteria.Page, criteria.PageSize, total);
     }
 
+    public async Task<IReadOnlyList<EmployeeAccountLink>> LinkedUserIdsAsync(
+        CancellationToken cancellationToken)
+        => await context.Employees
+            .AsNoTracking()
+            .Where(e => e.UserId != null)
+            .Select(e => new EmployeeAccountLink(e.Id, e.UserId!.Value))
+            .ToListAsync(cancellationToken);
+
     public Task<bool> CodeTakenAsync(string code, Guid? exceptId, CancellationToken cancellationToken)
         => context.Employees
             .AsNoTracking()

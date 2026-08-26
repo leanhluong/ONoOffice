@@ -34,4 +34,16 @@ public interface IEmployeeRepository
         CancellationToken cancellationToken);
 
     Task<bool> CodeTakenAsync(string code, Guid? exceptId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Cặp <c>(hồ sơ, tài khoản)</c> của những hồ sơ ĐÃ nối tài khoản.
+    ///
+    /// Trả riêng thay vì nhét <c>UserId</c> vào <see cref="ContactListItem"/>: danh bạ
+    /// không cần biết ai có tài khoản, và lộ khoá của module khác ra một DTO mà cả màn
+    /// Danh bạ dùng chung là mở đường cho người sau ghép hai module ở chỗ không nên ghép.
+    /// </summary>
+    Task<IReadOnlyList<EmployeeAccountLink>> LinkedUserIdsAsync(CancellationToken cancellationToken);
 }
+
+/// <summary>Một hồ sơ nhân sự đã nối với một tài khoản đăng nhập.</summary>
+public sealed record EmployeeAccountLink(Guid EmployeeId, Guid UserId);
