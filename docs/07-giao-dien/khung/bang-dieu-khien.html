@@ -1,0 +1,234 @@
+<!doctype html>
+<!--
+  Bản dựng BẢNG ĐIỀU KHIỂN — màn đầu tiên sau khi đăng nhập. KHUNG APP (khuôn A).
+
+  ══════════════════════════════════════════════════════════════════════════
+   MÀN NÀY DỄ LÀM SAI THEO ĐÚNG MỘT KIỂU
+  ══════════════════════════════════════════════════════════════════════════
+
+  Bảng điều khiển là chỗ cám dỗ nhất để bịa: ai cũng muốn thấy biểu đồ, dòng thời gian hoạt
+  động, "5 tin nhắn chưa đọc", "3 đơn chờ duyệt". Không thứ nào trong số đó có dữ liệu —
+  chưa có module Trao đổi, chưa có đơn từ, chưa có nhật ký hoạt động.
+
+  Vẽ chúng ra rồi để số 0 đứng yên vĩnh viễn thì tệ hơn để trống: người dùng nhìn vào và
+  kết luận công ty mình không có việc gì, chứ không kết luận là tính năng chưa tới.
+
+  Nên màn này chỉ có thứ ĐẾM ĐƯỢC HÔM NAY, và mỗi con số là một liên kết đi thẳng tới danh
+  sách đã lọc sẵn. Một con số không bấm được thì chỉ là trang trí.
+
+  ══════════════════════════════════════════════════════════════════════════
+   BA QUYẾT ĐỊNH
+  ══════════════════════════════════════════════════════════════════════════
+
+  1. "CẦN BẠN XỬ LÝ" đứng TRÊN CÙNG, không phải lối tắt. Người mở app buổi sáng cần biết
+     có việc gì đang chờ mình; danh sách app thì đã nằm sẵn ở rail, họ không cần một bản
+     sao của nó ở giữa màn hình.
+
+  2. KHÔNG có thẻ nào cho người không có quyền. Người chỉ có `employee.read` (vai Member)
+     không gọi được `/api/members`, nên với họ khối "cần xử lý" KHÔNG TỒN TẠI — không phải
+     hiện ra rồi báo lỗi, cũng không phải hiện số 0.
+
+  3. WORKSPACE MỚI có lời dẫn riêng. Một công ty vừa đăng ký thì mọi con số đều bằng 0, và
+     màn hình rỗng không nói cho họ biết việc tiếp theo là gì. Thẻ "Bắt đầu" chỉ hiện khi
+     workspace còn đúng một người.
+
+  ⚠️ CHƯA CÓ: biểu đồ, nhật ký hoạt động, tin nhắn chưa đọc, đơn chờ duyệt. Chúng quay lại
+  cùng lúc với module tương ứng.
+
+  Mở thẳng bằng trình duyệt là chạy.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bảng điều khiển · ONoOffice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../chung/_shell.css">
+<link rel="stylesheet" href="../chung/_brand.css">
+<link rel="stylesheet" href="../chung/_khung.css">
+<link rel="stylesheet" href="../chung/_dieukhien.css">
+
+<style>
+/* Lời chào to hơn tiêu đề trang thường: đây là câu đầu tiên người dùng đọc mỗi ngày, và
+   nó nói về HỌ chứ không nói về màn hình. */
+.chao { margin: 0 0 4px; font-family: "Sora", system-ui, sans-serif; font-weight: 700;
+        font-size: 26px; letter-spacing: -0.025em; color: var(--ink); }
+.chao__phu { margin: 0 0 26px; font-size: 14.5px; color: var(--ink-faint); }
+
+.muc { margin: 0 0 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.09em;
+       text-transform: uppercase; color: var(--ink-faint); }
+
+/* ── Thẻ "cần xử lý": con số LỚN, và cả thẻ là một liên kết ────────── */
+.viec { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;
+        margin-bottom: 32px; }
+
+.viecthe {
+  display: block; padding: 16px;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--surface);
+  text-decoration: none;
+}
+.viecthe:hover { border-color: var(--ink-faint); }
+
+/* Con số dùng chữ đơn cách và `tabular-nums`: hai thẻ cạnh nhau thì chữ số thẳng cột, và
+   mắt so được ngay cái nào nhiều hơn. */
+.viecthe__so {
+  display: block; margin-bottom: 2px;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 700; font-size: 30px;
+  font-variant-numeric: tabular-nums; line-height: 1.1; color: var(--ink);
+}
+.viecthe__so--khong { color: var(--ink-faint); }
+.viecthe__ten { display: block; font-size: 13.5px; color: var(--ink); }
+.viecthe__phu { display: block; margin-top: 3px; font-size: 12px; line-height: 1.5; color: var(--ink-faint); }
+
+/* ── Lối tắt ───────────────────────────────────────────────────────── */
+.tat { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 12px; }
+
+.tatthe {
+  display: flex; align-items: center; gap: 11px;
+  padding: 13px 15px;
+  border: 1px solid var(--line); border-radius: 13px; background: var(--surface);
+  text-decoration: none;
+}
+.tatthe:hover { border-color: var(--ink-faint); }
+.tatthe svg { width: 18px; height: 18px; flex: none; color: var(--ink-faint); }
+.tatthe:hover svg { color: var(--accent); }
+.tatthe b { display: block; font-size: 13.5px; font-weight: 500; color: var(--ink); }
+.tatthe small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--ink-faint); }
+
+/* ── Thẻ "bắt đầu" cho workspace mới ───────────────────────────────── */
+.batdau {
+  padding: 18px; margin-bottom: 32px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+.batdau h2 { margin: 0 0 6px; font-family: "Sora", system-ui, sans-serif; font-size: 15px; }
+.batdau p { margin: 0 0 14px; font-size: 13.5px; line-height: 1.65; color: var(--ink-soft); }
+
+/* Bộ đổi trạng thái của bản dựng — không ship. */
+.khi { display: none; }
+[data-state="quantri"] .khi--quantri { display: block; }
+[data-state="moi"] .khi--moi { display: block; }
+</style>
+
+<div class="khung">
+  <nav id="rail"></nav>
+
+  <!-- Không có cột ngữ cảnh: bảng điều khiển không có gì để lọc hay duyệt qua. Khuôn A cố
+       ý không dựng sẵn cột thứ hai — màn nào không cần thì bỏ hẳn. -->
+  <div class="noidung" data-state="quantri" id="man">
+    <header class="trangdau">
+      <h1>Bảng điều khiển</h1>
+      <div class="trangdau__day"></div>
+    </header>
+
+    <div class="trang">
+      <p class="chao">Chào buổi sáng, Lượng</p>
+      <p class="chao__phu">Công ty Demo · thứ Tư, 26 tháng 8</p>
+
+      <!-- ══════════ WORKSPACE MỚI ══════════ -->
+      <div class="batdau khi khi--moi">
+        <h2>Workspace của bạn đã sẵn sàng</h2>
+        <p>
+          Hiện chỉ có mình bạn ở đây. Việc tiếp theo là đưa đồng nghiệp vào — bạn tạo tài
+          khoản hộ và đưa họ mật khẩu tạm, vì hệ thống chưa gửi email được.
+        </p>
+        <button class="nut nut--chinh" data-soon="Thêm người">Thêm người đầu tiên</button>
+      </div>
+
+      <!-- ══════════ CẦN BẠN XỬ LÝ ══════════ -->
+      <div class="khi khi--quantri">
+        <div class="muc">Cần bạn xử lý</div>
+
+        <div class="viec">
+          <!--
+            Cả thẻ là MỘT liên kết, và nó đi tới danh sách ĐÃ LỌC SẴN — không phải tới màn
+            Thành viên trống rồi để người dùng tự tìm lại bộ lọc. Một con số không bấm được
+            thì chỉ là trang trí.
+          -->
+          <a class="viecthe" data-soon="Xem 2 người chưa đổi mật khẩu">
+            <span class="viecthe__so">2</span>
+            <span class="viecthe__ten">Chưa đổi mật khẩu tạm</span>
+            <span class="viecthe__phu">
+              Mật khẩu tạm sống tới khi họ đăng nhập lần đầu. Nhắc họ đổi.
+            </span>
+          </a>
+
+          <a class="viecthe" data-soon="Xem 1 người chưa có tài khoản">
+            <span class="viecthe__so">1</span>
+            <span class="viecthe__ten">Chưa có tài khoản</span>
+            <span class="viecthe__phu">Có hồ sơ nhân sự nhưng chưa đăng nhập được.</span>
+          </a>
+
+          <a class="viecthe" data-soon="Xem 1 tài khoản chưa có hồ sơ">
+            <span class="viecthe__so">1</span>
+            <span class="viecthe__ten">Chưa có hồ sơ</span>
+            <span class="viecthe__phu">Tài khoản đăng nhập được nhưng không thuộc phòng nào.</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ══════════ LỐI TẮT ══════════ -->
+      <div class="muc">Lối tắt</div>
+
+      <div class="tat">
+        <a class="tatthe" href="../org/danh-ba.html">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="7.5" cy="6.8" r="2.9"/><path d="M2.4 16.6a5.1 5.1 0 0110.2 0"/>
+            <path d="M13.2 4.4a2.9 2.9 0 010 4.8M14.8 16.6a5.1 5.1 0 00-1.7-3.8"/>
+          </svg>
+          <span><b>Danh bạ</b><small>Tìm số điện thoại, phòng ban của đồng nghiệp</small></span>
+        </a>
+
+        <a class="tatthe" href="../identity/tai-khoan.html">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <circle cx="10" cy="6.5" r="3"/><path d="M4 17a6 6 0 0112 0"/>
+          </svg>
+          <span><b>Hồ sơ của bạn</b><small>Đổi mật khẩu, bộ màu, ngôn ngữ</small></span>
+        </a>
+
+        <a class="tatthe khi khi--quantri" href="../org/nhan-su.html">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4.5" width="14" height="11" rx="2"/><path d="M3 8.5h14M7.5 4.5v11"/>
+          </svg>
+          <span><b>Thành viên</b><small>Tài khoản, vai trò và hồ sơ nhân sự</small></span>
+        </a>
+
+        <a class="tatthe" href="../huongdan/tai-lieu.html">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <circle cx="10" cy="10" r="7.2"/><path d="M7.9 7.9a2.2 2.2 0 113 2.05v1.15"/>
+            <path d="M10.9 14.2h.02" stroke-width="2.1"/>
+          </svg>
+          <span><b>Hướng dẫn</b><small>10 bài về những gì hệ thống làm được</small></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="states" role="group" aria-label="Đổi trạng thái để duyệt">
+  <button data-state="quantri" aria-pressed="true">Quản trị viên</button>
+  <button data-state="nhanvien">Nhân viên thường</button>
+  <button data-state="moi">Workspace mới</button>
+</div>
+
+<script type="module">
+import { mountRail, mountChuaLam } from '../chung/_shell.js';
+
+mountRail(document.getElementById('rail'), 'bang-dieu-khien');
+mountChuaLam();
+
+const man = document.getElementById('man');
+
+document.querySelectorAll('.states button[data-state]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    man.dataset.state = btn.dataset.state;
+    document.querySelectorAll('.states button[data-state]').forEach((b) =>
+      b.setAttribute('aria-pressed', String(b === btn)));
+  });
+});
+
+const q = new URLSearchParams(location.search);
+if (q.get('state')) document.querySelector(`.states button[data-state="${q.get('state')}"]`)?.click();
+if (q.has('bare')) document.querySelector('.states')?.remove();
+</script>

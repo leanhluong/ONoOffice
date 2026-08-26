@@ -7,7 +7,7 @@
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -104,6 +104,7 @@ export class UserList {
 
   /** Lọc theo LOẠI DÒNG, chỉ có ở màn gộp. `''` = tất cả. */
   protected readonly kind = signal<'' | 'khongTaiKhoan' | 'khongHoSo'>('');
+
   protected readonly roles = signal<readonly RoleListItem[]>([]);
   protected readonly loading = signal(true);
 
@@ -239,6 +240,35 @@ export class UserList {
         this.currentPage.set(1);
         this.applyFilters();
       });
+
+    /*
+      Bộ lọc đến từ ĐƯỜNG DẪN — `?kind=khongTaiKhoan`, `?status=2`.
+
+      Có vì bảng điều khiển đếm việc rồi trỏ thẳng tới đây: "1 người chưa có tài khoản"
+      phải mở ra đúng một danh sách đã lọc, không phải mở màn Thành viên đầy đủ rồi bắt
+      người dùng tự tìm lại bộ lọc. Một con số dẫn tới danh sách SAI thì tệ hơn không dẫn
+      đi đâu — họ nhìn 38 dòng và tưởng con số vừa bấm là bịa.
+
+      Đọc SNAPSHOT một lần lúc mở, không theo dõi thay đổi: sau đó người dùng tự đổi bộ
+      lọc trên màn, và một luồng vẫn đang lắng nghe URL sẽ giật họ về giá trị cũ.
+
+      Dùng `ActivatedRoute` chứ không `input()` như các màn khác, vì `withComponentInputBinding`
+      khớp theo TÊN — mà `kind` và `status` đã là hai signal bộ lọc của màn này rồi.
+    */
+    const tren = inject(ActivatedRoute).snapshot.queryParamMap;
+    const loai = tren.get('kind');
+
+    if (loai === 'khongTaiKhoan' || loai === 'khongHoSo') {
+      this.kind.set(loai);
+    }
+
+    const trangThai = Number(tren.get('status'));
+
+    // Tham số RÁC thì bỏ qua. Người ta sửa tay thanh địa chỉ, và link cũ sống lâu hơn tên
+    // tham số; tin thẳng chuỗi nhận được thì `status=abc` thành `NaN` và bảng trống trơn.
+    if (Number.isInteger(trangThai) && trangThai in UserStatusFilter) {
+      this.status.set(trangThai as UserStatusFilter);
+    }
 
     this.load();
     this.loadRoles();

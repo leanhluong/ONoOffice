@@ -173,5 +173,33 @@
       "title": "Không có bài này",
       "text": "Đường dẫn có thể đã cũ. Chọn một bài ở cột bên trái, hoặc quay về trang hướng dẫn."
     }
+  },
+  "dashboard": {
+    "morning": "Chào buổi sáng, {{name}}",
+    "afternoon": "Chào buổi chiều, {{name}}",
+    "evening": "Chào buổi tối, {{name}}",
+    "tasks": "Cần bạn xử lý",
+    "shortcuts": "Lối tắt",
+    "pendingPassword": "Chưa đổi mật khẩu tạm",
+    "pendingPasswordWhy": "Mật khẩu tạm sống tới khi họ đăng nhập lần đầu. Nhắc họ đổi.",
+    "noAccountWhy": "Có hồ sơ nhân sự nhưng chưa đăng nhập được.",
+    "noProfileWhy": "Tài khoản đăng nhập được nhưng không thuộc phòng nào.",
+    "start": {
+      "title": "Workspace của bạn đã sẵn sàng",
+      "text": "Hiện chỉ có mình bạn ở đây. Việc tiếp theo là đưa đồng nghiệp vào — bạn tạo tài khoản hộ và đưa họ mật khẩu tạm, vì hệ thống chưa gửi email được.",
+      "action": "Thêm người đầu tiên"
+    },
+    "link": {
+      "contacts": "Danh bạ",
+      "profile": "Hồ sơ của bạn",
+      "members": "Thành viên",
+      "help": "Hướng dẫn"
+    },
+    "linkWhy": {
+      "contacts": "Tìm số điện thoại, phòng ban của đồng nghiệp",
+      "profile": "Đổi mật khẩu, bộ màu, ngôn ngữ",
+      "members": "Tài khoản, vai trò và hồ sơ nhân sự",
+      "help": "Những gì hệ thống làm được"
+    }
   }
 }

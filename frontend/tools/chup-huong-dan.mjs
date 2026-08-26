@@ -58,6 +58,7 @@ const MAN = [
   { tep: 'thanh-vien.png', app: '/admin/users' },
   { tep: 'phong-ban.png', app: '/admin/departments' },
   { tep: 'danh-ba.png', app: '/contacts' },
+  { tep: 'bang-dieu-khien.png', app: '/dashboard' },
   { tep: 'huong-dan.png', app: '/huong-dan/man-thanh-vien' },
 
   // Bốn trạng thái dưới đây chỉ hiện ra sau một cú bấm, nên lấy từ bản dựng.

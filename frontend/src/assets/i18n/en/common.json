@@ -173,5 +173,33 @@
       "title": "No such article",
       "text": "The link may be out of date. Pick an article on the left, or go back to Help."
     }
+  },
+  "dashboard": {
+    "morning": "Good morning, {{name}}",
+    "afternoon": "Good afternoon, {{name}}",
+    "evening": "Good evening, {{name}}",
+    "tasks": "Needs your attention",
+    "shortcuts": "Shortcuts",
+    "pendingPassword": "Temporary password not changed",
+    "pendingPasswordWhy": "A temporary password lives until they first sign in. Remind them.",
+    "noAccountWhy": "Has a staff profile but cannot sign in yet.",
+    "noProfileWhy": "Can sign in but belongs to no department.",
+    "start": {
+      "title": "Your workspace is ready",
+      "text": "You are the only one here so far. Next step is bringing colleagues in — you create their accounts and hand over a temporary password, since there is no mail service yet.",
+      "action": "Add the first person"
+    },
+    "link": {
+      "contacts": "Directory",
+      "profile": "Your profile",
+      "members": "Members",
+      "help": "Help"
+    },
+    "linkWhy": {
+      "contacts": "Find a colleague, their phone and department",
+      "profile": "Password, colours, language",
+      "members": "Accounts, roles and staff profiles",
+      "help": "What the system can do"
+    }
   }
 }

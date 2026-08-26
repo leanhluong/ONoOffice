@@ -1,44 +1,159 @@
+<!--
+  Đánh dấu chép từ `docs/07-giao-dien/khung/bang-dieu-khien.html`.
+
+  CSS thì KHÔNG chép — `dashboard.scss` sinh tự động từ chính file đó
+  (`node tools/sync-shell.mjs`). Chỗ duy nhất phải giữ đồng bộ bằng tay là đánh dấu.
+-->
 <div class="noidung">
-  <header class="trangdau">  
-    <h1>Bảng điều khiển</h1>  
-  </header>  
-    
-  <div class="trang">  
-    <section class="page">  
-      <p class="page__lead">Khung ứng dụng đã dựng xong. Nội dung nghiệp vụ sẽ bổ sung sau.</p>  
-    
-      <div class="card">  
-        <h2 class="card__title">Phiên đăng nhập hiện tại</h2>  
-        @if (store.user(); as user) {  
-          <dl class="facts">  
-            <dt>Mã người dùng</dt>  
-            <dd>{{ user.userId }}</dd>  
-            <dt>Tenant</dt>  
-            <dd>{{ user.tenantId }}</dd>  
-            <dt>Email</dt>  
-            <dd>{{ user.email || '—' }}</dd>  
-            <dt>Token hết hạn</dt>  
-            <dd>{{ store.isAccessTokenExpired() ? 'Đã hết hạn' : 'Còn hiệu lực' }}</dd>  
-          </dl>  
-        } @else {  
-          <p>Chưa có phiên đăng nhập.</p>  
-        }  
-      </div>  
-    
-      <div class="card">  
-        <h2 class="card__title">Quyền được cấp ({{ store.permissionList().length }})</h2>  
-        @if (store.permissionList().length > 0) {  
-          <ul class="perms">  
-            @for (permission of store.permissionList(); track permission) {  
-              <li class="perms__item">{{ permission }}</li>  
-            }  
-          </ul>  
-        } @else {  
-          <p class="page__lead">  
-            Token chưa mang claim <code>permission</code> nào. Mọi mục menu cần quyền sẽ bị ẩn.  
-          </p>  
-        }  
-      </div>  
-    </section>  
+  <header class="trangdau">
+    <h1>{{ 'nav.dashboard' | translate }}</h1>
+    <div class="trangdau__day"></div>
+  </header>
+
+  <div class="trang">
+    <p class="chao">{{ greetingKey() | translate: { name: firstName() } }}</p>
+    <p class="chao__phu">{{ store.user()?.email }}</p>
+
+    <!--
+      Lời dẫn cho workspace vừa dựng. Lúc đó mọi con số đều bằng 0, và một màn hình rỗng
+      không nói cho họ biết việc tiếp theo là gì.
+    -->
+    @if (isNewWorkspace()) {
+      <div class="batdau">
+        <h2>{{ 'dashboard.start.title' | translate }}</h2>
+        <p>{{ 'dashboard.start.text' | translate }}</p>
+        <a class="nut nut--chinh" routerLink="/admin/users">
+          {{ 'dashboard.start.action' | translate }}
+        </a>
+      </div>
+    }
+
+    <!--
+      CẦN BẠN XỬ LÝ — chỉ hiện khi ĐẾM ĐƯỢC.
+
+      Thiếu quyền hoặc gọi hỏng thì khối này biến mất hẳn, không hiện ba số 0. Ba số 0 là
+      một câu trả lời SAI ("workspace của bạn không có việc gì"), không phải câu trả lời
+      thiếu.
+
+      Mỗi thẻ là MỘT liên kết đi tới danh sách ĐÃ LỌC SẴN, không phải tới màn Thành viên
+      trống rồi để người dùng tự tìm lại bộ lọc.
+    -->
+    @if (showTasks()) {
+      <div class="muc">{{ 'dashboard.tasks' | translate }}</div>
+
+      <div class="viec">
+        <a
+          class="viecthe"
+          [routerLink]="['/admin/users']"
+          [queryParams]="{ status: 2 }"
+        >
+          <span class="viecthe__so" [class.viecthe__so--khong]="pendingPassword() === 0">
+            {{ pendingPassword() }}
+          </span>
+          <span class="viecthe__ten">{{ 'dashboard.pendingPassword' | translate }}</span>
+          <span class="viecthe__phu">{{ 'dashboard.pendingPasswordWhy' | translate }}</span>
+        </a>
+
+        <a
+          class="viecthe"
+          [routerLink]="['/admin/users']"
+          [queryParams]="{ kind: 'khongTaiKhoan' }"
+        >
+          <span class="viecthe__so" [class.viecthe__so--khong]="noAccount() === 0">
+            {{ noAccount() }}
+          </span>
+          <span class="viecthe__ten">{{ 'users.noAccount' | translate }}</span>
+          <span class="viecthe__phu">{{ 'dashboard.noAccountWhy' | translate }}</span>
+        </a>
+
+        <a
+          class="viecthe"
+          [routerLink]="['/admin/users']"
+          [queryParams]="{ kind: 'khongHoSo' }"
+        >
+          <span class="viecthe__so" [class.viecthe__so--khong]="noProfile() === 0">
+            {{ noProfile() }}
+          </span>
+          <span class="viecthe__ten">{{ 'users.noProfile' | translate }}</span>
+          <span class="viecthe__phu">{{ 'dashboard.noProfileWhy' | translate }}</span>
+        </a>
+      </div>
+    }
+
+    <div class="muc">{{ 'dashboard.shortcuts' | translate }}</div>
+
+    <div class="tat">
+      @for (s of shortcuts(); track s.ma) {
+        <a class="tatthe" [routerLink]="s.duong">
+          <!--
+            Hình vẽ bằng `@switch`, KHÔNG bằng `[innerHTML]` — cùng lý do với rail: bộ khử
+            trùng của Angular gỡ mất thẻ SVG, và nó còn tạo thẻ ở sai namespace.
+          -->
+          @switch (s.ma) {
+            @case ('contacts') {
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="7.5" cy="6.8" r="2.9" />
+                <path d="M2.4 16.6a5.1 5.1 0 0110.2 0" />
+                <path d="M13.2 4.4a2.9 2.9 0 010 4.8M14.8 16.6a5.1 5.1 0 00-1.7-3.8" />
+              </svg>
+            }
+            @case ('profile') {
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <circle cx="10" cy="6.5" r="3" />
+                <path d="M4 17a6 6 0 0112 0" />
+              </svg>
+            }
+            @case ('members') {
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="4.5" width="14" height="11" rx="2" />
+                <path d="M3 8.5h14M7.5 4.5v11" />
+              </svg>
+            }
+            @default {
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <circle cx="10" cy="10" r="7.2" />
+                <path d="M7.9 7.9a2.2 2.2 0 113 2.05v1.15" />
+                <path d="M10.9 14.2h.02" stroke-width="2.1" />
+              </svg>
+            }
+          }
+
+          <span>
+            <b>{{ 'dashboard.link.' + s.ma | translate }}</b>
+            <small>{{ 'dashboard.linkWhy.' + s.ma | translate }}</small>
+          </span>
+        </a>
+      }
+    </div>
   </div>
 </div>

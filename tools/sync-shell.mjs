@@ -196,6 +196,10 @@ const SCREENS = [
     source: 'docs/07-giao-dien/huongdan/tai-lieu.html',
     target: 'frontend/src/app/features/help/help.scss',
   },
+  {
+    source: 'docs/07-giao-dien/khung/bang-dieu-khien.html',
+    target: 'frontend/src/app/features/dashboard/dashboard.scss',
+  },
 ];
 
 for (const { source, target } of SCREENS) {

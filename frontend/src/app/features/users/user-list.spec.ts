@@ -17,6 +17,7 @@ import {
 } from '../../core/models/user.model';
 import type { DepartmentTreeItem, MemberListItem } from '../../core/models/org.model';
 import { OrgService } from '../../core/org/org.service';
+import { ActivatedRoute } from '@angular/router';
 import { AuthStore } from '../../core/auth/auth.store';
 import type { AuthUser } from '../../core/models/auth.model';
 import { UserService } from '../../core/users/user.service';
@@ -240,8 +241,12 @@ describe('UserList', () => {
   /** Tài khoản đang đăng nhập, do từng test đặt qua `make()`. */
   const auth = signal<AuthUser | null>(null);
 
+  /** Tham số trên URL. Test nào cần thì đặt TRƯỚC khi gọi `make()`. */
+  let tren: Record<string, string> = {};
+
   beforeEach(() => {
     auth.set(null);
+    tren = {};
     service = new FakeUserService();
 
     TestBed.configureTestingModule({
@@ -253,6 +258,11 @@ describe('UserList', () => {
         // Cùng một bộ giả cho cả hai cổng — xem chú thích ở `FakeUserService`.
         { provide: OrgService, useValue: service },
         { provide: AuthStore, useValue: { user: auth } },
+        {
+          // Màn này đọc SNAPSHOT một lần lúc mở, nên bộ giả chỉ cần đúng chỗ đó.
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: { get: (k: string) => tren[k] ?? null } } },
+        },
       ],
     });
   });
@@ -649,6 +659,50 @@ describe('UserList', () => {
 
     expect(component['resetFor']()).toBeNull();
     expect(service.loads).toBe(2);
+  });
+
+  // ── Bộ lọc đến từ đường dẫn ───────────────────────────────────────
+
+  /**
+   * `?kind=khongTaiKhoan` phải lọc NGAY, không chỉ đặt giá trị vào ô chọn.
+   *
+   * Bảng điều khiển đếm việc rồi trỏ thẳng tới đây: "1 người chưa có tài khoản" phải mở ra
+   * đúng một danh sách đã lọc. Chỉ đặt ô chọn mà không lọc thì người dùng thấy 38 dòng và
+   * tưởng con số vừa bấm là bịa.
+   */
+  it('mở với ?kind=khongTaiKhoan thì lọc sẵn', () => {
+    service.result = [user({ fullName: 'Có tài khoản' }), user({ fullName: 'Chưa có', userId: null })];
+
+    tren = { kind: 'khongTaiKhoan' };
+
+    const items = make()['page']()!.items;
+
+    expect(items).toHaveLength(1);
+    expect(items[0].fullName).toBe('Chưa có');
+  });
+
+  it('mở với ?status=... thì đặt đúng bộ lọc trạng thái', () => {
+    service.result = [user()];
+    tren = { status: String(UserStatusFilter.PendingFirstLogin) };
+
+    expect(make()['status']()).toBe(UserStatusFilter.PendingFirstLogin);
+  });
+
+  /**
+   * Tham số RÁC trên URL thì bỏ qua, không làm hỏng màn hình.
+   *
+   * Người ta sửa tay thanh địa chỉ, và link cũ sống lâu hơn tên tham số. Tin thẳng chuỗi
+   * nhận được thì `status=abc` biến bộ lọc thành `NaN` và bảng trống trơn không lý do.
+   */
+  it('tham số rác trên URL thì bỏ qua', () => {
+    service.result = [user()];
+    tren = { kind: 'linh-tinh', status: 'abc' };
+
+    const component = make();
+
+    expect(component['kind']()).toBe('');
+    expect(component['status']()).toBe(UserStatusFilter.Any);
+    expect(component['page']()!.items).toHaveLength(1);
   });
 
   // ── Thao tác hàng loạt ────────────────────────────────────────────

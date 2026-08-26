@@ -1,63 +1,71 @@
-.page {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 48rem;
+/**
+ * ⚠️ FILE NÀY ĐƯỢC SINH TỰ ĐỘNG — ĐỪNG SỬA TAY.
+ *
+ * Nguồn:    docs/07-giao-dien/khung/bang-dieu-khien.html
+ * Sinh lại: node tools/sync-shell.mjs
+ *
+ * Sửa ở đây thì lần chạy bộ sinh tiếp theo sẽ xoá mất, và tệ hơn: bản dựng mà người
+ * duyệt nhìn sẽ khác thứ đang chạy thật. Muốn đổi giao diện thì sửa bản dựng rồi chạy
+ * lại bộ sinh.
+ */
 
-  &__lead {
-    margin: 0;
-    color: var(--ink-soft);
-    font-size: 0.9rem;
-  }
+/* Lời chào to hơn tiêu đề trang thường: đây là câu đầu tiên người dùng đọc mỗi ngày, và
+   nó nói về HỌ chứ không nói về màn hình. */
+.chao { margin: 0 0 4px; font-family: "Sora", system-ui, sans-serif; font-weight: 700;
+        font-size: 26px; letter-spacing: -0.025em; color: var(--ink); }
+.chao__phu { margin: 0 0 26px; font-size: 14.5px; color: var(--ink-faint); }
+
+.muc { margin: 0 0 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.09em;
+       text-transform: uppercase; color: var(--ink-faint); }
+
+/* ── Thẻ "cần xử lý": con số LỚN, và cả thẻ là một liên kết ────────── */
+.viec { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;
+        margin-bottom: 32px; }
+
+.viecthe {
+  display: block; padding: 16px;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--surface);
+  text-decoration: none;
 }
+.viecthe:hover { border-color: var(--ink-faint); }
 
-.card {
-  padding: 1rem 1.15rem;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-
-  &__title {
-    margin: 0 0 0.75rem;
-    font-size: 0.95rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--ink-soft);
-  }
+/* Con số dùng chữ đơn cách và `tabular-nums`: hai thẻ cạnh nhau thì chữ số thẳng cột, và
+   mắt so được ngay cái nào nhiều hơn. */
+.viecthe__so {
+  display: block; margin-bottom: 2px;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 700; font-size: 30px;
+  font-variant-numeric: tabular-nums; line-height: 1.1; color: var(--ink);
 }
+.viecthe__so--khong { color: var(--ink-faint); }
+.viecthe__ten { display: block; font-size: 13.5px; color: var(--ink); }
+.viecthe__phu { display: block; margin-top: 3px; font-size: 12px; line-height: 1.5; color: var(--ink-faint); }
 
-.facts {
-  display: grid;
-  grid-template-columns: 10rem 1fr;
-  gap: 0.4rem 1rem;
-  margin: 0;
-  font-size: 0.9rem;
+/* ── Lối tắt ───────────────────────────────────────────────────────── */
+.tat { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 12px; }
 
-  dt {
-    color: var(--ink-soft);
-  }
-
-  dd {
-    margin: 0;
-    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
-    word-break: break-all;
-  }
+.tatthe {
+  display: flex; align-items: center; gap: 11px;
+  padding: 13px 15px;
+  border: 1px solid var(--line); border-radius: 13px; background: var(--surface);
+  text-decoration: none;
 }
+.tatthe:hover { border-color: var(--ink-faint); }
+.tatthe svg { width: 18px; height: 18px; flex: none; color: var(--ink-faint); }
+.tatthe:hover svg { color: var(--accent); }
+.tatthe b { display: block; font-size: 13.5px; font-weight: 500; color: var(--ink); }
+.tatthe small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--ink-faint); }
 
-.perms {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-
-  &__item {
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    background: var(--surface-2);
-    color: var(--accent);
-    font-size: 0.78rem;
-    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
-  }
+/* ── Thẻ "bắt đầu" cho workspace mới ───────────────────────────────── */
+.batdau {
+  padding: 18px; margin-bottom: 32px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
 }
+.batdau h2 { margin: 0 0 6px; font-family: "Sora", system-ui, sans-serif; font-size: 15px; }
+.batdau p { margin: 0 0 14px; font-size: 13.5px; line-height: 1.65; color: var(--ink-soft); }
+
+/* Bộ đổi trạng thái của bản dựng — không ship. */
+.khi { display: none; }
+[data-state="quantri"] .khi--quantri { display: block; }
+[data-state="moi"] .khi--moi { display: block; }

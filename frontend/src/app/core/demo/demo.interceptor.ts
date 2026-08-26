@@ -7,6 +7,7 @@ import { Permissions } from './demo.permissions';
 import { kho } from './demo.state';
 import { UserStatusFilter, type UserListItem } from '../models/user.model';
 import type { DepartmentTreeItem } from '../models/org.model';
+import type { AuthUser } from '../models/auth.model';
 
 /**
  * CHẾ ĐỘ DEMO — bắt mọi request tới `/api/…` và trả dữ liệu giả từ bộ nhớ.
@@ -128,13 +129,16 @@ export function gieoPhienDemo(): void {
     localStorage.setItem('onooffice.refresh-token', `demo-refresh-${vai}`);
     localStorage.setItem(
       'onooffice.user',
+      // Khuôn phải khớp ĐÚNG `AuthUser` — đặc biệt là `displayName`, không phải `fullName`.
+      // Gõ nhầm tên trường thì không có gì báo: `JSON.parse` vẫn chạy, `store.user()` vẫn
+      // có giá trị, chỉ một trường là `undefined`. Bảng điều khiển chào "Chào buổi chiều,"
+      // cụt lủn, và phải nhìn ảnh chụp mới thấy.
       JSON.stringify({
         userId: kho.toi.id,
         tenantId: kho.toi.tenantId,
         email: kho.toi.email,
-        fullName: kho.toi.fullName,
-        mustChangePassword: false,
-      }),
+        displayName: kho.toi.fullName,
+      } satisfies AuthUser),
     );
   } catch {
     /* chế độ ẩn danh — bỏ qua, người dùng đăng nhập tay như thường */
