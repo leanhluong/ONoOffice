@@ -266,7 +266,20 @@
     "noProfile": "No profile",
     "noAccountYet": "This person has no login account yet, so there is nothing to edit here.",
     "filterKind": "Filter by kind",
-    "allKinds": "All"
+    "allKinds": "All",
+    "transfer": {
+      "title": "Workspace ownership",
+      "text": "Hand the workspace to {{name}}. You drop to Admin and cannot take it back yourself — only the owner can transfer it.",
+      "action": "Transfer ownership",
+      "dialog": "Transfer ownership to {{name}}",
+      "noUndo": "This cannot be undone. After the transfer, only {{name}} can hand it back to you.",
+      "effect1": "{{name}} becomes Owner and gets all 12 permissions.",
+      "effect2": "You drop to Admin — every permission except the one you just handed over.",
+      "effect3": "From then on, only {{name}} can disable you, change your role, or reset your password.",
+      "password": "Your current password",
+      "passwordWhy": "Type it again so we know this is you, not someone who sat down at your machine.",
+      "done": "Ownership transferred to {{name}}."
+    }
   },
   "account": {
     "mustChange": "This account is on a temporary password. Please change it now.",

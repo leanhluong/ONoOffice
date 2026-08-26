@@ -44,36 +44,37 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Phần | Trạng thái | Số test |
 |---|---|---|
 | `Luong.Kernel` (8 gói) | 🟢 Đủ dùng cho lát 1 | **202** |
-| ONoOffice · Domain | 🟢 Identity xong · Org xong | 223 + 69 |
-| ONoOffice · Application | 🟢 Auth · Users · Me · Roles · **Departments · Employees · Contacts · Members** | *(trong 223)* |
-| ONoOffice · Infrastructure | 🟢 EF · Argon2id · JWT · repository · seeder · sinh mật khẩu tạm | *(trong 223)* |
-| ONoOffice · Api | 🟢 **29 endpoint · 8 controller** · phân quyền động · CORS · i18n · header an toàn | 32 |
+| ONoOffice · Domain | 🟢 Identity xong · Org xong | 229 + 69 |
+| ONoOffice · Application | 🟢 Auth · Users · Me · Roles · **Departments · Employees · Contacts · Members** | *(trong 229)* |
+| ONoOffice · Infrastructure | 🟢 EF · Argon2id · JWT · repository · seeder · sinh mật khẩu tạm | *(trong 229)* |
+| ONoOffice · Api | 🟢 **30 endpoint · 9 controller** · phân quyền động · CORS · i18n · header an toàn | 32 |
 | **Cổng liên module** | 🟢 `Identity.Contracts.IUserDirectory` · `CompositeUnitOfWork` chốt hai DbContext | *(trong 32)* |
 | Test kiến trúc + i18n + luật Controller | 🟢 | 15 |
 | **Database** | 🟢 Postgres 16 · 2 migration · dữ liệu mồi — đã chạy THẬT | **52** |
 | **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
-| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **163** |
-| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 163)* |
-| **Khung ứng dụng v4** | 🟢 **Rail 56px + cột ngữ cảnh** — khuôn Lark Messenger / Zalo PC | *(trong 163)* |
-| **Khung quản trị (khuôn B)** | 🟢 **Thanh ngang + sidebar 240px** — khuôn Lark Admin, **không có rail** | *(trong 163)* |
-| **Tách hai vùng** | 🟢 `/` `/me` ↔ `/admin/*` · guard ở route cha · 3 redirect từ đường dẫn cũ | *(trong 163)* |
-| **Nhận diện thương hiệu** | 🟢 Logo tự đổi bản sáng/tối theo bộ màu · favicon · bộ sinh tự chép sang `public/` | *(trong 163)* |
-| **Frontend · Thành viên (GỘP)** | 🟢 Đọc `/api/members` — **ba loại dòng**: có cả hai · chỉ hồ sơ · chỉ tài khoản | *(trong 163)* |
-| **Nối · cấp tài khoản · tạo hồ sơ** | 🟢 Một hộp thoại, **hai chiều × hai cách** · tạo xong nối luôn · có trong demo | *(trong 163)* |
-| **Thao tác hàng loạt** | 🟢 Đổi phòng ban · đổi vai trò · vô hiệu hoá — chạy **tuần tự**, nói rõ ai bị bỏ qua | *(trong 163)* |
-| **Đặt lại mật khẩu hộ** | 🟢 Hai bước · thu hồi mọi phiên · **chặn Admin leo lên Owner** | *(trong 163)* |
-| **Màn Hướng dẫn** | 🟢 9 bài trong app · cây trái + mục lục phải · **ảnh sinh tự động từ app** | *(trong 163)* |
-| **Frontend · Phòng ban + Danh bạ** | 🟢 Cây sửa được (thêm/đổi tên/chuyển/xoá) · danh bạ lọc theo phòng | *(trong 163)* |
-| **Frontend · Hồ sơ & cài đặt** | 🟢 Sửa tên · đổi mật khẩu · bộ màu/ngôn ngữ | *(trong 163)* |
-| **Frontend · Vai trò & quyền** | 🟢 Bốn vai, bảng quyền đầy đủ — **chỉ xem** | *(trong 163)* |
-| **Frontend · Tổng quan quản trị** | 🟡 4 số THẬT (không cần endpoint mới) · gói & hạn ngạch **chưa nối**, có đeo nhãn | *(trong 163)* |
+| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **169** |
+| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 169)* |
+| **Khung ứng dụng v4** | 🟢 **Rail 56px + cột ngữ cảnh** — khuôn Lark Messenger / Zalo PC | *(trong 169)* |
+| **Khung quản trị (khuôn B)** | 🟢 **Thanh ngang + sidebar 240px** — khuôn Lark Admin, **không có rail** | *(trong 169)* |
+| **Tách hai vùng** | 🟢 `/` `/me` ↔ `/admin/*` · guard ở route cha · 3 redirect từ đường dẫn cũ | *(trong 169)* |
+| **Nhận diện thương hiệu** | 🟢 Logo tự đổi bản sáng/tối theo bộ màu · favicon · bộ sinh tự chép sang `public/` | *(trong 169)* |
+| **Frontend · Thành viên (GỘP)** | 🟢 Đọc `/api/members` — **ba loại dòng**: có cả hai · chỉ hồ sơ · chỉ tài khoản | *(trong 169)* |
+| **Nối · cấp tài khoản · tạo hồ sơ** | 🟢 Một hộp thoại, **hai chiều × hai cách** · tạo xong nối luôn · có trong demo | *(trong 169)* |
+| **Thao tác hàng loạt** | 🟢 Đổi phòng ban · đổi vai trò · vô hiệu hoá — chạy **tuần tự**, nói rõ ai bị bỏ qua | *(trong 169)* |
+| **Đặt lại mật khẩu hộ** | 🟢 Hai bước · thu hồi mọi phiên · **chặn Admin leo lên Owner** | *(trong 169)* |
+| **Màn Hướng dẫn** | 🟢 10 bài trong app · cây trái + mục lục phải · **ảnh sinh tự động từ app** | *(trong 169)* |
+| **Chuyển nhượng quyền sở hữu** | 🟢 Đòi mật khẩu · đổi cả cờ lẫn vai · đóng lại **bốn ngõ cụt** | *(trong 169)* |
+| **Frontend · Phòng ban + Danh bạ** | 🟢 Cây sửa được (thêm/đổi tên/chuyển/xoá) · danh bạ lọc theo phòng | *(trong 169)* |
+| **Frontend · Hồ sơ & cài đặt** | 🟢 Sửa tên · đổi mật khẩu · bộ màu/ngôn ngữ | *(trong 169)* |
+| **Frontend · Vai trò & quyền** | 🟢 Bốn vai, bảng quyền đầy đủ — **chỉ xem** | *(trong 169)* |
+| **Frontend · Tổng quan quản trị** | 🟡 4 số THẬT (không cần endpoint mới) · gói & hạn ngạch **chưa nối**, có đeo nhãn | *(trong 169)* |
 | Frontend · các màn còn lại | ⬜ Dashboard vẫn là khung rỗng · Trao đổi mới có bản dựng | — |
 | Tài liệu | 🟢 8 thư mục · 4 ADR · `05-api` · wireframe · bản dựng màu | — |
 
 ```bash
 docker compose up -d                          # Postgres 16 ở cổng 5433
-cd backend && dotnet build && dotnet test     # 339 xanh không cần Docker · +52 test database nếu có
-cd frontend && npm test && npm run parity     # 163 xanh · hai màn lệch 0,02%
+cd backend && dotnet build && dotnet test     # 345 xanh không cần Docker · +52 test database nếu có
+cd frontend && npm test && npm run parity     # 169 xanh · hai màn lệch 0,02%
 ```
 
 ### Đã kiểm chứng tới đâu (2026-08-24) — và chỗ nào thì CHƯA
@@ -221,14 +222,10 @@ Sau đó:
      Cần thêm cột + migration, HOẶC sửa bản dựng cho khớp thực tế.
      (Bản dựng còn hứa cả vị trí "Hà Nội" — cái đó cần GeoIP, là việc riêng.)
 ⬜ Màn quản lý chat — bản dựng comm/chat.html đã có, chưa duyệt chốt
-⬜ CHUYỂN NHƯỢNG quyền sở hữu — **ngõ cụt lớn nhất còn lại**.
-     `Tenant.TransferOwnership` đã viết xong ở Domain và quyền
-     `workspace.transfer-ownership` đã có (chỉ Owner), nhưng KHÔNG có handler,
-     KHÔNG có endpoint — nên nó mới chỉ là mã chết cộng một dòng trong bảng
-     phân quyền. Trong khi đó bốn thông báo lỗi đang bảo người dùng "hãy
-     chuyển nhượng quyền sở hữu trước" cho một việc không làm được ở đâu cả:
-     vô hiệu hoá Owner · hạ vai Owner · đặt lại mật khẩu Owner · và chính
-     việc rời workspace của Owner.
+⬜ RỜI workspace (`POST /api/me/leave`). Chủ sở hữu thì chuyển nhượng trước
+     rồi mới rời — đường đó nay đã có. Người thường thì chưa có đường nào:
+     họ chỉ "biến mất" khi quản trị viên vô hiệu hoá tài khoản, và đó là
+     quyết định của người khác chứ không phải của họ.
 ⬜ Tìm nhân sự theo MỘT PHẦN email — cần đổi ánh xạ Email sang kiểu sở hữu
 ⬜ docs/04-database — sơ đồ bảng, quan hệ, chỉ mục
 ⬜ Giới hạn tần suất cho /api/auth/register-workspace — nó đang mở cho Internet
@@ -301,12 +298,12 @@ quyền chỉ đổi mức toàn vẹn, nó không nạp thêm nhóm mới. Mọ
 
 | Bộ | Số test | Cần gì | Trả lời câu hỏi |
 |---|---|---|---|
-| `Identity.UnitTests` | 223 | không | Luật nghiệp vụ của Identity có đúng không |
+| `Identity.UnitTests` | 229 | không | Luật nghiệp vụ của Identity có đúng không |
 | `Org.UnitTests` | 69 | không | Luật nghiệp vụ của Org (phòng ban, nhân viên) |
 | `ArchitectureTests` | 15 | không | Ranh giới tầng và luật Controller có bị phá không |
 | `Api.IntegrationTests` | 32 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
 | `Api.DatabaseTests` | 52 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập/đăng ký/tạo tài khoản có chạy THẬT không |
-| `frontend` (vitest) | 163 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
+| `frontend` (vitest) | 169 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
 | `npm run parity` | 2 màn | **Chrome** | Bản Angular trông có **giống hệt bản dựng đã duyệt** không |
 
 Bộ thứ tư tự dựng Postgres bằng **Testcontainers**, không nối vào `docker compose`. Cố ý:
@@ -314,7 +311,7 @@ test nối vào compose sẽ im lặng bỏ qua trên máy chưa `up` và trên 
 thì tệ hơn cả không có, vì nhìn danh sách vẫn thấy nó nằm đó.
 
 ```bash
-cd backend  && dotnet build && dotnet test      # 339 xanh không cần Docker · +52 test database nếu có
+cd backend  && dotnet build && dotnet test      # 345 xanh không cần Docker · +52 test database nếu có
 cd frontend && npm test && npm run build && npm run lint && npm run parity
 ```
 
@@ -624,7 +621,7 @@ bản dựng theo luật 8.
 
 Bắt đầu bằng việc chạy `cd ONoOffice/backend && dotnet build && dotnet test`
 và `cd ONoOffice/frontend && npm test && npm run parity` để xác nhận
-339 + 163 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
+345 + 169 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
 trước khi làm gì. 52 test database sẽ ĐỎ nếu chưa `docker compose up -d` —
 đó là hỏng môi trường, không phải hỏng code.
 ```

@@ -20,6 +20,15 @@ internal sealed class EfRoleRepository(IdentityDbContext context) : IRoleReposit
         context.Roles.FirstOrDefaultAsync(role => role.Id == roleId, cancellationToken);
 
     /// <summary>
+    /// Tra vai theo TÊN — chỉ dùng cho bốn vai hệ thống, xem chú thích ở cổng.
+    ///
+    /// Bộ lọc tenant của EF đã giới hạn về workspace hiện tại, nên tên là duy nhất trong
+    /// phạm vi truy vấn này. Có theo dõi thay đổi vì nơi gọi sẽ GÁN vai đó cho ai đó.
+    /// </summary>
+    public Task<Role?> GetByNameAsync(string name, CancellationToken cancellationToken = default) =>
+        context.Roles.FirstOrDefaultAsync(role => role.Name == name, cancellationToken);
+
+    /// <summary>
     /// Mọi vai trò của workspace, kèm số người đang giữ.
     ///
     /// Đếm người bằng MỘT câu riêng thay vì một truy vấn con cho từng vai: cột

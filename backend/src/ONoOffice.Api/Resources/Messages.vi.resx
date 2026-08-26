@@ -248,4 +248,10 @@
   <data name="Employee.UserAlreadyLinked" xml:space="preserve">
     <value>Tài khoản này đã nối với một hồ sơ khác.</value>
   </data>
+  <data name="Tenant.OnlyOwnerCanTransfer" xml:space="preserve">
+    <value>Chỉ chủ sở hữu hiện tại mới chuyển nhượng được workspace.</value>
+  </data>
+  <data name="Tenant.NewOwnerMustBeActive" xml:space="preserve">
+    <value>Không thể chuyển nhượng cho một tài khoản đang bị vô hiệu hoá.</value>
+  </data>
 </root>

@@ -639,6 +639,33 @@
               </button>
             }
           </div>
+
+          <!--
+            Quyền sở hữu đứng DƯỚI CÙNG, tách khỏi vùng nguy hiểm.
+
+            Vô hiệu hoá thì bật lại được; chuyển nhượng thì KHÔNG — người vừa bấm mất đúng
+            cái quyền cần để lấy lại. Gộp chung một khối thì hai thao tác trông ngang nhau,
+            trong khi một cái lùi được còn một cái thì không.
+
+            `@if` chứ không phải nút mờ: với người không phải chủ sở hữu thì khối này không
+            tồn tại. Một cái nút mờ vẫn mời người ta bấm thử.
+          -->
+          @if (canTransferTo(user)) {
+            <div class="the__khoi" style="margin-top: 18px">
+              <h3>{{ 'users.transfer.title' | translate }}</h3>
+              <p class="mota">
+                {{ 'users.transfer.text' | translate: { name: user.fullName } }}
+              </p>
+              <button
+                class="nut nut--nguy nut--nho"
+                type="button"
+                [disabled]="saving()"
+                (click)="openTransfer(user)"
+              >
+                {{ 'users.transfer.action' | translate }}
+              </button>
+            </div>
+          }
         } @else {
           <div class="o">
             <label class="o__nhan" for="ctVai">{{ 'users.field.role' | translate }}</label>
@@ -1159,6 +1186,99 @@
       <div class="hop__chan chan--xong">
         <button class="nut nut--chinh" type="button" (click)="closeReset()">
           {{ 'users.done.finish' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+<!--
+  CHUYỂN QUYỀN SỞ HỮU — thao tác nặng nhất hệ thống.
+
+  Là thao tác duy nhất người vừa làm không tự hoàn tác được: xong lệnh này, họ mất đúng cái
+  quyền cần để lấy lại. Vì vậy nó có một thứ không hộp thoại nào khác trong app có: ô gõ
+  lại mật khẩu.
+
+  Hậu quả viết thành BA GẠCH ĐẦU DÒNG chứ không thành một đoạn văn. Người đang chuẩn bị làm
+  một việc không lùi được thì đọc lướt, và một đoạn văn dài là thứ mắt trượt qua.
+-->
+<div class="man" [class.man--hien]="transferTo() !== null">
+  <button
+    type="button"
+    class="man__nen"
+    [attr.aria-label]="'action.close' | translate"
+    (click)="closeTransfer()"
+  ></button>
+
+  @if (transferTo(); as nguoiNhan) {
+    <div
+      class="hop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tdCh"
+      style="max-width: 460px"
+    >
+      <div class="hop__dau">
+        <h2 id="tdCh">
+          {{ 'users.transfer.dialog' | translate: { name: nguoiNhan.fullName } }}
+        </h2>
+        <button
+          class="nuti"
+          type="button"
+          [attr.aria-label]="'action.close' | translate"
+          (click)="closeTransfer()"
+        >
+          <svg
+            viewBox="0 0 18 18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path d="m5 5 8 8M13 5l-8 8" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="hop__than" [formGroup]="transferForm">
+        <div class="chuy chuy--canh">
+          {{ 'users.transfer.noUndo' | translate: { name: nguoiNhan.fullName } }}
+        </div>
+
+        <ul
+          style="
+            margin: 16px 0 0;
+            padding-left: 20px;
+            font-size: 13.5px;
+            line-height: 1.75;
+            color: var(--ink-soft);
+          "
+        >
+          <li>{{ 'users.transfer.effect1' | translate: { name: nguoiNhan.fullName } }}</li>
+          <li>{{ 'users.transfer.effect2' | translate }}</li>
+          <li>{{ 'users.transfer.effect3' | translate: { name: nguoiNhan.fullName } }}</li>
+        </ul>
+
+        <div class="o" style="margin-top: 18px">
+          <label class="o__nhan" for="mkChuyen">
+            {{ 'users.transfer.password' | translate }} <span class="o__batbuoc">*</span>
+          </label>
+          <input id="mkChuyen" type="password" formControlName="currentPassword" />
+          <span class="o__meo">{{ 'users.transfer.passwordWhy' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="hop__chan">
+        <button class="nut nut--pha" type="button" (click)="closeTransfer()">
+          {{ 'action.cancel' | translate }}
+        </button>
+        <button
+          class="nut nut--nguy"
+          type="button"
+          [disabled]="saving() || transferForm.invalid"
+          (click)="submitTransfer()"
+        >
+          {{ 'users.transfer.action' | translate }}
         </button>
       </div>
     </div>

@@ -597,6 +597,54 @@
   </div>
 </div>
 
+<!-- ══════════════ CHUYỂN QUYỀN SỞ HỮU ══════════════
+
+     Thao tác NẶNG NHẤT hệ thống, và là thao tác duy nhất người vừa làm không tự hoàn tác
+     được: xong lệnh này, họ mất đúng cái quyền cần để lấy lại.
+
+     Vì vậy nó có một thứ không hộp thoại nào khác trong app có: **ô gõ lại mật khẩu**.
+     Nó không chặn được người quyết tâm — nhưng nó chặn đúng cái ca thật sự hay xảy ra:
+     một cái máy bỏ quên lúc đang đăng nhập, và người ngồi xuống sau đó.
+
+     Danh sách hậu quả viết thành BA GẠCH ĐẦU DÒNG chứ không thành một đoạn văn. Người
+     đang chuẩn bị làm một việc không lùi được thì đọc lướt, và một đoạn văn dài là thứ
+     mắt trượt qua.
+     ══════════════════════════════════════════════════════════════ -->
+<div class="man" id="manChuyen">
+  <button type="button" class="man__nen" data-dong aria-label="Đóng"></button>
+
+  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdCh" style="max-width:460px">
+    <div class="hop__dau">
+      <h2 id="tdCh">Chuyển quyền sở hữu cho Trần Bình</h2>
+      <button class="nuti" data-dong aria-label="Đóng"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg></button>
+    </div>
+
+    <div class="hop__than">
+      <div class="chuy chuy--canh">
+        <b>Việc này không hoàn tác được.</b> Sau khi chuyển, chỉ Trần Bình mới chuyển
+        ngược lại cho bạn.
+      </div>
+
+      <ul style="margin:16px 0 0;padding-left:20px;font-size:13.5px;line-height:1.75;color:var(--ink-soft)">
+        <li>Trần Bình lên vai <b>Owner</b> và nhận đủ 12 quyền.</li>
+        <li>Bạn xuống vai <b>Admin</b> — giữ mọi quyền trừ chính quyền vừa chuyển đi.</li>
+        <li>Từ lúc đó, chỉ Trần Bình mới vô hiệu hoá, hạ vai hoặc đặt lại mật khẩu cho bạn được.</li>
+      </ul>
+
+      <div class="o" style="margin-top:18px">
+        <label class="o__nhan" for="mkChuyen">Mật khẩu hiện tại của bạn <span class="o__batbuoc">*</span></label>
+        <input id="mkChuyen" type="password" placeholder="••••••••">
+        <span class="o__meo">Gõ lại để chắc chắn đây là bạn, không phải ai đó ngồi vào máy bạn.</span>
+      </div>
+    </div>
+
+    <div class="hop__chan">
+      <button class="nut nut--pha" data-dong>Huỷ</button>
+      <button class="nut nut--nguy" data-soon="Chuyển quyền sở hữu">Chuyển quyền sở hữu</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════ ĐẶT LẠI MẬT KHẨU HỘ ══════════════
 
      HAI BƯỚC, cùng lý do với hộp "Thêm người".
@@ -778,6 +826,25 @@
             cũ vẫn còn</b>. Đây là thứ cần làm khi có người nghỉ việc — không phải xoá.
           </p>
           <button class="nut nut--nguy nut--nho" data-soon="Vô hiệu hoá tài khoản">Vô hiệu hoá tài khoản</button>
+        </div>
+
+        <!--
+          Quyền sở hữu đứng DƯỚI CÙNG, và tách khỏi vùng nguy hiểm.
+
+          Vô hiệu hoá thì bật lại được; chuyển nhượng thì KHÔNG — người vừa bấm mất đúng
+          cái quyền cần để lấy lại. Gộp chung một khối thì hai thao tác trông ngang nhau,
+          trong khi một cái lùi được còn một cái thì không.
+
+          Chỉ hiện khi người đang xem LÀ chủ sở hữu. Với mọi người khác nó không tồn tại,
+          không phải hiện ra rồi mờ đi — nút mờ vẫn mời người ta bấm thử.
+        -->
+        <div class="the__khoi" style="margin-top:18px">
+          <h3>Quyền sở hữu workspace</h3>
+          <p class="mota">
+            Chuyển workspace cho Trần Bình. Bạn sẽ xuống vai <b>Admin</b> và
+            <b>không tự lấy lại được</b> — chỉ chủ mới có thể chuyển ngược.
+          </p>
+          <button class="nut nut--nguy nut--nho" data-mo="manChuyen">Chuyển quyền sở hữu</button>
         </div>
       </div>
 

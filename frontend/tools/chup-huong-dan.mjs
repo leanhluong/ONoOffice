@@ -64,6 +64,7 @@ const MAN = [
   { tep: 'noi-tai-khoan.png', dung: 'org/nhan-su.html?bare=1&mo=manNoi' },
   { tep: 'hang-loat.png', dung: 'org/nhan-su.html?bare=1&mo=manHangLoat' },
   { tep: 'dat-lai-mat-khau.png', dung: 'org/nhan-su.html?bare=1&mo=manDatLai' },
+  { tep: 'chuyen-quyen.png', dung: 'org/nhan-su.html?bare=1&mo=manChuyen' },
   { tep: 'menu-toi.png', dung: 'org/danh-ba.html?bare=1&menu=toi' },
 ];
 

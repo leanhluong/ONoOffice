@@ -83,6 +83,9 @@ public class FakeRoleRepository : IRoleRepository
 
     public virtual Task<IReadOnlyList<RoleListItem>> GetAllAsync(CancellationToken cancellationToken = default) =>
         Task.FromResult(All);
+
+    public virtual Task<Role?> GetByNameAsync(string name, CancellationToken cancellationToken = default) =>
+        Task.FromResult(Existing?.Name == name ? Existing : null);
 }
 
 public class FakeTenantRepository : ITenantRepository
@@ -100,6 +103,9 @@ public class FakeTenantRepository : ITenantRepository
 
     public virtual Task<Guid?> GetOwnerUserIdAsync(CancellationToken cancellationToken = default) =>
         Task.FromResult(OwnerUserId);
+
+    public virtual Task<Tenant?> GetCurrentForUpdateAsync(CancellationToken cancellationToken = default) =>
+        Task.FromResult<Tenant?>(null);
 }
 
 public class FakeRefreshTokenRepository : IRefreshTokenRepository

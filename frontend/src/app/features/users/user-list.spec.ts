@@ -1,4 +1,4 @@
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { Observable, of, throwError } from 'rxjs';
@@ -17,6 +17,8 @@ import {
 } from '../../core/models/user.model';
 import type { DepartmentTreeItem, MemberListItem } from '../../core/models/org.model';
 import { OrgService } from '../../core/org/org.service';
+import { AuthStore } from '../../core/auth/auth.store';
+import type { AuthUser } from '../../core/models/auth.model';
 import { UserService } from '../../core/users/user.service';
 import { UserList } from './user-list';
 
@@ -146,6 +148,15 @@ class FakeUserService {
     return of([]);
   }
 
+  /** Chuyển quyền sở hữu WORKSPACE — khác hẳn `transfers` ở trên (điều chuyển phòng ban). */
+  ownerTransfers: { newOwnerUserId: string; currentPassword: string }[] = [];
+
+  transferOwnership(newOwnerUserId: string, currentPassword: string): Observable<void> {
+    this.ownerTransfers.push({ newOwnerUserId, currentPassword });
+
+    return of(undefined);
+  }
+
   employees: unknown[] = [];
 
   createEmployee(request: unknown): Observable<{ id: string }> {
@@ -206,14 +217,31 @@ describe('UserList', () => {
   let fixture: ComponentFixture<UserList>;
   let service: FakeUserService;
 
-  function make(): UserList {
+  /**
+   * `toi` = mã tài khoản đang đăng nhập. Mặc định `null` — một người lạ, không phải chủ.
+   *
+   * Màn hình suy ra "tôi có phải chủ sở hữu không" bằng cách tìm chính mình trong danh
+   * sách rồi xem vai, nên test nào cần vai chủ thì phải có một dòng mang `userId` đó với
+   * `roleName: 'Owner'`.
+   */
+  function make(toi: string | null = null): UserList {
+    auth.set(
+      toi === null
+        ? null
+        : { userId: toi, tenantId: 't-acme', email: 'toi@congty.vn', displayName: 'Tôi' },
+    );
+
     fixture = TestBed.createComponent(UserList);
     fixture.detectChanges();
 
     return fixture.componentInstance;
   }
 
+  /** Tài khoản đang đăng nhập, do từng test đặt qua `make()`. */
+  const auth = signal<AuthUser | null>(null);
+
   beforeEach(() => {
+    auth.set(null);
     service = new FakeUserService();
 
     TestBed.configureTestingModule({
@@ -224,6 +252,7 @@ describe('UserList', () => {
         { provide: UserService, useValue: service },
         // Cùng một bộ giả cho cả hai cổng — xem chú thích ở `FakeUserService`.
         { provide: OrgService, useValue: service },
+        { provide: AuthStore, useValue: { user: auth } },
       ],
     });
   });
@@ -421,6 +450,107 @@ describe('UserList', () => {
     component['load']();
 
     expect(component['selected']().size).toBe(0);
+  });
+
+  // ── Chuyển quyền sở hữu ───────────────────────────────────────────
+
+  /**
+   * Khối chuyển nhượng chỉ hiện khi người đang xem LÀ chủ sở hữu.
+   *
+   * Với mọi người khác nó không tồn tại, chứ không phải hiện ra rồi mờ đi — một cái nút mờ
+   * vẫn mời người ta bấm thử, rồi họ nhận một câu từ chối cho việc họ không được phép làm
+   * ngay từ đầu.
+   */
+  it('không phải chủ sở hữu thì KHÔNG mở được hộp chuyển nhượng', () => {
+    const target = user({ fullName: 'Trần Bình' });
+
+    service.result = [target];
+
+    const component = make();
+
+    // `auth.user()` trong bộ dựng test không phải chủ sở hữu.
+    component['openTransfer'](target);
+
+    expect(component['transferTo']()).toBeNull();
+  });
+
+  /**
+   * Chuyển cho CHÍNH MÌNH thì không có gì để làm.
+   *
+   * Backend từ chối bằng `Tenant.AlreadyTheOwner`, nhưng mở hộp thoại rồi bắt gõ mật khẩu
+   * để nhận về câu đó là ba bước cho một việc chắc chắn thất bại.
+   */
+  it('không mở hộp chuyển nhượng cho chính mình', () => {
+    const toi = user({ userId: 'u-toi', roleName: 'Owner' });
+
+    service.result = [toi];
+
+    const component = make('u-toi');
+
+
+    component['openTransfer'](toi);
+
+    expect(component['transferTo']()).toBeNull();
+  });
+
+  it('chủ sở hữu mở được, và gửi đúng người nhận kèm mật khẩu', () => {
+    const target = user({ fullName: 'Trần Bình' });
+
+    // Dòng của CHÍNH mình mang vai Owner — đó là cách màn hình biết tôi là chủ.
+    service.result = [target, user({ userId: 'u-toi', roleName: 'Owner' })];
+
+    const component = make('u-toi');
+
+    component['openTransfer'](target);
+    expect(component['transferTo']()).toBe(target);
+
+    component['transferForm'].setValue({ currentPassword: 'MatKhauChu' });
+    component['submitTransfer']();
+
+    expect(service.ownerTransfers).toEqual([
+      { newOwnerUserId: target.userId, currentPassword: 'MatKhauChu' },
+    ]);
+  });
+
+  /**
+   * Chưa gõ mật khẩu thì KHÔNG gọi backend.
+   *
+   * Đây là thao tác không lùi được, nên ô mật khẩu không phải thủ tục: bỏ trống mà vẫn
+   * gửi đi là biến nó thành một cú bấm đơn.
+   */
+  it('chưa gõ mật khẩu thì không gọi backend', () => {
+    const target = user();
+
+    service.result = [target, user({ userId: 'u-toi', roleName: 'Owner' })];
+
+    const component = make('u-toi');
+
+    component['openTransfer'](target);
+    component['submitTransfer']();
+
+    expect(service.ownerTransfers).toHaveLength(0);
+  });
+
+  /**
+   * Chuyển xong thì nạp lại — người đang xem VỪA mất quyền sở hữu.
+   *
+   * Không nạp lại thì bảng vẫn tô huy hiệu Owner cho họ, và khối chuyển nhượng vẫn còn
+   * trong ngăn kéo: màn hình nói họ vẫn là chủ, còn server thì không.
+   */
+  it('chuyển xong thì đóng ngăn kéo và nạp lại', () => {
+    const target = user();
+
+    service.result = [target, user({ userId: 'u-toi', roleName: 'Owner' })];
+
+    const component = make('u-toi');
+
+    component['openTransfer'](target);
+    component['transferForm'].setValue({ currentPassword: 'MatKhauChu' });
+    component['submitTransfer']();
+
+    expect(component['transferTo']()).toBeNull();
+    expect(component['detail']()).toBeNull();
+    expect(service.loads).toBe(2);
   });
 
   // ── Đặt lại mật khẩu hộ ───────────────────────────────────────────

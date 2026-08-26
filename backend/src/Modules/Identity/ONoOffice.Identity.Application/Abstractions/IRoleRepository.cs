@@ -40,4 +40,17 @@ public interface IRoleRepository
     /// workspace vài trăm người thì cách kia kéo về vài trăm dòng để trả ra bốn con số.
     /// </summary>
     Task<IReadOnlyList<RoleListItem>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Nạp một vai theo TÊN. Trả <c>null</c> khi không có.
+    ///
+    /// Chỉ dùng cho bốn vai HỆ THỐNG, nơi tên là hằng số trong mã nguồn
+    /// (<c>SystemRoles</c>) chứ không phải chuỗi người dùng gõ. Chuyển nhượng quyền sở hữu
+    /// cần đúng vai <c>Owner</c> và <c>Admin</c> của workspace hiện tại, mà mã của chúng
+    /// thì mỗi workspace một khác — nên tra theo tên là cách duy nhất.
+    ///
+    /// ⚠️ ĐỪNG mở nó cho vai do người dùng tự đặt: tên vai không phải khoá, hai workspace
+    /// đặt trùng tên là chuyện bình thường, và tra theo tên sẽ là một lỗi chờ sẵn.
+    /// </summary>
+    Task<Role?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
 }

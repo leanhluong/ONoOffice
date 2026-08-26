@@ -248,4 +248,10 @@
   <data name="Employee.UserAlreadyLinked" xml:space="preserve">
     <value>That account is already linked to a different profile.</value>
   </data>
+  <data name="Tenant.OnlyOwnerCanTransfer" xml:space="preserve">
+    <value>Only the current owner can transfer the workspace.</value>
+  </data>
+  <data name="Tenant.NewOwnerMustBeActive" xml:space="preserve">
+    <value>Ownership cannot be transferred to a disabled account.</value>
+  </data>
 </root>

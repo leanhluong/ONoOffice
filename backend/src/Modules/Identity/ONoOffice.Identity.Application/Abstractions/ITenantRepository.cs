@@ -29,4 +29,14 @@ public interface ITenantRepository
     /// cả gốc tổng hợp để so một trường là nạp thừa.
     /// </summary>
     Task<Guid?> GetOwnerUserIdAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Nạp workspace hiện tại để SỬA nó. Trả <c>null</c> khi phiên chưa đứng ở workspace nào.
+    ///
+    /// Khác <see cref="GetOwnerUserIdAsync"/> ở chỗ nó nạp cả gốc tổng hợp và có theo dõi
+    /// thay đổi — chỉ dùng khi thật sự cần gọi một phương thức làm đổi trạng thái, hiện
+    /// tại là <c>Tenant.TransferOwnership</c>. Đọc để SO thì vẫn dùng hàm kia, vì nạp cả
+    /// gốc tổng hợp để so một trường là nạp thừa.
+    /// </summary>
+    Task<Tenant?> GetCurrentForUpdateAsync(CancellationToken cancellationToken = default);
 }

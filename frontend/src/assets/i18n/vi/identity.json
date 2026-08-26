@@ -266,7 +266,20 @@
     "noProfile": "Chưa có hồ sơ",
     "noAccountYet": "Người này chưa có tài khoản đăng nhập, nên chưa có gì để sửa ở đây.",
     "filterKind": "Lọc theo loại",
-    "allKinds": "Tất cả"
+    "allKinds": "Tất cả",
+    "transfer": {
+      "title": "Quyền sở hữu workspace",
+      "text": "Chuyển workspace cho {{name}}. Bạn sẽ xuống vai Admin và không tự lấy lại được — chỉ chủ mới có thể chuyển ngược.",
+      "action": "Chuyển quyền sở hữu",
+      "dialog": "Chuyển quyền sở hữu cho {{name}}",
+      "noUndo": "Việc này không hoàn tác được. Sau khi chuyển, chỉ {{name}} mới chuyển ngược lại cho bạn.",
+      "effect1": "{{name}} lên vai Owner và nhận đủ 12 quyền.",
+      "effect2": "Bạn xuống vai Admin — giữ mọi quyền trừ chính quyền vừa chuyển đi.",
+      "effect3": "Từ lúc đó, chỉ {{name}} mới vô hiệu hoá, hạ vai hoặc đặt lại mật khẩu cho bạn được.",
+      "password": "Mật khẩu hiện tại của bạn",
+      "passwordWhy": "Gõ lại để chắc chắn đây là bạn, không phải ai đó ngồi vào máy bạn.",
+      "done": "Đã chuyển quyền sở hữu cho {{name}}."
+    }
   },
   "account": {
     "mustChange": "Tài khoản này dùng mật khẩu tạm. Hãy đổi ngay bây giờ.",

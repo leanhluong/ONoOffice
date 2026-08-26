@@ -564,6 +564,56 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
     }
   }
 
+  // ── Chuyển quyền sở hữu workspace ───────────────────────────────────
+  //
+  // Mô phỏng đủ CẢ BỐN cửa chặn. Bỏ bớt một cái thì demo dạy người dùng một hành vi mà hệ
+  // thật từ chối — và với thao tác không hoàn tác được thì đó là chỗ tệ nhất để dạy sai.
+  if (duong === '/api/workspace/transfer-ownership' && req.method === 'POST') {
+    const than = req.body as { newOwnerUserId?: string; currentPassword?: string } | null;
+
+    const toi = kho.users.find((u) => u.id === kho.toi.id);
+
+    // Đọc vai từ KHO, không tin cờ `isOwner` trong phiên: sau một lần chuyển nhượng, cờ
+    // kia đã cũ. Hệ thật đọc `Tenant.OwnerUserId` từ database vì đúng lý do này.
+    if (toi?.roleName !== 'Owner') {
+      return loi(
+        409,
+        'Tenant.OnlyOwnerCanTransfer',
+        'Chỉ chủ sở hữu hiện tại mới chuyển nhượng được workspace.',
+      );
+    }
+
+    if (than?.newOwnerUserId === kho.toi.id) {
+      return loi(409, 'Tenant.AlreadyTheOwner', 'Người này đã là chủ sở hữu workspace.');
+    }
+
+    // Mật khẩu demo: bất kỳ chuỗi nào từ 6 ký tự. Không mô phỏng mật khẩu thật được — chế
+    // độ demo nhận mọi mật khẩu lúc đăng nhập — nhưng ô này vẫn phải CHẶN khi bỏ trống,
+    // vì đó chính là thứ giao diện cần bấm thử.
+    if ((than?.currentPassword ?? '').length < 6) {
+      return loi(400, 'User.WrongCurrentPassword', 'Mật khẩu hiện tại không đúng.');
+    }
+
+    const nguoiNhan = kho.users.find((u) => u.id === than?.newOwnerUserId);
+
+    if (!nguoiNhan) {
+      return loi(404, 'User.NotFound', 'Không tìm thấy tài khoản này.');
+    }
+
+    if (!nguoiNhan.isActive) {
+      return loi(
+        409,
+        'Tenant.NewOwnerMustBeActive',
+        'Không thể chuyển nhượng cho một tài khoản đang bị vô hiệu hoá.',
+      );
+    }
+
+    nguoiNhan.roleName = 'Owner';
+    toi.roleName = 'Admin';
+
+    return trong();
+  }
+
   // ── Tạo hồ sơ nhân sự ───────────────────────────────────────────────
   if (duong === '/api/employees' && req.method === 'POST') {
     const than = req.body as { code?: string; fullName?: string; jobTitle?: string | null } | null;

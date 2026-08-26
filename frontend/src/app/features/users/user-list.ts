@@ -140,6 +140,9 @@ export class UserList {
   /** Mật khẩu tạm vừa sinh ra. Tồn tại ĐÚNG một lần — đóng hộp là mất. */
   protected readonly resetResult = signal<ResetPasswordResponse | null>(null);
 
+  /** Người sắp nhận quyền sở hữu workspace. `null` = hộp đang đóng. */
+  protected readonly transferTo = signal<MemberListItem | null>(null);
+
   /**
    * Dòng đang mở hộp thoại NỐI. `null` = hộp đang đóng.
    *
@@ -198,6 +201,17 @@ export class UserList {
   protected readonly detailForm = this.fb.nonNullable.group({
     fullName: ['', [notBlank, Validators.maxLength(200)]],
     roleId: ['', [Validators.required]],
+  });
+
+  /**
+   * Ô mật khẩu của hộp chuyển nhượng — ô nhập kiểu này DUY NHẤT ngoài màn Hồ sơ.
+   *
+   * Nó không chặn được người quyết tâm, nhưng chặn đúng ca hay xảy ra: một cái máy bỏ quên
+   * lúc đang đăng nhập, và người ngồi xuống sau đó. Với một thao tác không lùi được thì
+   * một lần gõ lại là cái giá rẻ.
+   */
+  protected readonly transferForm = this.fb.nonNullable.group({
+    currentPassword: ['', [Validators.required]],
   });
 
   /**
@@ -753,6 +767,90 @@ export class UserList {
     });
   }
 
+  // ── Chuyển quyền sở hữu ─────────────────────────────────────────────
+
+  /**
+   * Người đang đăng nhập có phải chủ sở hữu không.
+   *
+   * Suy ra bằng cách tìm chính mình trong danh sách rồi xem TÊN VAI, vì `AuthUser` không
+   * mang cờ nào cho việc này. Cùng suy đoán với huy hiệu Owner ở cột vai trò, và an toàn
+   * vì cùng hai lý do: bốn vai hệ thống là bất biến, và ở đây nó chỉ quyết định ẨN hay
+   * HIỆN một khối. Luật thật nằm ở backend — `TransferOwnershipCommandHandler` đọc
+   * `Tenant.OwnerUserId` từ database và vẫn từ chối nếu suy đoán này sai.
+   */
+  protected readonly toiLaChu = computed(() => {
+    const toi = this.auth.user()?.userId;
+
+    return (
+      toi !== undefined &&
+      this.allMembers().some((m) => m.userId === toi && m.roleName === 'Owner')
+    );
+  });
+
+  /** Có hiện khối "Quyền sở hữu workspace" trong ngăn kéo của người này không. */
+  protected canTransferTo(member: MemberListItem): boolean {
+    return (
+      this.toiLaChu() &&
+      member.userId !== null &&
+      member.userId !== this.auth.user()?.userId &&
+      member.isActive
+    );
+  }
+
+  protected openTransfer(member: MemberListItem): void {
+    // Kiểm lại ở đây chứ không chỉ dựa vào việc template ẩn nút: `openTransfer` là một
+    // phương thức, và một thay đổi sau này có thể gọi nó từ chỗ khác.
+    if (!this.canTransferTo(member)) {
+      return;
+    }
+
+    this.transferForm.reset({ currentPassword: '' });
+    this.transferTo.set(member);
+  }
+
+  protected closeTransfer(): void {
+    this.transferTo.set(null);
+  }
+
+  /**
+   * Gửi lệnh chuyển nhượng.
+   *
+   * Sau khi thành công thì **nạp lại**: người đang xem vừa mất quyền sở hữu, nên nếu không
+   * nạp lại thì bảng vẫn tô huy hiệu Owner cho họ và khối chuyển nhượng vẫn nằm trong ngăn
+   * kéo — màn hình nói họ vẫn là chủ, còn server thì không.
+   */
+  protected submitTransfer(): void {
+    const nguoiNhan = this.transferTo();
+
+    if (nguoiNhan?.userId == null || this.transferForm.invalid) {
+      this.transferForm.markAllAsTouched();
+
+      return;
+    }
+
+    this.saving.set(true);
+
+    this.users
+      .transferOwnership(nguoiNhan.userId, this.transferForm.getRawValue().currentPassword)
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.transferTo.set(null);
+          this.detail.set(null);
+          this.popups.show(
+            this.translate.instant('users.transfer.done', {
+              name: nguoiNhan.fullName,
+            }) as string,
+          );
+          this.load();
+        },
+        error: (error: unknown) => {
+          this.saving.set(false);
+          this.showError(error);
+        },
+      });
+  }
+
   // ── Đặt lại mật khẩu hộ ─────────────────────────────────────────────
 
   /**
@@ -1121,6 +1219,7 @@ export class UserList {
     this.detail.set(null);
     this.linkFor.set(null);
     this.bulkAction.set(null);
+    this.transferTo.set(null);
 
     // `closeReset` chứ không phải `resetFor.set(null)`: Escape ở bước hiện mật khẩu vẫn
     // phải nạp lại bảng, nếu không cột Trạng thái nói sai cho tới lần nạp sau.

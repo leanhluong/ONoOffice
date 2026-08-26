@@ -1,0 +1,345 @@
+{
+  "ma": "chuyen-quyen-so-huu",
+  "tieude": "Chuyển quyền sở hữu workspace",
+  "nhom": "nhan-su",
+  "tomtat": "Thao tác duy nhất trong hệ thống mà người vừa làm không tự lấy lại được.",
+  "khoi": [
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Chủ sở hữu là người đăng ký workspace, và là người "
+        },
+        {
+          "k": "dam",
+          "v": "duy nhất"
+        },
+        {
+          "k": "chu",
+          "v": " chuyển nhượng được nó. Khi họ nghỉ việc, đổi vai trò trong công ty, hoặc chỉ đơn giản là không còn quản trị nữa, đây là đường bàn giao."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Các bước"
+    },
+    {
+      "k": "ds",
+      "thutu": true,
+      "muc": [
+        [
+          {
+            "k": "chu",
+            "v": "Vào "
+          },
+          {
+            "k": "dam",
+            "v": "Quản trị → Thành viên"
+          },
+          {
+            "k": "chu",
+            "v": ", mở "
+          },
+          {
+            "k": "dam",
+            "v": "chi tiết"
+          },
+          {
+            "k": "chu",
+            "v": " người sẽ nhận."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Kéo xuống khối "
+          },
+          {
+            "k": "dam",
+            "v": "Quyền sở hữu workspace"
+          },
+          {
+            "k": "chu",
+            "v": " (dưới cùng, chỉ chủ sở hữu mới thấy)."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Bấm "
+          },
+          {
+            "k": "dam",
+            "v": "Chuyển quyền sở hữu"
+          },
+          {
+            "k": "chu",
+            "v": ", đọc kỹ ba dòng hậu quả."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Gõ lại "
+          },
+          {
+            "k": "dam",
+            "v": "mật khẩu hiện tại của bạn"
+          },
+          {
+            "k": "chu",
+            "v": ", rồi xác nhận."
+          }
+        ]
+      ]
+    },
+    {
+      "k": "anh",
+      "mota": "Hộp thoại chuyển quyền sở hữu với ba dòng hậu quả và ô mật khẩu",
+      "tep": "anh/chuyen-quyen.png",
+      "chuthich": "Ô mật khẩu là ô nhập kiểu này duy nhất ngoài màn Hồ sơ"
+    },
+    {
+      "k": "chuy",
+      "tong": "canh",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Việc này không hoàn tác được."
+        },
+        {
+          "k": "chu",
+          "v": " Sau khi chuyển, chỉ người nhận mới chuyển ngược lại cho bạn. Nếu họ không làm, không ai trong workspace sửa được — kể cả bạn."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Chuyện gì xảy ra"
+    },
+    {
+      "k": "bang",
+      "dau": [
+        [
+          {
+            "k": "chu",
+            "v": "Ai"
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Trước"
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Sau"
+          }
+        ]
+      ],
+      "than": [
+        [
+          [
+            {
+              "k": "chu",
+              "v": "Người nhận"
+            }
+          ],
+          [
+            {
+              "k": "chu",
+              "v": "Vai cũ của họ"
+            }
+          ],
+          [
+            {
+              "k": "dam",
+              "v": "Owner"
+            },
+            {
+              "k": "chu",
+              "v": ", đủ 12 quyền"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "k": "chu",
+              "v": "Bạn"
+            }
+          ],
+          [
+            {
+              "k": "chu",
+              "v": "Owner"
+            }
+          ],
+          [
+            {
+              "k": "dam",
+              "v": "Admin"
+            },
+            {
+              "k": "chu",
+              "v": " — mọi quyền trừ chính quyền vừa chuyển đi"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Từ lúc đó, chỉ người nhận mới "
+        },
+        {
+          "k": "dam",
+          "v": "vô hiệu hoá"
+        },
+        {
+          "k": "chu",
+          "v": ", "
+        },
+        {
+          "k": "dam",
+          "v": "hạ vai"
+        },
+        {
+          "k": "chu",
+          "v": " hoặc "
+        },
+        {
+          "k": "dam",
+          "v": "đặt lại mật khẩu"
+        },
+        {
+          "k": "chu",
+          "v": " cho bạn được. Đó chính là bốn thao tác mà hệ thống vẫn từ chối khi mục tiêu là chủ sở hữu."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Bốn ca hệ thống từ chối"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Bạn không phải chủ sở hữu."
+        },
+        {
+          "k": "chu",
+          "v": " Khối này không hiện ra với ai khác. Kể cả khi vừa mất quyền sở hữu mà phiên đăng nhập còn cũ, hệ thống vẫn đọc lại từ dữ liệu gốc và từ chối."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Chuyển cho chính mình."
+        },
+        {
+          "k": "chu",
+          "v": " Không có gì để làm."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Người nhận đang bị vô hiệu hoá."
+        },
+        {
+          "k": "chu",
+          "v": " Chuyển xong thì bạn mất quyền còn họ không đăng nhập được — workspace còn chủ trên giấy tờ mà không ai vào được chỗ đó."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Sai mật khẩu hiện tại."
+        },
+        {
+          "k": "chu",
+          "v": " Ô mật khẩu không phải thủ tục. Nó chặn đúng một ca rất cụ thể: một cái máy bỏ quên lúc đang đăng nhập, và người ngồi xuống sau đó."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Vì sao bạn xuống Admin chứ không phải Member"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Bạn vừa là chủ công ty. Hạ thẳng xuống vai hẹp nhất là lấy mất khả năng làm việc của bạn trong một cú bấm. "
+        },
+        {
+          "k": "dam",
+          "v": "Admin"
+        },
+        {
+          "k": "chu",
+          "v": " thiếu đúng một quyền so với "
+        },
+        {
+          "k": "dam",
+          "v": "Owner"
+        },
+        {
+          "k": "chu",
+          "v": " — chính quyền vừa chuyển đi."
+        }
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "luuy",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Muốn nhận lại thì người kia vào đúng màn này và chuyển ngược. Nếu họ đã rời công ty mà chưa chuyển lại, xem "
+        },
+        {
+          "k": "lien",
+          "v": "Đặt lại mật khẩu hộ đồng nghiệp",
+          "den": "#dat-lai-mat-khau"
+        },
+        {
+          "k": "chu",
+          "v": " — nhưng lưu ý mật khẩu của "
+        },
+        {
+          "k": "dam",
+          "v": "chủ sở hữu"
+        },
+        {
+          "k": "chu",
+          "v": " thì không ai đặt lại hộ được."
+        }
+      ]
+    }
+  ]
+}

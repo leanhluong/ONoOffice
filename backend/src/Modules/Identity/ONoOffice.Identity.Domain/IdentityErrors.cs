@@ -75,6 +75,26 @@ public static class IdentityErrors
         public static readonly Error AlreadyTheOwner =
             Error.Conflict("Tenant.AlreadyTheOwner", "Người này đã là chủ sở hữu workspace.");
 
+        /// <summary>
+        /// Đọc từ DATABASE, không tin claim trong token.
+        ///
+        /// Access token sống 15 phút, nên người vừa mất quyền sở hữu vẫn cầm một token
+        /// mang <c>workspace.transfer-ownership</c> thêm một lúc. Không có phép kiểm này
+        /// thì họ chuyển ngược lại được trong khoảng thời gian đó.
+        /// </summary>
+        public static readonly Error OnlyOwnerCanTransfer = Error.Conflict(
+            "Tenant.OnlyOwnerCanTransfer",
+            "Chỉ chủ sở hữu hiện tại mới chuyển nhượng được workspace.");
+
+        /// <summary>
+        /// Chuyển cho một tài khoản đang bị vô hiệu hoá là khoá cả workspace lại: người cũ
+        /// mất quyền, người mới không đăng nhập được. Không có đường sửa nào ngoài can
+        /// thiệp thẳng vào database.
+        /// </summary>
+        public static readonly Error NewOwnerMustBeActive = Error.Conflict(
+            "Tenant.NewOwnerMustBeActive",
+            "Không thể chuyển nhượng cho một tài khoản đang bị vô hiệu hoá.");
+
         public static readonly Error AlreadyInactive =
             Error.Conflict("Tenant.AlreadyInactive", "Workspace đã ngừng hoạt động.");
 

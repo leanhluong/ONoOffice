@@ -52,4 +52,23 @@ internal sealed class EfTenantRepository(IdentityDbContext context, ICurrentTena
             .Select(tenant => tenant.OwnerUserId)
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    /// <summary>
+    /// KHÔNG có <c>AsNoTracking</c> — cố ý, và đây là khác biệt duy nhất so với hàm trên.
+    ///
+    /// Nơi gọi sẽ đổi trạng thái gốc tổng hợp (<c>Tenant.TransferOwnership</c>), nên EF
+    /// phải theo dõi nó thì câu <c>UPDATE</c> mới được sinh ra lúc chốt giao dịch. Thêm
+    /// <c>AsNoTracking</c> ở đây thì lệnh chuyển nhượng chạy êm ru và <b>không lưu gì</b>.
+    /// </summary>
+    public async Task<Tenant?> GetCurrentForUpdateAsync(CancellationToken cancellationToken = default)
+    {
+        if (currentTenant.TenantId is not { } tenantId)
+        {
+            return null;
+        }
+
+        return await context.Tenants.FirstOrDefaultAsync(
+            tenant => tenant.Id == tenantId,
+            cancellationToken);
+    }
 }

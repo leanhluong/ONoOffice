@@ -86,6 +86,25 @@ export class UserService {
   }
 
   /**
+   * Chuyển quyền sở hữu workspace — **không hoàn tác được bởi người vừa gọi**.
+   *
+   * Đòi mật khẩu hiện tại, và đó là ô nhập duy nhất kiểu này ngoài màn Hồ sơ. Nó không
+   * chặn được người quyết tâm, nhưng chặn đúng ca hay xảy ra: một máy bỏ quên lúc đang
+   * đăng nhập.
+   *
+   * Nằm ở `UserService` dù đường dẫn là `/api/workspace/...`: nó gửi đi `currentPassword`
+   * và đổi vai trò của hai TÀI KHOẢN, nên nó thuộc cùng vùng nghiệp vụ với phần còn lại
+   * của tệp này. Tách ra một service riêng cho đúng một phương thức là chia nhỏ mà không
+   * chia được trách nhiệm.
+   */
+  transferOwnership(newOwnerUserId: string, currentPassword: string): Observable<void> {
+    return this.http.post<void>(this.url('/api/workspace/transfer-ownership'), {
+      newOwnerUserId,
+      currentPassword,
+    });
+  }
+
+  /**
    * Vô hiệu hoá hoặc bật lại.
    *
    * Hai đường dẫn khác nhau chứ không phải một `PATCH { isActive }`: đây là hai HÀNH ĐỘNG

@@ -54,6 +54,8 @@
   "Tenant.HasNoOwner": "Workspace chưa có chủ sở hữu để chuyển nhượng.",
   "Tenant.NameEmpty": "Tên workspace không được để trống.",
   "Tenant.NameTooLong": "Tên workspace không được dài quá 200 ký tự.",
+  "Tenant.NewOwnerMustBeActive": "Không thể chuyển nhượng cho một tài khoản đang bị vô hiệu hoá.",
+  "Tenant.OnlyOwnerCanTransfer": "Chỉ chủ sở hữu hiện tại mới chuyển nhượng được workspace.",
   "TenantCode.Empty": "Mã workspace không được để trống.",
   "TenantCode.Invalid": "Mã workspace chỉ gồm chữ thường, số và gạch nối; phải bắt đầu bằng chữ cái và kết thúc bằng chữ hoặc số.",
   "TenantCode.Taken": "Mã workspace này đã có người dùng.",

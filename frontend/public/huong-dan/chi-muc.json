@@ -45,6 +45,11 @@
         "ma": "phong-ban",
         "tieude": "Dựng cây phòng ban",
         "tomtat": "Thêm, đổi tên, điều chuyển và xoá phòng — cùng bốn luật hệ thống không cho phá."
+      },
+      {
+        "ma": "chuyen-quyen-so-huu",
+        "tieude": "Chuyển quyền sở hữu workspace",
+        "tomtat": "Thao tác duy nhất trong hệ thống mà người vừa làm không tự lấy lại được."
       }
     ]
   },

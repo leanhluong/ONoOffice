@@ -54,6 +54,8 @@
   "Tenant.HasNoOwner": "This workspace has no owner to transfer from.",
   "Tenant.NameEmpty": "Workspace name is required.",
   "Tenant.NameTooLong": "Workspace name must be 200 characters or fewer.",
+  "Tenant.NewOwnerMustBeActive": "Ownership cannot be transferred to a disabled account.",
+  "Tenant.OnlyOwnerCanTransfer": "Only the current owner can transfer the workspace.",
   "TenantCode.Empty": "Workspace code is required.",
   "TenantCode.Invalid": "Workspace code may contain only lowercase letters, digits and hyphens; it must start with a letter and end with a letter or digit.",
   "TenantCode.Taken": "That workspace code is already taken.",
