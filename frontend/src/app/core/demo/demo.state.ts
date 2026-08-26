@@ -78,16 +78,16 @@ export const NGUOI_DUNG: UserListItem[] = [
     createdAtUtc: ngayTruoc(150),
   },
 
-  // Ba người còn mật khẩu tạm — đây là thứ thẻ "Cần bạn xử lý" ở màn Tổng quan đọc.
-  {
-    id: 'u-ngocha',
-    email: 'ha.do@congty.vn',
-    fullName: 'Đỗ Ngọc Hà',
-    isActive: true,
-    mustChangePassword: true,
-    roleName: 'Member',
-    createdAtUtc: ngayTruoc(6),
-  },
+  /*
+    Đỗ Ngọc Hà CỐ Ý không có mặt ở đây.
+
+    Cô ấy có hồ sơ (`e-ngocha`) nhưng chưa được cấp tài khoản — đó là loại dòng thứ hai
+    của màn Thành viên gộp, và cũng là trạng thái bình thường của người mới vào. Thêm một
+    tài khoản cho cô ấy thì loại dòng đó biến mất khỏi demo, và người bấm thử sẽ không
+    thấy được nút "Cấp tài khoản" bao giờ.
+  */
+
+  // Hai người còn mật khẩu tạm — đây là thứ thẻ "Cần bạn xử lý" ở màn Tổng quan đọc.
   {
     id: 'u-linh',
     email: 'linh.tran@congty.vn',
@@ -125,6 +125,24 @@ export const NGUOI_DUNG: UserListItem[] = [
     mustChangePassword: false,
     roleName: 'Member',
     createdAtUtc: ngayTruoc(220),
+  },
+
+  /*
+    Một tài khoản KHÔNG PHẢI người — loại dòng thứ ba của màn Thành viên gộp.
+
+    Tài khoản máy chạy sao lưu đêm. Nó không có hồ sơ nhân sự và sẽ không bao giờ có: nó
+    không đi làm, không thuộc phòng nào, không có mã nhân viên. Đây là lý do màn gộp phải
+    lấy cả những tài khoản không nối được hồ sơ — bỏ chúng đi thì một tài khoản quyền
+    Admin biến mất khỏi mọi bảng, và đó đúng là thứ không được phép mất dấu.
+  */
+  {
+    id: 'u-bot',
+    email: 'bot@congty.vn',
+    fullName: 'backup-bot',
+    isActive: true,
+    mustChangePassword: false,
+    roleName: 'Admin',
+    createdAtUtc: ngayTruoc(400),
   },
 ];
 
@@ -200,45 +218,71 @@ export const PHONG_BAN: DepartmentTreeItem[] = [
   },
 ];
 
-/** Hồ sơ nhân sự — KHÁC tài khoản đăng nhập ở `NGUOI_DUNG`. Xem `Employee.cs`. */
-export const HO_SO: ContactListItem[] = [
+/**
+ * Hồ sơ nhân sự — KHÁC tài khoản đăng nhập ở `NGUOI_DUNG`. Xem `Employee.cs`.
+ *
+ * `userId` KHÔNG có trong `ContactListItem` thật, và đó là chủ ý: API danh bạ không lộ
+ * khoá của module Identity ra ngoài. Ở đây thêm vào vì kho demo phải mô phỏng cả phép
+ * NỐI mà backend làm qua `Employee.UserId` — nếu không thì màn Thành viên gộp sẽ hiện mọi
+ * người hai lần.
+ */
+type DemoHoSo = ContactListItem & { userId: string | null };
+
+export const HO_SO: DemoHoSo[] = [
   {
     id: 'e-luong', code: 'NV001', fullName: 'Lê Anh Lượng', jobTitle: 'Giám đốc',
     workEmail: 'chu@congty.vn', phone: '090 123 4567',
-    departmentId: 'd-bgd', departmentName: 'Ban giám đốc', isActive: true,
+    departmentId: 'd-bgd', departmentName: 'Ban giám đốc', isActive: true, userId: 'u-owner',
   },
   {
     id: 'e-binh', code: 'NV002', fullName: 'Trần Bình', jobTitle: 'Trưởng khối Kỹ thuật',
     workEmail: 'binh.tran@congty.vn', phone: '091 234 5678',
-    departmentId: 'd-kythuat', departmentName: 'Khối Kỹ thuật', isActive: true,
+    departmentId: 'd-kythuat', departmentName: 'Khối Kỹ thuật', isActive: true, userId: 'u-binh',
   },
   // Không có điện thoại — ca để thử rằng thẻ BỎ HẲN dòng chứ không vẽ ô rỗng.
   {
     id: 'e-an', code: 'NV003', fullName: 'Nguyễn An', jobTitle: 'Kỹ sư hạ tầng',
     workEmail: 'an.nguyen@congty.vn', phone: null,
-    departmentId: 'd-hatang', departmentName: 'Hạ tầng', isActive: true,
+    departmentId: 'd-hatang', departmentName: 'Hạ tầng', isActive: true, userId: 'u-an',
   },
   {
     id: 'e-ha', code: 'NV004', fullName: 'Phạm Hà', jobTitle: 'Trưởng phòng Kinh doanh',
     workEmail: 'ha.pham@congty.vn', phone: '098 765 4321',
-    departmentId: 'd-kinhdoanh', departmentName: 'Kinh doanh', isActive: true,
+    departmentId: 'd-kinhdoanh', departmentName: 'Kinh doanh', isActive: true, userId: 'u-ha',
   },
   // Chưa xếp phòng là trạng thái BÌNH THƯỜNG của người mới, không phải lỗi dữ liệu.
   {
     id: 'e-ngocha', code: 'NV005', fullName: 'Đỗ Ngọc Hà', jobTitle: 'Thực tập sinh',
     workEmail: 'ha.do@congty.vn', phone: null,
-    departmentId: null, departmentName: null, isActive: true,
+    departmentId: null, departmentName: null, isActive: true, userId: null,
   },
   {
     id: 'e-minh', code: 'NV006', fullName: 'Vũ Đức Minh', jobTitle: 'Lập trình viên',
     workEmail: 'minh.vu@congty.vn', phone: '097 111 2222',
-    departmentId: 'd-sanpham', departmentName: 'Phát triển sản phẩm', isActive: true,
+    departmentId: 'd-sanpham', departmentName: 'Phát triển sản phẩm', isActive: true, userId: 'u-minh',
   },
   // Đã nghỉ: mặc định KHÔNG hiện, chỉ ra khi bật công tắc.
   {
     id: 'e-mai', code: 'NV007', fullName: 'Vũ Thị Mai', jobTitle: 'Nhân viên kinh doanh',
     workEmail: 'mai.vu@congty.vn', phone: null,
-    departmentId: 'd-kinhdoanh', departmentName: 'Kinh doanh', isActive: false,
+    departmentId: 'd-kinhdoanh', departmentName: 'Kinh doanh', isActive: false, userId: 'u-mai',
+  },
+  {
+    id: 'e-linh', code: 'NV008', fullName: 'Trần Thuỳ Linh', jobTitle: 'Chuyên viên nhân sự',
+    workEmail: 'linh.tran@congty.vn', phone: '093 456 7890',
+    departmentId: 'd-nhansu', departmentName: 'Nhân sự', isActive: true, userId: 'u-linh',
+  },
+  /*
+    Nghỉ việc: đóng CẢ hồ sơ lẫn tài khoản.
+
+    `MemberListItem` chỉ có một cờ `isActive` cho cả dòng — nó là phép AND của hai bên,
+    nên bật một tắt một sẽ ra một dòng nói "đã nghỉ" trong khi hồ sơ vẫn đang mở. Muốn
+    demo được ca "khoá đăng nhập tạm nhưng chưa nghỉ" thì phải tách cờ ở DTO trước đã.
+  */
+  {
+    id: 'e-khoa', code: 'NV009', fullName: 'Đỗ Minh Khoa', jobTitle: 'Lập trình viên',
+    workEmail: 'khoa.do@congty.vn', phone: null,
+    departmentId: 'd-sanpham', departmentName: 'Phát triển sản phẩm', isActive: false, userId: 'u-khoa',
   },
 ];
 

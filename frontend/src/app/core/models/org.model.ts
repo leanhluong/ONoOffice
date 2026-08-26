@@ -58,6 +58,35 @@ export interface ContactListItem {
   isActive: boolean;
 }
 
+/**
+ * Một người trong workspace — <b>hợp nhất</b> tài khoản đăng nhập và hồ sơ nhân sự.
+ *
+ * Ba loại dòng, phân biệt bằng hai khoá:
+ *
+ * <pre>
+ *   employeeId ≠ null, userId ≠ null   cả hai — người bình thường
+ *   employeeId ≠ null, userId = null   chỉ hồ sơ — nhân viên mới, chưa được cấp tài khoản
+ *   employeeId = null, userId ≠ null   chỉ tài khoản — bot sao lưu, không phải nhân viên
+ * </pre>
+ *
+ * Backend nối hai nguồn bằng `Employee.UserId`, <b>không đoán theo email</b>: phòng kinh
+ * doanh dùng chung `sales@` thì đoán theo email sẽ gộp hai người thành một dòng.
+ */
+export interface MemberListItem {
+  employeeId: string | null;
+  userId: string | null;
+  fullName: string;
+  code: string | null;
+  jobTitle: string | null;
+  email: string | null;
+  phone: string | null;
+  departmentId: string | null;
+  departmentName: string | null;
+  roleName: string | null;
+  isActive: boolean;
+  mustChangePassword: boolean;
+}
+
 /** Tham số của `GET /api/contacts`. Mọi trường đều tuỳ chọn. */
 export interface ContactQuery {
   search?: string;

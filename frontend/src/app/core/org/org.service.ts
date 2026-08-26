@@ -8,6 +8,7 @@ import type {
   ContactQuery,
   CreateDepartmentRequest,
   DepartmentTreeItem,
+  MemberListItem,
 } from '../models/org.model';
 
 /**
@@ -49,6 +50,25 @@ export class OrgService {
 
   deleteDepartment(id: string): Observable<void> {
     return this.http.delete<void>(this.url(`/api/departments/${id}`));
+  }
+
+  // ── Thành viên (gộp tài khoản + hồ sơ) ────────────────────────────
+
+  /**
+   * Một danh sách người duy nhất, gộp từ hai module.
+   *
+   * <b>Chỉ ĐỌC.</b> Mọi thao tác sửa vẫn đi về đúng module sở hữu dữ liệu: `UserService`
+   * cho tài khoản, `OrgService` cho hồ sơ. Gộp cả phần ghi vào một endpoint thì nó phải
+   * biết luật của cả hai module, và trở thành chỗ hai bộ luật lệch nhau.
+   *
+   * Không phân trang: bên gọi cần toàn bộ để lọc theo loại dòng.
+   */
+  members(): Observable<MemberListItem[]> {
+    return this.http.get<MemberListItem[]>(this.url('/api/members'));
+  }
+
+  linkAccount(employeeId: string, userId: string): Observable<void> {
+    return this.http.post<void>(this.url(`/api/employees/${employeeId}/link-account`), { userId });
   }
 
   // ── Danh bạ ───────────────────────────────────────────────────────

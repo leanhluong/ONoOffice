@@ -77,6 +77,23 @@
     </option>
   </select>
 
+  <!--
+    Bộ lọc theo LOẠI DÒNG — chỉ có ở màn gộp này.
+
+    Danh sách gộp hai nguồn nên nó có ba loại dòng, và hai loại "khuyết" chính là thứ quản
+    trị viên cần tìm để xử lý: người mới cần cấp tài khoản, và tài khoản chưa nối hồ sơ
+    nào. Không có bộ lọc này thì họ phải rà mắt qua cả bảng để tìm ô gạch đứt.
+  -->
+  <select [attr.aria-label]="'users.filterKind' | translate" (change)="onKindChange($event)">
+    <option value="" [selected]="kind() === ''">{{ 'users.allKinds' | translate }}</option>
+    <option value="khongTaiKhoan" [selected]="kind() === 'khongTaiKhoan'">
+      {{ 'users.noAccount' | translate }}
+    </option>
+    <option value="khongHoSo" [selected]="kind() === 'khongHoSo'">
+      {{ 'users.noProfile' | translate }}
+    </option>
+  </select>
+
   @if (hasFilter()) {
     <button class="nut nut--pha nut--nho" type="button" (click)="clearFilters()">
       {{ 'users.clearFilter' | translate }}
@@ -139,93 +156,108 @@
         <div class="bangcuon">
           <table class="bang">
             <thead>
-              <tr>
-                <th class="bang__tick">
-                  <input
-                    type="checkbox"
-                    [attr.aria-label]="'users.selectAll' | translate"
-                    [checked]="allSelected()"
-                    [indeterminate]="someSelected()"
-                    (change)="toggleAll()"
-                  />
-                </th>
-                <th>{{ 'users.column.person' | translate }}</th>
-                <th>{{ 'users.column.role' | translate }}</th>
-                <th>{{ 'users.column.status' | translate }}</th>
-                <th class="an-hep">{{ 'users.column.createdAt' | translate }}</th>
-                <th class="bang__phai"></th>
-              </tr>
-            </thead>
+        <tr>
+          <th class="bang__tick">
+            <input
+              type="checkbox"
+              [attr.aria-label]="'users.selectAll' | translate"
+              [checked]="allSelected()"
+              [indeterminate]="someSelected()"
+              (change)="toggleAll()"
+            />
+          </th>
+          <th>{{ 'users.column.person' | translate }}</th>
+          <th>{{ 'users.column.code' | translate }}</th>
+          <th>{{ 'nav.roles' | translate }}</th>
+          <th class="an-hep">{{ 'departments.title' | translate }}</th>
+          <th>{{ 'users.column.status' | translate }}</th>
+          <th class="bang__phai"></th>
+        </tr>
+      </thead>
 
             <tbody>
-              @for (user of page()?.items ?? []; track user.id) {
-                <tr [attr.aria-selected]="isSelected(user.id)" (click)="openDetail(user)">
-                  <!-- Chặn nổi bọt: bấm ô tick là CHỌN, không phải mở chi tiết. -->
-                  <td (click)="$event.stopPropagation()">
-                    <input
-                      type="checkbox"
-                      [attr.aria-label]="user.fullName"
-                      [checked]="isSelected(user.id)"
-                      (change)="toggleRow(user.id)"
-                    />
-                  </td>
+        @for (user of page()?.items ?? []; track rowKey(user)) {
+          <tr [attr.aria-selected]="isSelected(rowKey(user))">
+            <td>
+              <input
+                type="checkbox"
+                [attr.aria-label]="'users.selectOne' | translate: { name: user.fullName }"
+                [checked]="isSelected(rowKey(user))"
+                (change)="toggleRow(rowKey(user))"
+              />
+            </td>
 
-                  <td>
-                    <div class="bang__nguoi">
-                      <span class="mat mat--nho">{{ initials(user.fullName) }}</span>
-                      <span>
-                        <span class="bang__ten">{{ user.fullName }}</span
-                        ><br />
-                        <span class="bang__mail">{{ user.email }}</span>
-                      </span>
-                    </div>
-                  </td>
+            <td>
+              <div class="bang__nguoi">
+                <span class="mat mat--nho">{{ initials(user.fullName) }}</span>
+                <span>
+                  <span class="bang__ten">{{ user.fullName }}</span><br />
+                  <span class="bang__mail">{{ user.email }}</span>
+                </span>
+              </div>
+            </td>
 
-                  <td>
-                    <!--
-                      Tô nổi vai CHỦ SỞ HỮU. So theo TÊN vai ở đây là cố ý, và chỉ an toàn
-                      vì đúng hai điều kiện: (1) đây thuần tuý là màu sắc, nó KHÔNG chặn
-                      hay mở một thao tác nào; (2) bốn vai hệ thống bất biến — xem
-                      `SystemRoles.cs`, sửa được thì một cú bấm nhầm có thể thu hết quyền
-                      của Owner.
-
-                      Cách đúng hơn là `UserListItem.isOwner` từ backend. Hợp đồng hiện
-                      chưa có trường đó; ghi vào việc-tiếp-theo. Ngày nào cần CHẶN theo
-                      chủ sở hữu thì phải có nó — đừng bao giờ chặn bằng phép so tên này.
-                    -->
-                    <span class="vai" [class.vai--chu]="user.roleName === 'Owner'">
-                      {{ user.roleName }}
-                    </span>
-                  </td>
-
-                  <td>
-                    <span
-                      class="the"
-                      [class.the--tot]="user.isActive && !user.mustChangePassword"
-                      [class.the--canh]="user.isActive && user.mustChangePassword"
-                      [class.the--hong]="!user.isActive"
-                      >{{ statusKey(user) | translate }}</span
-                    >
-                  </td>
-
-                  <td class="an-hep">{{ user.createdAtUtc | date: 'dd/MM/yyyy' }}</td>
-
-                  <td class="bang__phai">
-                    <button
-                      class="nuti"
-                      type="button"
-                      [attr.aria-label]="'users.openDetail' | translate"
-                    >
-                      <svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
-                        <circle cx="9" cy="4" r="1.4" />
-                        <circle cx="9" cy="9" r="1.4" />
-                        <circle cx="9" cy="14" r="1.4" />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
+            <!--
+              Ô "chưa có" là chip GẠCH ĐỨT, không phải ô trống và cũng không phải dấu gạch
+              ngang trần. Ô trống đọc như "dữ liệu bị mất"; gạch trần thì không nói được là
+              mất cái gì. Chip có chữ nói đúng một chuyện: phần đó chưa có, và đó là trạng
+              thái HỢP LỆ — nhân viên mới chưa được cấp tài khoản, hoặc tài khoản bot vốn
+              không phải nhân viên nào.
+            -->
+            <td>
+              @if (user.code) {
+                <span class="bang__ma">{{ user.code }}</span>
+              } @else {
+                <span class="thieu">{{ 'users.noProfile' | translate }}</span>
               }
-            </tbody>
+            </td>
+
+            <td>
+              @if (user.roleName) {
+                <span class="vai" [class.vai--chu]="user.roleName === 'Owner'">
+                  {{ user.roleName }}
+                </span>
+              } @else {
+                <span class="thieu">{{ 'users.noAccount' | translate }}</span>
+              }
+            </td>
+
+            <td class="an-hep">
+              @if (user.departmentName) {
+                {{ user.departmentName }}
+              } @else {
+                <span class="thieu">{{ 'contacts.noDepartment' | translate }}</span>
+              }
+            </td>
+
+            <td>
+              <span
+                class="the"
+                [class.the--tot]="user.isActive && !user.mustChangePassword && user.userId !== null"
+                [class.the--canh]="user.mustChangePassword || user.userId === null"
+                [class.the--hong]="!user.isActive"
+              >
+                {{ statusKey(user) | translate }}
+              </span>
+            </td>
+
+            <td class="bang__phai">
+              <button
+                class="nuti"
+                type="button"
+                [attr.aria-label]="'users.openDetail' | translate"
+                (click)="openDetail(user)"
+              >
+                <svg viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+                  <circle cx="9" cy="4" r="1.4" />
+                  <circle cx="9" cy="9" r="1.4" />
+                  <circle cx="9" cy="14" r="1.4" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
           </table>
         </div>
       </div>
@@ -497,8 +529,18 @@
           <dl class="doi">
             <dt>{{ 'users.field.email' | translate }}</dt>
             <dd>{{ user.email }}</dd>
-            <dt>{{ 'users.column.createdAt' | translate }}</dt>
-            <dd>{{ user.createdAtUtc | date: 'dd/MM/yyyy' }}</dd>
+            <!-- Mã nhân viên thay cho ngày tạo: `/api/members` gộp hai nguồn nên nó không
+                 trả về ngày tạo — hai nguồn có hai ngày tạo khác nhau (ngày mở hồ sơ và
+                 ngày cấp tài khoản), và hiện một trong hai mà không nói rõ là cái nào thì
+                 con số đó không dùng được vào việc gì. -->
+            <dt>{{ 'users.column.code' | translate }}</dt>
+            <dd>
+              @if (user.code) {
+                <span class="bang__ma">{{ user.code }}</span>
+              } @else {
+                <span class="thieu">{{ 'users.noProfile' | translate }}</span>
+              }
+            </dd>
             <dt>{{ 'users.column.status' | translate }}</dt>
             <dd>
               <span

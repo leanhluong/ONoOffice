@@ -221,6 +221,14 @@
 .bang__nguoi { display: flex; align-items: center; gap: 10px; }
 .bang__ten { color: var(--ink); font-weight: 500; }
 .bang__mail { font-size: 11.5px; color: var(--ink-faint); }
+
+/* Mã nhân viên. Chữ đều nét vì người ta ĐỐI CHIẾU nó — NV001 với NV007 nằm chồng nhau
+   trong bảng thì mắt bắt lệch ngay, còn chữ tỉ lệ thì phải đọc từng ký tự. */
+.bang__ma {
+  font-family: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, monospace;
+  font-size: 12px; letter-spacing: 0.02em; color: var(--ink-soft);
+}
+
 .bang__phai { text-align: right; }
 .bang__tick { width: 38px; }
 .bang input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }

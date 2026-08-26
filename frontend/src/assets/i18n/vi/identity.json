@@ -125,6 +125,7 @@
     "allStatuses": "Mọi trạng thái",
     "clearFilter": "Xoá lọc",
     "selectAll": "Chọn tất cả",
+    "selectOne": "Chọn {{name}}",
     "selectedCount": "Đã chọn {{count}} người",
     "clearSelection": "Bỏ chọn",
     "openDetail": "Xem chi tiết",
@@ -145,12 +146,15 @@
       "person": "Người",
       "role": "Vai trò",
       "status": "Trạng thái",
-      "createdAt": "Ngày tạo"
+      "createdAt": "Ngày tạo",
+      "code": "Mã NV"
     },
     "status": {
       "active": "Đang hoạt động",
       "pending": "Chờ nhận tài khoản",
-      "disabled": "Đã vô hiệu hoá"
+      "disabled": "Đã vô hiệu hoá",
+      "noAccount": "Chưa có tài khoản",
+      "left": "Đã nghỉ việc"
     },
     "field": {
       "fullName": "Họ và tên",
@@ -198,7 +202,12 @@
       "disable": "Vô hiệu hoá tài khoản",
       "enable": "Bật lại tài khoản",
       "locked": "Không thể vô hiệu hoá chính mình hay chủ sở hữu. Chuyển nhượng quyền sở hữu trước, nếu cần."
-    }
+    },
+    "noAccount": "Chưa có tài khoản",
+    "noProfile": "Chưa có hồ sơ",
+    "noAccountYet": "Người này chưa có tài khoản đăng nhập, nên chưa có gì để sửa ở đây.",
+    "filterKind": "Lọc theo loại",
+    "allKinds": "Tất cả"
   },
   "account": {
     "mustChange": "Tài khoản này dùng mật khẩu tạm. Hãy đổi ngay bây giờ.",

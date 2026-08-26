@@ -87,3 +87,27 @@
 }
 
 @media (max-width: 900px) { .an-hep { display: none; } }
+
+/*
+  Ô "CHƯA CÓ" — gạch đứt, chữ mờ.
+
+  Không để trống, và cũng không vẽ dấu gạch ngang trần. Ô trống đọc như "dữ liệu bị mất";
+  dấu gạch trần thì không nói được là mất cái gì. Chip gạch đứt kèm chữ nói đúng một
+  chuyện: người này chưa có phần đó, và đó là một trạng thái HỢP LỆ — nhân viên mới chưa
+  được cấp tài khoản, hoặc tài khoản bot vốn không phải nhân viên nào.
+
+  Gạch ĐỨT chứ không phải viền liền: viền liền trông như một giá trị thật, và mắt lướt
+  bảng sẽ đọc nó ngang hàng với "Owner" hay "NV001".
+*/
+.thieu {
+  display: inline-block; padding: 1px 8px;
+  border: 1px dashed color-mix(in srgb, var(--ink-faint) 55%, transparent);
+  border-radius: 999px;
+  color: var(--ink-faint); font-size: 11px; white-space: nowrap;
+}
+
+/* Mã nhân viên: chữ đơn cách để cột thẳng hàng và dễ đối chiếu khi tra cứu. */
+.bang__ma {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px; color: var(--ink-soft);
+}

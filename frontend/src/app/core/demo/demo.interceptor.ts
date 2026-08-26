@@ -348,6 +348,57 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
     return ok(kho.roles);
   }
 
+  // ── Thành viên: GỘP tài khoản + hồ sơ ───────────────────────────────
+  if (duong === '/api/members' && req.method === 'GET') {
+    // Nối bằng `userId` trên hồ sơ, KHÔNG đoán theo email — giống hệt backend. Đoán theo
+    // email thì phòng kinh doanh dùng chung `sales@` sẽ bị gộp thành một dòng.
+    const theoUser = new Map(
+      kho.hoSo.filter((h) => h.userId).map((h) => [h.userId!, h]),
+    );
+
+    const tuHoSo = kho.hoSo.map((h) => {
+      const tk = h.userId ? kho.users.find((u) => u.id === h.userId) : undefined;
+
+      return {
+        employeeId: h.id,
+        userId: tk?.id ?? null,
+        fullName: h.fullName,
+        code: h.code,
+        jobTitle: h.jobTitle,
+        email: h.workEmail ?? tk?.email ?? null,
+        phone: h.phone,
+        departmentId: h.departmentId,
+        departmentName: h.departmentName,
+        roleName: tk?.roleName ?? null,
+        isActive: h.isActive && (tk?.isActive ?? true),
+        mustChangePassword: tk?.mustChangePassword ?? false,
+      };
+    });
+
+    const tuTaiKhoan = kho.users
+      .filter((u) => !theoUser.has(u.id))
+      .map((u) => ({
+        employeeId: null,
+        userId: u.id,
+        fullName: u.fullName,
+        code: null,
+        jobTitle: null,
+        email: u.email,
+        phone: null,
+        departmentId: null,
+        departmentName: null,
+        roleName: u.roleName,
+        isActive: u.isActive,
+        mustChangePassword: u.mustChangePassword,
+      }));
+
+    return ok(
+      [...tuHoSo, ...tuTaiKhoan].sort(
+        (a, b) => a.fullName.localeCompare(b.fullName, 'vi') || (a.employeeId ?? '').localeCompare(b.employeeId ?? ''),
+      ),
+    );
+  }
+
   // ── Phòng ban ───────────────────────────────────────────────────────
   if (duong === '/api/departments' && req.method === 'GET') {
     return ok(kho.phongBan);

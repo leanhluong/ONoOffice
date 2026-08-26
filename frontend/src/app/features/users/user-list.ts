@@ -1,5 +1,4 @@
-import { DatePipe } from '@angular/common';
-import {
+﻿import {
   ChangeDetectionStrategy,
   Component,
   HostListener,
@@ -14,6 +13,8 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthStore } from '../../core/auth/auth.store';
 import { notBlank } from '../../core/forms/validators';
+import { OrgService } from '../../core/org/org.service';
+import type { MemberListItem } from '../../core/models/org.model';
 import { ErrorMessageService } from '../../core/i18n/error-message.service';
 import { isAppError, type AppError } from '../../core/models/api-error.model';
 import {
@@ -21,7 +22,6 @@ import {
   type CreateUserResponse,
   type PagedList,
   type RoleListItem,
-  type UserListItem,
 } from '../../core/models/user.model';
 import { PopupService } from '../../core/ui/popup.service';
 import { UserService } from '../../core/users/user.service';
@@ -39,18 +39,32 @@ type CreateStep = 'nhap' | 'xong';
  * Nguồn thiết kế: `docs/07-giao-dien/org/nhan-su.html`. `user-list.scss` sinh tự động từ
  * chính file đó (`node tools/sync-shell.mjs`); chỉ đánh dấu là chép tay.
  *
- * <b>Lọc và phân trang đều ở SERVER.</b> Lọc trong bộ nhớ thì với 38 người vẫn chạy, và
- * với 3.800 người thì sập — mà không có gì trong mã báo trước điều đó.
+ * <b>Danh sách GỘP hai module:</b> tài khoản đăng nhập (Identity) và hồ sơ nhân sự (Org).
+ * Ba loại dòng, và cả ba đều có thật — có cả hai · chỉ hồ sơ (nhân viên mới chưa được cấp
+ * tài khoản) · chỉ tài khoản (bot chạy sao lưu). Phép gộp nằm ở handler của Org; xem
+ * `GetMembersQueryHandler` để biết vì sao nó không thể nằm chỗ nào khác.
+ *
+ * <b>⚠️ Lọc và phân trang nay ở CLIENT</b>, ngược hẳn bản trước dùng `/api/users`.
+ * Không phải vì client tốt hơn, mà vì `/api/members` buộc phải trả về toàn bộ: gộp hai
+ * nguồn thì không thể phân trang từng nguồn rồi ghép — người ở trang sau của nguồn này sẽ
+ * bị coi là "chưa có tài khoản", tức một câu trả lời SAI chứ không phải thiếu.
+ *
+ * Đánh đổi chấp nhận được ở quy mô vài trăm người. Đến hàng chục nghìn thì phải đổi CÁCH
+ * GỘP (hỏi Identity theo lô id thay vì lấy tất cả), không phải đổi chỗ phân trang.
+ *
+ * <b>Chỉ ĐỌC từ `/api/members`.</b> Mọi thao tác sửa vẫn đi về đúng module sở hữu dữ
+ * liệu: `/api/users` cho tài khoản, `/api/employees` cho hồ sơ.
  */
 @Component({
   selector: 'app-user-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, DatePipe, Tip],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, Tip],
   templateUrl: './user-list.html',
   styleUrl: './user-list.scss',
 })
 export class UserList {
   private readonly users = inject(UserService);
+  private readonly org = inject(OrgService);
   private readonly fb = inject(FormBuilder);
   private readonly popups = inject(PopupService);
   private readonly translate = inject(TranslateService);
@@ -59,7 +73,21 @@ export class UserList {
 
   protected readonly StatusFilter = UserStatusFilter;
 
-  protected readonly page = signal<PagedList<UserListItem> | null>(null);
+  /**
+   * Trang đang hiện — dựng ở CLIENT từ danh sách gộp.
+   *
+   * Khác `/api/users` cũ (lọc và phân trang ở server): `/api/members` trả về toàn bộ, vì
+   * nó gộp hai nguồn và không thể phân trang từng nguồn rồi ghép — người ở trang sau của
+   * nguồn này sẽ bị coi là "chưa có tài khoản". Đánh đổi chấp nhận được ở quy mô vài trăm
+   * người; đến hàng chục nghìn thì phải đổi cách gộp, không phải đổi chỗ phân trang.
+   */
+  protected readonly page = signal<PagedList<MemberListItem> | null>(null);
+
+  /** Toàn bộ danh sách chưa lọc — nguồn để lọc và phân trang tại chỗ. */
+  private readonly allMembers = signal<readonly MemberListItem[]>([]);
+
+  /** Lọc theo LOẠI DÒNG, chỉ có ở màn gộp. `''` = tất cả. */
+  protected readonly kind = signal<'' | 'khongTaiKhoan' | 'khongHoSo'>('');
   protected readonly roles = signal<readonly RoleListItem[]>([]);
   protected readonly loading = signal(true);
 
@@ -76,13 +104,17 @@ export class UserList {
   protected readonly created = signal<CreateUserResponse | null>(null);
   protected readonly saving = signal(false);
 
-  protected readonly detail = signal<UserListItem | null>(null);
+  protected readonly detail = signal<MemberListItem | null>(null);
   protected readonly detailTab = signal<'tt' | 'qu'>('tt');
 
   private readonly searchInput = new Subject<string>();
 
   protected readonly hasFilter = computed(
-    () => this.search() !== '' || this.status() !== UserStatusFilter.Any || this.roleId() !== '',
+    () =>
+      this.search() !== '' ||
+      this.status() !== UserStatusFilter.Any ||
+      this.roleId() !== '' ||
+      this.kind() !== '',
   );
 
   /**
@@ -124,7 +156,7 @@ export class UserList {
       .subscribe((term) => {
         this.search.set(term);
         this.currentPage.set(1);
-        this.load();
+        this.applyFilters();
       });
 
     this.load();
@@ -136,30 +168,93 @@ export class UserList {
   protected load(): void {
     this.loading.set(true);
 
-    this.users
-      .list({
-        search: this.search(),
-        status: this.status(),
-        roleId: this.roleId() || undefined,
-        page: this.currentPage(),
-      })
-      .subscribe({
-        next: (result) => {
-          this.page.set(result);
-          this.loading.set(false);
+    this.org.members().subscribe({
+      next: (all) => {
+        this.allMembers.set(all);
+        this.loading.set(false);
+        this.applyFilters();
+      },
+      error: (error: unknown) => {
+        this.loading.set(false);
+        this.showError(error);
+      },
+    });
+  }
 
-          // Bỏ chọn những dòng không còn trên trang này. Giữ lại thì thanh "đã chọn 3
-          // người" nói về những người đang không nhìn thấy, và thao tác hàng loạt sẽ
-          // chạm vào người mà quản trị viên không hề định chạm.
-          const visible = new Set(result.items.map((item) => item.id));
+  /**
+   * Lọc và cắt trang tại chỗ.
+   *
+   * Gọi lại sau mỗi lần đổi bộ lọc — KHÔNG gọi lại `load()`. Đi hỏi server cho một phép
+   * lọc mà dữ liệu đã nằm sẵn trong tay là một vòng mạng không mua được gì, và nó làm ô
+   * tìm giật mỗi lần gõ.
+   */
+  private applyFilters(): void {
+    const tim = this.search().trim().toLowerCase();
+    const vai = this.roleId();
+    const tenVai = vai ? (this.roles().find((r) => r.id === vai)?.name ?? null) : null;
 
-          this.selected.update((current) => new Set([...current].filter((id) => visible.has(id))));
-        },
-        error: (error: unknown) => {
-          this.loading.set(false);
-          this.showError(error);
-        },
-      });
+    const loc = this.allMembers().filter((m) => {
+      if (tim && !`${m.fullName} ${m.email ?? ''} ${m.code ?? ''}`.toLowerCase().includes(tim)) {
+        return false;
+      }
+
+      if (tenVai !== null && m.roleName !== tenVai) {
+        return false;
+      }
+
+      switch (this.kind()) {
+        case 'khongTaiKhoan':
+          if (m.userId !== null) return false;
+          break;
+        case 'khongHoSo':
+          if (m.employeeId !== null) return false;
+          break;
+      }
+
+      switch (this.status()) {
+        case UserStatusFilter.Active:
+          return m.isActive && !m.mustChangePassword;
+        case UserStatusFilter.PendingFirstLogin:
+          return m.mustChangePassword;
+        case UserStatusFilter.Disabled:
+          return !m.isActive;
+        default:
+          return true;
+      }
+    });
+
+    const pageSize = 20;
+    const totalPages = Math.max(1, Math.ceil(loc.length / pageSize));
+    const page = Math.min(this.currentPage(), totalPages);
+
+    this.currentPage.set(page);
+
+    this.page.set({
+      items: loc.slice((page - 1) * pageSize, page * pageSize),
+      page,
+      pageSize,
+      totalCount: loc.length,
+      totalPages,
+      hasPreviousPage: page > 1,
+      hasNextPage: page < totalPages,
+    });
+
+    // Bỏ chọn những dòng không còn trên trang này. Giữ lại thì thanh "đã chọn 3 người"
+    // nói về những người đang không nhìn thấy, và thao tác hàng loạt sẽ chạm vào người mà
+    // quản trị viên không hề định chạm.
+    const visible = new Set(this.page()!.items.map((m) => this.rowKey(m)));
+
+    this.selected.update((current) => new Set([...current].filter((id) => visible.has(id))));
+  }
+
+  /**
+   * Khoá của một dòng.
+   *
+   * Ưu tiên `userId` vì phần lớn thao tác hàng loạt là thao tác lên TÀI KHOẢN. Dòng chỉ
+   * có hồ sơ thì lấy `employeeId` — vẫn phân biệt được, và vẫn ổn định qua các lần lọc.
+   */
+  protected rowKey(member: MemberListItem): string {
+    return member.userId ?? member.employeeId!;
   }
 
   private loadRoles(): void {
@@ -188,29 +283,44 @@ export class UserList {
     this.searchInput.next((event.target as HTMLInputElement).value);
   }
 
+  /*
+    Mọi bộ lọc gọi `applyFilters()`, KHÔNG gọi `load()`.
+
+    Dữ liệu đã nằm sẵn trong `allMembers` — đi hỏi server thêm một vòng cho một phép lọc
+    làm được tại chỗ là không mua được gì, và nó khiến ô tìm giật mỗi lần gõ. `load()`
+    chỉ dùng khi dữ liệu THẬT SỰ đổi: sau khi tạo, sửa hay vô hiệu hoá.
+  */
+
   protected onStatusChange(event: Event): void {
     this.status.set(Number((event.target as HTMLSelectElement).value) as UserStatusFilter);
     this.currentPage.set(1);
-    this.load();
+    this.applyFilters();
   }
 
   protected onRoleChange(event: Event): void {
     this.roleId.set((event.target as HTMLSelectElement).value);
     this.currentPage.set(1);
-    this.load();
+    this.applyFilters();
+  }
+
+  protected onKindChange(event: Event): void {
+    this.kind.set((event.target as HTMLSelectElement).value as '' | 'khongTaiKhoan' | 'khongHoSo');
+    this.currentPage.set(1);
+    this.applyFilters();
   }
 
   protected clearFilters(): void {
     this.search.set('');
     this.status.set(UserStatusFilter.Any);
     this.roleId.set('');
+    this.kind.set('');
     this.currentPage.set(1);
-    this.load();
+    this.applyFilters();
   }
 
   protected goToPage(delta: number): void {
     this.currentPage.update((value) => Math.max(1, value + delta));
-    this.load();
+    this.applyFilters();
   }
 
   // ── Chọn nhiều dòng ─────────────────────────────────────────────────
@@ -235,7 +345,7 @@ export class UserList {
     const items = this.page()?.items ?? [];
 
     this.selected.update((current) =>
-      current.size === items.length ? new Set() : new Set(items.map((item) => item.id)),
+      current.size === items.length ? new Set() : new Set(items.map((item) => this.rowKey(item))),
     );
   }
 
@@ -359,26 +469,39 @@ export class UserList {
 
   // ── Chi tiết ────────────────────────────────────────────────────────
 
-  protected openDetail(user: UserListItem): void {
-    this.detail.set(user);
+  /**
+   * Mở ngăn kéo chi tiết.
+   *
+   * CHỈ mở cho dòng có TÀI KHOẢN. Ngăn kéo này sửa vai trò và tên của một tài khoản đăng
+   * nhập (`PATCH /api/users/{id}`) — với dòng chỉ có hồ sơ thì không có gì để sửa ở đây,
+   * và mở ra một biểu mẫu không lưu được là cách chắc chắn nhất làm người dùng bực.
+   */
+  protected openDetail(member: MemberListItem): void {
+    if (member.userId === null) {
+      this.popups.show(this.translate.instant('users.noAccountYet') as string);
+
+      return;
+    }
+
+    this.detail.set(member);
     this.detailTab.set('tt');
 
-    const role = this.roles().find((item) => item.name === user.roleName);
+    const role = this.roles().find((item) => item.name === member.roleName);
 
-    this.detailForm.setValue({ fullName: user.fullName, roleId: role?.id ?? '' });
+    this.detailForm.setValue({ fullName: member.fullName, roleId: role?.id ?? '' });
   }
 
   protected saveDetail(): void {
     const user = this.detail();
 
-    if (!user || this.detailForm.invalid) {
+    if (!user?.userId || this.detailForm.invalid) {
       this.detailForm.markAllAsTouched();
       return;
     }
 
     this.saving.set(true);
 
-    this.users.update(user.id, this.detailForm.getRawValue()).subscribe({
+    this.users.update(user.userId, this.detailForm.getRawValue()).subscribe({
       next: () => {
         this.saving.set(false);
         this.detail.set(null);
@@ -392,10 +515,14 @@ export class UserList {
     });
   }
 
-  protected setActive(user: UserListItem, isActive: boolean): void {
+  protected setActive(user: MemberListItem, isActive: boolean): void {
+    if (user.userId === null) {
+      return;
+    }
+
     this.saving.set(true);
 
-    this.users.setActive(user.id, isActive).subscribe({
+    this.users.setActive(user.userId, isActive).subscribe({
       next: () => {
         this.saving.set(false);
         this.detail.set(null);
@@ -452,13 +579,30 @@ export class UserList {
    * đó lúc dựng workspace. Đây là suy đoán chứ không phải sự thật từ server, nên nó chỉ
    * dùng để ẩn nút — luật thật vẫn nằm ở backend, và nó vẫn từ chối nếu suy đoán này sai.
    */
-  protected canDisable(user: UserListItem): boolean {
-    return user.id !== this.auth.user()?.userId && user.roleName !== 'Owner';
+  protected canDisable(user: MemberListItem): boolean {
+    // Dòng chưa có tài khoản thì không có gì để vô hiệu hoá — vô hiệu hoá là thao tác lên
+    // TÀI KHOẢN, không phải lên hồ sơ. Người đã nghỉ việc thì đóng hồ sơ, việc khác.
+    return (
+      user.userId !== null &&
+      user.userId !== this.auth.user()?.userId &&
+      user.roleName !== 'Owner'
+    );
   }
 
-  protected statusKey(user: UserListItem): string {
+  /**
+   * Câu trạng thái của một dòng — bốn ca, và thứ tự kiểm có nghĩa.
+   *
+   * "Chưa có tài khoản" phải đứng TRƯỚC mọi ca khác: người đó chưa đăng nhập được lần nào,
+   * nên nói họ "đang hoạt động" là sai, mà nói "đã vô hiệu hoá" cũng sai.
+   */
+  protected statusKey(user: MemberListItem): string {
+    if (user.userId === null) {
+      return 'users.status.noAccount';
+    }
+
     if (!user.isActive) {
-      return 'users.status.disabled';
+      // Có hồ sơ mà hồ sơ đã đóng → nghỉ việc. Không có hồ sơ → tài khoản bị vô hiệu.
+      return user.employeeId !== null ? 'users.status.left' : 'users.status.disabled';
     }
 
     return user.mustChangePassword ? 'users.status.pending' : 'users.status.active';

@@ -125,6 +125,7 @@
     "allStatuses": "All statuses",
     "clearFilter": "Clear filters",
     "selectAll": "Select all",
+    "selectOne": "Select {{name}}",
     "selectedCount": "{{count}} selected",
     "clearSelection": "Clear selection",
     "openDetail": "Open details",
@@ -145,12 +146,15 @@
       "person": "Person",
       "role": "Role",
       "status": "Status",
-      "createdAt": "Created"
+      "createdAt": "Created",
+      "code": "Code"
     },
     "status": {
       "active": "Active",
       "pending": "Awaiting first sign-in",
-      "disabled": "Disabled"
+      "disabled": "Disabled",
+      "noAccount": "No account",
+      "left": "Left the company"
     },
     "field": {
       "fullName": "Full name",
@@ -198,7 +202,12 @@
       "disable": "Disable account",
       "enable": "Enable account",
       "locked": "You cannot disable yourself or the owner. Transfer ownership first if you need to."
-    }
+    },
+    "noAccount": "No account",
+    "noProfile": "No profile",
+    "noAccountYet": "This person has no login account yet, so there is nothing to edit here.",
+    "filterKind": "Filter by kind",
+    "allKinds": "All"
   },
   "account": {
     "mustChange": "This account is on a temporary password. Please change it now.",

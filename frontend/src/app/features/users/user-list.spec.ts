@@ -14,6 +14,8 @@ import {
   type UserListItem,
   type UserQuery,
 } from '../../core/models/user.model';
+import type { MemberListItem } from '../../core/models/org.model';
+import { OrgService } from '../../core/org/org.service';
 import { UserService } from '../../core/users/user.service';
 import { UserList } from './user-list';
 
@@ -26,29 +28,40 @@ import { UserList } from './user-list';
  * hai chỗ dễ hỏng nhất — ô "chọn tất cả" và hộp thoại hai bước.
  */
 
-function user(over: Partial<UserListItem> = {}): UserListItem {
+/**
+ * Một dòng của danh sách GỘP.
+ *
+ * Mặc định là ca "có cả hai" — người bình thường. Hai ca còn lại dựng bằng cách truyền
+ * `userId: null` (chỉ hồ sơ) hoặc `employeeId: null, code: null` (chỉ tài khoản).
+ */
+function user(over: Partial<MemberListItem> = {}): MemberListItem {
+  const id = crypto.randomUUID();
+
   return {
-    id: crypto.randomUUID(),
-    email: 'an@congty.vn',
+    employeeId: `e-${id}`,
+    userId: id,
     fullName: 'Nguyễn An',
+    code: 'NV001',
+    jobTitle: null,
+    email: 'an@congty.vn',
+    phone: null,
+    departmentId: null,
+    departmentName: null,
+    roleName: 'Member',
     isActive: true,
     mustChangePassword: false,
-    roleName: 'Member',
-    createdAtUtc: '2026-08-24T07:00:00+00:00',
     ...over,
   };
 }
 
-function paged(items: UserListItem[], total = items.length): PagedList<UserListItem> {
-  return {
-    items,
-    page: 1,
-    pageSize: 20,
-    totalCount: total,
-    totalPages: 1,
-    hasPreviousPage: false,
-    hasNextPage: false,
-  };
+/**
+ * Giữ tên `paged` cho các test cũ đọc quen, nhưng nay nó chỉ trả về MẢNG.
+ *
+ * `/api/members` không phân trang — nó buộc phải trả toàn bộ để gộp được hai nguồn. Việc
+ * cắt trang chuyển sang component, và đó chính là thứ vài test dưới đây kiểm.
+ */
+function paged(items: MemberListItem[]): MemberListItem[] {
+  return items;
 }
 
 const ROLES: RoleListItem[] = [
@@ -62,9 +75,27 @@ const ROLES: RoleListItem[] = [
   },
 ];
 
+/**
+ * MỘT bộ giả phục vụ CẢ HAI cổng mà màn hình dùng.
+ *
+ * Màn Thành viên nay đọc danh sách từ `OrgService.members()` (nguồn GỘP) nhưng vẫn ghi qua
+ * `UserService` (tạo tài khoản, đổi vai, vô hiệu hoá). Hai bộ giả riêng thì mỗi test phải
+ * dựng và nối cả hai; một bộ dùng chung giữ test đọc được, và vẫn tách bạch được đường
+ * đọc với đường ghi vì chúng là hai phương thức khác nhau.
+ */
 class FakeUserService {
   queries: UserQuery[] = [];
-  result: PagedList<UserListItem> = paged([user()]);
+
+  /** Số lần màn hình đi HỎI SERVER. Lọc tại chỗ thì con số này KHÔNG được tăng. */
+  loads = 0;
+
+  result: MemberListItem[] = paged([user()]);
+
+  members(): Observable<MemberListItem[]> {
+    this.loads++;
+
+    return of(this.result);
+  }
 
   createdWith: CreateUserRequest | null = null;
   createResult: Observable<CreateUserResponse> = of({
@@ -78,10 +109,17 @@ class FakeUserService {
   updatedWith: { id: string; body: UpdateUserRequest } | null = null;
   activeCalls: { id: string; isActive: boolean }[] = [];
 
+  /**
+   * KHÔNG còn được màn hình gọi — danh sách nay đến từ `members()`.
+   *
+   * Giữ lại và NÉM LỖI thay vì xoá: nếu một thay đổi sau này lỡ gọi lại đường cũ thì test
+   * đỏ ngay và nói rõ vì sao, thay vì lặng lẽ đọc từ một nguồn chưa gộp — lúc đó bảng sẽ
+   * thiếu mọi người chưa có tài khoản, và không có gì báo.
+   */
   list(query: UserQuery): Observable<PagedList<UserListItem>> {
     this.queries.push(query);
 
-    return of(this.result);
+    throw new Error('Màn Thành viên phải đọc từ /api/members, không phải /api/users.');
   }
 
   roles(): Observable<RoleListItem[]> {
@@ -127,16 +165,102 @@ describe('UserList', () => {
         provideZonelessChangeDetection(),
         provideTranslateService(),
         { provide: UserService, useValue: service },
+        // Cùng một bộ giả cho cả hai cổng — xem chú thích ở `FakeUserService`.
+        { provide: OrgService, useValue: service },
       ],
     });
   });
 
   // ── Nạp và lọc ────────────────────────────────────────────────────
 
-  it('mở màn là nạp trang đầu, không kèm bộ lọc nào', () => {
+  it('mở màn là nạp danh sách GỘP, không phải danh sách tài khoản', () => {
     make();
 
-    expect(service.queries[0]).toMatchObject({ page: 1, status: UserStatusFilter.Any, search: '' });
+    expect(service.loads).toBe(1);
+
+    // `list()` của UserService ném lỗi nếu bị gọi, nên tới được đây đã là một nửa bằng
+    // chứng. Nửa còn lại: nó chưa từng được gọi.
+    expect(service.queries).toHaveLength(0);
+  });
+
+  /**
+   * Đổi bộ lọc thì lọc TẠI CHỖ, không đi hỏi server thêm lần nào.
+   *
+   * `/api/members` trả về toàn bộ danh sách, nên dữ liệu đã nằm sẵn trong tay. Gọi lại
+   * server cho mỗi lần gõ là một vòng mạng không mua được gì, và nó làm ô tìm giật.
+   */
+  it('đổi bộ lọc thì KHÔNG đi hỏi server lần nữa', () => {
+    const component = make();
+
+    expect(service.loads).toBe(1);
+
+    component['onStatusChange']({
+      target: { value: String(UserStatusFilter.Disabled) },
+    } as unknown as Event);
+
+    expect(service.loads).toBe(1);
+  });
+
+  /**
+   * Ba loại dòng, và cả ba đều phải hiện ra.
+   *
+   * Đây là lý do màn này tồn tại ở dạng gộp. Lấy nhầm nguồn (quay về `/api/users`) thì
+   * dòng "chỉ hồ sơ" biến mất — người mới chưa được cấp tài khoản sẽ không ai nhìn thấy.
+   */
+  it('hiện đủ cả ba loại dòng: cả hai · chỉ hồ sơ · chỉ tài khoản', () => {
+    service.result = [
+      user({ fullName: 'Cả hai' }),
+      user({ fullName: 'Chỉ hồ sơ', userId: null, roleName: null }),
+      user({ fullName: 'Chỉ tài khoản', employeeId: null, code: null }),
+    ];
+
+    const component = make();
+    const items = component['page']()!.items;
+
+    expect(items).toHaveLength(3);
+    expect(items.filter((m) => m.userId === null)).toHaveLength(1);
+    expect(items.filter((m) => m.employeeId === null)).toHaveLength(1);
+
+    // Và cả ba phải DỰNG RA được. Dừng ở signal thì một lỗi trong template — thiếu khoá
+    // dịch, một `@if` sai nhánh — vẫn để test xanh trong khi bảng trống trơn.
+    const rows = fixture.nativeElement.querySelectorAll('tbody tr');
+
+    expect(rows).toHaveLength(3);
+    expect(fixture.nativeElement.querySelectorAll('.thieu').length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('lọc "chưa có tài khoản" chỉ giữ dòng khuyết tài khoản', () => {
+    service.result = [
+      user({ fullName: 'Có tài khoản' }),
+      user({ fullName: 'Chưa có', userId: null, roleName: null }),
+    ];
+
+    const component = make();
+
+    component['onKindChange']({ target: { value: 'khongTaiKhoan' } } as unknown as Event);
+
+    const items = component['page']()!.items;
+
+    expect(items).toHaveLength(1);
+    expect(items[0].fullName).toBe('Chưa có');
+  });
+
+  /**
+   * Ngăn kéo chi tiết KHÔNG mở cho dòng chưa có tài khoản.
+   *
+   * Nó sửa vai trò và tên của một TÀI KHOẢN. Mở ra một biểu mẫu không lưu được là cách
+   * chắc chắn nhất làm người dùng bực — họ điền xong rồi mới biết.
+   */
+  it('không mở ngăn kéo cho dòng chưa có tài khoản', () => {
+    const chiHoSo = user({ userId: null, roleName: null });
+
+    service.result = [chiHoSo];
+
+    const component = make();
+
+    component['openDetail'](chiHoSo);
+
+    expect(component['detail']()).toBeNull();
   });
 
   it('vai trò mặc định của hộp thoại là vai HẸP nhất', () => {
@@ -153,28 +277,39 @@ describe('UserList', () => {
     const component = make();
 
     component['currentPage'].set(3);
-    component['onStatusChange']({ target: { value: '3' } } as unknown as Event);
+    component['onStatusChange']({
+      target: { value: String(UserStatusFilter.Disabled) },
+    } as unknown as Event);
 
-    expect(service.queries.at(-1)).toMatchObject({ page: 1, status: UserStatusFilter.Disabled });
+    expect(component['page']()!.page).toBe(1);
+    expect(component['status']()).toBe(UserStatusFilter.Disabled);
   });
 
-  it('gõ tìm kiếm KHÔNG gọi ngay mỗi phím', async () => {
-    // Một cái tên mười ký tự là mười lượt đi về nếu gọi theo từng phím.
+  /**
+   * Ô tìm vẫn chờ người dùng ngừng gõ, dù nay lọc tại chỗ.
+   *
+   * Không còn để tiết kiệm lượt mạng — mà để bảng không nhấp nháy qua ba kết quả trung
+   * gian trong lúc gõ một cái tên.
+   */
+  it('gõ tìm kiếm KHÔNG lọc lại ngay mỗi phím', () => {
     vi.useFakeTimers();
 
+    service.result = [user({ fullName: 'Nguyễn An' }), user({ fullName: 'Trần Bình' })];
+
     const component = make();
-    const before = service.queries.length;
+
+    expect(component['page']()!.totalCount).toBe(2);
 
     for (const term of ['n', 'ng', 'ngu']) {
       component['onSearchInput']({ target: { value: term } } as unknown as Event);
     }
 
-    expect(service.queries.length).toBe(before);
+    expect(component['page']()!.totalCount).toBe(2);
 
     vi.advanceTimersByTime(400);
 
-    expect(service.queries.length).toBe(before + 1);
-    expect(service.queries.at(-1)!.search).toBe('ngu');
+    expect(component['search']()).toBe('ngu');
+    expect(component['page']()!.totalCount).toBe(1);
 
     vi.useRealTimers();
   });
@@ -182,7 +317,7 @@ describe('UserList', () => {
   // ── Trạng thái rỗng ───────────────────────────────────────────────
 
   it('không có ai và KHÔNG lọc gì thì hiện "chưa có ai"', () => {
-    service.result = paged([], 0);
+    service.result = paged([]);
 
     expect(make()['state']()).toBe('rong');
   });
@@ -190,7 +325,7 @@ describe('UserList', () => {
   it('không có ai NHƯNG đang lọc thì hiện "lọc không ra"', () => {
     // Hai câu cần nói khác hẳn nhau. Gộp làm một thì người bật nhầm bộ lọc từ lần trước
     // sẽ kết luận là công ty không có ai.
-    service.result = paged([], 0);
+    service.result = paged([]);
 
     const component = make();
 
@@ -207,7 +342,7 @@ describe('UserList', () => {
 
     const component = make();
 
-    component['toggleRow'](service.result.items[0].id);
+    component['toggleRow'](component['rowKey'](service.result[0]));
 
     expect(component['someSelected']()).toBe(true);
     expect(component['allSelected']()).toBe(false);
@@ -222,7 +357,7 @@ describe('UserList', () => {
 
     const component = make();
 
-    component['toggleRow'](cu.id);
+    component['toggleRow'](component['rowKey'](cu));
     expect(component['selected']().size).toBe(1);
 
     service.result = paged([user()]);
@@ -317,7 +452,7 @@ describe('UserList', () => {
     component['openDetail'](target);
     component['setActive'](target, false);
 
-    expect(service.activeCalls).toEqual([{ id: target.id, isActive: false }]);
+    expect(service.activeCalls).toEqual([{ id: target.userId, isActive: false }]);
     expect(component['detail']()).toBeNull();
   });
 });
