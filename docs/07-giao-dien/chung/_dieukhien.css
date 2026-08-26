@@ -116,6 +116,11 @@
 }
 .nuti:hover { background: var(--surface-2); color: var(--ink); }
 .nuti[aria-pressed="true"] { background: var(--surface-2); color: var(--accent); }
+
+/* Nút biểu tượng đang là TRANG hiện tại — dùng cho lối vào Hướng dẫn ở đáy rail.
+   `aria-current="page"` chứ không `aria-pressed`: nó là điều hướng, không phải công tắc,
+   và trình đọc màn hình phân biệt hai thứ đó. */
+.nuti[aria-current="page"] { background: var(--surface-2); color: var(--accent); }
 .nuti svg { width: 17px; height: 17px; }
 
 /* ══════════════════════════════════════════════════════════════════════

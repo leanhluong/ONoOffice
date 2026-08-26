@@ -11,7 +11,7 @@ import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { AuthService } from './core/auth/auth.service';
 import { AuthStore } from './core/auth/auth.store';
-import { demoInterceptor } from './core/demo/demo.interceptor';
+import { demoInterceptor, gieoPhienDemo } from './core/demo/demo.interceptor';
 import { authInterceptor } from './core/http/auth.interceptor';
 import { correlationIdInterceptor } from './core/http/correlation-id.interceptor';
 import { errorInterceptor } from './core/http/error.interceptor';
@@ -101,6 +101,16 @@ export const appConfig: ApplicationConfig = {
      * ở initializer thì app không lên được — hỏng nặng hơn nhiều so với việc phải đăng
      * nhập lại.
      */
+    /**
+     * `?demo=1&auto=1` gieo sẵn một phiên giả — phải chạy TRƯỚC bước khôi phục ngay dưới.
+     *
+     * Đảo thứ tự thì `canRestore()` chạy lúc `localStorage` còn trống, kết luận "chưa đăng
+     * nhập", và vé vừa gieo chỉ có tác dụng ở lần tải trang sau.
+     */
+    provideAppInitializer(() => {
+      gieoPhienDemo();
+    }),
+
     provideAppInitializer(() => {
       const store = inject(AuthStore);
 

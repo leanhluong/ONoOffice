@@ -126,6 +126,22 @@ export const routes: Routes = [
         canActivate: [permissionGuard('employee.read')],
         loadComponent: () => import('./features/contacts/contact-list').then((m) => m.ContactList),
       },
+      /**
+       * Trung tâm trợ giúp. KHÔNG đòi quyền gì ngoài việc đã đăng nhập — người cần hướng
+       * dẫn nhất thường là người có ít quyền nhất.
+       *
+       * Hai đường: `/huong-dan` là trang chủ, `/huong-dan/:ma` là một bài. Mã bài nằm
+       * trên URL vì người ta gửi link hướng dẫn cho nhau — một trung tâm trợ giúp không
+       * chia sẻ được từng bài thì mất một nửa công dụng.
+       */
+      {
+        path: 'huong-dan',
+        loadComponent: () => import('./features/help/help').then((m) => m.Help),
+      },
+      {
+        path: 'huong-dan/:ma',
+        loadComponent: () => import('./features/help/help').then((m) => m.Help),
+      },
       {
         path: 'forbidden',
         loadComponent: () => import('./features/errors/forbidden').then((m) => m.Forbidden),

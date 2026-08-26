@@ -1,0 +1,236 @@
+{
+  "ma": "dang-ky-workspace",
+  "tieude": "Đăng ký workspace",
+  "nhom": "bat-dau",
+  "tomtat": "Tạo không gian làm việc cho công ty bạn, và hiểu mã workspace dùng để làm gì.",
+  "khoi": [
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Workspace là không gian riêng của một công ty. Mọi người, phòng ban, tin nhắn và tài liệu đều nằm trong đó, và "
+        },
+        {
+          "k": "dam",
+          "v": "không workspace nào nhìn thấy dữ liệu của workspace khác"
+        },
+        {
+          "k": "chu",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Người đăng ký trở thành "
+        },
+        {
+          "k": "dam",
+          "v": "chủ sở hữu"
+        },
+        {
+          "k": "chu",
+          "v": " — vai duy nhất chuyển nhượng được workspace về sau."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Các bước"
+    },
+    {
+      "k": "ds",
+      "thutu": true,
+      "muc": [
+        [
+          {
+            "k": "chu",
+            "v": "Mở trang đăng ký, điền "
+          },
+          {
+            "k": "dam",
+            "v": "tên công ty"
+          },
+          {
+            "k": "chu",
+            "v": "."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Xem lại "
+          },
+          {
+            "k": "dam",
+            "v": "mã workspace"
+          },
+          {
+            "k": "chu",
+            "v": " hệ thống gợi ý bên dưới. Mã này nằm trong đường dẫn đăng nhập của cả công ty, nên hãy chọn thứ đồng nghiệp gõ được từ trí nhớ."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Điền họ tên, email và mật khẩu của bạn — đây sẽ là tài khoản chủ sở hữu."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Tick đồng ý điều khoản rồi bấm "
+          },
+          {
+            "k": "dam",
+            "v": "Tạo workspace"
+          },
+          {
+            "k": "chu",
+            "v": "."
+          }
+        ]
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Xong bước này, hệ thống dựng một lần: công ty, bốn vai hệ thống, và tài khoản của bạn."
+        }
+      ]
+    },
+    {
+      "k": "anh",
+      "mota": "Màn đăng ký workspace, hai cột: bên trái là sơ đồ tổ chức, bên phải là biểu mẫu",
+      "tep": "anh/dang-ky.png",
+      "chuthich": "Màn đăng ký — mã workspace được gợi ý từ tên công ty, sửa lại được"
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Về mã workspace"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Mã chỉ gồm "
+        },
+        {
+          "k": "dam",
+          "v": "chữ thường, số và dấu nối"
+        },
+        {
+          "k": "chu",
+          "v": ", bắt đầu bằng chữ và không có hai dấu nối liền nhau. "
+        },
+        {
+          "k": "ma",
+          "v": "cong-ty-abc"
+        },
+        {
+          "k": "chu",
+          "v": " hợp lệ; "
+        },
+        {
+          "k": "ma",
+          "v": "Cong Ty ABC"
+        },
+        {
+          "k": "chu",
+          "v": " và "
+        },
+        {
+          "k": "ma",
+          "v": "cong--ty"
+        },
+        {
+          "k": "chu",
+          "v": " thì không."
+        }
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "canh",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Mã workspace "
+        },
+        {
+          "k": "dam",
+          "v": "không đổi được"
+        },
+        {
+          "k": "chu",
+          "v": " sau khi tạo. Nó nằm trong đường dẫn đăng nhập mà cả công ty đã lưu, và đổi nó là làm hỏng dấu trang của mọi người cùng lúc."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Nếu mã đã có người dùng"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Mã là duy nhất trên toàn hệ thống, nên "
+        },
+        {
+          "k": "ma",
+          "v": "acme"
+        },
+        {
+          "k": "chu",
+          "v": " thường đã có chủ. Hệ thống báo ngay tại ô mã, và bạn chỉ cần thêm một phần cho riêng mình — "
+        },
+        {
+          "k": "ma",
+          "v": "acme-vn"
+        },
+        {
+          "k": "chu",
+          "v": ", "
+        },
+        {
+          "k": "ma",
+          "v": "acme-hcm"
+        },
+        {
+          "k": "chu",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "luuy",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Hệ thống kiểm "
+        },
+        {
+          "k": "dam",
+          "v": "mã workspace trước, email sau"
+        },
+        {
+          "k": "chu",
+          "v": ". Trùng cả hai thì chỉ hiện được một lỗi, và hiện cái dễ sửa trước là ít làm người ta nản hơn."
+        }
+      ]
+    }
+  ]
+}

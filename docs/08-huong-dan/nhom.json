@@ -1,0 +1,17 @@
+[
+  {
+    "ma": "bat-dau",
+    "ten": "Bắt đầu",
+    "mota": "Dựng workspace và đưa đồng nghiệp vào."
+  },
+  {
+    "ma": "nhan-su",
+    "ten": "Quản trị nhân sự",
+    "mota": "Tài khoản đăng nhập, hồ sơ nhân viên, phòng ban và vai trò."
+  },
+  {
+    "ma": "hang-ngay",
+    "ten": "Dùng hằng ngày",
+    "mota": "Những việc ai trong workspace cũng làm."
+  }
+]

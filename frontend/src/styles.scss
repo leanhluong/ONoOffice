@@ -1,7 +1,7 @@
 /**
  * ⚠️ FILE NÀY ĐƯỢC SINH TỰ ĐỘNG — ĐỪNG SỬA TAY.
  *
- * Nguồn:    docs/07-giao-dien/chung/_shell.css  +  docs/07-giao-dien/chung/_khung.css  +  docs/07-giao-dien/chung/_khung-quantri.css  +  docs/07-giao-dien/chung/_dieukhien.css  +  docs/07-giao-dien/chung/_brand.css
+ * Nguồn:    docs/07-giao-dien/chung/_shell.css  +  docs/07-giao-dien/chung/_khung.css  +  docs/07-giao-dien/chung/_khung-quantri.css  +  docs/07-giao-dien/chung/_dieukhien.css  +  docs/07-giao-dien/chung/_tailieu.css  +  docs/07-giao-dien/chung/_brand.css
  * Sinh lại: node tools/sync-shell.mjs
  *
  * Sửa ở đây thì lần chạy bộ sinh tiếp theo sẽ xoá mất, và tệ hơn: bản dựng mà người
@@ -668,6 +668,24 @@ body {
    ngược lại thì mọi màn toàn khung phải đi gỡ lề của cha. */
 .noidung { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 
+/* ══════════════════════════════════════════════════════════════════════
+   CHỖ ANGULAR CẮM MÀN ĐANG MỞ VÀO KHUNG
+
+   Bản dựng đặt `.nav` và `.noidung` cạnh nhau, là hai con trực tiếp của `.khung`. Angular
+   thì chèn thêm một thẻ ở giữa: `<app-danh-ba>` bọc cả hai. Không có hai luật dưới đây,
+   thẻ bọc đó thành MỘT ô flex — và cột ngữ cảnh, thay vì đứng cạnh rail, bị nhét vào bên
+   trong ô ấy rồi xếp chồng lên nội dung.
+
+   Đúng chuyện đã xảy ra ở màn Danh bạ: cây phòng ban nằm thành một dải ngang phía trên,
+   nội dung tụt xuống dưới. Build, lint, 151 test và `ui-parity` đều xanh — `ui-parity` so
+   TẬP LỚP, mà lớp thì có đủ ở cả hai bên. Chỉ ảnh chụp mới lộ ra.
+
+   `display: contents` cho con của thẻ bọc tham gia thẳng vào flex của `.khung`, đúng như
+   bản dựng mô tả.
+   ══════════════════════════════════════════════════════════════════════ */
+.khung > router-outlet { display: none; }
+.khung > router-outlet ~ * { display: contents; }
+
 /* `.trangdau` và `.trang` KHÔNG nằm ở đây — chúng đã chuyển sang `_dieukhien.css`.
    Lý do: chúng là chrome của TRANG, không phải của KHUNG, và cả hai khung đều cần chúng.
    Để ở đây thì màn quản trị (chỉ nạp `_khung-quantri.css`) mất sạch tiêu đề trang —
@@ -1071,6 +1089,11 @@ body {
 }
 .nuti:hover { background: var(--surface-2); color: var(--ink); }
 .nuti[aria-pressed="true"] { background: var(--surface-2); color: var(--accent); }
+
+/* Nút biểu tượng đang là TRANG hiện tại — dùng cho lối vào Hướng dẫn ở đáy rail.
+   `aria-current="page"` chứ không `aria-pressed`: nó là điều hướng, không phải công tắc,
+   và trình đọc màn hình phân biệt hai thứ đó. */
+.nuti[aria-current="page"] { background: var(--surface-2); color: var(--accent); }
 .nuti svg { width: 17px; height: 17px; }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -1358,6 +1381,215 @@ body {
 }
 .states button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .states__vach { width: 1px; height: 18px; background: var(--line); margin: 0 3px; }
+
+
+/*
+  KHUÔN ĐỌC TÀI LIỆU — màn Hướng dẫn.
+
+  Đây là màn DUY NHẤT trong app mà việc chính là ĐỌC MỘT ĐOẠN DÀI. Mọi màn khác là bảng,
+  biểu mẫu hoặc danh sách; ở đó mắt quét, còn ở đây mắt đi theo dòng. Hai việc đó cần hai
+  cách sắp chữ khác nhau, nên nó có file riêng thay vì mượn `.trang`.
+
+  ── Ba con số quyết định cả khuôn ────────────────────────────────────
+  · Cột chữ **72ch**. Dài hơn thì mắt trượt dòng khi xuống hàng — nhảy về đầu dòng sai.
+    Hẹp hơn thì một câu bị bẻ làm ba, và nhịp đọc vỡ.
+  · Cỡ chữ **15px**, cao hơn 13.5px của phần còn lại. Bảng thì quét, văn xuôi thì đọc.
+  · Giãn dòng **1.75**. Cột càng dài dòng thì càng cần giãn để mắt tìm lại đầu dòng.
+
+  Nạp SAU `_shell.css` (lấy token) và `_dieukhien.css` (lấy `.nut`, `.o`).
+*/
+
+/* ══════════════════════════════════════════════════════════════════════
+   BỐ CỤC: bài viết + mục lục bên phải
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Bài ở giữa, mục lục bám bên phải. Dưới 1100px thì mục lục biến mất chứ không xuống
+   dưới bài: một mục lục nằm SAU nội dung thì không còn là mục lục nữa. */
+.td {
+  flex: 1; min-height: 0; overflow-y: auto;
+  display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 40px;
+  padding: 26px 32px 80px;
+}
+
+@media (max-width: 1100px) {
+  .td { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .td__ml { display: none; }
+}
+
+@media (max-width: 720px) {
+  .td { padding: 18px 16px 56px; }
+}
+
+.td__bai { max-width: 72ch; min-width: 0; }
+
+/* ── Đường dẫn ─────────────────────────────────────────────────────── */
+.duong {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 12px; color: var(--ink-faint);
+}
+.duong__ngan { color: var(--ink-faint); }
+.duong svg { width: 12px; height: 12px; opacity: 0.65; }
+
+/* ── Tiêu đề bài ───────────────────────────────────────────────────── */
+.td__ten {
+  margin: 0 0 10px;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 700; font-size: 27px;
+  line-height: 1.25; letter-spacing: -0.025em; color: var(--ink);
+}
+
+/* Câu tóm tắt to hơn chữ thường và nhạt hơn — nó là lời hứa của bài, đọc xong biết có
+   đúng chỗ mình cần không. Cùng cỡ chữ thân bài thì nó chìm vào đoạn đầu tiên. */
+.td__tomtat {
+  margin: 0 0 26px;
+  font-size: 16px; line-height: 1.6; color: var(--ink-faint);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   THÂN BÀI
+   ══════════════════════════════════════════════════════════════════════ */
+.td__than { font-size: 15px; line-height: 1.75; color: var(--ink-soft); }
+.td__than > * + * { margin-top: 18px; }
+
+.td__than h2, .td__than h3 {
+  margin: 38px 0 0;
+  font-family: "Sora", system-ui, sans-serif; font-weight: 600;
+  letter-spacing: -0.018em; color: var(--ink);
+  scroll-margin-top: 20px;
+}
+.td__than h2 { font-size: 19px; }
+.td__than h3 { font-size: 16px; margin-top: 28px; }
+
+/* Đoạn ngay sau tiêu đề đứng sát hơn: nó thuộc về tiêu đề đó, không phải một khối rời. */
+.td__than h2 + *, .td__than h3 + * { margin-top: 12px; }
+
+.td__than strong { color: var(--ink); font-weight: 600; }
+.td__than em { color: var(--ink); font-style: italic; }
+
+.td__than code {
+  padding: 1.5px 5px;
+  border-radius: 5px; background: var(--surface-2);
+  font-family: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, monospace;
+  font-size: 0.87em; color: var(--ink);
+}
+
+.td__than a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+.td__than a:hover { border-bottom-color: currentColor; }
+
+/* ── Danh sách ─────────────────────────────────────────────────────── */
+.td__than ol, .td__than ul { margin-left: 0; padding-left: 22px; }
+.td__than li + li { margin-top: 9px; }
+.td__than li::marker { color: var(--ink-faint); }
+
+/* Số bước đậm hơn dấu chấm tròn: người ta đếm bước, và số thứ tự là thứ họ dò lại khi
+   ngẩng lên rồi cúi xuống. */
+.td__than ol > li::marker { color: var(--accent); font-weight: 600; }
+
+/* ── Ảnh ───────────────────────────────────────────────────────────── */
+.anh { margin: 26px 0; }
+.anh img {
+  display: block; width: 100%; height: auto;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--surface-2);
+}
+.anh figcaption {
+  margin-top: 9px;
+  font-size: 12.5px; line-height: 1.6; color: var(--ink-faint);
+}
+
+/* ── Khối chú ý ────────────────────────────────────────────────────── */
+/* Vạch màu bên TRÁI thay vì nền màu đặc: nền đặc kéo mắt khỏi mạch đọc và biến mọi lưu ý
+   thành cảnh báo. Vạch nói "dừng một nhịp" mà không cắt ngang. */
+.chuy {
+  padding: 13px 15px;
+  border-left: 3px solid var(--canh); border-radius: 0 10px 10px 0;
+  background: color-mix(in srgb, var(--canh) 8%, transparent);
+  font-size: 14.5px; line-height: 1.7;
+}
+.chuy--canh {
+  border-left-color: var(--hong);
+  background: color-mix(in srgb, var(--hong) 8%, transparent);
+}
+
+/* ── Bảng trong bài ────────────────────────────────────────────────── */
+.td__bang { overflow-x: auto; }
+.td__bang table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.td__bang th {
+  padding: 9px 12px; text-align: left;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-faint); white-space: nowrap;
+}
+.td__bang td {
+  padding: 10px 12px; border-bottom: 1px solid var(--line);
+  color: var(--ink-soft); vertical-align: top; line-height: 1.6;
+}
+.td__bang tr:last-child td { border-bottom: 0; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   MỤC LỤC BÊN PHẢI
+   ══════════════════════════════════════════════════════════════════════ */
+.td__ml { position: sticky; top: 0; align-self: start; padding-top: 4px; }
+.td__ml h2 {
+  margin: 0 0 10px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.td__ml a {
+  display: block; padding: 5px 0 5px 11px;
+  border-left: 2px solid var(--line);
+  font-size: 12.5px; line-height: 1.5; color: var(--ink-faint); text-decoration: none;
+}
+.td__ml a:hover { color: var(--ink); border-left-color: var(--ink-faint); }
+.td__ml a[aria-current="true"] { color: var(--accent); border-left-color: var(--accent); }
+.td__ml a[data-muc="3"] { padding-left: 22px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   CHÂN BÀI — bài này có ích không, và bài kế tiếp
+   ══════════════════════════════════════════════════════════════════════ */
+.td__chan { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line); }
+
+.td__ich { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13.5px; }
+.td__ich span { color: var(--ink-soft); }
+
+/* Hai nút điều hướng chiếm đủ nửa bề rộng, và nút "sau" canh phải — hướng của mũi tên và
+   hướng của nút phải nói cùng một chuyện. */
+.td__keo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+
+.td__keo a {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 11px;
+  text-decoration: none;
+}
+.td__keo a:hover { border-color: var(--ink-faint); background: var(--surface); }
+.td__keo b { font-size: 13.5px; font-weight: 500; color: var(--ink); }
+.td__keo small { font-size: 11.5px; color: var(--ink-faint); }
+.td__keo .td__sau { text-align: right; }
+
+@media (max-width: 560px) {
+  .td__keo { grid-template-columns: 1fr; }
+  .td__keo .td__sau { text-align: left; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   TRANG CHỦ TÀI LIỆU — lưới thẻ nhóm
+   ══════════════════════════════════════════════════════════════════════ */
+.tdlua { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+
+.tdthe {
+  display: block; padding: 16px;
+  border: 1px solid var(--line); border-radius: 13px; background: var(--surface);
+  text-decoration: none;
+}
+.tdthe:hover { border-color: var(--ink-faint); }
+.tdthe h3 {
+  margin: 0 0 5px;
+  font-family: "Sora", system-ui, sans-serif; font-size: 14.5px; font-weight: 600;
+  color: var(--ink);
+}
+.tdthe p { margin: 0 0 11px; font-size: 12.5px; line-height: 1.6; color: var(--ink-faint); }
+.tdthe__so { font-size: 11.5px; color: var(--accent); }
 
 
 /*

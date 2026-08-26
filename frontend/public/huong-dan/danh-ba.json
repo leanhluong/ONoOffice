@@ -1,0 +1,177 @@
+{
+  "ma": "danh-ba",
+  "tieude": "Tra cứu đồng nghiệp",
+  "nhom": "hang-ngay",
+  "tomtat": "Tìm người theo tên, mã nhân viên hoặc email, và lọc theo phòng ban.",
+  "khoi": [
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Danh bạ"
+        },
+        {
+          "k": "chu",
+          "v": " là màn tra cứu, ai trong workspace cũng vào được. Nó khác màn "
+        },
+        {
+          "k": "dam",
+          "v": "Thành viên"
+        },
+        {
+          "k": "chu",
+          "v": " ở mục đích: Danh bạ để "
+        },
+        {
+          "k": "chu",
+          "v": "*tìm"
+        },
+        {
+          "k": "chu",
+          "v": "* đồng nghiệp, Thành viên để "
+        },
+        {
+          "k": "chu",
+          "v": "*quản lý"
+        },
+        {
+          "k": "chu",
+          "v": "* họ."
+        }
+      ]
+    },
+    {
+      "k": "anh",
+      "mota": "Màn Danh bạ với cây phòng ban bên trái và lưới thẻ người bên phải",
+      "tep": "anh/danh-ba.png",
+      "chuthich": "Cột trái là cây phòng ban dùng để lọc; bấm một phòng là lọc theo phòng đó"
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Tìm"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Ô tìm khớp cả "
+        },
+        {
+          "k": "dam",
+          "v": "tên"
+        },
+        {
+          "k": "chu",
+          "v": ", "
+        },
+        {
+          "k": "dam",
+          "v": "mã nhân viên"
+        },
+        {
+          "k": "chu",
+          "v": " và "
+        },
+        {
+          "k": "dam",
+          "v": "email công việc"
+        },
+        {
+          "k": "chu",
+          "v": ". Mã nhân viên nằm trong đó vì đó là thứ người ta gõ khi tra cứu nhanh — bỏ nó ra thì phải có thêm một ô nữa chỉ để tìm mã."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Gõ tới đâu tìm tới đó, nhưng hệ thống "
+        },
+        {
+          "k": "dam",
+          "v": "chờ bạn ngừng gõ"
+        },
+        {
+          "k": "chu",
+          "v": " một nhịp rồi mới tìm. Một cái tên mười ký tự mà tìm theo từng phím là mười lượt đi về."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Lọc theo phòng ban"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Bấm một phòng ở cột trái để chỉ xem người của phòng đó. Bấm lại để bỏ lọc."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Người đã nghỉ việc"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Mặc định danh bạ "
+        },
+        {
+          "k": "dam",
+          "v": "chỉ hiện người đang làm"
+        },
+        {
+          "k": "chu",
+          "v": ". Hồ sơ người đã nghỉ vẫn còn — bật công tắc "
+        },
+        {
+          "k": "chu",
+          "v": "*Hiện cả người đã nghỉ"
+        },
+        {
+          "k": "chu",
+          "v": "* để xem."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Cố ý ẩn mặc định: hiện họ trong danh bạ nghĩa là đồng nghiệp sẽ gọi điện cho một người không còn ở đây."
+        }
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "luuy",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Thẻ người "
+        },
+        {
+          "k": "dam",
+          "v": "bỏ hẳn dòng"
+        },
+        {
+          "k": "chu",
+          "v": " nào không có dữ liệu, chứ không vẽ một ô rỗng. Không có số điện thoại thì thẻ ngắn hơn, không phải có một dòng trống."
+        }
+      ]
+    }
+  ]
+}

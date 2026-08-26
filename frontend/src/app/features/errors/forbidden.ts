@@ -13,7 +13,9 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink],
   template: `
-    <section class="forbidden">
+    <div class="noidung">
+      <div class="trang">
+        <section class="forbidden">
       <h1>Bạn không có quyền vào trang này</h1>
       @if (required(); as permissions) {
         <p>
@@ -24,7 +26,9 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
         <p>Liên hệ quản trị viên nếu bạn cho rằng đây là nhầm lẫn.</p>
       }
       <a routerLink="/dashboard">← Về bảng điều khiển</a>
-    </section>
+        </section>
+      </div>
+    </div>
   `,
   styles: `
     .forbidden {

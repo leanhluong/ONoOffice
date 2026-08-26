@@ -149,5 +149,29 @@
     "internal": "Internal",
     "perCompany": "One workspace per company",
     "vietnam": "Vietnam"
+  },
+  "help": {
+    "title": "Help",
+    "tree": "Help contents",
+    "search": "Search the guides",
+    "count": "{{count}} articles",
+    "breadcrumb": "Breadcrumb",
+    "onThisPage": "On this page",
+    "prevNext": "Previous and next article",
+    "prev": "Previous",
+    "next": "Next",
+    "helpful": "Was this article helpful?",
+    "yes": "Yes",
+    "no": "Not really",
+    "thanks": "Thanks for letting us know.",
+    "backHome": "Back to Help",
+    "noMatch": {
+      "title": "No article matches",
+      "text": "Try a shorter keyword, or browse the full list on the left."
+    },
+    "missing": {
+      "title": "No such article",
+      "text": "The link may be out of date. Pick an article on the left, or go back to Help."
+    }
   }
 }

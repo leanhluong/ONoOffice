@@ -149,5 +149,29 @@
     "internal": "Nội bộ",
     "perCompany": "Riêng từng công ty",
     "vietnam": "Việt Nam"
+  },
+  "help": {
+    "title": "Hướng dẫn",
+    "tree": "Mục lục hướng dẫn",
+    "search": "Tìm trong hướng dẫn",
+    "count": "{{count}} bài",
+    "breadcrumb": "Đường dẫn",
+    "onThisPage": "Trên trang này",
+    "prevNext": "Bài trước và bài sau",
+    "prev": "Bài trước",
+    "next": "Bài sau",
+    "helpful": "Bài này có giúp được bạn không?",
+    "yes": "Có",
+    "no": "Chưa",
+    "thanks": "Cảm ơn bạn đã cho biết.",
+    "backHome": "Về trang hướng dẫn",
+    "noMatch": {
+      "title": "Không có bài nào khớp",
+      "text": "Thử một từ khoá ngắn hơn, hoặc xem danh sách đầy đủ ở cột bên trái."
+    },
+    "missing": {
+      "title": "Không có bài này",
+      "text": "Đường dẫn có thể đã cũ. Chọn một bài ở cột bên trái, hoặc quay về trang hướng dẫn."
+    }
   }
 }

@@ -83,6 +83,7 @@ const CAP: readonly Cap[] = [
     ],
   },
   { ten: 'Danh bạ', banDung: 'org/danh-ba.html', angular: ['features/contacts/contact-list.html'] },
+  { ten: 'Hướng dẫn', banDung: 'huongdan/tai-lieu.html', angular: ['features/help/help.html'] },
 ];
 
 /**

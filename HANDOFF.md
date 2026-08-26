@@ -9,7 +9,7 @@
 ## Đọc gì trước — theo đúng thứ tự này
 
 ```
-1. docs/README.md                      · mục lục 7 thư mục tài liệu
+1. docs/README.md                      · mục lục 8 thư mục tài liệu
 2. docs/01-tong-quan/README.md         · sản phẩm là gì, 6 câu nghiệp vụ đã chốt
 3. docs/02-kien-truc/README.md         · 2 module, 4 tầng, 4 luật ranh giới
 4. docs/02-kien-truc/adr/              · 4 ADR — vì sao chọn thế này mà không chọn thế kia
@@ -24,7 +24,7 @@ D:/Luong/Person/
 ├── libNetCore/     → thư viện dùng chung, phát hành thành gói Luong.Kernel.*
 │                     KHÔNG được có một chữ nghiệp vụ nào (Employee, Department…)
 └── ONoOffice/      → sản phẩm
-    ├── docs/       · 7 thư mục
+    ├── docs/       · 8 thư mục (08 = hướng dẫn sử dụng, nguồn của màn /huong-dan)
     ├── backend/    · .NET 10 — src/ + tests/ + ONoOffice.slnx
     └── frontend/   · Angular 22
 ```
@@ -52,27 +52,28 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Test kiến trúc + i18n + luật Controller | 🟢 | 15 |
 | **Database** | 🟢 Postgres 16 · 2 migration · dữ liệu mồi — đã chạy THẬT | **52** |
 | **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
-| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **151** |
-| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 151)* |
-| **Khung ứng dụng v4** | 🟢 **Rail 56px + cột ngữ cảnh** — khuôn Lark Messenger / Zalo PC | *(trong 151)* |
-| **Khung quản trị (khuôn B)** | 🟢 **Thanh ngang + sidebar 240px** — khuôn Lark Admin, **không có rail** | *(trong 151)* |
-| **Tách hai vùng** | 🟢 `/` `/me` ↔ `/admin/*` · guard ở route cha · 3 redirect từ đường dẫn cũ | *(trong 151)* |
-| **Nhận diện thương hiệu** | 🟢 Logo tự đổi bản sáng/tối theo bộ màu · favicon · bộ sinh tự chép sang `public/` | *(trong 151)* |
-| **Frontend · Thành viên (GỘP)** | 🟢 Đọc `/api/members` — **ba loại dòng**: có cả hai · chỉ hồ sơ · chỉ tài khoản | *(trong 151)* |
-| **Nối · cấp tài khoản · tạo hồ sơ** | 🟢 Một hộp thoại, **hai chiều × hai cách** · tạo xong nối luôn · có trong demo | *(trong 151)* |
-| **Thao tác hàng loạt** | 🟢 Đổi phòng ban · đổi vai trò · vô hiệu hoá — chạy **tuần tự**, nói rõ ai bị bỏ qua | *(trong 151)* |
-| **Đặt lại mật khẩu hộ** | 🟢 Hai bước · thu hồi mọi phiên · **chặn Admin leo lên Owner** | *(trong 151)* |
-| **Frontend · Phòng ban + Danh bạ** | 🟢 Cây sửa được (thêm/đổi tên/chuyển/xoá) · danh bạ lọc theo phòng | *(trong 151)* |
-| **Frontend · Hồ sơ & cài đặt** | 🟢 Sửa tên · đổi mật khẩu · bộ màu/ngôn ngữ | *(trong 151)* |
-| **Frontend · Vai trò & quyền** | 🟢 Bốn vai, bảng quyền đầy đủ — **chỉ xem** | *(trong 151)* |
-| **Frontend · Tổng quan quản trị** | 🟡 4 số THẬT (không cần endpoint mới) · gói & hạn ngạch **chưa nối**, có đeo nhãn | *(trong 151)* |
+| **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **163** |
+| **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 163)* |
+| **Khung ứng dụng v4** | 🟢 **Rail 56px + cột ngữ cảnh** — khuôn Lark Messenger / Zalo PC | *(trong 163)* |
+| **Khung quản trị (khuôn B)** | 🟢 **Thanh ngang + sidebar 240px** — khuôn Lark Admin, **không có rail** | *(trong 163)* |
+| **Tách hai vùng** | 🟢 `/` `/me` ↔ `/admin/*` · guard ở route cha · 3 redirect từ đường dẫn cũ | *(trong 163)* |
+| **Nhận diện thương hiệu** | 🟢 Logo tự đổi bản sáng/tối theo bộ màu · favicon · bộ sinh tự chép sang `public/` | *(trong 163)* |
+| **Frontend · Thành viên (GỘP)** | 🟢 Đọc `/api/members` — **ba loại dòng**: có cả hai · chỉ hồ sơ · chỉ tài khoản | *(trong 163)* |
+| **Nối · cấp tài khoản · tạo hồ sơ** | 🟢 Một hộp thoại, **hai chiều × hai cách** · tạo xong nối luôn · có trong demo | *(trong 163)* |
+| **Thao tác hàng loạt** | 🟢 Đổi phòng ban · đổi vai trò · vô hiệu hoá — chạy **tuần tự**, nói rõ ai bị bỏ qua | *(trong 163)* |
+| **Đặt lại mật khẩu hộ** | 🟢 Hai bước · thu hồi mọi phiên · **chặn Admin leo lên Owner** | *(trong 163)* |
+| **Màn Hướng dẫn** | 🟢 9 bài trong app · cây trái + mục lục phải · **ảnh sinh tự động từ app** | *(trong 163)* |
+| **Frontend · Phòng ban + Danh bạ** | 🟢 Cây sửa được (thêm/đổi tên/chuyển/xoá) · danh bạ lọc theo phòng | *(trong 163)* |
+| **Frontend · Hồ sơ & cài đặt** | 🟢 Sửa tên · đổi mật khẩu · bộ màu/ngôn ngữ | *(trong 163)* |
+| **Frontend · Vai trò & quyền** | 🟢 Bốn vai, bảng quyền đầy đủ — **chỉ xem** | *(trong 163)* |
+| **Frontend · Tổng quan quản trị** | 🟡 4 số THẬT (không cần endpoint mới) · gói & hạn ngạch **chưa nối**, có đeo nhãn | *(trong 163)* |
 | Frontend · các màn còn lại | ⬜ Dashboard vẫn là khung rỗng · Trao đổi mới có bản dựng | — |
-| Tài liệu | 🟢 7 thư mục · 4 ADR · `05-api` · wireframe · bản dựng màu | — |
+| Tài liệu | 🟢 8 thư mục · 4 ADR · `05-api` · wireframe · bản dựng màu | — |
 
 ```bash
 docker compose up -d                          # Postgres 16 ở cổng 5433
 cd backend && dotnet build && dotnet test     # 339 xanh không cần Docker · +52 test database nếu có
-cd frontend && npm test && npm run parity     # 151 xanh · hai màn lệch 0,02%
+cd frontend && npm test && npm run parity     # 163 xanh · hai màn lệch 0,02%
 ```
 
 ### Đã kiểm chứng tới đâu (2026-08-24) — và chỗ nào thì CHƯA
@@ -125,6 +126,10 @@ hai biểu tượng khiên giống hệt nhau. Chi tiết ở [`_khung-quantri.c
 
 Lối vào B nằm ở **menu ảnh đại diện** (khuôn Zalo PC), không phải một biểu tượng trên rail —
 rail là app dùng hằng ngày, quản trị thì mỗi tháng vào một lần.
+
+⚠️ **Màn khung A tự dựng `.noidung` của mình** — shell KHÔNG bọc sẵn. Màn có cột ngữ cảnh
+thì `.nav` phải là anh em của `.noidung`; bọc sẵn ở shell thì cột bị xếp chồng lên nội dung.
+Đã xảy ra ở Danh bạ, và chỉ ảnh chụp mới lộ ra.
 
 ⚠️ **Đổi khung thì `.trangdau` / `.trang` phải ở `_dieukhien.css`, KHÔNG phải `_khung.css`.**
 Chúng là chrome của *trang*, cả hai khung đều cần. Để nhầm chỗ một lần rồi: mọi màn quản trị
@@ -301,7 +306,7 @@ quyền chỉ đổi mức toàn vẹn, nó không nạp thêm nhóm mới. Mọ
 | `ArchitectureTests` | 15 | không | Ranh giới tầng và luật Controller có bị phá không |
 | `Api.IntegrationTests` | 32 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
 | `Api.DatabaseTests` | 52 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập/đăng ký/tạo tài khoản có chạy THẬT không |
-| `frontend` (vitest) | 151 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
+| `frontend` (vitest) | 163 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
 | `npm run parity` | 2 màn | **Chrome** | Bản Angular trông có **giống hệt bản dựng đã duyệt** không |
 
 Bộ thứ tư tự dựng Postgres bằng **Testcontainers**, không nối vào `docker compose`. Cố ý:
@@ -542,9 +547,11 @@ Ba công cụ giữ chúng dính nhau. Đổi giao diện thì **sửa bản d�
 sửa thẳng vào `.scss` sẽ bị lần chạy sau xoá mất.
 
 ```bash
-node tools/sync-shell.mjs           # bản dựng → styles.scss + 6 file .scss + public/brand/
+node tools/sync-shell.mjs           # bản dựng → styles.scss + 9 file .scss + public/brand/
 node tools/sync-error-messages.mjs  # .resx của backend → errors.json của FE
-cd frontend && npm run parity       # chụp cả hai rồi so từng điểm ảnh
+node tools/sync-huongdan.mjs        # docs/08-huong-dan/*.md → public/huong-dan/*.json
+cd frontend && npm run parity                 # chụp cả hai rồi so từng điểm ảnh
+cd frontend && node tools/chup-huong-dan.mjs  # ảnh minh hoạ ← app đang chạy demo
 ```
 
 Bộ thứ tư, thêm 2026-08-25: **`ui-parity.spec.ts`** — so tập LỚP CSS giữa bản dựng và
@@ -617,7 +624,7 @@ bản dựng theo luật 8.
 
 Bắt đầu bằng việc chạy `cd ONoOffice/backend && dotnet build && dotnet test`
 và `cd ONoOffice/frontend && npm test && npm run parity` để xác nhận
-339 + 151 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
+339 + 163 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
 trước khi làm gì. 52 test database sẽ ĐỎ nếu chưa `docker compose up -d` —
 đó là hỏng môi trường, không phải hỏng code.
 ```

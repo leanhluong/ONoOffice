@@ -1,0 +1,270 @@
+{
+  "ma": "man-thanh-vien",
+  "tieude": "Màn Thành viên — ba loại dòng",
+  "nhom": "nhan-su",
+  "tomtat": "Vì sao một người có thể hiện ra hai lần, và ô gạch đứt trong bảng nghĩa là gì.",
+  "khoi": [
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Màn "
+        },
+        {
+          "k": "dam",
+          "v": "Thành viên"
+        },
+        {
+          "k": "chu",
+          "v": " gộp hai thứ khác nhau vào một bảng:"
+        }
+      ]
+    },
+    {
+      "k": "ds",
+      "thutu": false,
+      "muc": [
+        [
+          {
+            "k": "dam",
+            "v": "Tài khoản đăng nhập"
+          },
+          {
+            "k": "chu",
+            "v": " — thứ dùng để vào hệ thống. Có email, có vai trò."
+          }
+        ],
+        [
+          {
+            "k": "dam",
+            "v": "Hồ sơ nhân sự"
+          },
+          {
+            "k": "chu",
+            "v": " — thứ phòng nhân sự giữ. Có mã nhân viên, chức danh, phòng ban."
+          }
+        ]
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Chúng là hai khái niệm, không phải một. Vì vậy bảng có "
+        },
+        {
+          "k": "dam",
+          "v": "ba loại dòng"
+        },
+        {
+          "k": "chu",
+          "v": ", và cả ba đều bình thường."
+        }
+      ]
+    },
+    {
+      "k": "anh",
+      "mota": "Bảng Thành viên với ba loại dòng khác nhau",
+      "tep": "anh/thanh-vien.png",
+      "chuthich": "Cột Mã NV và cột Vai trò cho biết dòng đó thiếu nửa nào"
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Ba loại dòng"
+    },
+    {
+      "k": "bang",
+      "dau": [
+        [
+          {
+            "k": "chu",
+            "v": "Dòng"
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Nghĩa là gì"
+          }
+        ]
+      ],
+      "than": [
+        [
+          [
+            {
+              "k": "chu",
+              "v": "Có cả hai"
+            }
+          ],
+          [
+            {
+              "k": "chu",
+              "v": "Người bình thường: có hồ sơ, có tài khoản, đã nối với nhau."
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "k": "chu",
+              "v": "Chỉ hồ sơ"
+            }
+          ],
+          [
+            {
+              "k": "chu",
+              "v": "Nhân viên mới, "
+            },
+            {
+              "k": "dam",
+              "v": "chưa được cấp tài khoản"
+            },
+            {
+              "k": "chu",
+              "v": ". Cột Vai trò ghi "
+            },
+            {
+              "k": "chu",
+              "v": "*chưa có tài khoản"
+            },
+            {
+              "k": "chu",
+              "v": "*."
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "k": "chu",
+              "v": "Chỉ tài khoản"
+            }
+          ],
+          [
+            {
+              "k": "chu",
+              "v": "Tài khoản máy, hoặc người vừa được cấp tài khoản mà chưa dựng hồ sơ. Cột Mã NV ghi "
+            },
+            {
+              "k": "chu",
+              "v": "*chưa có hồ sơ"
+            },
+            {
+              "k": "chu",
+              "v": "*."
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Ô "
+        },
+        {
+          "k": "dam",
+          "v": "gạch đứt"
+        },
+        {
+          "k": "chu",
+          "v": " trong bảng không phải dữ liệu bị mất. Nó nói đúng một chuyện: phần đó chưa có, và đó là trạng thái hợp lệ."
+        }
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "luuy",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Ô lọc "
+        },
+        {
+          "k": "dam",
+          "v": "Lọc theo loại"
+        },
+        {
+          "k": "chu",
+          "v": " ở thanh trên lọc đúng hai trạng thái khuyết này. Đó là cách nhanh nhất tìm ra ai đang cần cấp tài khoản."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Vì sao một người có thể hiện ra hai lần"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Hệ thống "
+        },
+        {
+          "k": "dam",
+          "v": "không tự ghép theo email"
+        },
+        {
+          "k": "chu",
+          "v": ". Nếu người này tạo tài khoản còn người kia dựng hồ sơ mà không ai nối lại, cùng một con người sẽ nằm ở hai dòng — dù email giống hệt nhau."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Tự ghép theo email nghe tiện và sai một cách nguy hiểm: phòng kinh doanh dùng chung "
+        },
+        {
+          "k": "ma",
+          "v": "sales@congty.vn"
+        },
+        {
+          "k": "chu",
+          "v": " thì hai người khác nhau bị gộp thành một dòng, và mọi thao tác lên dòng đó chạm vào nhầm người."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Cách sửa: nối tay. Xem "
+        },
+        {
+          "k": "lien",
+          "v": "Nối hồ sơ với tài khoản",
+          "den": "#noi-ho-so-tai-khoan"
+        },
+        {
+          "k": "chu",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Bảng này chỉ ĐỌC từ một chỗ"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Mọi thao tác sửa vẫn đi về đúng nơi giữ dữ liệu: đổi vai trò là việc của tài khoản, đổi phòng ban là việc của hồ sơ. Vì vậy có những dòng không áp được một số thao tác — và màn hình luôn nói rõ số người bị bỏ qua trước khi bạn xác nhận."
+        }
+      ]
+    }
+  ]
+}

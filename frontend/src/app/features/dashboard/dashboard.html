@@ -1,42 +1,44 @@
-<header class="trangdau">
-  <h1>Bảng điều khiển</h1>
-</header>
-
-<div class="trang">
-  <section class="page">
-    <p class="page__lead">Khung ứng dụng đã dựng xong. Nội dung nghiệp vụ sẽ bổ sung sau.</p>
-
-    <div class="card">
-      <h2 class="card__title">Phiên đăng nhập hiện tại</h2>
-      @if (store.user(); as user) {
-        <dl class="facts">
-          <dt>Mã người dùng</dt>
-          <dd>{{ user.userId }}</dd>
-          <dt>Tenant</dt>
-          <dd>{{ user.tenantId }}</dd>
-          <dt>Email</dt>
-          <dd>{{ user.email || '—' }}</dd>
-          <dt>Token hết hạn</dt>
-          <dd>{{ store.isAccessTokenExpired() ? 'Đã hết hạn' : 'Còn hiệu lực' }}</dd>
-        </dl>
-      } @else {
-        <p>Chưa có phiên đăng nhập.</p>
-      }
-    </div>
-
-    <div class="card">
-      <h2 class="card__title">Quyền được cấp ({{ store.permissionList().length }})</h2>
-      @if (store.permissionList().length > 0) {
-        <ul class="perms">
-          @for (permission of store.permissionList(); track permission) {
-            <li class="perms__item">{{ permission }}</li>
-          }
-        </ul>
-      } @else {
-        <p class="page__lead">
-          Token chưa mang claim <code>permission</code> nào. Mọi mục menu cần quyền sẽ bị ẩn.
-        </p>
-      }
-    </div>
-  </section>
+<div class="noidung">
+  <header class="trangdau">  
+    <h1>Bảng điều khiển</h1>  
+  </header>  
+    
+  <div class="trang">  
+    <section class="page">  
+      <p class="page__lead">Khung ứng dụng đã dựng xong. Nội dung nghiệp vụ sẽ bổ sung sau.</p>  
+    
+      <div class="card">  
+        <h2 class="card__title">Phiên đăng nhập hiện tại</h2>  
+        @if (store.user(); as user) {  
+          <dl class="facts">  
+            <dt>Mã người dùng</dt>  
+            <dd>{{ user.userId }}</dd>  
+            <dt>Tenant</dt>  
+            <dd>{{ user.tenantId }}</dd>  
+            <dt>Email</dt>  
+            <dd>{{ user.email || '—' }}</dd>  
+            <dt>Token hết hạn</dt>  
+            <dd>{{ store.isAccessTokenExpired() ? 'Đã hết hạn' : 'Còn hiệu lực' }}</dd>  
+          </dl>  
+        } @else {  
+          <p>Chưa có phiên đăng nhập.</p>  
+        }  
+      </div>  
+    
+      <div class="card">  
+        <h2 class="card__title">Quyền được cấp ({{ store.permissionList().length }})</h2>  
+        @if (store.permissionList().length > 0) {  
+          <ul class="perms">  
+            @for (permission of store.permissionList(); track permission) {  
+              <li class="perms__item">{{ permission }}</li>  
+            }  
+          </ul>  
+        } @else {  
+          <p class="page__lead">  
+            Token chưa mang claim <code>permission</code> nào. Mọi mục menu cần quyền sẽ bị ẩn.  
+          </p>  
+        }  
+      </div>  
+    </section>  
+  </div>
 </div>

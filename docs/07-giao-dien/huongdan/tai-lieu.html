@@ -1,0 +1,232 @@
+<!doctype html>
+<!--
+  Bản dựng màn HƯỚNG DẪN — trong KHUNG APP (khuôn A): rail + cột ngữ cảnh + nội dung.
+
+  ══════════════════════════════════════════════════════════════════════════
+   VÌ SAO Ở TRONG APP, KHÔNG PHẢI MỘT TRANG WEB RIÊNG
+  ══════════════════════════════════════════════════════════════════════════
+
+  Docs của Pancake, Lark hay Slack đều nằm ở một tên miền riêng, và với họ thì đúng: người
+  đọc thường là người CHƯA dùng sản phẩm, tìm tới từ Google.
+
+  Ở đây thì ngược lại. Đây là app NỘI BỘ của một công ty — không ai vào từ Google, và người
+  cần hướng dẫn là người đang mở app, đang bí ở một cái nút. Bắt họ mở tab mới, tìm lại
+  trang, rồi tìm lại chỗ mình đang đứng là ba bước cho một câu hỏi.
+
+  Nằm trong app còn được thêm một thứ: khi có màn nào cần giải thích, nó trỏ thẳng tới đúng
+  bài — cùng một router, không phải một liên kết ra ngoài.
+
+  ══════════════════════════════════════════════════════════════════════════
+   BA QUYẾT ĐỊNH
+  ══════════════════════════════════════════════════════════════════════════
+
+  1. CỘT NGỮ CẢNH LÀ CÂY BÀI VIẾT. Đúng việc mà cột thứ hai của khuôn A sinh ra để làm —
+     giống hệt cây phòng ban ở Danh bạ, chỉ khác nội dung.
+
+  2. CỘT CHỮ 72 KÝ TỰ, cỡ 15px, giãn dòng 1.75. Đây là màn DUY NHẤT trong app mà việc
+     chính là đọc một đoạn dài; mọi màn khác mắt quét chứ không đi theo dòng. Xem
+     `../chung/_tailieu.css`.
+
+  3. MỤC LỤC BÊN PHẢI, bám dính. Dưới 1100px thì nó BIẾN MẤT chứ không xuống dưới bài —
+     một mục lục nằm sau nội dung thì không còn là mục lục.
+
+  ⚠️ Ảnh trong bài SINH TỰ ĐỘNG từ app đang chạy chế độ demo:
+     `cd frontend && node tools/chup-huong-dan.mjs`. Ảnh chụp tay lạc hậu ngay lần đổi giao
+     diện kế tiếp và không có gì báo — bài vẫn dựng ra, chỉ mô tả một màn không còn tồn tại.
+
+  Nội dung bài đến từ `docs/08-huong-dan/*.md` qua `tools/sync-huongdan.mjs`.
+
+  Mở bằng: node tools/serve-mockups.mjs → http://localhost:4300/huongdan/tai-lieu.html
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hướng dẫn · ONoOffice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;700&display=swap">
+<link rel="stylesheet" href="../chung/_shell.css">
+<link rel="stylesheet" href="../chung/_brand.css">
+<link rel="stylesheet" href="../chung/_khung.css">
+<link rel="stylesheet" href="../chung/_dieukhien.css">
+<link rel="stylesheet" href="../chung/_tailieu.css">
+
+<style>
+/* Bộ đổi trạng thái của bản dựng — không ship. Xem `.states` ở các bản dựng khác. */
+.khi { display: none; }
+[data-state="bai"] .khi--bai { display: grid; }
+[data-state="chu"] .khi--chu { display: block; }
+[data-state="khongthay"] .khi--khongthay { display: flex; }
+</style>
+
+<div class="khung">
+  <nav id="rail"></nav>
+
+  <!-- Cột ngữ cảnh: CÂY BÀI VIẾT, nhóm → bài. -->
+  <nav class="nav" aria-label="Mục lục hướng dẫn">
+    <div class="nav__dau"><h2>Hướng dẫn</h2></div>
+
+    <div class="nav__tim">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/>
+      </svg>
+      <input type="search" placeholder="Tìm trong hướng dẫn" aria-label="Tìm trong hướng dẫn">
+      <span class="nav__phim">/</span>
+    </div>
+
+    <div class="nav__ds">
+      <div class="nav__nhan">Bắt đầu</div>
+      <a class="nav__muc" href="?state=bai"><span class="nav__chu">Đăng ký workspace</span></a>
+      <a class="nav__muc" href="?state=bai"><span class="nav__chu">Đăng nhập lần đầu</span></a>
+
+      <div class="nav__nhan">Quản trị nhân sự</div>
+      <a class="nav__muc" href="?state=bai" aria-current="page"><span class="nav__chu">Màn Thành viên — ba loại dòng</span></a>
+      <a class="nav__muc" href="?state=bai"><span class="nav__chu">Nối hồ sơ với tài khoản</span></a>
+      <a class="nav__muc" href="?state=bai"><span class="nav__chu">Làm cho nhiều người một lúc</span></a>
+      <a class="nav__muc" href="?state=bai"><span class="nav__chu">Đặt lại mật khẩu hộ đồng nghiệp</span></a>
+      <a class="nav__muc" href="?state=bai"><span class="nav__chu">Dựng cây phòng ban</span></a>
+
+      <div class="nav__nhan">Dùng hằng ngày</div>
+      <a class="nav__muc" href="?state=bai"><span class="nav__chu">Tra cứu đồng nghiệp</span></a>
+      <a class="nav__muc" href="?state=bai"><span class="nav__chu">Hồ sơ và cài đặt của bạn</span></a>
+    </div>
+  </nav>
+
+  <main class="noidung" data-state="bai" id="man">
+    <header class="trangdau">
+      <h1>Hướng dẫn</h1>
+      <span class="trangdau__phu">9 bài</span>
+      <div class="trangdau__day"></div>
+    </header>
+
+    <!-- ══════════ TRẠNG THÁI: một bài ══════════ -->
+    <div class="td khi khi--bai">
+      <article class="td__bai">
+        <nav class="duong" aria-label="Đường dẫn">
+          <span class="duong__ngan">Hướng dẫn</span>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6.5 4 4 4-4 4"/></svg>
+          <span class="duong__ngan">Quản trị nhân sự</span>
+        </nav>
+
+        <h1 class="td__ten">Màn Thành viên — ba loại dòng</h1>
+        <p class="td__tomtat">Vì sao một người có thể hiện ra hai lần, và ô gạch đứt trong bảng nghĩa là gì.</p>
+
+        <div class="td__than">
+          <p>Màn <strong>Thành viên</strong> gộp hai thứ khác nhau vào một bảng:</p>
+
+          <ul>
+            <li><strong>Tài khoản đăng nhập</strong> — thứ dùng để vào hệ thống. Có email, có vai trò.</li>
+            <li><strong>Hồ sơ nhân sự</strong> — thứ phòng nhân sự giữ. Có mã nhân viên, chức danh, phòng ban.</li>
+          </ul>
+
+          <p>Chúng là hai khái niệm, không phải một. Vì vậy bảng có <strong>ba loại dòng</strong>, và cả ba đều bình thường.</p>
+
+          <figure class="anh">
+            <img src="../../08-huong-dan/anh/thanh-vien.png" alt="Bảng Thành viên với ba loại dòng khác nhau">
+            <figcaption>Cột Mã NV và cột Vai trò cho biết dòng đó thiếu nửa nào</figcaption>
+          </figure>
+
+          <h2 id="ba-loai">Ba loại dòng</h2>
+
+          <div class="td__bang">
+            <table>
+              <thead><tr><th>Dòng</th><th>Nghĩa là gì</th></tr></thead>
+              <tbody>
+                <tr><td>Có cả hai</td><td>Người bình thường: có hồ sơ, có tài khoản, đã nối với nhau.</td></tr>
+                <tr><td>Chỉ hồ sơ</td><td>Nhân viên mới, <strong>chưa được cấp tài khoản</strong>.</td></tr>
+                <tr><td>Chỉ tài khoản</td><td>Tài khoản máy, hoặc người vừa được cấp tài khoản mà chưa dựng hồ sơ.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Ô <strong>gạch đứt</strong> trong bảng không phải dữ liệu bị mất. Nó nói đúng một chuyện: phần đó chưa có, và đó là trạng thái hợp lệ.</p>
+
+          <div class="chuy">Ô lọc <strong>Lọc theo loại</strong> ở thanh trên lọc đúng hai trạng thái khuyết này. Đó là cách nhanh nhất tìm ra ai đang cần cấp tài khoản.</div>
+
+          <h2 id="hai-lan">Vì sao một người có thể hiện ra hai lần</h2>
+
+          <p>Hệ thống <strong>không tự ghép theo email</strong>. Nếu người này tạo tài khoản còn người kia dựng hồ sơ mà không ai nối lại, cùng một con người sẽ nằm ở hai dòng — dù email giống hệt nhau.</p>
+
+          <div class="chuy chuy--canh">Tự ghép theo email nghe tiện và sai một cách nguy hiểm: phòng kinh doanh dùng chung <code>sales@congty.vn</code> thì hai người khác nhau bị gộp thành một dòng.</div>
+        </div>
+
+        <footer class="td__chan">
+          <div class="td__ich">
+            <span>Bài này có giúp được bạn không?</span>
+            <button class="nut nut--nho" data-soon="Có">Có</button>
+            <button class="nut nut--nho" data-soon="Chưa">Chưa</button>
+          </div>
+
+          <nav class="td__keo" aria-label="Bài trước và bài sau">
+            <a href="?state=bai"><small>Bài trước</small><b>Đăng nhập lần đầu</b></a>
+            <a class="td__sau" href="?state=bai"><small>Bài sau</small><b>Nối hồ sơ với tài khoản</b></a>
+          </nav>
+        </footer>
+      </article>
+
+      <aside class="td__ml" aria-label="Trên trang này">
+        <h2>Trên trang này</h2>
+        <a href="#ba-loai" aria-current="true">Ba loại dòng</a>
+        <a href="#hai-lan">Vì sao một người có thể hiện ra hai lần</a>
+        <a href="#chi-doc" data-muc="3">Bảng này chỉ đọc từ một chỗ</a>
+      </aside>
+    </div>
+
+    <!-- ══════════ TRẠNG THÁI: trang chủ tài liệu ══════════ -->
+    <div class="trang khi khi--chu">
+      <div class="tdlua">
+        <a class="tdthe" href="?state=bai">
+          <h3>Bắt đầu</h3>
+          <p>Dựng workspace và đưa đồng nghiệp vào.</p>
+          <span class="tdthe__so">2 bài</span>
+        </a>
+        <a class="tdthe" href="?state=bai">
+          <h3>Quản trị nhân sự</h3>
+          <p>Tài khoản đăng nhập, hồ sơ nhân viên, phòng ban và vai trò.</p>
+          <span class="tdthe__so">5 bài</span>
+        </a>
+        <a class="tdthe" href="?state=bai">
+          <h3>Dùng hằng ngày</h3>
+          <p>Những việc ai trong workspace cũng làm.</p>
+          <span class="tdthe__so">2 bài</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ══════════ TRẠNG THÁI: tìm không ra ══════════ -->
+    <div class="rong khi khi--khongthay">
+      <div class="rong__vong">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="5.5"/><path d="m12.6 12.6 4 4"/>
+        </svg>
+      </div>
+      <h2>Không có bài nào khớp</h2>
+      <p>Thử một từ khoá ngắn hơn, hoặc xem danh sách đầy đủ ở cột bên trái.</p>
+    </div>
+  </main>
+</div>
+
+<div class="states" role="group" aria-label="Đổi trạng thái để duyệt">
+  <button data-state="bai" aria-pressed="true">Một bài</button>
+  <button data-state="chu">Trang chủ</button>
+  <button data-state="khongthay">Tìm không ra</button>
+</div>
+
+<script type="module">
+import { mountRail } from '../chung/_shell.js';
+
+mountRail(document.getElementById('rail'), 'huong-dan');
+
+const man = document.getElementById('man');
+
+document.querySelectorAll('.states button[data-state]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    man.dataset.state = btn.dataset.state;
+    document.querySelectorAll('.states button[data-state]').forEach((b) =>
+      b.setAttribute('aria-pressed', String(b === btn)));
+  });
+});
+
+const q = new URLSearchParams(location.search);
+if (q.get('state')) document.querySelector(`.states button[data-state="${q.get('state')}"]`)?.click();
+if (q.has('bare')) document.querySelector('.states')?.remove();
+</script>

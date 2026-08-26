@@ -56,6 +56,34 @@
     </div>
 
     <div class="rail__duoi">
+      <!--
+        Trợ giúp ở ĐÁY RAIL, không nằm trong danh sách app phía trên.
+
+        Rail là các app người ta dùng hằng ngày; trợ giúp thì mở khi đang bí ở một cái nút
+        — không phải một chỗ để làm việc, mà một chỗ để hỏi. Slack và Lark đặt nó đúng đây.
+      -->
+      <a
+        class="nuti"
+        routerLink="/huong-dan"
+        routerLinkActive
+        #dangOHuongDan="routerLinkActive"
+        [attr.aria-current]="dangOHuongDan.isActive ? 'page' : null"
+        [attr.aria-label]="'help.title' | translate"
+      >
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <circle cx="10" cy="10" r="7.2" />
+          <path d="M7.9 7.9a2.2 2.2 0 113 2.05v1.15" />
+          <path d="M10.9 14.2h.02" stroke-width="2.1" />
+        </svg>
+      </a>
+
       <button
         type="button"
         class="nuti"
@@ -153,9 +181,18 @@
     </div>
   </nav>
 
-  <div class="noidung">
-    <router-outlet />
-  </div>
+  <!--
+    `.noidung` do TỪNG MÀN tự dựng, không dựng sẵn ở đây.
+
+    Khuôn A có thể có cột ngữ cảnh giữa rail và nội dung (Danh bạ dùng cây phòng ban,
+    Hướng dẫn dùng cây bài viết), và cột đó phải là anh em với `.noidung` chứ không nằm
+    trong nó. Bọc sẵn ở đây thì màn nào có cột sẽ bị xếp chồng — đã xảy ra một lần ở Danh
+    bạ, và không bộ canh nào bắt được.
+
+    Xem `.khung > router-outlet ~ *` trong `_khung.css` để biết vì sao thẻ component
+    không tự thành một ô flex.
+  -->
+  <router-outlet />
 </div>
 
 <!--

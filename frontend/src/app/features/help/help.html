@@ -1,0 +1,278 @@
+<!--
+  Đánh dấu chép từ `docs/07-giao-dien/huongdan/tai-lieu.html`.
+
+  CSS thì KHÔNG chép — `help.scss` và phần dùng chung trong `styles.scss` đều sinh tự động
+  (`node tools/sync-shell.mjs`). Chỗ duy nhất phải giữ đồng bộ bằng tay là đánh dấu.
+
+  ⚠️ KHÔNG có `[innerHTML]` ở đâu trong tệp này, và đó là chủ ý. Bài viết là một cây khối
+  JSON, dựng lại bằng `@switch` bên dưới. Xem chú thích đầu `sync-huongdan.mjs`.
+-->
+<!-- Cột ngữ cảnh: CÂY BÀI VIẾT. Nó là ANH EM của `.noidung`, không nằm trong —
+     xem chú thích ở `shell.html`. -->
+<nav class="nav" [attr.aria-label]="'help.tree' | translate">
+  <div class="nav__dau">
+    <h2>{{ 'help.title' | translate }}</h2>
+  </div>
+
+  <div class="nav__tim">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <circle cx="7" cy="7" r="4.5" />
+      <path d="m10.5 10.5 3 3" />
+    </svg>
+    <input
+      #oTim
+      type="search"
+      [placeholder]="'help.search' | translate"
+      [attr.aria-label]="'help.search' | translate"
+      [value]="tim()"
+      (input)="onTim($event)"
+    />
+    <span class="nav__phim" aria-hidden="true">/</span>
+  </div>
+
+  <div class="nav__ds">
+    @for (n of nhomLoc(); track n.ma) {
+      <div class="nav__nhan">{{ n.ten }}</div>
+      @for (b of n.bai; track b.ma) {
+        <a
+          class="nav__muc"
+          [routerLink]="['/huong-dan', b.ma]"
+          [attr.aria-current]="b.ma === ma() ? 'page' : null"
+        >
+          <span class="nav__chu">{{ b.tieude }}</span>
+        </a>
+      }
+    }
+  </div>
+</nav>
+
+<div class="noidung">
+  <header class="trangdau">
+    <h1>{{ 'help.title' | translate }}</h1>
+    <span class="trangdau__phu">{{ 'help.count' | translate: { count: soBai() } }}</span>
+    <div class="trangdau__day"></div>
+  </header>
+  
+  @if (khongThay()) {
+    <div class="rong">
+      <div class="rong__vong">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="5.5" />
+          <path d="m12.6 12.6 4 4" />
+        </svg>
+      </div>
+      <h2>{{ 'help.noMatch.title' | translate }}</h2>
+      <p>{{ 'help.noMatch.text' | translate }}</p>
+    </div>
+  } @else if (bai(); as b) {
+    <div class="td">
+      <article class="td__bai">
+        <nav class="duong" [attr.aria-label]="'help.breadcrumb' | translate">
+          <a class="duong__ngan" routerLink="/huong-dan">{{ 'help.title' | translate }}</a>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="m6.5 4 4 4-4 4" />
+          </svg>
+          <span class="duong__ngan">{{ tenNhom() }}</span>
+        </nav>
+  
+        <h1 class="td__ten">{{ b.tieude }}</h1>
+        <p class="td__tomtat">{{ b.tomtat }}</p>
+  
+        <div class="td__than">
+          @for (khoi of b.khoi; track $index) {
+            @switch (khoi.k) {
+              @case ('de') {
+                @if (khoi.muc === 2) {
+                  <h2 [id]="neo($index)">{{ khoi.chu }}</h2>
+                } @else {
+                  <h3 [id]="neo($index)">{{ khoi.chu }}</h3>
+                }
+              }
+  
+              @case ('doan') {
+                <p>
+                  @for (c of khoi.chu; track $index) {
+                    <ng-container [ngTemplateOutlet]="chu" [ngTemplateOutletContext]="{ $implicit: c }" />
+                  }
+                </p>
+              }
+  
+              @case ('ds') {
+                @if (khoi.thutu) {
+                  <ol>
+                    @for (muc of khoi.muc; track $index) {
+                      <li>
+                        @for (c of muc; track $index) {
+                          <ng-container [ngTemplateOutlet]="chu" [ngTemplateOutletContext]="{ $implicit: c }" />
+                        }
+                      </li>
+                    }
+                  </ol>
+                } @else {
+                  <ul>
+                    @for (muc of khoi.muc; track $index) {
+                      <li>
+                        @for (c of muc; track $index) {
+                          <ng-container [ngTemplateOutlet]="chu" [ngTemplateOutletContext]="{ $implicit: c }" />
+                        }
+                      </li>
+                    }
+                  </ul>
+                }
+              }
+  
+              @case ('anh') {
+                <!--
+                  `loading="lazy"` vì bài dài có tới ba bốn ảnh chụp màn hình đầy đủ, và người
+                  đọc thường chỉ tới ảnh đầu tiên. Kích thước khai sẵn để trang không nhảy
+                  khi ảnh về — chữ đang đọc bị đẩy xuống là cách nhanh nhất làm người ta mất chỗ.
+                -->
+                <figure class="anh">
+                  <img
+                    [src]="'huong-dan/' + khoi.tep"
+                    [alt]="khoi.mota"
+                    width="1280"
+                    height="774"
+                    loading="lazy"
+                  />
+                  @if (khoi.chuthich) {
+                    <figcaption>{{ khoi.chuthich }}</figcaption>
+                  }
+                </figure>
+              }
+  
+              @case ('chuy') {
+                <div class="chuy" [class.chuy--canh]="khoi.tong === 'canh'">
+                  @for (c of khoi.chu; track $index) {
+                    <ng-container [ngTemplateOutlet]="chu" [ngTemplateOutletContext]="{ $implicit: c }" />
+                  }
+                </div>
+              }
+  
+              @case ('bang') {
+                <div class="td__bang">
+                  <table>
+                    <thead>
+                      <tr>
+                        @for (o of khoi.dau; track $index) {
+                          <th>
+                            @for (c of o; track $index) {
+                              <ng-container [ngTemplateOutlet]="chu" [ngTemplateOutletContext]="{ $implicit: c }" />
+                            }
+                          </th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (hang of khoi.than; track $index) {
+                        <tr>
+                          @for (o of hang; track $index) {
+                            <td>
+                              @for (c of o; track $index) {
+                                <ng-container [ngTemplateOutlet]="chu" [ngTemplateOutletContext]="{ $implicit: c }" />
+                              }
+                            </td>
+                          }
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            }
+          }
+        </div>
+  
+        <footer class="td__chan">
+          <div class="td__ich">
+            @if (daDanhGia()) {
+              <span>{{ 'help.thanks' | translate }}</span>
+            } @else {
+              <span>{{ 'help.helpful' | translate }}</span>
+              <button class="nut nut--nho" type="button" (click)="danhGia()">
+                {{ 'help.yes' | translate }}
+              </button>
+              <button class="nut nut--nho" type="button" (click)="danhGia()">
+                {{ 'help.no' | translate }}
+              </button>
+            }
+          </div>
+  
+          <nav class="td__keo" [attr.aria-label]="'help.prevNext' | translate">
+            @if (keBen().truoc; as t) {
+              <a [routerLink]="['/huong-dan', t.ma]">
+                <small>{{ 'help.prev' | translate }}</small>
+                <b>{{ t.tieude }}</b>
+              </a>
+            } @else {
+              <span></span>
+            }
+  
+            @if (keBen().sau; as s) {
+              <a class="td__sau" [routerLink]="['/huong-dan', s.ma]">
+                <small>{{ 'help.next' | translate }}</small>
+                <b>{{ s.tieude }}</b>
+              </a>
+            }
+          </nav>
+        </footer>
+      </article>
+  
+      <!-- Mục lục CHỈ hiện khi bài có từ hai tiêu đề trở lên. Một mục lục một dòng thì nó
+           không giúp đi lại được gì, chỉ chiếm một cột. -->
+      @if (mucLuc().length > 1) {
+        <aside class="td__ml" [attr.aria-label]="'help.onThisPage' | translate">
+          <h2>{{ 'help.onThisPage' | translate }}</h2>
+          @for (m of mucLuc(); track m.neo) {
+            <a [href]="'#' + m.neo" [attr.data-muc]="m.muc">{{ m.chu }}</a>
+          }
+        </aside>
+      }
+    </div>
+  } @else if (dangTai()) {
+    <div class="trang"></div>
+  } @else if (hong()) {
+    <div class="rong">
+      <div class="rong__vong">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M10 3.5 2.8 16h14.4z" />
+          <path d="M10 8v3.4M10 13.6h.02" stroke-width="1.9" />
+        </svg>
+      </div>
+      <h2>{{ 'help.missing.title' | translate }}</h2>
+      <p>{{ 'help.missing.text' | translate }}</p>
+      <a class="nut" routerLink="/huong-dan">{{ 'help.backHome' | translate }}</a>
+    </div>
+  } @else {
+    <!-- Trang chủ hướng dẫn: một thẻ cho mỗi nhóm. -->
+    <div class="trang">
+      <div class="tdlua">
+        @for (n of nhom(); track n.ma) {
+          <a class="tdthe" [routerLink]="['/huong-dan', n.bai[0].ma]">
+            <h3>{{ n.ten }}</h3>
+            <p>{{ n.mota }}</p>
+            <span class="tdthe__so">{{ 'help.count' | translate: { count: n.bai.length } }}</span>
+          </a>
+        }
+      </div>
+    </div>
+  }
+  
+  <!--
+    Một mẩu chữ. Bốn loại, và mỗi loại là một THẺ riêng — không ghép chuỗi thành HTML ở đâu cả.
+  -->
+  <ng-template #chu let-c>
+    @switch (c.k) {
+      @case ('dam') {<strong>{{ c.v }}</strong>}
+      @case ('ma') {<code>{{ c.v }}</code>}
+      @case ('lien') {
+        @if (c.den.startsWith('#')) {<a [routerLink]="['/huong-dan', c.den.slice(1)]">{{ c.v }}</a>} @else {
+          <!-- Liên kết ra NGOÀI mở tab mới, và `noopener` là bắt buộc: thiếu nó thì trang
+               đích đọc được `window.opener` và điều hướng được tab của chúng ta đi chỗ khác. -->
+          <a [href]="c.den" target="_blank" rel="noopener noreferrer">{{ c.v }}</a>
+        }
+      }
+      @default {{{ c.v }}}
+    }
+  </ng-template>
+</div>

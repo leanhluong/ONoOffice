@@ -1,0 +1,68 @@
+[
+  {
+    "ma": "bat-dau",
+    "ten": "Bắt đầu",
+    "mota": "Dựng workspace và đưa đồng nghiệp vào.",
+    "bai": [
+      {
+        "ma": "dang-ky-workspace",
+        "tieude": "Đăng ký workspace",
+        "tomtat": "Tạo không gian làm việc cho công ty bạn, và hiểu mã workspace dùng để làm gì."
+      },
+      {
+        "ma": "dang-nhap-lan-dau",
+        "tieude": "Đăng nhập lần đầu",
+        "tomtat": "Đồng nghiệp nhận mật khẩu tạm từ quản trị viên, và phải đổi nó ngay lần đầu."
+      }
+    ]
+  },
+  {
+    "ma": "nhan-su",
+    "ten": "Quản trị nhân sự",
+    "mota": "Tài khoản đăng nhập, hồ sơ nhân viên, phòng ban và vai trò.",
+    "bai": [
+      {
+        "ma": "man-thanh-vien",
+        "tieude": "Màn Thành viên — ba loại dòng",
+        "tomtat": "Vì sao một người có thể hiện ra hai lần, và ô gạch đứt trong bảng nghĩa là gì."
+      },
+      {
+        "ma": "noi-ho-so-tai-khoan",
+        "tieude": "Nối hồ sơ với tài khoản",
+        "tomtat": "Gộp hai dòng của cùng một người, hoặc tạo luôn nửa còn thiếu."
+      },
+      {
+        "ma": "thao-tac-hang-loat",
+        "tieude": "Làm cho nhiều người một lúc",
+        "tomtat": "Đổi phòng ban, đổi vai trò hoặc vô hiệu hoá nhiều người — và đọc con số bị bỏ qua."
+      },
+      {
+        "ma": "dat-lai-mat-khau",
+        "tieude": "Đặt lại mật khẩu hộ đồng nghiệp",
+        "tomtat": "Đường duy nhất để một người quên mật khẩu quay lại được — và vì sao chủ sở hữu là ngoại lệ."
+      },
+      {
+        "ma": "phong-ban",
+        "tieude": "Dựng cây phòng ban",
+        "tomtat": "Thêm, đổi tên, điều chuyển và xoá phòng — cùng bốn luật hệ thống không cho phá."
+      }
+    ]
+  },
+  {
+    "ma": "hang-ngay",
+    "ten": "Dùng hằng ngày",
+    "mota": "Những việc ai trong workspace cũng làm.",
+    "bai": [
+      {
+        "ma": "danh-ba",
+        "tieude": "Tra cứu đồng nghiệp",
+        "tomtat": "Tìm người theo tên, mã nhân viên hoặc email, và lọc theo phòng ban."
+      },
+      {
+        "ma": "ho-so-cua-ban",
+        "tieude": "Hồ sơ và cài đặt của bạn",
+        "tomtat": "Đổi tên hiển thị, đổi mật khẩu, chọn bộ màu và ngôn ngữ."
+      }
+    ]
+  }
+]

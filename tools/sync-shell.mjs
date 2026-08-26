@@ -112,6 +112,7 @@ const toProduct = (css) =>
     'docs/07-giao-dien/chung/_khung.css',
     'docs/07-giao-dien/chung/_khung-quantri.css',
     'docs/07-giao-dien/chung/_dieukhien.css',
+    'docs/07-giao-dien/chung/_tailieu.css',
     'docs/07-giao-dien/chung/_brand.css',
   ];
 
@@ -190,6 +191,10 @@ const SCREENS = [
   {
     source: 'docs/07-giao-dien/org/danh-ba.html',
     target: 'frontend/src/app/features/contacts/contact-list.scss',
+  },
+  {
+    source: 'docs/07-giao-dien/huongdan/tai-lieu.html',
+    target: 'frontend/src/app/features/help/help.scss',
   },
 ];
 

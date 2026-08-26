@@ -1,0 +1,301 @@
+{
+  "ma": "thao-tac-hang-loat",
+  "tieude": "Làm cho nhiều người một lúc",
+  "nhom": "nhan-su",
+  "tomtat": "Đổi phòng ban, đổi vai trò hoặc vô hiệu hoá nhiều người — và đọc con số bị bỏ qua.",
+  "khoi": [
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Tick vài dòng trong bảng thì một thanh nổi lên ở đáy màn hình, mang ba việc: "
+        },
+        {
+          "k": "dam",
+          "v": "Đổi phòng ban"
+        },
+        {
+          "k": "chu",
+          "v": " · "
+        },
+        {
+          "k": "dam",
+          "v": "Đổi vai trò"
+        },
+        {
+          "k": "chu",
+          "v": " · "
+        },
+        {
+          "k": "dam",
+          "v": "Vô hiệu hoá"
+        },
+        {
+          "k": "chu",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "k": "anh",
+      "mota": "Thanh nổi ở đáy bảng khi đã chọn nhiều dòng",
+      "tep": "anh/hang-loat.png",
+      "chuthich": "Thanh chỉ hiện khi có dòng được chọn, và biến mất khi bỏ chọn"
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Con số quan trọng nhất là con số THỨ HAI"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Hộp xác nhận nói hai điều: "
+        },
+        {
+          "k": "chu",
+          "v": "*\"Sẽ áp cho "
+        },
+        {
+          "k": "dam",
+          "v": "6 người"
+        },
+        {
+          "k": "chu",
+          "v": ". "
+        },
+        {
+          "k": "dam",
+          "v": "4 người"
+        },
+        {
+          "k": "chu",
+          "v": " bị bỏ qua vì chưa có tài khoản đăng nhập, hoặc là chủ sở hữu.\""
+        },
+        {
+          "k": "chu",
+          "v": "*"
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Con số thứ hai mới là thứ cần đọc. Bảng có ba loại dòng, nên một lựa chọn bất kỳ gần như luôn lẫn cả những dòng không áp được."
+        }
+      ]
+    },
+    {
+      "k": "bang",
+      "dau": [
+        [
+          {
+            "k": "chu",
+            "v": "Việc"
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Cần gì"
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Ai bị bỏ qua"
+          }
+        ]
+      ],
+      "than": [
+        [
+          [
+            {
+              "k": "chu",
+              "v": "Đổi phòng ban"
+            }
+          ],
+          [
+            {
+              "k": "chu",
+              "v": "Hồ sơ nhân sự"
+            }
+          ],
+          [
+            {
+              "k": "chu",
+              "v": "Dòng chỉ có tài khoản"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "k": "chu",
+              "v": "Đổi vai trò"
+            }
+          ],
+          [
+            {
+              "k": "chu",
+              "v": "Tài khoản đăng nhập"
+            }
+          ],
+          [
+            {
+              "k": "chu",
+              "v": "Dòng chỉ có hồ sơ, và chủ sở hữu"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "k": "chu",
+              "v": "Vô hiệu hoá"
+            }
+          ],
+          [
+            {
+              "k": "chu",
+              "v": "Tài khoản đăng nhập"
+            }
+          ],
+          [
+            {
+              "k": "chu",
+              "v": "Dòng chỉ có hồ sơ, chủ sở hữu, chính bạn, người đã tắt sẵn"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "luuy",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Nhãn nút mang luôn con số — "
+        },
+        {
+          "k": "chu",
+          "v": "*\"Áp cho 6 người\""
+        },
+        {
+          "k": "chu",
+          "v": "* chứ không phải "
+        },
+        {
+          "k": "chu",
+          "v": "*\"Xác nhận\""
+        },
+        {
+          "k": "chu",
+          "v": "*. Thứ bạn sắp bấm tự nói ra nó làm gì."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Chạy tuần tự, và một người hỏng không dừng cả loạt"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Hệ thống xử lý "
+        },
+        {
+          "k": "dam",
+          "v": "từng người một"
+        },
+        {
+          "k": "chu",
+          "v": ", nút hiện "
+        },
+        {
+          "k": "chu",
+          "v": "*Đang chạy… 4/6"
+        },
+        {
+          "k": "chu",
+          "v": "*. Nếu một người thất bại, những người còn lại vẫn được xử lý, và cuối cùng bạn nhận một câu nói thật — "
+        },
+        {
+          "k": "chu",
+          "v": "*\"Đã áp cho 5 người. 1 người thất bại.\""
+        },
+        {
+          "k": "chu",
+          "v": "*"
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Bắn song song thì nhanh hơn và tệ hơn: hỏng giữa chừng sẽ không có cách nào biết ai đã xong."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Vài chuyện nên biết"
+    },
+    {
+      "k": "ds",
+      "thutu": false,
+      "muc": [
+        [
+          {
+            "k": "dam",
+            "v": "Rút khỏi mọi phòng"
+          },
+          {
+            "k": "chu",
+            "v": " là một lựa chọn hợp lệ trong ô Phòng ban mới, không phải \"chưa chọn gì\"."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Chạy xong thì hệ thống "
+          },
+          {
+            "k": "dam",
+            "v": "tự bỏ chọn"
+          },
+          {
+            "k": "chu",
+            "v": ". Giữ nguyên thì cú bấm tiếp theo áp lại lên đúng những người đó."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Chọn chỉ giữ những dòng "
+          },
+          {
+            "k": "dam",
+            "v": "đang nhìn thấy"
+          },
+          {
+            "k": "chu",
+            "v": ", nên đổi bộ lọc hoặc sang trang là mất lựa chọn — cố ý, để thanh \"đã chọn 3 người\" không bao giờ nói về người bạn không thấy."
+          }
+        ]
+      ]
+    }
+  ]
+}

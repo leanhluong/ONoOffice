@@ -510,6 +510,23 @@ export function mountRail(host, dang) {
     </div>
 
     <div class="rail__duoi">
+      <!--
+        Trợ giúp ở ĐÁY RAIL, không nằm trong danh sách app phía trên.
+
+        Rail là các app người ta dùng hằng ngày; trợ giúp thì mở khi đang bí ở một cái nút
+        — không phải một chỗ để làm việc, mà một chỗ để hỏi. Slack và Lark đặt nó đúng đây,
+        cạnh cài đặt và ảnh đại diện, và đặt đúng vì cùng lý do đó.
+      -->
+      <a class="nuti" href="../huongdan/tai-lieu.html" aria-label="Hướng dẫn"
+         ${dang === 'huong-dan' ? 'aria-current="page"' : ''}>
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+             stroke-linecap="round" aria-hidden="true">
+          <circle cx="10" cy="10" r="7.2"/>
+          <path d="M7.9 7.9a2.2 2.2 0 113 2.05v1.15"/>
+          <path d="M10.9 14.2h-.02" stroke-width="2.1"/>
+        </svg>
+      </a>
+
       <button class="nuti" id="railCaidat" aria-haspopup="true" aria-expanded="false"
               aria-label="Giao diện và ngôn ngữ">
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
@@ -539,6 +556,17 @@ export function mountRail(host, dang) {
     ['#railCaidat', '#railMenuCaidat'],
     ['#railToi', '#railMenuToi'],
   ]);
+
+  // `?menu=toi` mở sẵn menu ảnh đại diện. Cùng họ với `?mo=` và `?state=`: cho phép chụp
+  // một trạng thái CHỈ HIỆN RA SAU KHI BẤM, vì Chrome headless điều hướng tới một URL rồi
+  // chụp — nó không bấm được nút. Bộ chụp ảnh hướng dẫn dùng đúng đường này.
+  const menu = new URLSearchParams(location.search).get('menu');
+
+  if (menu === 'toi' || menu === 'caidat') {
+    const nut = host.querySelector(menu === 'toi' ? '#railToi' : '#railCaidat');
+
+    nut?.click();
+  }
 }
 
 /**

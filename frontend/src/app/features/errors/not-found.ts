@@ -7,11 +7,15 @@ import { RouterLink } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink],
   template: `
-    <section class="not-found">
-      <h1>404 — Không tìm thấy trang</h1>
-      <p>Đường dẫn bạn mở không tồn tại hoặc đã bị đổi.</p>
-      <a routerLink="/dashboard">← Về bảng điều khiển</a>
-    </section>
+    <div class="noidung">
+      <div class="trang">
+        <section class="not-found">
+          <h1>404 — Không tìm thấy trang</h1>
+          <p>Đường dẫn bạn mở không tồn tại hoặc đã bị đổi.</p>
+          <a routerLink="/dashboard">← Về bảng điều khiển</a>
+        </section>
+      </div>
+    </div>
   `,
   styles: `
     .not-found {

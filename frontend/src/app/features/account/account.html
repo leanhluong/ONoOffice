@@ -4,182 +4,184 @@
   CSS thì KHÔNG chép — `account.scss` sinh tự động từ chính file đó
   (`node tools/sync-shell.mjs`). Chỗ duy nhất phải giữ đồng bộ bằng tay là đánh dấu.
 -->
-<header class="trangdau">
-  <h1>{{ 'nav.profile' | translate }}</h1>
-  <div class="trangdau__day"></div>
-</header>
-
-<div class="tab" style="padding: 0 18px; flex: none">
-  <button type="button" [attr.aria-selected]="tab() === 'hoso'" (click)="select('hoso')">
-    {{ 'account.tab.profile' | translate }}
-  </button>
-  <button type="button" [attr.aria-selected]="tab() === 'baomat'" (click)="select('baomat')">
-    {{ 'account.tab.security' | translate }}
-  </button>
-  <button type="button" [attr.aria-selected]="tab() === 'giaodien'" (click)="select('giaodien')">
-    {{ 'account.tab.appearance' | translate }}
-  </button>
-</div>
-
-<div class="trang">
-  <div class="trang--hep">
-    @if (profile(); as me) {
-      <!-- ══════════════ HỒ SƠ ══════════════ -->
-      @if (tab() === 'hoso') {
-        <div class="khoi khoi--hien">
-          <div class="dau">
-            <span class="mat mat--lon">{{ initials(me.fullName) }}</span>
-            <div>
-              <h2 class="dau__ten">{{ me.fullName }}</h2>
-              <div class="dau__phu">
-                {{ me.email }} ·
-                <span class="vai" [class.vai--chu]="me.isOwner">{{ me.roleName }}</span>
-              </div>
-            </div>
-          </div>
-
-          <form class="the__khoi" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
-            <h3>{{ 'account.personal.title' | translate }}</h3>
-            <p class="mota">{{ 'account.personal.text' | translate }}</p>
-
-            <div class="luoi">
-              <div class="o" [class.o--hong]="nameError() !== null">
-                <label class="o__nhan" for="ten">
-                  {{ 'users.field.fullName' | translate }} <span class="o__batbuoc">*</span>
-                </label>
-                <input id="ten" type="text" formControlName="fullName" />
-                <span class="o__loi">{{ nameError() }}</span>
-              </div>
-
-              <!--
-                Email và vai trò KHOÁ, kèm một câu nói rõ vì sao. Hiện một ô nhập rồi từ
-                chối lưu là cách chắc chắn nhất làm người dùng bực; khoá sẵn thì họ biết
-                phải đi hỏi ai.
-              -->
-              <div class="o">
-                <label class="o__nhan" for="mail">{{
-                  'account.field.loginEmail' | translate
-                }}</label>
-                <input id="mail" type="email" [value]="me.email" disabled />
-                <span class="o__meo">{{ 'account.field.emailLocked' | translate }}</span>
-              </div>
-
-              <div class="o">
-                <label class="o__nhan" for="vaitro">{{ 'users.field.role' | translate }}</label>
-                <input id="vaitro" type="text" [value]="me.roleName" disabled />
-                <span class="o__meo">{{ 'account.field.roleLocked' | translate }}</span>
-              </div>
-            </div>
-
-            <button
-              class="nut nut--chinh nut--nho"
-              style="margin-top: 16px"
-              type="submit"
-              [disabled]="saving()"
-            >
-              {{ 'action.save' | translate }}
-            </button>
-          </form>
-        </div>
-      }
-
-      <!-- ══════════════ BẢO MẬT ══════════════ -->
-      @if (tab() === 'baomat') {
-        <div class="khoi khoi--hien">
-          <form class="the__khoi" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
-            <h3>{{ 'account.password.title' | translate }}</h3>
-            <p class="mota">{{ 'account.password.text' | translate }}</p>
-
-            <div class="luoi">
-              <div class="o luoi--rong" [class.o--hong]="passwordError('currentPassword') !== null">
-                <label class="o__nhan" for="mkCu">
-                  {{ 'account.password.current' | translate }} <span class="o__batbuoc">*</span>
-                </label>
-                <input
-                  id="mkCu"
-                  type="password"
-                  formControlName="currentPassword"
-                  autocomplete="current-password"
-                />
-                <span class="o__loi">{{ passwordError('currentPassword') }}</span>
-              </div>
-
-              <div class="o" [class.o--hong]="passwordError('newPassword') !== null">
-                <label class="o__nhan" for="mkMoi">
-                  {{ 'account.password.new' | translate }} <span class="o__batbuoc">*</span>
-                </label>
-                <input
-                  id="mkMoi"
-                  type="password"
-                  formControlName="newPassword"
-                  autocomplete="new-password"
-                  [placeholder]="'account.password.placeholder' | translate"
-                />
-                <span class="o__loi">{{ passwordError('newPassword') }}</span>
-              </div>
-
-              <div class="o" [class.o--hong]="passwordError('repeatPassword') !== null">
-                <label class="o__nhan" for="mkLai">
-                  {{ 'account.password.repeat' | translate }} <span class="o__batbuoc">*</span>
-                </label>
-                <input
-                  id="mkLai"
-                  type="password"
-                  formControlName="repeatPassword"
-                  autocomplete="new-password"
-                  [placeholder]="'account.password.placeholder' | translate"
-                />
-                <span class="o__loi">{{ passwordError('repeatPassword') }}</span>
-              </div>
-            </div>
-
-            <!-- Cảnh báo nói TRƯỚC khi bấm, không phải sau. -->
-            <p class="o__meo" style="margin-top: 14px">
-              {{ 'account.password.warning' | translate }}
-            </p>
-
-            <button
-              class="nut nut--chinh nut--nho"
-              style="margin-top: 12px"
-              type="submit"
-              [disabled]="saving()"
-            >
-              {{ 'account.password.submit' | translate }}
-            </button>
-          </form>
-        </div>
-      }
-
-      <!-- ══════════════ GIAO DIỆN ══════════════ -->
-      @if (tab() === 'giaodien') {
-        <div class="khoi khoi--hien">
-          <div class="the__khoi">
-            <h3>{{ 'account.appearance.title' | translate }}</h3>
-            <p class="mota">{{ 'account.appearance.text' | translate }}</p>
-            <app-prefs />
-          </div>
-
-          <div class="the__khoi">
-            <h3>{{ 'account.display.title' | translate }}</h3>
-
-            <div class="hang">
-              <div class="hang__giua">
-                <div class="hang__ten">{{ 'account.display.collapse' | translate }}</div>
-                <div class="hang__phu">{{ 'account.display.collapseText' | translate }}</div>
-              </div>
-              <label class="congtac">
-                <input
-                  type="checkbox"
-                  [checked]="navCollapsed()"
-                  [attr.aria-label]="'account.display.collapse' | translate"
-                  (change)="toggleNav($event)"
-                />
-                <span class="congtac__ray"></span>
-              </label>
-            </div>
-          </div>
-        </div>
-      }
-    }
+<div class="noidung">
+  <header class="trangdau">  
+    <h1>{{ 'nav.profile' | translate }}</h1>  
+    <div class="trangdau__day"></div>  
+  </header>  
+    
+  <div class="tab" style="padding: 0 18px; flex: none">  
+    <button type="button" [attr.aria-selected]="tab() === 'hoso'" (click)="select('hoso')">  
+      {{ 'account.tab.profile' | translate }}  
+    </button>  
+    <button type="button" [attr.aria-selected]="tab() === 'baomat'" (click)="select('baomat')">  
+      {{ 'account.tab.security' | translate }}  
+    </button>  
+    <button type="button" [attr.aria-selected]="tab() === 'giaodien'" (click)="select('giaodien')">  
+      {{ 'account.tab.appearance' | translate }}  
+    </button>  
+  </div>  
+    
+  <div class="trang">  
+    <div class="trang--hep">  
+      @if (profile(); as me) {  
+        <!-- ══════════════ HỒ SƠ ══════════════ -->  
+        @if (tab() === 'hoso') {  
+          <div class="khoi khoi--hien">  
+            <div class="dau">  
+              <span class="mat mat--lon">{{ initials(me.fullName) }}</span>  
+              <div>  
+                <h2 class="dau__ten">{{ me.fullName }}</h2>  
+                <div class="dau__phu">  
+                  {{ me.email }} ·  
+                  <span class="vai" [class.vai--chu]="me.isOwner">{{ me.roleName }}</span>  
+                </div>  
+              </div>  
+            </div>  
+    
+            <form class="the__khoi" [formGroup]="profileForm" (ngSubmit)="saveProfile()">  
+              <h3>{{ 'account.personal.title' | translate }}</h3>  
+              <p class="mota">{{ 'account.personal.text' | translate }}</p>  
+    
+              <div class="luoi">  
+                <div class="o" [class.o--hong]="nameError() !== null">  
+                  <label class="o__nhan" for="ten">  
+                    {{ 'users.field.fullName' | translate }} <span class="o__batbuoc">*</span>  
+                  </label>  
+                  <input id="ten" type="text" formControlName="fullName" />  
+                  <span class="o__loi">{{ nameError() }}</span>  
+                </div>  
+    
+                <!--  
+                  Email và vai trò KHOÁ, kèm một câu nói rõ vì sao. Hiện một ô nhập rồi từ  
+                  chối lưu là cách chắc chắn nhất làm người dùng bực; khoá sẵn thì họ biết  
+                  phải đi hỏi ai.  
+                -->  
+                <div class="o">  
+                  <label class="o__nhan" for="mail">{{  
+                    'account.field.loginEmail' | translate  
+                  }}</label>  
+                  <input id="mail" type="email" [value]="me.email" disabled />  
+                  <span class="o__meo">{{ 'account.field.emailLocked' | translate }}</span>  
+                </div>  
+    
+                <div class="o">  
+                  <label class="o__nhan" for="vaitro">{{ 'users.field.role' | translate }}</label>  
+                  <input id="vaitro" type="text" [value]="me.roleName" disabled />  
+                  <span class="o__meo">{{ 'account.field.roleLocked' | translate }}</span>  
+                </div>  
+              </div>  
+    
+              <button  
+                class="nut nut--chinh nut--nho"  
+                style="margin-top: 16px"  
+                type="submit"  
+                [disabled]="saving()"  
+              >  
+                {{ 'action.save' | translate }}  
+              </button>  
+            </form>  
+          </div>  
+        }  
+    
+        <!-- ══════════════ BẢO MẬT ══════════════ -->  
+        @if (tab() === 'baomat') {  
+          <div class="khoi khoi--hien">  
+            <form class="the__khoi" [formGroup]="passwordForm" (ngSubmit)="changePassword()">  
+              <h3>{{ 'account.password.title' | translate }}</h3>  
+              <p class="mota">{{ 'account.password.text' | translate }}</p>  
+    
+              <div class="luoi">  
+                <div class="o luoi--rong" [class.o--hong]="passwordError('currentPassword') !== null">  
+                  <label class="o__nhan" for="mkCu">  
+                    {{ 'account.password.current' | translate }} <span class="o__batbuoc">*</span>  
+                  </label>  
+                  <input  
+                    id="mkCu"  
+                    type="password"  
+                    formControlName="currentPassword"  
+                    autocomplete="current-password"  
+                  />  
+                  <span class="o__loi">{{ passwordError('currentPassword') }}</span>  
+                </div>  
+    
+                <div class="o" [class.o--hong]="passwordError('newPassword') !== null">  
+                  <label class="o__nhan" for="mkMoi">  
+                    {{ 'account.password.new' | translate }} <span class="o__batbuoc">*</span>  
+                  </label>  
+                  <input  
+                    id="mkMoi"  
+                    type="password"  
+                    formControlName="newPassword"  
+                    autocomplete="new-password"  
+                    [placeholder]="'account.password.placeholder' | translate"  
+                  />  
+                  <span class="o__loi">{{ passwordError('newPassword') }}</span>  
+                </div>  
+    
+                <div class="o" [class.o--hong]="passwordError('repeatPassword') !== null">  
+                  <label class="o__nhan" for="mkLai">  
+                    {{ 'account.password.repeat' | translate }} <span class="o__batbuoc">*</span>  
+                  </label>  
+                  <input  
+                    id="mkLai"  
+                    type="password"  
+                    formControlName="repeatPassword"  
+                    autocomplete="new-password"  
+                    [placeholder]="'account.password.placeholder' | translate"  
+                  />  
+                  <span class="o__loi">{{ passwordError('repeatPassword') }}</span>  
+                </div>  
+              </div>  
+    
+              <!-- Cảnh báo nói TRƯỚC khi bấm, không phải sau. -->  
+              <p class="o__meo" style="margin-top: 14px">  
+                {{ 'account.password.warning' | translate }}  
+              </p>  
+    
+              <button  
+                class="nut nut--chinh nut--nho"  
+                style="margin-top: 12px"  
+                type="submit"  
+                [disabled]="saving()"  
+              >  
+                {{ 'account.password.submit' | translate }}  
+              </button>  
+            </form>  
+          </div>  
+        }  
+    
+        <!-- ══════════════ GIAO DIỆN ══════════════ -->  
+        @if (tab() === 'giaodien') {  
+          <div class="khoi khoi--hien">  
+            <div class="the__khoi">  
+              <h3>{{ 'account.appearance.title' | translate }}</h3>  
+              <p class="mota">{{ 'account.appearance.text' | translate }}</p>  
+              <app-prefs />  
+            </div>  
+    
+            <div class="the__khoi">  
+              <h3>{{ 'account.display.title' | translate }}</h3>  
+    
+              <div class="hang">  
+                <div class="hang__giua">  
+                  <div class="hang__ten">{{ 'account.display.collapse' | translate }}</div>  
+                  <div class="hang__phu">{{ 'account.display.collapseText' | translate }}</div>  
+                </div>  
+                <label class="congtac">  
+                  <input  
+                    type="checkbox"  
+                    [checked]="navCollapsed()"  
+                    [attr.aria-label]="'account.display.collapse' | translate"  
+                    (change)="toggleNav($event)"  
+                  />  
+                  <span class="congtac__ray"></span>  
+                </label>  
+              </div>  
+            </div>  
+          </div>  
+        }  
+      }  
+    </div>  
   </div>
 </div>

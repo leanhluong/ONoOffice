@@ -1,0 +1,164 @@
+{
+  "ma": "phong-ban",
+  "tieude": "Dựng cây phòng ban",
+  "nhom": "nhan-su",
+  "tomtat": "Thêm, đổi tên, điều chuyển và xoá phòng — cùng bốn luật hệ thống không cho phá.",
+  "khoi": [
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Cây phòng ban ở "
+        },
+        {
+          "k": "dam",
+          "v": "Quản trị → Phòng ban"
+        },
+        {
+          "k": "chu",
+          "v": ". Mỗi phòng có thể có phòng con, sâu bao nhiêu cấp cũng được."
+        }
+      ]
+    },
+    {
+      "k": "anh",
+      "mota": "Cây phòng ban với ba cấp lồng nhau",
+      "tep": "anh/phong-ban.png",
+      "chuthich": "Số bên phải mỗi phòng là số người TRỰC TIẾP, không cộng dồn phòng con"
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Bốn việc, ba hộp thoại"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Thêm phòng"
+        },
+        {
+          "k": "chu",
+          "v": " · "
+        },
+        {
+          "k": "dam",
+          "v": "Đổi tên"
+        },
+        {
+          "k": "chu",
+          "v": " · "
+        },
+        {
+          "k": "dam",
+          "v": "Điều chuyển"
+        },
+        {
+          "k": "chu",
+          "v": " dùng chung một hộp thoại, đổi tiêu đề và ô nhập theo việc. "
+        },
+        {
+          "k": "dam",
+          "v": "Xoá"
+        },
+        {
+          "k": "chu",
+          "v": " thì tách riêng, vì xoá cần một câu hỏi khẳng định chứ không phải một biểu mẫu — người dùng phải đọc chứ không phải điền."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Bốn luật hệ thống không cho phá"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Tên phòng không trùng nhau"
+        },
+        {
+          "k": "chu",
+          "v": " trong cùng một workspace, không phân biệt hoa thường. Hai phòng cùng tên thì mọi câu \"chuyển sang phòng Kinh doanh\" đều mơ hồ."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Không tạo vòng."
+        },
+        {
+          "k": "chu",
+          "v": " Không chuyển một phòng vào chính nhánh con của nó — làm được thì cả nhánh đó biến mất khỏi cây, và không màn nào hiện ra để sửa. Danh sách xổ "
+        },
+        {
+          "k": "chu",
+          "v": "*trực thuộc"
+        },
+        {
+          "k": "chu",
+          "v": "* đã tự loại bỏ chính nó và cả nhánh của nó, nên bạn cũng không chọn nhầm được."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Phòng còn phòng con thì không xoá."
+        },
+        {
+          "k": "chu",
+          "v": " Chuyển hoặc xoá các phòng con trước."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Phòng còn nhân viên thì không xoá"
+        },
+        {
+          "k": "chu",
+          "v": " — kể cả người "
+        },
+        {
+          "k": "dam",
+          "v": "đã nghỉ việc"
+        },
+        {
+          "k": "chu",
+          "v": ". Hồ sơ của họ vẫn trỏ vào phòng này, và xoá phòng đi là mất luôn thông tin \"từng làm ở đâu\"."
+        }
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "luuy",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Con số bên phải mỗi phòng là số người "
+        },
+        {
+          "k": "dam",
+          "v": "trực tiếp"
+        },
+        {
+          "k": "chu",
+          "v": ", không cộng dồn phòng con. Một khối có 3 người và hai phòng con 12 + 5 người thì khối đó vẫn ghi 3."
+        }
+      ]
+    }
+  ]
+}

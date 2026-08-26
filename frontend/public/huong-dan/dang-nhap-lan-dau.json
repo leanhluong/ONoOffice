@@ -1,0 +1,197 @@
+{
+  "ma": "dang-nhap-lan-dau",
+  "tieude": "Đăng nhập lần đầu",
+  "nhom": "bat-dau",
+  "tomtat": "Đồng nghiệp nhận mật khẩu tạm từ quản trị viên, và phải đổi nó ngay lần đầu.",
+  "khoi": [
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Bạn "
+        },
+        {
+          "k": "dam",
+          "v": "không tự đăng ký"
+        },
+        {
+          "k": "chu",
+          "v": " vào workspace của công ty. Quản trị viên tạo tài khoản hộ, rồi đưa bạn một "
+        },
+        {
+          "k": "dam",
+          "v": "mật khẩu tạm"
+        },
+        {
+          "k": "chu",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Các bước"
+    },
+    {
+      "k": "ds",
+      "thutu": true,
+      "muc": [
+        [
+          {
+            "k": "chu",
+            "v": "Mở trang đăng nhập của công ty."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Điền email công ty và mật khẩu tạm quản trị viên đưa."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Hệ thống đưa bạn thẳng tới chỗ đổi mật khẩu — đặt mật khẩu của riêng bạn ngay tại đó."
+          }
+        ]
+      ]
+    },
+    {
+      "k": "anh",
+      "mota": "Màn đăng nhập, hai cột: nền sơ đồ tổ chức bên trái, biểu mẫu bên phải",
+      "tep": "anh/dang-nhap.png",
+      "chuthich": "Màn đăng nhập — nút con mắt để xem lại mật khẩu vừa gõ"
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Vì sao là mật khẩu tạm chứ không phải lời mời qua email"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Hệ thống "
+        },
+        {
+          "k": "dam",
+          "v": "chưa nối dịch vụ gửi email"
+        },
+        {
+          "k": "chu",
+          "v": ". Làm một luồng nói \"đã gửi lời mời\" mà thật ra không gửi gì là kiểu nói dối tệ nhất: bạn ngồi chờ, và không có chỗ nào báo lỗi."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Nên mật khẩu tạm đi qua đường thật của nó — Zalo, tin nhắn, hoặc đưa tận tay. Vì vậy nó cũng được sinh sao cho "
+        },
+        {
+          "k": "dam",
+          "v": "đọc được qua điện thoại"
+        },
+        {
+          "k": "chu",
+          "v": ": bảng chữ bỏ "
+        },
+        {
+          "k": "ma",
+          "v": "0/O"
+        },
+        {
+          "k": "chu",
+          "v": " và "
+        },
+        {
+          "k": "ma",
+          "v": "1/l/I"
+        },
+        {
+          "k": "chu",
+          "v": ", chia cụm bằng dấu nối như "
+        },
+        {
+          "k": "ma",
+          "v": "k7np-2wqx-hs4m"
+        },
+        {
+          "k": "chu",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "canh",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Mật khẩu tạm chỉ sống tới lần đăng nhập đầu tiên. Đổi xong là nó hết tác dụng — kể cả với người đã đọc được tin nhắn của bạn."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Quên mật khẩu thì sao"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Hiện "
+        },
+        {
+          "k": "dam",
+          "v": "chưa có"
+        },
+        {
+          "k": "chu",
+          "v": " luồng tự phục hồi, vì nó cần email. Hãy nhờ quản trị viên vào màn "
+        },
+        {
+          "k": "dam",
+          "v": "Thành viên"
+        },
+        {
+          "k": "chu",
+          "v": ", mở chi tiết tài khoản của bạn và bấm "
+        },
+        {
+          "k": "chu",
+          "v": "*Đặt lại mật khẩu"
+        },
+        {
+          "k": "chu",
+          "v": "* — bạn sẽ nhận một mật khẩu tạm mới."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Xem "
+        },
+        {
+          "k": "lien",
+          "v": "Đặt lại mật khẩu hộ đồng nghiệp",
+          "den": "#dat-lai-mat-khau"
+        },
+        {
+          "k": "chu",
+          "v": "."
+        }
+      ]
+    }
+  ]
+}

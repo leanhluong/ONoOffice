@@ -20,3 +20,9 @@
 - **Người mới vào dự án** → `01` rồi `02`. Hai cái đó đủ hiểu bức tranh.
 - **Chuẩn bị viết code** → `03` (luật) rồi `04`/`05` (thứ đang đụng tới).
 - **Muốn biết vì sao chọn thế này mà không chọn thế kia** → [`02-kien-truc/adr/`](./02-kien-truc/adr/).
+
+## 08 — Hướng dẫn sử dụng
+
+Nguồn của màn `/huong-dan` trong app. Markdown trong repo, sinh sang JSON bằng
+`node tools/sync-huongdan.mjs`; ảnh chụp tự động từ app đang chạy chế độ demo bằng
+`cd frontend && node tools/chup-huong-dan.mjs`. Xem `docs/08-huong-dan/README.md`.

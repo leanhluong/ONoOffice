@@ -1,0 +1,238 @@
+{
+  "ma": "ho-so-cua-ban",
+  "tieude": "Hồ sơ và cài đặt của bạn",
+  "nhom": "hang-ngay",
+  "tomtat": "Đổi tên hiển thị, đổi mật khẩu, chọn bộ màu và ngôn ngữ.",
+  "khoi": [
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Mở bằng "
+        },
+        {
+          "k": "dam",
+          "v": "ảnh đại diện"
+        },
+        {
+          "k": "chu",
+          "v": " ở góc dưới bên trái → "
+        },
+        {
+          "k": "chu",
+          "v": "*Hồ sơ của bạn"
+        },
+        {
+          "k": "chu",
+          "v": "*."
+        }
+      ]
+    },
+    {
+      "k": "anh",
+      "mota": "Menu ảnh đại diện với bốn dòng",
+      "tep": "anh/menu-toi.png",
+      "chuthich": "Mũi tên chéo ở dòng Quản trị báo trước rằng bấm vào là đổi cả bố cục màn hình"
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Đổi mật khẩu"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Thẻ "
+        },
+        {
+          "k": "dam",
+          "v": "Bảo mật"
+        },
+        {
+          "k": "chu",
+          "v": ". Cần "
+        },
+        {
+          "k": "dam",
+          "v": "mật khẩu hiện tại"
+        },
+        {
+          "k": "chu",
+          "v": " — đó là thứ ngăn một người ngồi vào máy bạn lúc đang đăng nhập rồi chiếm hẳn tài khoản."
+        }
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "canh",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Đổi mật khẩu xong, "
+        },
+        {
+          "k": "dam",
+          "v": "mọi phiên khác bị đăng xuất"
+        },
+        {
+          "k": "chu",
+          "v": " — kể cả điện thoại của chính bạn. Đó là chủ ý: người đổi mật khẩu vì nghi bị lộ thì cần kẻ kia bị đá ra ngay."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Nếu bạn đang dùng "
+        },
+        {
+          "k": "dam",
+          "v": "mật khẩu tạm"
+        },
+        {
+          "k": "chu",
+          "v": ", hệ thống đưa bạn thẳng tới thẻ này khi mở màn — bắt tự đi tìm chỗ đổi thì phần lớn sẽ không đổi."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Bộ màu"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Bốn bộ: ba tối ("
+        },
+        {
+          "k": "dam",
+          "v": "Mực"
+        },
+        {
+          "k": "chu",
+          "v": ", "
+        },
+        {
+          "k": "dam",
+          "v": "Hải đăng"
+        },
+        {
+          "k": "chu",
+          "v": ", "
+        },
+        {
+          "k": "dam",
+          "v": "Rêu"
+        },
+        {
+          "k": "chu",
+          "v": ") và một sáng ("
+        },
+        {
+          "k": "dam",
+          "v": "Giấy"
+        },
+        {
+          "k": "chu",
+          "v": ")."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Mặc định theo cài đặt sáng/tối của máy bạn. Đổi tay thì lựa chọn được nhớ lại — giao diện là lựa chọn của từng người, giống ngôn ngữ."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Đổi nhanh bằng biểu tượng "
+        },
+        {
+          "k": "dam",
+          "v": "bánh răng"
+        },
+        {
+          "k": "chu",
+          "v": " ở góc dưới bên trái, không cần mở màn Hồ sơ."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Ngôn ngữ"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Tiếng Việt và tiếng Anh. Đổi ngôn ngữ "
+        },
+        {
+          "k": "dam",
+          "v": "không tải lại trang"
+        },
+        {
+          "k": "chu",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "luuy",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Tiếng Nhật và tiếng Hàn đã có chỗ trong danh sách nhưng đánh dấu "
+        },
+        {
+          "k": "chu",
+          "v": "*chưa sẵn sàng"
+        },
+        {
+          "k": "chu",
+          "v": "*. Chúng nằm đó để bạn biết kế hoạch, không phải để bấm."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Những gì màn này CHƯA có"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Ảnh đại diện tải lên, số điện thoại, chức danh, giới thiệu, và danh sách thiết bị đang đăng nhập — "
+        },
+        {
+          "k": "dam",
+          "v": "chưa làm"
+        },
+        {
+          "k": "chu",
+          "v": ". Chúng cần những thứ backend chưa có, và vẽ sẵn một công tắc bật được mà vô tác dụng là kiểu nói dối tệ nhất của giao diện."
+        }
+      ]
+    }
+  ]
+}

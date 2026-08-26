@@ -1,0 +1,239 @@
+{
+  "ma": "dat-lai-mat-khau",
+  "tieude": "Đặt lại mật khẩu hộ đồng nghiệp",
+  "nhom": "nhan-su",
+  "tomtat": "Đường duy nhất để một người quên mật khẩu quay lại được — và vì sao chủ sở hữu là ngoại lệ.",
+  "khoi": [
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Chưa có dịch vụ gửi email nên "
+        },
+        {
+          "k": "dam",
+          "v": "\"Quên mật khẩu\" ở màn đăng nhập chưa chạy"
+        },
+        {
+          "k": "chu",
+          "v": ". Đây là đường duy nhất để một người bị khoá ngoài quay lại được."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Các bước"
+    },
+    {
+      "k": "ds",
+      "thutu": true,
+      "muc": [
+        [
+          {
+            "k": "chu",
+            "v": "Vào "
+          },
+          {
+            "k": "dam",
+            "v": "Quản trị → Thành viên"
+          },
+          {
+            "k": "chu",
+            "v": ", mở "
+          },
+          {
+            "k": "dam",
+            "v": "chi tiết"
+          },
+          {
+            "k": "chu",
+            "v": " người cần giúp."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Tìm khối "
+          },
+          {
+            "k": "dam",
+            "v": "Mật khẩu"
+          },
+          {
+            "k": "chu",
+            "v": " (nằm ngay trên vùng nguy hiểm)."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Bấm "
+          },
+          {
+            "k": "dam",
+            "v": "Đặt lại mật khẩu"
+          },
+          {
+            "k": "chu",
+            "v": ", đọc kỹ hộp hỏi rồi xác nhận."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Chép "
+          },
+          {
+            "k": "dam",
+            "v": "mật khẩu tạm"
+          },
+          {
+            "k": "chu",
+            "v": " và đưa tận tay cho họ."
+          }
+        ]
+      ]
+    },
+    {
+      "k": "anh",
+      "mota": "Khối Mật khẩu trong ngăn kéo chi tiết",
+      "tep": "anh/dat-lai-mat-khau.png",
+      "chuthich": "Khối Mật khẩu đứng riêng, không nằm trong vùng nguy hiểm"
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Ba việc xảy ra cùng lúc"
+    },
+    {
+      "k": "ds",
+      "thutu": true,
+      "muc": [
+        [
+          {
+            "k": "chu",
+            "v": "Mật khẩu cũ bị thay bằng một "
+          },
+          {
+            "k": "dam",
+            "v": "mật khẩu tạm"
+          },
+          {
+            "k": "chu",
+            "v": "."
+          }
+        ],
+        [
+          {
+            "k": "chu",
+            "v": "Người đó "
+          },
+          {
+            "k": "dam",
+            "v": "buộc phải đổi"
+          },
+          {
+            "k": "chu",
+            "v": " ở lần đăng nhập kế tiếp."
+          }
+        ],
+        [
+          {
+            "k": "dam",
+            "v": "Mọi thiết bị đang đăng nhập của họ bị đăng xuất"
+          },
+          {
+            "k": "chu",
+            "v": " — kể cả điện thoại."
+          }
+        ]
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Việc thứ ba là chủ ý. Lý do hay gặp nhất của việc đặt lại mật khẩu là "
+        },
+        {
+          "k": "dam",
+          "v": "nghi tài khoản bị chiếm"
+        },
+        {
+          "k": "chu",
+          "v": "; không đăng xuất thì kẻ đang ngồi trong phiên cũ vẫn ở nguyên đó, và thao tác này trông như đã cứu mà không cứu gì."
+        }
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "canh",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Hãy báo trước cho đồng nghiệp. Đặt lại trong lúc họ đang họp là họ bị đăng xuất giữa chừng, không có đường hoàn tác."
+        }
+      ]
+    },
+    {
+      "k": "de",
+      "muc": 2,
+      "chu": "Hai ca hệ thống từ chối"
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Không ai đặt lại mật khẩu của chủ sở hữu, trừ chính họ."
+        },
+        {
+          "k": "chu",
+          "v": " Đặt lại mật khẩu của ai đó nghĩa là đăng nhập được dưới danh nghĩa người đó. Quản trị viên có gần đủ quyền của chủ sở hữu — thứ duy nhất họ thiếu là chuyển nhượng workspace. Cho phép họ đặt lại mật khẩu của chủ sở hữu là mở đúng cánh cửa đó, và bảng phân quyền vẫn trông đúng trong khi ranh giới đã mất."
+        }
+      ]
+    },
+    {
+      "k": "doan",
+      "chu": [
+        {
+          "k": "dam",
+          "v": "Không tự đặt lại mật khẩu của chính mình qua đường này."
+        },
+        {
+          "k": "chu",
+          "v": " Đổi mật khẩu của bạn nằm ở màn "
+        },
+        {
+          "k": "dam",
+          "v": "Hồ sơ"
+        },
+        {
+          "k": "chu",
+          "v": ", và ở đó có kiểm mật khẩu hiện tại. Đi vòng qua đây là bỏ hẳn phép kiểm ấy — một máy bỏ quên lúc đang đăng nhập là đủ để người khác chiếm tài khoản."
+        }
+      ]
+    },
+    {
+      "k": "chuy",
+      "tong": "luuy",
+      "chu": [
+        {
+          "k": "chu",
+          "v": "Chủ sở hữu "
+        },
+        {
+          "k": "dam",
+          "v": "được"
+        },
+        {
+          "k": "chu",
+          "v": " tự đặt lại mật khẩu của mình. Chặn nốt ca đó thì họ quên mật khẩu là cả workspace kẹt vĩnh viễn."
+        }
+      ]
+    }
+  ]
+}

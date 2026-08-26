@@ -102,6 +102,45 @@ export function demoDangBat(): Vai | null {
   }
 }
 
+/**
+ * `?demo=1&auto=1` — vào thẳng, bỏ qua màn đăng nhập.
+ *
+ * Gieo sẵn vé gia hạn và tên người dùng vào `localStorage`, đúng hai khoá mà
+ * `TokenStorage` đọc. `provideAppInitializer` khôi phục phiên ngay sau đó, `/api/auth/refresh`
+ * do chính chế độ demo trả lời, và `authGuard` thấy một phiên hợp lệ.
+ *
+ * Có mặt vì bộ chụp ảnh hướng dẫn (`tools/chup-huong-dan.mjs`) chụp bằng Chrome headless —
+ * nó điều hướng tới một URL rồi chụp, không gõ được vào biểu mẫu đăng nhập. Không có lối
+ * này thì mọi ảnh hướng dẫn đều là ảnh màn đăng nhập.
+ *
+ * ⚠️ Nằm sau ĐÚNG hàng rào của chế độ demo: `demoDangBat()` trả `null` khi
+ * `environment.demo` là `false`, nên ở bản production hàm này thoát ngay dòng đầu. Nó
+ * KHÔNG phải một lối tắt đăng nhập — nó chỉ gieo một vé mà duy nhất API giả chấp nhận.
+ */
+export function gieoPhienDemo(): void {
+  const vai = demoDangBat();
+
+  if (vai === null || new URLSearchParams(location.search).get('auto') !== '1') {
+    return;
+  }
+
+  try {
+    localStorage.setItem('onooffice.refresh-token', `demo-refresh-${vai}`);
+    localStorage.setItem(
+      'onooffice.user',
+      JSON.stringify({
+        userId: kho.toi.id,
+        tenantId: kho.toi.tenantId,
+        email: kho.toi.email,
+        fullName: kho.toi.fullName,
+        mustChangePassword: false,
+      }),
+    );
+  } catch {
+    /* chế độ ẩn danh — bỏ qua, người dùng đăng nhập tay như thường */
+  }
+}
+
 /** Dựng một JWT đúng hình dạng. Chữ ký là rác, và đó là chủ ý — xem chú thích ở đầu tệp. */
 function dungToken(vai: Vai): string {
   const b64 = (o: unknown) =>
