@@ -62,7 +62,7 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | **Nối · cấp tài khoản · tạo hồ sơ** | 🟢 Một hộp thoại, **hai chiều × hai cách** · tạo xong nối luôn · có trong demo | *(trong 215)* |
 | **Thao tác hàng loạt** | 🟢 Đổi phòng ban · đổi vai trò · vô hiệu hoá — chạy **tuần tự**, nói rõ ai bị bỏ qua | *(trong 215)* |
 | **Đặt lại mật khẩu hộ** | 🟢 Hai bước · thu hồi mọi phiên · **chặn Admin leo lên Owner** | *(trong 215)* |
-| **Màn Hướng dẫn** | 🟢 10 bài trong app · cây trái + mục lục phải · **ảnh sinh tự động từ app** | *(trong 215)* |
+| **Màn Hướng dẫn** | 🟢 11 bài trong app · cây trái + mục lục phải · **ảnh sinh tự động từ app** | *(trong 215)* |
 | **Chuyển nhượng quyền sở hữu** | 🟢 Đòi mật khẩu · đổi cả cờ lẫn vai · đóng lại **bốn ngõ cụt** | *(trong 215)* |
 | **Frontend · Phòng ban + Danh bạ** | 🟢 Cây sửa được (thêm/đổi tên/chuyển/xoá) · danh bạ lọc theo phòng | *(trong 215)* |
 | **Frontend · Hồ sơ & cài đặt** | 🟢 Sửa tên · đổi mật khẩu · bộ màu/ngôn ngữ | *(trong 215)* |

@@ -102,7 +102,7 @@ Bản đồ 8 package, phát hành dần khi có nội dung thật. Hiện dựn
 | **Cấp tài khoản / tạo hồ sơ cho nửa còn thiếu** | 🟢 | Thẻ thứ hai của cùng hộp thoại · tạo xong nối luôn · vẫn hiện mật khẩu tạm |
 | **Thao tác hàng loạt** | 🟢 | Đổi phòng ban · đổi vai trò · vô hiệu hoá — chạy tuần tự, nói rõ ai bị bỏ qua |
 | **Đặt lại mật khẩu hộ** | 🟢 | Hai bước · thu hồi mọi phiên · **chặn Admin leo lên Owner** |
-| **Màn Hướng dẫn (`/huong-dan`)** | 🟢 | 10 bài · cây bên trái · mục lục bên phải · **ảnh chụp tự động từ app** |
+| **Màn Hướng dẫn (`/huong-dan`)** | 🟢 | 11 bài · cây bên trái · mục lục bên phải · **ảnh chụp tự động từ app** |
 | **Chuyển nhượng quyền sở hữu** | 🟢 | Đòi mật khẩu · đổi cả cờ lẫn vai · 6 test BE + 5 test FE |
 | **Vai trò tự đặt: tạo · sửa quyền · xoá** | 🟢 | Vai hệ thống vẫn bất biến · chặn quyền chuyển nhượng lọt vào vai tự đặt |
 | **Bảng điều khiển** | 🟢 | Việc cần xử lý (số THẬT, bấm được) · lối tắt theo quyền · bộ lọc đọc từ URL |

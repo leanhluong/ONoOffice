@@ -67,6 +67,11 @@
         "ma": "ho-so-cua-ban",
         "tieude": "Hồ sơ và cài đặt của bạn",
         "tomtat": "Đổi tên hiển thị, đổi mật khẩu, chọn bộ màu và ngôn ngữ."
+      },
+      {
+        "ma": "trao-doi",
+        "tieude": "Nhắn tin cho đồng nghiệp",
+        "tomtat": "Mở hội thoại riêng, tạo nhóm, và những gì màn Trao đổi cố ý chưa làm."
       }
     ]
   }
