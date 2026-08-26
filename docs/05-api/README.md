@@ -359,6 +359,132 @@ tự tạo.
 
 ---
 
+## Comm — Trao đổi (chat)
+
+**Cả sáu endpoint dưới đây KHÔNG gắn quyền nào**, và đó là chủ ý, không phải bỏ sót.
+
+Module này không có một `permission` nào trong `Permissions.cs`. Một quyền mà cả bốn vai hệ
+thống đều có thì không phải quyền, nó là nhiễu trong bảng phân quyền — và nó trả lời sai câu
+hỏi. Chuyện không phải *"bạn có được nhắn tin không"* mà là **"bạn có ở trong hội thoại NÀY
+không"**, và câu đó chỉ trả lời được sau khi đã đọc bảng `comm.participants`.
+
+Nên phép kiểm nằm ở handler, từng cái một, và lỗi trả về là `403 Conversation.NotAParticipant`.
+`[Authorize]` trên controller vẫn còn: nó chặn người chưa đăng nhập, và đó là tất cả những gì
+nó biết làm ở đây.
+
+### `GET /api/conversations`
+
+Cột trái của màn Trao đổi. **Không phân trang** — đây là thứ người ta quét mắt để tìm một cái
+tên, và một danh sách hội thoại có nút "trang sau" thì cái tên cần tìm nằm ở trang nào là câu
+hỏi không ai trả lời được.
+
+```jsonc
+[{
+  "id": "0198e2ef-…",
+  "kind": 1,                          // 1 = riêng (1-1) · 2 = nhóm
+  "displayName": "Trần Bình",         // nhóm: tên nhóm · riêng: tên NGƯỜI KIA
+  "otherUserId": "0198e2f0-…",        // null với nhóm
+  "participantCount": 2,
+  "lastMessageBody": "Xong rồi nhé",
+  "lastMessageSenderName": "Trần Bình",
+  "lastMessageAtUtc": "2026-08-26T09:12:00+00:00",
+  "unreadCount": 3
+}]
+```
+
+> `displayName` của hội thoại riêng **không nằm trong database và không thể nằm ở đó**: cùng
+> một hàng, An nhìn thấy "Trần Bình" còn Bình nhìn thấy "Nguyễn An". Máy chủ tính lại mỗi lần.
+>
+> `unreadCount` **không tính tin của chính mình**, và nó lọc theo mốc người đó vào nhóm — người
+> mới được thêm vào không thừa hưởng một huy hiệu đỏ nào từ quá khứ.
+
+### `POST /api/conversations/direct`
+
+```jsonc
+{ "otherUserId": "0198e2f0-…" }
+```
+
+**Gọi mười lần thì mười lần trả về cùng một hội thoại.** Người dùng không có khái niệm "tạo
+hội thoại" — họ bấm vào một cái tên và mong thấy đúng những gì hai người đã nói. Trả về cùng
+hình dạng một dòng của `GET /api/conversations`.
+
+| Lỗi | Khi nào |
+|---|---|
+| `400 Conversation.CannotChatWithSelf` | `otherUserId` chính là mình |
+| `404 User.NotFound` | mã đó không có tài khoản nào trong workspace |
+
+> ⚠️ Còn một khe hở đã biết: hai người bấm đúng cùng một khoảnh khắc thì cả hai đều thấy "chưa
+> có" và cả hai đều ghi. Ràng buộc `UNIQUE (tenant_id, pair_key)` chặn hàng thứ hai, nhưng
+> người thua cuộc nhận một lỗi chứ không được trả về hội thoại vừa tạo — bấm lại là xong. Đổi
+> một lỗi im lặng (hai phòng song song, không ai thấy tin của ai) lấy một lỗi ồn ào và tự chữa
+> được: đó là chủ ý.
+
+### `POST /api/conversations/group`
+
+```jsonc
+{ "name": "Khối Kỹ thuật", "memberUserIds": ["0198e2f0-…", "0198e2f1-…"] }
+```
+
+Ngược với `direct`, lệnh này **không** idempotent: bấm hai lần là hai nhóm. Mười nhóm cùng tên
+"Dự án A" là mười cuộc trò chuyện khác nhau.
+
+| Lỗi | Khi nào |
+|---|---|
+| `400 Conversation.NameEmpty` · `NameTooLong` | tên rỗng, hoặc dài quá 120 ký tự |
+| `400 Conversation.GroupNeedsSomeone` | danh sách mời rỗng sau khi bỏ trùng và bỏ chính mình |
+| `404 User.NotFound` | **một** mã bịa làm hỏng **cả** nhóm, không bị bỏ qua riêng nó |
+
+### `GET /api/conversations/{id}/messages?before={messageId}&take=30`
+
+Trả về theo thứ tự **cũ → mới** để cửa sổ chat vẽ thẳng từ trên xuống.
+
+```jsonc
+{
+  "items": [{
+    "id": "0198e2f2-…",
+    "senderUserId": "0198e2f0-…",
+    "senderName": "Trần Bình",
+    "body": "Chào cả nhà",
+    "sentAtUtc": "2026-08-26T09:00:00+00:00"
+  }],
+  "hasMore": true                     // còn tin CŨ HƠN nữa ở phía trên
+}
+```
+
+> `before` là **mã một tin**, không phải mốc thời gian. Dùng thời gian thì hai tin trùng đúng
+> một micro-giây làm một câu bị nhảy cóc — người dùng cuộn qua chỗ đó và nó không còn ở đâu
+> cả, vĩnh viễn, không lỗi nào báo.
+>
+> `take` có trần cứng **100**. Xin nhiều hơn thì được 100, không phải một lỗi.
+>
+> Người vào nhóm sau **chỉ thấy từ lúc họ vào** — chặn dưới là `joined_at_utc` của chính họ.
+
+### `POST /api/conversations/{id}/messages`
+
+```jsonc
+{ "body": "Chào cả nhà" }
+```
+
+Mã hội thoại lấy từ **đường dẫn**, thân chỉ mang nội dung — nhận cả hai thì có hai nguồn sự
+thật cho cùng một câu hỏi. Trả về một phần tử `items` như trên.
+
+Gửi xong, mốc "đã đọc" của **chính người gửi** tự tiến theo: thiếu bước đó thì vừa bấm Gửi là
+huy hiệu đỏ nhảy lên một, cho đúng câu mình vừa gõ.
+
+| Lỗi | Khi nào |
+|---|---|
+| `400 Message.Empty` · `Message.TooLong` | rỗng (kể cả toàn khoảng trắng), hoặc dài quá 4000 ký tự |
+| `403 Conversation.NotAParticipant` | không ở trong hội thoại — kể cả khi vừa bị đá khỏi nhóm ở tab khác |
+| `404 Conversation.NotFound` | mã hội thoại không tồn tại |
+
+### `POST /api/conversations/{id}/read`
+
+Không có thân. Đánh dấu "tôi đã xem tới **lúc này**" — không nhận mốc từ client, vì một tab mở
+từ hôm qua sẽ đẩy mốc về quá khứ và làm mọi tin trong khoảng đó chưa đọc trở lại. Mốc **chỉ
+tiến, không lùi**.
+
+---
+
 ## Identity — Đăng nhập
 
 Cả ba endpoint dưới đây **không cần token**: người gọi chúng chính là người chưa có, hoặc

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <KernelReference Include="Luong.Kernel" />
+    <KernelReference Include="Luong.Kernel.Application" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ONoOffice.Comm.Domain\ONoOffice.Comm.Domain.csproj" />
+    <ProjectReference Include="..\ONoOffice.Comm.Contracts\ONoOffice.Comm.Contracts.csproj" />
+    <ProjectReference Include="..\..\Identity\ONoOffice.Identity.Contracts\ONoOffice.Identity.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Handler để `internal` là cố ý: ngoài MediatR ra thì không ai được gọi thẳng chúng.
+      Nới thành `public` thì tầng Api gọi tắt được và đi vòng hết ba pipeline behavior
+      (validation, transaction, logging).
+    -->
+    <InternalsVisibleTo Include="ONoOffice.Comm.UnitTests" />
+  </ItemGroup>
+
+</Project>

@@ -46,6 +46,17 @@ public static class CommErrors
             Error.Conflict("Conversation.AlreadyIn", "Người này đã ở trong hội thoại.");
 
         /// <summary>
+        /// Nhóm phải có ít nhất một người khác.
+        ///
+        /// Về mặt kỹ thuật một nhóm chỉ có mình mình chạy được, và nhiều ứng dụng dùng nó
+        /// làm chỗ ghi chú riêng. Nhưng thứ đó phải là một tính năng CỐ Ý — có tên, có chỗ
+        /// đứng trên giao diện — chứ không phải sản phẩm phụ của một luật bị quên.
+        /// </summary>
+        public static readonly Error GroupNeedsSomeone = Error.Validation(
+            "Conversation.GroupNeedsSomeone",
+            "Nhóm phải có ít nhất một người khác ngoài bạn.");
+
+        /// <summary>
         /// Phân quyền của module này là <b>tư cách THAM GIA</b>, không phải một quyền trong
         /// bảng vai trò.
         ///

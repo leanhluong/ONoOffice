@@ -284,6 +284,9 @@
   <data name="Conversation.AlreadyIn" xml:space="preserve">
     <value>Người này đã ở trong hội thoại.</value>
   </data>
+  <data name="Conversation.GroupNeedsSomeone" xml:space="preserve">
+    <value>Nhóm phải có ít nhất một người khác ngoài bạn.</value>
+  </data>
   <data name="Conversation.NotAParticipant" xml:space="preserve">
     <value>Bạn không ở trong hội thoại này.</value>
   </data>

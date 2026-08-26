@@ -20,7 +20,24 @@ public class BoundaryRuleTests
         "Luong.Kernel.AspNetCore",
     ];
 
-    private static readonly string[] Modules = ["Identity", "Org"];
+    private static IReadOnlyList<string> Modules => SolutionGraph.Modules;
+
+    /// <summary>
+    /// Bẫy tự thân: phép đọc module phải TÌM THẤY chúng.
+    ///
+    /// Trượt hết thì <c>Module_ChiDuocThayContractsCuaModuleKhac</c> bỏ qua mọi project
+    /// và vẫn xanh — đúng cái cách nó đã bỏ qua module <c>Comm</c> suốt, hồi danh sách
+    /// còn viết cứng là <c>["Identity", "Org"]</c>. Con số này phải TĂNG theo số module;
+    /// để <c>&gt;= 1</c> thì một phép đọc chỉ còn thấy Identity vẫn qua được.
+    /// </summary>
+    [Fact]
+    public void PhepDocModule_TimThayDuBaModule()
+    {
+        Assert.True(
+            Modules.Count >= 3,
+            $"Chỉ đọc ra {Modules.Count} module ({string.Join(", ", Modules)}), "
+                + "trong khi solution có ít nhất 3.");
+    }
 
     // ── LUẬT 4 ───────────────────────────────────────────────────────────────
     // Domain là trái tim: nó giữ luật nghiệp vụ và KHÔNG được biết ngoài kia có

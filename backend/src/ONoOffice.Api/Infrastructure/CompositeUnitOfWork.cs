@@ -1,11 +1,12 @@
 using Luong.Kernel.Abstractions;
+using ONoOffice.Comm.Infrastructure.Persistence;
 using ONoOffice.Identity.Infrastructure.Persistence;
 using ONoOffice.Org.Infrastructure.Persistence;
 
 namespace ONoOffice.Api.Infrastructure;
 
 /// <summary>
-/// Một <see cref="IUnitOfWork"/> chốt <b>cả hai</b> DbContext.
+/// Một <see cref="IUnitOfWork"/> chốt <b>cả ba</b> DbContext.
 ///
 /// ═══════════════════════════════════════════════════════════════════════
 ///  BỊT MỘT LỖ HỎNG IM LẶNG
@@ -13,7 +14,7 @@ namespace ONoOffice.Api.Infrastructure;
 ///
 /// <c>TransactionBehavior</c> của kernel phân giải <b>một</b> <c>IUnitOfWork</c> rồi gọi
 /// <c>SaveChangesAsync</c> sau mỗi mệnh lệnh thành công. Nhưng modular monolith này có
-/// HAI context, mỗi module một cái.
+/// BA context, mỗi module một cái.
 ///
 /// Nếu để mỗi module tự đăng ký <c>IUnitOfWork</c> trỏ vào context của mình thì cái đăng
 /// ký SAU thắng, và hỏng theo kiểu tệ nhất: mệnh lệnh của module thua sẽ gọi
@@ -22,14 +23,18 @@ namespace ONoOffice.Api.Infrastructure;
 /// trả <c>Result.Success</c>, API trả 200, giao diện hiện "đã lưu" — và trong database
 /// không có gì. Không log nào ghi lại chuyện đó.
 ///
-/// Nên chỗ đăng ký phải là <b>gốc kết hợp</b> (<c>Program.cs</c>), nơi duy nhất biết rằng
-/// hệ thống có đúng hai module.
+/// Nên chỗ đăng ký phải là <b>gốc kết hợp</b> (<c>Program.cs</c>), nơi duy nhất biết hệ
+/// thống có bao nhiêu module.
+///
+/// ⚠️ <b>Thêm module thứ tư thì phải sửa ở đây.</b> Quên thì mọi mệnh lệnh của nó trả 200
+/// và không ghi gì — đúng cái lỗ hỏng đoạn trên vừa mô tả. <c>UnitOfWorkWiringTests</c>
+/// canh chỗ này, và khi thêm module Comm nó đã đỏ đúng như thiết kế.
 ///
 /// ═══════════════════════════════════════════════════════════════════════
 ///  ⚠️ GIỚI HẠN: HAI LẦN GHI, KHÔNG PHẢI MỘT TRANSACTION
 /// ═══════════════════════════════════════════════════════════════════════
 ///
-/// Hai <c>DbContext</c> mở hai kết nối riêng, nên đây là hai transaction nối tiếp nhau,
+/// Ba <c>DbContext</c> mở ba kết nối riêng, nên đây là ba transaction nối tiếp nhau,
 /// không phải một. Ghi xong Identity mà Org nổ thì phần Identity <b>đã nằm trong
 /// database</b>.
 ///
@@ -42,7 +47,8 @@ namespace ONoOffice.Api.Infrastructure;
 /// </summary>
 internal sealed class CompositeUnitOfWork(
     IdentityDbContext identity,
-    OrgDbContext org) : IUnitOfWork
+    OrgDbContext org,
+    CommDbContext comm) : IUnitOfWork
 {
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -59,6 +65,11 @@ internal sealed class CompositeUnitOfWork(
         if (org.ChangeTracker.HasChanges())
         {
             daGhi += await org.SaveChangesAsync(cancellationToken);
+        }
+
+        if (comm.ChangeTracker.HasChanges())
+        {
+            daGhi += await comm.SaveChangesAsync(cancellationToken);
         }
 
         return daGhi;

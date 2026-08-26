@@ -284,6 +284,9 @@
   <data name="Conversation.AlreadyIn" xml:space="preserve">
     <value>That person is already in this conversation.</value>
   </data>
+  <data name="Conversation.GroupNeedsSomeone" xml:space="preserve">
+    <value>A group needs at least one person besides you.</value>
+  </data>
   <data name="Conversation.NotAParticipant" xml:space="preserve">
     <value>You are not in this conversation.</value>
   </data>

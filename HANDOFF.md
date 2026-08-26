@@ -44,13 +44,13 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Phần | Trạng thái | Số test |
 |---|---|---|
 | `Luong.Kernel` (8 gói) | 🟢 Đủ dùng cho lát 1 | **202** |
-| ONoOffice · Domain | 🟢 Identity xong · Org xong · **Comm (chat) tầng Domain xong** | 239 + 69 + **19** |
+| ONoOffice · Domain | 🟢 Identity xong · Org xong · **Comm (chat) xong** | 239 + 69 + **43** |
 | ONoOffice · Application | 🟢 Auth · Users · Me · Roles · **Departments · Employees · Contacts · Members** | *(trong 239)* |
 | ONoOffice · Infrastructure | 🟢 EF · Argon2id · JWT · repository · seeder · sinh mật khẩu tạm | *(trong 239)* |
-| ONoOffice · Api | 🟢 **33 endpoint · 9 controller** · phân quyền động · CORS · i18n · header an toàn | 32 |
+| ONoOffice · Api | 🟢 **39 endpoint · 10 controller** · phân quyền động · CORS · i18n · header an toàn | 32 |
 | **Cổng liên module** | 🟢 `Identity.Contracts.IUserDirectory` · `CompositeUnitOfWork` chốt hai DbContext | *(trong 32)* |
 | Test kiến trúc + i18n + luật Controller | 🟢 | 15 |
-| **Database** | 🟢 Postgres 16 · 2 migration · dữ liệu mồi — đã chạy THẬT | **52** |
+| **Database** | 🟡 Postgres 16 · **3 migration** · dữ liệu mồi — `InitialComm` **chưa chạy thật** (Docker tắt) | **52** |
 | **Backend nói chung** | 🟢 **Đăng nhập được đầu-tới-cuối** | — |
 | **Frontend · đăng nhập + đăng ký** | 🟢 **Cả hai đã nối API thật** · tự gia hạn khi 401 · 4 bộ màu · vi/en | **192** |
 | **Bản dựng ↔ code** | 🟢 CSS **sinh** từ bản dựng · `npm run parity` so từng điểm ảnh (lệch 0,02%) | *(trong 192)* |
@@ -74,7 +74,7 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 
 ```bash
 docker compose up -d                          # Postgres 16 ở cổng 5433
-cd backend && dotnet build && dotnet test     # 374 xanh không cần Docker · +52 test database nếu có
+cd backend && dotnet build && dotnet test     # 398 xanh không cần Docker · +52 test database nếu có
 cd frontend && npm test && npm run parity     # 192 xanh · hai màn lệch 0,02%
 ```
 
@@ -196,9 +196,12 @@ Sau đó:
 🔴 BẤM TAY QUA VÙNG QUẢN TRỊ — khung B chưa từng chạy với dữ liệu thật.
      Cần `docker compose up -d` (máy này Docker Desktop đang TẮT). Sau đó:
      đăng nhập → menu ảnh đại diện → "Quản trị & gói cước" → xem 4 con số.
-🟡 Trao đổi (chat) — LÁT 1 đang làm. **Tầng Domain xong (19 test).**
-     Module thứ ba `Comm`, schema `comm`. Còn lại: Application → EF + migration
-     → 5–6 endpoint → màn Angular.
+🟡 Trao đổi (chat) — LÁT 1: **backend XONG, còn màn Angular.**
+     Module thứ ba `Comm`, schema `comm`. Domain + Application + EF +
+     6 endpoint, 43 test. Bản dựng `docs/07-giao-dien/comm/chat.html` đã duyệt.
+     ⚠️ Migration `InitialComm` CHƯA chạy trên Postgres thật (Docker tắt), nên
+     câu truy vấn danh sách hội thoại — nặng nhất module, hai truy vấn con —
+     chưa từng sinh ra SQL thật một lần nào.
      ❌ KHÔNG nằm trong lát 1: realtime · đính kèm file · sửa/xoá tin nhắn.
      Hai chỗ `chat.md` nói sai về hệ thống, đã xử lý một:
        · mục 2 hứa quyền `conversation.read` — Permissions.cs KHÔNG có quyền đó.
@@ -308,8 +311,8 @@ quyền chỉ đổi mức toàn vẹn, nó không nạp thêm nhóm mới. Mọ
 |---|---|---|---|
 | `Identity.UnitTests` | 239 | không | Luật nghiệp vụ của Identity có đúng không |
 | `Org.UnitTests` | 69 | không | Luật nghiệp vụ của Org (phòng ban, nhân viên) |
-| `Comm.UnitTests` | 19 | không | Luật nghiệp vụ của Comm (hội thoại, tin nhắn) |
-| `ArchitectureTests` | 15 | không | Ranh giới tầng và luật Controller có bị phá không |
+| `Comm.UnitTests` | 43 | không | Luật nghiệp vụ của Comm + 6 handler (hội thoại, tin nhắn) |
+| `ArchitectureTests` | 16 | không | Ranh giới tầng và luật Controller có bị phá không |
 | `Api.IntegrationTests` | 32 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
 | `Api.DatabaseTests` | 52 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập/đăng ký/tạo tài khoản có chạy THẬT không |
 | `frontend` (vitest) | 192 | không | Hợp đồng với API, luồng gia hạn phiên, bản dịch, bảng màu và **tên biến/lớp CSS** có lệch không |
@@ -320,7 +323,7 @@ test nối vào compose sẽ im lặng bỏ qua trên máy chưa `up` và trên 
 thì tệ hơn cả không có, vì nhìn danh sách vẫn thấy nó nằm đó.
 
 ```bash
-cd backend  && dotnet build && dotnet test      # 374 xanh không cần Docker · +52 test database nếu có
+cd backend  && dotnet build && dotnet test      # 398 xanh không cần Docker · +52 test database nếu có
 cd frontend && npm test && npm run build && npm run lint && npm run parity
 ```
 
@@ -630,7 +633,7 @@ bản dựng theo luật 8.
 
 Bắt đầu bằng việc chạy `cd ONoOffice/backend && dotnet build && dotnet test`
 và `cd ONoOffice/frontend && npm test && npm run parity` để xác nhận
-374 + 192 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
+398 + 192 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
 trước khi làm gì. 52 test database sẽ ĐỎ nếu chưa `docker compose up -d` —
 đó là hỏng môi trường, không phải hỏng code.
 ```

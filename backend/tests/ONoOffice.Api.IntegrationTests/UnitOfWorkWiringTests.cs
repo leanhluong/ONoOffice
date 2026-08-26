@@ -2,6 +2,7 @@ using Luong.Kernel.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ONoOffice.Identity.Infrastructure.Persistence;
+using ONoOffice.Comm.Infrastructure.Persistence;
 using ONoOffice.Org.Infrastructure.Persistence;
 
 namespace ONoOffice.Api.IntegrationTests;
@@ -41,6 +42,7 @@ public sealed class UnitOfWorkWiringTests
         // Trỏ thẳng vào một context nghĩa là module còn lại ghi vào hư không.
         Assert.IsNotType<IdentityDbContext>(unitOfWork);
         Assert.IsNotType<OrgDbContext>(unitOfWork);
+        Assert.IsNotType<CommDbContext>(unitOfWork);
     }
 
     /// <summary>
@@ -65,23 +67,27 @@ public sealed class UnitOfWorkWiringTests
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var identity = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         var org = scope.ServiceProvider.GetRequiredService<OrgDbContext>();
+        var comm = scope.ServiceProvider.GetRequiredService<CommDbContext>();
 
         await unitOfWork.SaveChangesAsync(CancellationToken.None);
 
         Assert.False(identity.ChangeTracker.HasChanges());
         Assert.False(org.ChangeTracker.HasChanges());
+        Assert.False(comm.ChangeTracker.HasChanges());
     }
 
     /// <summary>
-    /// Hai module, hai schema — luật số 2 của kiến trúc.
+    /// Ba module, ba schema — luật số 2 của kiến trúc.
     ///
     /// Kiểm ở đây chứ không ở test kiến trúc vì tên schema là một hằng số lúc CHẠY, không
     /// phải một quan hệ giữa các assembly. Trùng schema thì hai module ghi đè bảng của
     /// nhau, và migration của cái này xoá bảng của cái kia.
     /// </summary>
     [Fact]
-    public void HaiModule_DungHaiSchemaKhacNhau()
+    public void BaModule_DungBaSchemaKhacNhau()
     {
-        Assert.NotEqual(IdentityDbContext.Schema, OrgDbContext.Schema);
+        string[] schemas = [IdentityDbContext.Schema, OrgDbContext.Schema, CommDbContext.Schema];
+
+        Assert.Equal(schemas.Length, schemas.Distinct().Count());
     }
 }

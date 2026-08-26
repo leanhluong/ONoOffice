@@ -4,6 +4,7 @@
   </Folder>
   <Folder Name="/src/Modules/" />
   <Folder Name="/src/Modules/Comm/">
+    <Project Path="src/Modules/Comm/ONoOffice.Comm.Application/ONoOffice.Comm.Application.csproj" />
     <Project Path="src/Modules/Comm/ONoOffice.Comm.Contracts/ONoOffice.Comm.Contracts.csproj" />
     <Project Path="src/Modules/Comm/ONoOffice.Comm.Domain/ONoOffice.Comm.Domain.csproj" />
   </Folder>

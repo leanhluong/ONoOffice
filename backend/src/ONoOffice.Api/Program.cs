@@ -8,6 +8,8 @@ using ONoOffice.Api.Middleware;
 using ONoOffice.Identity.Application.Authentication.Login;
 using ONoOffice.Identity.Infrastructure;
 using ONoOffice.Identity.Infrastructure.Persistence;
+using ONoOffice.Comm.Application.Conversations.GetList;
+using ONoOffice.Comm.Infrastructure;
 using ONoOffice.Org.Application.Departments.GetTree;
 using ONoOffice.Org.Infrastructure;
 
@@ -42,10 +44,12 @@ builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 // Ä‘Æ°á»£c. Nguy hiá»ƒm hÆ¡n nhiá»u lÃ  chá»— `IUnitOfWork` ngay bÃªn dÆ°á»›i.
 builder.Services.AddApplicationLayer(
     typeof(LoginCommand).Assembly,
-    typeof(GetDepartmentTreeQuery).Assembly);
+    typeof(GetDepartmentTreeQuery).Assembly,
+    typeof(GetConversationsQuery).Assembly);
 
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddOrgModule(builder.Configuration);
+builder.Services.AddCommModule(builder.Configuration);
 
 /*
   âš ï¸ ÄÄ‚NG KÃ SAU Cáº¢ HAI MODULE â€” thá»© tá»± á»Ÿ Ä‘Ã¢y quyáº¿t Ä‘á»‹nh dá»¯ liá»‡u cÃ³ Ä‘Æ°á»£c ghi hay khÃ´ng.
