@@ -558,6 +558,40 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
     return ok({ id: moi.id, code: moi.code, fullName: moi.fullName });
   }
 
+  // ── Điều chuyển phòng ban ───────────────────────────────────────────
+  {
+    const chuyen = /^\/api\/employees\/([^/]+)\/transfer$/.exec(duong);
+
+    if (chuyen && req.method === 'POST') {
+      const hoSo = kho.hoSo.find((h) => h.id === chuyen[1]);
+
+      if (!hoSo) {
+        return loi(404, 'Employee.NotFound', 'Không tìm thấy hồ sơ nhân sự.');
+      }
+
+      const phongId = (req.body as { departmentId?: string | null } | null)?.departmentId ?? null;
+
+      // Chuyển vào đúng phòng đang ở là bị TỪ CHỐI, không phải cho qua im lặng — cho qua
+      // thì nhật ký thay đổi đầy những dòng "điều chuyển" mà không có gì đổi.
+      if (phongId === hoSo.departmentId) {
+        return loi(
+          409,
+          'Employee.AlreadyInThatDepartment',
+          'Nhân viên đã ở phòng ban này rồi.',
+        );
+      }
+
+      if (phongId !== null && tim(kho.phongBan, phongId) === null) {
+        return loi(404, 'Department.NotFound', 'Không tìm thấy phòng ban.');
+      }
+
+      hoSo.departmentId = phongId;
+      hoSo.departmentName = phongId === null ? null : tim(kho.phongBan, phongId)!.name;
+
+      return trong();
+    }
+  }
+
   // ── Nối / gỡ hồ sơ ↔ tài khoản ──────────────────────────────────────
   //
   // Mô phỏng đủ HAI phép kiểm của backend, không chỉ phép nối. Bỏ bớt một cái thì demo dạy
@@ -673,13 +707,34 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
     });
   }
 
-  const khop = /^\/api\/users\/([^/]+)(\/(enable|disable))?$/.exec(duong);
+  const khop = /^\/api\/users\/([^/]+)(\/(enable|disable|role))?$/.exec(duong);
 
   if (khop) {
     const nguoi = kho.users.find((u) => u.id === khop[1]);
 
     if (!nguoi) {
       return loi(404, 'User.NotFound', 'Không tìm thấy tài khoản.');
+    }
+
+    // Đổi CHỈ vai trò — đường riêng, cố ý không mang tên. Xem `UsersController.ChangeRole`.
+    if (khop[3] === 'role' && req.method === 'POST') {
+      // Cùng luật với `PATCH`: không hạ được vai chủ sở hữu, vì họ là người DUY NHẤT
+      // chuyển nhượng được workspace. Bỏ phép kiểm này ở demo thì thao tác hàng loạt trên
+      // demo làm được một việc mà hệ thật từ chối.
+      if (nguoi.roleName === 'Owner') {
+        return loi(409, 'User.CannotChangeOwnerRole', 'Không thể đổi vai trò của chủ sở hữu.');
+      }
+
+      const roleId = (req.body as { roleId?: string } | null)?.roleId;
+      const vai = kho.roles.find((r) => r.id === roleId);
+
+      if (!vai) {
+        return loi(404, 'Role.NotFound', 'Không tìm thấy vai trò.');
+      }
+
+      nguoi.roleName = vai.name;
+
+      return trong();
     }
 
     if (khop[3] && req.method === 'POST') {

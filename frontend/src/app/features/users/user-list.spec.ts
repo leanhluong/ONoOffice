@@ -14,7 +14,7 @@ import {
   type UserListItem,
   type UserQuery,
 } from '../../core/models/user.model';
-import type { MemberListItem } from '../../core/models/org.model';
+import type { DepartmentTreeItem, MemberListItem } from '../../core/models/org.model';
 import { OrgService } from '../../core/org/org.service';
 import { UserService } from '../../core/users/user.service';
 import { UserList } from './user-list';
@@ -110,6 +110,26 @@ class FakeUserService {
     this.unlinks.push(employeeId);
 
     return of(undefined);
+  }
+
+  roleChanges: { id: string; roleId: string }[] = [];
+
+  changeRole(id: string, roleId: string): Observable<void> {
+    this.roleChanges.push({ id, roleId });
+
+    return of(undefined);
+  }
+
+  transfers: { id: string; departmentId: string | null }[] = [];
+
+  transferEmployee(id: string, departmentId: string | null): Observable<void> {
+    this.transfers.push({ id, departmentId });
+
+    return of(undefined);
+  }
+
+  departmentTree(): Observable<DepartmentTreeItem[]> {
+    return of([]);
   }
 
   employees: unknown[] = [];
@@ -385,6 +405,160 @@ describe('UserList', () => {
 
     service.result = paged([user()]);
     component['load']();
+
+    expect(component['selected']().size).toBe(0);
+  });
+
+  // ── Thao tác hàng loạt ────────────────────────────────────────────
+
+  /**
+   * Chọn lẫn lộn thì phải nói RÕ ai bị bỏ qua, TRƯỚC khi làm gì.
+   *
+   * Danh sách gộp có ba loại dòng, nên một lựa chọn bất kỳ gần như luôn lẫn cả những dòng
+   * không áp được: đổi vai trò cần TÀI KHOẢN, đổi phòng ban cần HỒ SƠ. Im lặng bỏ qua thì
+   * quản trị viên tin là đã đổi cho cả 10 người, trong khi thật ra chỉ 6.
+   */
+  it('đổi vai trò: đếm đúng ai áp được và ai bị bỏ qua', () => {
+    const coTaiKhoan = user({ fullName: 'Có tài khoản' });
+    const chiHoSo = user({ fullName: 'Chỉ hồ sơ', userId: null, roleName: null });
+    const chu = user({ fullName: 'Chủ', roleName: 'Owner' });
+
+    service.result = [coTaiKhoan, chiHoSo, chu];
+
+    const component = make();
+
+    for (const m of service.result) {
+      component['toggleRow'](component['rowKey'](m));
+    }
+
+    component['openBulk']('vaitro');
+
+    // Chủ sở hữu bị loại cùng lý do với nút vô hiệu hoá: backend từ chối hạ vai họ, và
+    // hiện ra rồi báo lỗi khi bấm là cách chắc chắn nhất làm người dùng bực.
+    expect(component['bulkTargets']().map((m) => m.fullName)).toEqual(['Có tài khoản']);
+    expect(component['bulkSkipped']()).toBe(2);
+  });
+
+  it('đổi phòng ban: bỏ qua dòng chưa có hồ sơ', () => {
+    const coHoSo = user({ fullName: 'Có hồ sơ' });
+    const chiTaiKhoan = user({ fullName: 'Chỉ tài khoản', employeeId: null, code: null });
+
+    service.result = [coHoSo, chiTaiKhoan];
+
+    const component = make();
+
+    for (const m of service.result) {
+      component['toggleRow'](component['rowKey'](m));
+    }
+
+    component['openBulk']('phongban');
+
+    expect(component['bulkTargets']().map((m) => m.fullName)).toEqual(['Có hồ sơ']);
+  });
+
+  /**
+   * Không ai áp được thì KHÔNG mở hộp xác nhận.
+   *
+   * Mở ra một hộp ghi "sẽ áp cho 0 người" rồi vẫn có nút Xác nhận là mời người dùng bấm
+   * một nút không làm gì cả — họ sẽ bấm, thấy im lặng, rồi bấm lại.
+   */
+  it('không ai áp được thì không mở hộp xác nhận', () => {
+    const chiHoSo = user({ userId: null, roleName: null });
+
+    service.result = [chiHoSo];
+
+    const component = make();
+
+    component['toggleRow'](component['rowKey'](chiHoSo));
+    component['openBulk']('vohieu');
+
+    expect(component['bulkAction']()).toBeNull();
+  });
+
+  it('xác nhận đổi vai trò thì gọi ĐÚNG một lần cho mỗi người áp được', () => {
+    const a = user({ fullName: 'A' });
+    const b = user({ fullName: 'B' });
+
+    service.result = [a, b, user({ fullName: 'C', userId: null, roleName: null })];
+
+    const component = make();
+
+    for (const m of service.result) {
+      component['toggleRow'](component['rowKey'](m));
+    }
+
+    component['openBulk']('vaitro');
+    component['bulkTarget'].set('r-admin');
+    component['runBulk']();
+
+    expect(service.roleChanges).toEqual([
+      { id: a.userId, roleId: 'r-admin' },
+      { id: b.userId, roleId: 'r-admin' },
+    ]);
+  });
+
+  /**
+   * Đổi vai trò hàng loạt đi qua đường KHÔNG mang tên.
+   *
+   * `PATCH /api/users/{id}` đòi cả `fullName`, nên dùng nó ở đây nghĩa là gửi lại cái tên
+   * đã tải về vài giây trước — ai vừa đổi tên trong khoảng đó sẽ bị ghi đè ngược. Có
+   * `POST /api/users/{id}/role` riêng để không phải gửi thứ mình không định sửa.
+   */
+  it('đổi vai trò hàng loạt KHÔNG dùng đường có kèm tên', () => {
+    const a = user();
+
+    service.result = [a];
+
+    const component = make();
+
+    component['toggleRow'](component['rowKey'](a));
+    component['openBulk']('vaitro');
+    component['bulkTarget'].set('r-admin');
+    component['runBulk']();
+
+    expect(service.updatedWith).toBeNull();
+  });
+
+  it('xác nhận vô hiệu hoá thì gọi disable cho từng người, rồi nạp lại', () => {
+    const a = user({ fullName: 'A' });
+    const b = user({ fullName: 'B' });
+
+    service.result = [a, b];
+
+    const component = make();
+
+    for (const m of service.result) {
+      component['toggleRow'](component['rowKey'](m));
+    }
+
+    component['openBulk']('vohieu');
+    component['runBulk']();
+
+    expect(service.activeCalls).toEqual([
+      { id: a.userId, isActive: false },
+      { id: b.userId, isActive: false },
+    ]);
+    expect(service.loads).toBe(2);
+    expect(component['bulkAction']()).toBeNull();
+  });
+
+  /**
+   * Chạy xong thì BỎ CHỌN.
+   *
+   * Giữ nguyên thì thanh vẫn ghi "đã chọn 2 người" sau khi vừa vô hiệu hoá họ, và cú bấm
+   * tiếp theo áp lại lên đúng những người đó — lần này là một thao tác người dùng không
+   * hề định làm lần hai.
+   */
+  it('chạy xong thì bỏ chọn hết', () => {
+    const a = user();
+
+    service.result = [a];
+
+    const component = make();
+
+    component['toggleRow'](component['rowKey'](a));
+    component['openBulk']('vohieu');
+    component['runBulk']();
 
     expect(component['selected']().size).toBe(0);
   });

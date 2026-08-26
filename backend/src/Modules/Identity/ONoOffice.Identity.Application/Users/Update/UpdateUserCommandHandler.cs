@@ -6,7 +6,18 @@ using ONoOffice.Identity.Domain;
 
 namespace ONoOffice.Identity.Application.Users.Update;
 
-public sealed record UpdateUserCommand(Guid UserId, string FullName, Guid RoleId) : ICommand;
+/// <param name="FullName">
+/// <c>null</c> = <b>đừng động vào tên</b>, chỉ đổi vai trò.
+///
+/// Có mặt vì thao tác HÀNG LOẠT ở màn Thành viên chỉ định đổi vai. Bắt nó gửi kèm tên thì
+/// nó phải gửi lại cái tên đã tải về vài giây trước — và nếu trong khoảng đó có người khác
+/// vừa đổi tên, thao tác hàng loạt sẽ <b>ghi đè tên mới bằng tên cũ</b>. Mất một thay đổi
+/// mà không có gì báo, chỉ vì một trường mà người bấm nút còn không biết là mình đang gửi.
+///
+/// Chuỗi RỖNG thì vẫn bị từ chối như cũ: rỗng là "tôi muốn đặt tên thành rỗng", khác hẳn
+/// "tôi không sửa tên". Nhập nhằng hai ca đó là cách xoá sạch tên người ta mà không ai thấy.
+/// </param>
+public sealed record UpdateUserCommand(Guid UserId, string? FullName, Guid RoleId) : ICommand;
 
 /// <summary>
 /// Sửa họ tên và vai trò của một tài khoản.
@@ -47,11 +58,16 @@ internal sealed class UpdateUserCommandHandler(
             return IdentityErrors.Roles.NotFound;
         }
 
-        var renamed = user.Rename(command.FullName);
-
-        if (renamed.IsFailure)
+        // `null` là "không sửa tên", KHÔNG phải "đặt tên thành rỗng" — xem chú thích ở
+        // `UpdateUserCommand.FullName`. Chuỗi rỗng vẫn đi qua `Rename` và vẫn bị từ chối.
+        if (command.FullName is not null)
         {
-            return renamed.Error;
+            var renamed = user.Rename(command.FullName);
+
+            if (renamed.IsFailure)
+            {
+                return renamed.Error;
+            }
         }
 
         if (user.RoleIds.Contains(command.RoleId))

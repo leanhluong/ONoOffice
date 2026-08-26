@@ -312,9 +312,12 @@
 
         <div class="dachon" id="dachon">
           <b id="soDaChon">2 người</b> đã chọn
-          <button class="nut nut--nho" data-soon="Đổi phòng ban">Đổi phòng ban</button>
-          <button class="nut nut--nho" data-soon="Đổi vai trò">Đổi vai trò</button>
-          <button class="nut nut--nho nut--nguy" data-soon="Vô hiệu hoá">Vô hiệu hoá</button>
+          <button class="nut nut--nho" data-mo="manHangLoat">Đổi phòng ban</button>
+          <button class="nut nut--nho" data-mo="manHangLoat">Đổi vai trò</button>
+          <!-- Nút nguy hiểm dùng CHỮ đỏ trên nền thường. Nền đỏ đặc kéo mắt mạnh hơn cả
+               nút chính, nên người dùng bấm nhầm đúng cái không được phép bấm nhầm — mà
+               ở đây một cú bấm nhầm khoá đăng nhập của cả chục người. -->
+          <button class="nut nut--nho nut--nguy" data-mo="manHangLoat">Vô hiệu hoá</button>
           <button class="nuti" id="boChon" aria-label="Bỏ chọn"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg></button>
         </div>
       </div>
@@ -590,6 +593,50 @@
 
     <div class="hop__chan chan--xong">
       <button class="nut nut--chinh" data-dong>Xong</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ XÁC NHẬN THAO TÁC HÀNG LOẠT ══════════════
+
+     Thứ QUAN TRỌNG NHẤT ở hộp này là con số "sẽ bỏ qua".
+
+     Danh sách gộp có ba loại dòng, nên một lựa chọn bất kỳ gần như luôn lẫn cả những
+     dòng không áp được: đổi vai trò cần TÀI KHOẢN, đổi phòng ban cần HỒ SƠ, và chủ sở
+     hữu thì không hạ vai được. Im lặng bỏ qua họ thì quản trị viên tin là đã đổi cho cả
+     10 người, trong khi thật ra chỉ 6 — và họ không kiểm lại, vì không có gì gợi ý là
+     cần kiểm.
+
+     Vì vậy câu tóm tắt nói ra CẢ HAI con số, và nói TRƯỚC khi bấm.
+     ══════════════════════════════════════════════════════════════ -->
+<div class="man" id="manHangLoat">
+  <button type="button" class="man__nen" data-dong aria-label="Đóng"></button>
+
+  <div class="hop" role="dialog" aria-modal="true" aria-labelledby="tdHl" style="max-width:440px">
+    <div class="hop__dau">
+      <h2 id="tdHl">Đổi vai trò cho nhiều người</h2>
+      <button class="nuti" data-dong aria-label="Đóng"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8"/></svg></button>
+    </div>
+
+    <div class="hop__than">
+      <div class="o">
+        <label class="o__nhan" for="hlVai">Vai trò mới</label>
+        <select id="hlVai">
+          <option>Member — chỉ xem phần của mình</option>
+          <option>Manager — quản lý phòng ban của mình</option>
+          <option>Admin — quản trị toàn workspace</option>
+        </select>
+      </div>
+
+      <p class="mota" style="margin-top:14px">
+        Sẽ áp cho <b>6 người</b>. <b>4 người</b> bị bỏ qua vì chưa có tài khoản đăng nhập,
+        hoặc là chủ sở hữu.
+      </p>
+    </div>
+
+    <div class="hop__chan">
+      <button class="nut nut--pha" data-dong>Huỷ</button>
+      <button class="nut nut--chinh" data-soon="Áp cho 6 người">Áp cho 6 người</button>
     </div>
   </div>
 </div>

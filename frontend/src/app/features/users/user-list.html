@@ -264,6 +264,20 @@
 
       <div class="dachon" [class.dachon--hien]="selected().size > 0">
         <b>{{ 'users.selectedCount' | translate: { count: selected().size } }}</b>
+
+        <button class="nut nut--nho" type="button" (click)="openBulk('phongban')">
+          {{ 'users.bulk.department' | translate }}
+        </button>
+        <button class="nut nut--nho" type="button" (click)="openBulk('vaitro')">
+          {{ 'users.bulk.role' | translate }}
+        </button>
+        <!-- Nút nguy hiểm dùng CHỮ đỏ trên nền thường, không phải nền đỏ đặc: nền đỏ kéo
+             mắt mạnh hơn cả nút chính, nên người dùng bấm nhầm đúng cái không được phép
+             bấm nhầm — mà ở đây một cú bấm nhầm khoá đăng nhập của cả chục người. -->
+        <button class="nut nut--nho nut--nguy" type="button" (click)="openBulk('vohieu')">
+          {{ 'users.bulk.disable' | translate }}
+        </button>
+
         <button
           class="nuti"
           type="button"
@@ -893,6 +907,127 @@
       <div class="hop__chan chan--xong">
         <button class="nut nut--chinh" type="button" (click)="closeLink()">
           {{ 'users.done.finish' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+<!--
+  XÁC NHẬN THAO TÁC HÀNG LOẠT.
+
+  Thứ quan trọng nhất ở đây là con số "sẽ bỏ qua". Danh sách gộp có ba loại dòng, nên một
+  lựa chọn bất kỳ gần như luôn lẫn cả những dòng không áp được. Im lặng bỏ qua họ thì quản
+  trị viên tin là đã đổi cho cả 10 người, trong khi thật ra chỉ 6 — và họ không kiểm lại,
+  vì không có gì gợi ý là cần kiểm.
+-->
+<div class="man" [class.man--hien]="bulkAction() !== null">
+  <button
+    type="button"
+    class="man__nen"
+    [attr.aria-label]="'action.close' | translate"
+    (click)="closeBulk()"
+  ></button>
+
+  @if (bulkAction(); as viec) {
+    <div
+      class="hop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tdHl"
+      style="max-width: 440px"
+    >
+      <div class="hop__dau">
+        <h2 id="tdHl">{{ 'users.bulk.title.' + viec | translate }}</h2>
+        <button
+          class="nuti"
+          type="button"
+          [attr.aria-label]="'action.close' | translate"
+          (click)="closeBulk()"
+        >
+          <svg
+            viewBox="0 0 18 18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path d="m5 5 8 8M13 5l-8 8" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="hop__than">
+        @switch (viec) {
+          @case ('vaitro') {
+            <div class="o">
+              <label class="o__nhan" for="hlVai">{{ 'users.bulk.newRole' | translate }}</label>
+              <select id="hlVai" [value]="bulkTarget()" (change)="onBulkTargetChange($event)">
+                @for (role of roles(); track role.id) {
+                  <option [value]="role.id" [selected]="bulkTarget() === role.id">
+                    {{ role.name }}
+                  </option>
+                }
+              </select>
+            </div>
+          }
+
+          @case ('phongban') {
+            <div class="o">
+              <label class="o__nhan" for="hlPhong">
+                {{ 'users.bulk.newDepartment' | translate }}
+              </label>
+              <select id="hlPhong" [value]="bulkTarget()" (change)="onBulkTargetChange($event)">
+                <!-- Rút khỏi mọi phòng là một lựa chọn HỢP LỆ, không phải "chưa chọn gì".
+                     Bỏ nó đi thì không có đường nào đưa người ta ra khỏi phòng bằng thao
+                     tác hàng loạt. -->
+                <option value="" [selected]="bulkTarget() === ''">
+                  {{ 'contacts.noDepartment' | translate }}
+                </option>
+                @for (phong of departments(); track phong.id) {
+                  <option [value]="phong.id" [selected]="bulkTarget() === phong.id">
+                    {{ '—'.repeat(phong.depth) }}{{ phong.depth > 0 ? ' ' : '' }}{{ phong.name }}
+                  </option>
+                }
+              </select>
+            </div>
+          }
+
+          @default {
+            <p class="mota">{{ 'users.bulk.disableWarning' | translate }}</p>
+          }
+        }
+
+        <p class="mota" style="margin-top: 14px">
+          {{ 'users.bulk.willApply' | translate: { count: bulkTargets().length } }}
+          @if (bulkSkipped() > 0) {
+            {{ 'users.bulk.willSkip.' + viec | translate: { count: bulkSkipped() } }}
+          }
+        </p>
+      </div>
+
+      <div class="hop__chan">
+        <button class="nut nut--pha" type="button" (click)="closeBulk()">
+          {{ 'action.cancel' | translate }}
+        </button>
+        <!-- Nhãn nút mang CON SỐ. "Xác nhận" trần thì người dùng phải nhớ lại con số vừa
+             đọc ở câu trên; để nó ngay trên nút thì thứ họ đang bấm tự nói ra nó làm gì. -->
+        <button
+          class="nut"
+          type="button"
+          [class.nut--nguy]="viec === 'vohieu'"
+          [class.nut--chinh]="viec !== 'vohieu'"
+          [disabled]="saving()"
+          (click)="runBulk()"
+        >
+          @if (saving()) {
+            {{
+              'users.bulk.running'
+                | translate: { done: bulkDone(), total: bulkTargets().length }
+            }}
+          } @else {
+            {{ 'users.bulk.confirm' | translate: { count: bulkTargets().length } }}
+          }
         </button>
       </div>
     </div>

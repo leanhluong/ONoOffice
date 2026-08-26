@@ -228,6 +228,30 @@
       "codeNote": "The code is on the contract and the badge, so it cannot be changed after creation.",
       "jobTitle": "Job title"
     },
+    "bulk": {
+      "department": "Change department",
+      "role": "Change role",
+      "disable": "Disable",
+      "title": {
+        "phongban": "Change department for several people",
+        "vaitro": "Change role for several people",
+        "vohieu": "Disable several accounts"
+      },
+      "newRole": "New role",
+      "newDepartment": "New department",
+      "disableWarning": "These people will not be able to sign in any more, but their data and past messages stay. You can re-enable them at any time.",
+      "willApply": "Will apply to {{count}} people.",
+      "willSkip": {
+        "phongban": "{{count}} skipped: no staff profile.",
+        "vaitro": "{{count}} skipped: no login account, or the workspace owner.",
+        "vohieu": "{{count}} skipped: no account, already disabled, yourself, or the workspace owner."
+      },
+      "confirm": "Apply to {{count}} people",
+      "running": "Working… {{done}}/{{total}}",
+      "done": "Applied to {{count}} people.",
+      "donePartly": "Applied to {{count}} people. {{failed}} failed.",
+      "noneEligible": "None of the selected people can take this action."
+    },
     "noAccount": "No account",
     "noProfile": "No profile",
     "noAccountYet": "This person has no login account yet, so there is nothing to edit here.",

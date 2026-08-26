@@ -14,7 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthStore } from '../../core/auth/auth.store';
 import { notBlank } from '../../core/forms/validators';
 import { OrgService } from '../../core/org/org.service';
-import type { MemberListItem } from '../../core/models/org.model';
+import type { DepartmentTreeItem, MemberListItem } from '../../core/models/org.model';
 import { ErrorMessageService } from '../../core/i18n/error-message.service';
 import { isAppError, type AppError } from '../../core/models/api-error.model';
 import {
@@ -32,6 +32,21 @@ type ViewState = 'idle' | 'loc' | 'khongthay' | 'rong';
 
 /** Hộp thoại thêm người có hai bước; bước hai hiện mật khẩu tạm. */
 type CreateStep = 'nhap' | 'xong';
+
+/**
+ * Ba việc làm được cho nhiều người một lúc.
+ *
+ * Cả ba đều cần một điều kiện KHÁC nhau, và đó là chỗ dễ sai nhất: danh sách gộp có ba
+ * loại dòng, nên một lựa chọn bất kỳ gần như luôn lẫn cả những dòng không áp được.
+ */
+type BulkAction = 'phongban' | 'vaitro' | 'vohieu';
+
+/** Một dòng của ô chọn phòng ban — cây đã trải phẳng, `depth` chỉ để thụt lề. */
+interface DepartmentOption {
+  readonly id: string;
+  readonly name: string;
+  readonly depth: number;
+}
 
 /**
  * Màn Nhân sự — danh sách, bộ lọc, thêm người, xem và sửa chi tiết.
@@ -98,6 +113,17 @@ export class UserList {
   protected readonly currentPage = signal(1);
 
   protected readonly selected = signal<ReadonlySet<string>>(new Set());
+
+  /** Việc hàng loạt đang chờ xác nhận. `null` = hộp xác nhận đang đóng. */
+  protected readonly bulkAction = signal<BulkAction | null>(null);
+
+  /** Đích của việc hàng loạt: mã phòng ban hoặc mã vai trò. Vô hiệu hoá thì không cần. */
+  protected readonly bulkTarget = signal('');
+
+  /** Đang chạy tới người thứ mấy — để thanh tiến trình nói thật thay vì quay vòng. */
+  protected readonly bulkDone = signal(0);
+
+  protected readonly departments = signal<readonly DepartmentOption[]>([]);
 
   protected readonly showCreate = signal(false);
   protected readonly createStep = signal<CreateStep>('nhap');
@@ -195,6 +221,7 @@ export class UserList {
 
     this.load();
     this.loadRoles();
+    this.loadDepartments();
   }
 
   // ── Nạp dữ liệu ─────────────────────────────────────────────────────
@@ -403,6 +430,173 @@ export class UserList {
 
   protected clearSelection(): void {
     this.selected.set(new Set());
+  }
+
+  // ── Thao tác hàng loạt ──────────────────────────────────────────────
+
+  /** Những dòng đang được chọn VÀ đang nhìn thấy. */
+  private readonly selectedMembers = computed<readonly MemberListItem[]>(() => {
+    const chon = this.selected();
+
+    return (this.page()?.items ?? []).filter((m) => chon.has(this.rowKey(m)));
+  });
+
+  /**
+   * Trong số đã chọn, ai THẬT SỰ áp được việc này.
+   *
+   * Ba việc, ba điều kiện khác nhau — và không việc nào áp được cho mọi loại dòng:
+   * <list type="bullet">
+   * <item>Đổi phòng ban ghi vào HỒ SƠ, nên dòng chưa có hồ sơ thì không có gì để ghi.</item>
+   * <item>Đổi vai trò ghi vào TÀI KHOẢN, và backend từ chối hạ vai chủ sở hữu.</item>
+   * <item>Vô hiệu hoá cũng là việc của tài khoản, cộng thêm luật không tự khoá mình.</item>
+   * </list>
+   */
+  protected readonly bulkTargets = computed<readonly MemberListItem[]>(() => {
+    const viec = this.bulkAction();
+
+    switch (viec) {
+      case 'phongban':
+        return this.selectedMembers().filter((m) => m.employeeId !== null);
+      case 'vaitro':
+        return this.selectedMembers().filter((m) => m.userId !== null && m.roleName !== 'Owner');
+      case 'vohieu':
+        return this.selectedMembers().filter((m) => this.canDisable(m) && m.isActive);
+      default:
+        return [];
+    }
+  });
+
+  /**
+   * Bao nhiêu người bị BỎ QUA — con số này phải hiện ra TRƯỚC khi bấm xác nhận.
+   *
+   * Im lặng bỏ qua thì quản trị viên tin là đã đổi cho cả 10 người, trong khi thật ra chỉ
+   * 6. Họ không kiểm lại, vì không có gì gợi ý là cần kiểm.
+   */
+  protected readonly bulkSkipped = computed(
+    () => this.selectedMembers().length - this.bulkTargets().length,
+  );
+
+  protected openBulk(action: BulkAction): void {
+    this.bulkAction.set(action);
+    this.bulkDone.set(0);
+
+    // Không ai áp được thì đừng mở một hộp ghi "sẽ áp cho 0 người" rồi vẫn có nút Xác
+    // nhận — đó là mời người dùng bấm một nút không làm gì cả.
+    if (this.bulkTargets().length === 0) {
+      this.bulkAction.set(null);
+      this.popups.show(this.translate.instant('users.bulk.noneEligible') as string);
+
+      return;
+    }
+
+    // Vai hẹp nhất làm mặc định, cùng lý do với hộp thoại thêm người: một cú bấm vội
+    // không được phép nâng ai lên quản trị viên.
+    const member = this.roles().find((role) => role.name === 'Member') ?? this.roles()[0];
+
+    this.bulkTarget.set(action === 'vaitro' ? (member?.id ?? '') : '');
+  }
+
+  protected closeBulk(): void {
+    this.bulkAction.set(null);
+  }
+
+  protected onBulkTargetChange(event: Event): void {
+    this.bulkTarget.set((event.target as HTMLSelectElement).value);
+  }
+
+  /**
+   * Chạy việc hàng loạt — TUẦN TỰ, từng người một.
+   *
+   * Bắn song song thì nhanh hơn và sai hơn: mỗi lời gọi là một transaction riêng, nên
+   * hỏng giữa chừng để lại một trạng thái không đoán được ai xong ai chưa. Tuần tự thì
+   * `bulkDone` đếm được người thứ mấy, và câu tóm tắt cuối cùng nói đúng sự thật.
+   *
+   * Trần là 20 — đúng một trang. Chọn chỉ giữ những dòng đang nhìn thấy, nên không có
+   * cách nào chọn nhiều hơn thế.
+   */
+  protected runBulk(): void {
+    const viec = this.bulkAction();
+    const danhSach = [...this.bulkTargets()];
+
+    if (viec === null || danhSach.length === 0) {
+      return;
+    }
+
+    this.saving.set(true);
+
+    let hong = 0;
+
+    const chay = (i: number): void => {
+      if (i >= danhSach.length) {
+        this.saving.set(false);
+        this.bulkAction.set(null);
+        this.selected.set(new Set());
+
+        // Bỏ chọn xong mới báo: giữ nguyên thì thanh vẫn ghi "đã chọn 2 người" sau khi
+        // vừa vô hiệu hoá họ, và cú bấm tiếp theo áp lại lên đúng những người đó.
+        this.popups.show(
+          this.translate.instant(
+            hong === 0 ? 'users.bulk.done' : 'users.bulk.donePartly',
+            { count: danhSach.length - hong, failed: hong },
+          ) as string,
+        );
+
+        this.load();
+
+        return;
+      }
+
+      this.goiMotNguoi(viec, danhSach[i]).subscribe({
+        next: () => {
+          this.bulkDone.set(i + 1);
+          chay(i + 1);
+        },
+
+        // Một người hỏng KHÔNG dừng cả loạt: người thứ 7 lỗi mà bỏ dở thì ba người sau
+        // không được xử lý, và không có gì trên màn hình nói ra điều đó. Đếm lại rồi báo
+        // một câu ở cuối.
+        error: () => {
+          hong++;
+          this.bulkDone.set(i + 1);
+          chay(i + 1);
+        },
+      });
+    };
+
+    chay(0);
+  }
+
+  private goiMotNguoi(viec: BulkAction, member: MemberListItem) {
+    switch (viec) {
+      case 'phongban':
+        return this.org.transferEmployee(member.employeeId!, this.bulkTarget() || null);
+      case 'vaitro':
+        return this.users.changeRole(member.userId!, this.bulkTarget());
+      default:
+        return this.users.setActive(member.userId!, false);
+    }
+  }
+
+  /** Trải cây phòng ban thành danh sách phẳng cho ô chọn. `depth` chỉ dùng để thụt lề. */
+  private loadDepartments(): void {
+    this.org.departmentTree().subscribe({
+      next: (cay) => {
+        const phang: DepartmentOption[] = [];
+
+        const di = (nut: readonly DepartmentTreeItem[], depth: number): void => {
+          for (const item of nut) {
+            phang.push({ id: item.id, name: item.name, depth });
+            di(item.children, depth + 1);
+          }
+        };
+
+        di(cay, 0);
+        this.departments.set(phang);
+      },
+
+      // Không có cây thì chỉ mất ô chọn phòng ban ở hộp hàng loạt; bảng vẫn dùng được.
+      error: () => this.departments.set([]),
+    });
   }
 
   // ── Thêm người ──────────────────────────────────────────────────────
@@ -853,6 +1047,7 @@ export class UserList {
     this.showCreate.set(false);
     this.detail.set(null);
     this.linkFor.set(null);
+    this.bulkAction.set(null);
   }
 
   /**

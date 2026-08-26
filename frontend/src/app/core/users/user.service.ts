@@ -64,6 +64,17 @@ export class UserService {
   }
 
   /**
+   * Đổi CHỈ vai trò, không đụng tới tên.
+   *
+   * Đường riêng chứ không dùng `update()`: `PATCH` đòi cả `fullName`, nên đổi vai hàng
+   * loạt qua nó nghĩa là gửi lại cái tên đã tải về vài giây trước — ai vừa được đổi tên
+   * trong khoảng đó sẽ bị **ghi đè ngược** bằng tên cũ, mà không có gì báo.
+   */
+  changeRole(id: string, roleId: string): Observable<void> {
+    return this.http.post<void>(this.url(`/api/users/${id}/role`), { roleId });
+  }
+
+  /**
    * Vô hiệu hoá hoặc bật lại.
    *
    * Hai đường dẫn khác nhau chứ không phải một `PATCH { isActive }`: đây là hai HÀNH ĐỘNG

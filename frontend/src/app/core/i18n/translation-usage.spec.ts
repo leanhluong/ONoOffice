@@ -122,9 +122,56 @@ describe('khoá dịch mà template gọi tới', () => {
     });
   }
 
+  /**
+   * Khoá GHÉP ĐỘNG — <c>'users.bulk.title.' + viec | translate</c>.
+   *
+   * Bộ canh ở trên cố tình bỏ qua chúng vì không biết <c>viec</c> mang giá trị gì. Nhưng
+   * cái nó bỏ qua LUÔN là phần dễ gõ sai nhất: **tiền tố**. Đổi tên một nhánh trong file
+   * JSON mà quên sửa template thì mọi giá trị của <c>viec</c> đều trượt cùng một lúc — cả
+   * ba tiêu đề hộp thoại in ra chuỗi khoá trần, và không có gì đỏ.
+   *
+   * Ở đây không cố đoán <c>viec</c> chạy tới đâu; chỉ đòi tiền tố phải TỒN TẠI như một
+   * nhánh có con. Yếu hơn phép kiểm ở trên, nhưng nó bắt đúng cái hỏng hay xảy ra, và nó
+   * biết rõ mình đang không kiểm gì.
+   */
+  function tienToDangDung(): Map<string, string[]> {
+    const ketQua = new Map<string, string[]>();
+
+    for (const duongDan of moiTemplate(join(SRC, 'app'))) {
+      const html = readFileSync(duongDan, 'utf8');
+      const ten = duongDan.slice(SRC.length + 1).replaceAll('\\', '/');
+
+      for (const [, tienTo] of html.matchAll(/'([\w.]+\.)'\s*\+/g)) {
+        const noi = ketQua.get(tienTo) ?? [];
+
+        noi.push(ten);
+        ketQua.set(tienTo, noi);
+      }
+    }
+
+    return ketQua;
+  }
+
+  for (const lang of ['vi', 'en']) {
+    it(`${lang}: mọi tiền tố khoá ghép động đều có nhánh thật`, () => {
+      const co = [...khoaCuaNgonNgu(lang)];
+
+      const thieu = [...tienToDangDung().entries()]
+        .filter(([tienTo]) => !co.some((khoa) => khoa.startsWith(tienTo)))
+        .map(([tienTo, noi]) => `${tienTo}* — dùng ở ${[...new Set(noi)].join(', ')}`)
+        .sort();
+
+      expect(thieu).toEqual([]);
+    });
+  }
+
   // Bẫy tự thân: biểu thức đọc hỏng thì danh sách rỗng và test trên xanh vĩnh viễn.
   it('bộ đọc tìm thấy đủ khoá để đáng tin', () => {
     expect(khoaDangDung().size).toBeGreaterThan(60);
     expect(khoaCuaNgonNgu('vi').size).toBeGreaterThan(60);
+
+    // Và nó phải thấy được ÍT NHẤT một khoá ghép động, nếu không phép kiểm tiền tố ở trên
+    // chỉ là một vòng lặp rỗng đội lốt một bộ canh.
+    expect(tienToDangDung().size).toBeGreaterThan(0);
   });
 });

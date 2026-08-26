@@ -94,6 +94,53 @@ public class ManageUserCommandHandlerTests
         Assert.Equal("Nguyễn Văn An", user.FullName);
     }
 
+    /// <summary>
+    /// <c>FullName = null</c> nghĩa là ĐỪNG ĐỘNG VÀO TÊN.
+    ///
+    /// Đây là thứ màn Thành viên cần khi đổi vai trò cho nhiều người một lúc: nó chỉ định
+    /// đổi vai. Bắt gửi kèm tên thì nó phải gửi lại cái tên đã tải về vài giây trước — và
+    /// nếu trong khoảng đó có người khác vừa đổi tên, thao tác hàng loạt sẽ <b>ghi đè</b>
+    /// tên mới bằng tên cũ. Mất một thay đổi mà không có gì báo, chỉ vì một trường mà
+    /// người bấm nút còn không biết là mình đang gửi.
+    /// </summary>
+    [Fact]
+    public async Task DoiVaiTroMaKhongGuiTen_ThiGiuNguyenTenCu()
+    {
+        var user = GiveUser();
+        var role = GiveRole();
+
+        string tenCu = user.FullName;
+
+        var result = await UpdateHandler().Handle(
+            new UpdateUserCommand(user.Id, null, role.Id), default);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(tenCu, user.FullName);
+        Assert.Equal(role.Id, Assert.Single(user.RoleIds));
+    }
+
+    /// <summary>
+    /// Bỏ tên đi KHÔNG được bỏ luôn phép kiểm chủ sở hữu.
+    ///
+    /// Nhánh mới là một đường vào khác cho cùng một việc, nên nó phải đi qua đúng những
+    /// hàng rào cũ. Thiếu chỗ này thì thao tác hàng loạt trở thành cách duy nhất hạ vai
+    /// chủ sở hữu — và workspace kẹt vĩnh viễn.
+    /// </summary>
+    [Fact]
+    public async Task DoiVaiTroCuaCHU_SO_HUU_MaKhongGuiTen_VanBiTuChoi()
+    {
+        var user = GiveUser();
+        var role = GiveRole();
+
+        _tenants.OwnerUserId = user.Id;
+
+        var result = await UpdateHandler().Handle(
+            new UpdateUserCommand(user.Id, null, role.Id), default);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(IdentityErrors.Users.CannotChangeOwnerRole, result.Error);
+    }
+
     [Fact]
     public async Task DoiVaiTroCuaCHU_SO_HUU_ThiTuChoi()
     {

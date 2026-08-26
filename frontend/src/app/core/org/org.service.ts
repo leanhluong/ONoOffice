@@ -87,6 +87,16 @@ export class OrgService {
     return this.http.post<void>(this.url(`/api/employees/${employeeId}/unlink-account`), {});
   }
 
+  /**
+   * Điều chuyển một nhân viên sang phòng khác, hoặc rút khỏi mọi phòng (`null`).
+   *
+   * Đường riêng chứ không gộp vào `PATCH /api/employees/{id}`: điều chuyển có hậu quả
+   * riêng (đổi người quản lý, đổi luồng duyệt), và backend cũng tách nó ra vì thế.
+   */
+  transferEmployee(id: string, departmentId: string | null): Observable<void> {
+    return this.http.post<void>(this.url(`/api/employees/${id}/transfer`), { departmentId });
+  }
+
   /** Tạo hồ sơ nhân sự. Trả về `id` để bên gọi nối luôn vào một tài khoản nếu cần. */
   createEmployee(request: CreateEmployeeRequest): Observable<CreateEmployeeResponse> {
     return this.http.post<CreateEmployeeResponse>(this.url('/api/employees'), request);

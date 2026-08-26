@@ -65,6 +65,27 @@ public sealed class UsersController(ISender sender) : ControllerBase
             .ToActionResult();
 
     /// <summary>
+    /// Đổi <b>chỉ vai trò</b>, không đụng tới tên.
+    ///
+    /// Đường riêng chứ không gộp vào <c>PATCH</c> ở trên, vì thao tác HÀNG LOẠT ở màn
+    /// Thành viên chỉ định đổi vai. Bắt nó gửi kèm tên thì nó phải gửi lại cái tên đã tải
+    /// về vài giây trước — và nếu trong khoảng đó có người khác vừa đổi tên, thao tác hàng
+    /// loạt sẽ ghi đè tên mới bằng tên cũ. Mất một thay đổi mà không có gì báo.
+    ///
+    /// Cùng luật với <c>PATCH</c>: vẫn không hạ được vai của chủ sở hữu.
+    /// </summary>
+    [HttpPost("{id:guid}/role")]
+    [Authorize(Policy = Permissions.Users.Manage)]
+    public async Task<IActionResult> ChangeRole(
+        Guid id,
+        ChangeUserRoleBody body,
+        CancellationToken cancellationToken)
+        => (await sender.Send(
+                new UpdateUserCommand(id, FullName: null, body.RoleId),
+                cancellationToken))
+            .ToActionResult();
+
+    /// <summary>
     /// Vô hiệu hoá một tài khoản — <b>không phải xoá</b>.
     ///
     /// Người nghỉ việc vẫn còn tin nhắn, còn tên trên bản ghi cũ, còn là người duyệt của
@@ -89,3 +110,6 @@ public sealed class UsersController(ISender sender) : ControllerBase
 /// request gửi hai mã khác nhau, và không có câu trả lời đúng cho việc nên tin cái nào.
 /// </summary>
 public sealed record UpdateUserBody(string FullName, Guid RoleId);
+
+/// <summary>Thân của <c>POST /api/users/{id}/role</c> — cố ý KHÔNG có trường tên.</summary>
+public sealed record ChangeUserRoleBody(Guid RoleId);

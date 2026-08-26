@@ -228,6 +228,30 @@
       "codeNote": "Mã nằm trên hợp đồng và thẻ nhân viên, nên không đổi được sau khi tạo.",
       "jobTitle": "Chức danh"
     },
+    "bulk": {
+      "department": "Đổi phòng ban",
+      "role": "Đổi vai trò",
+      "disable": "Vô hiệu hoá",
+      "title": {
+        "phongban": "Đổi phòng ban cho nhiều người",
+        "vaitro": "Đổi vai trò cho nhiều người",
+        "vohieu": "Vô hiệu hoá nhiều tài khoản"
+      },
+      "newRole": "Vai trò mới",
+      "newDepartment": "Phòng ban mới",
+      "disableWarning": "Những người này sẽ không đăng nhập được nữa, nhưng dữ liệu và tin nhắn cũ vẫn còn. Bật lại được bất cứ lúc nào.",
+      "willApply": "Sẽ áp cho {{count}} người.",
+      "willSkip": {
+        "phongban": "{{count}} người bị bỏ qua vì chưa có hồ sơ nhân sự.",
+        "vaitro": "{{count}} người bị bỏ qua vì chưa có tài khoản đăng nhập, hoặc là chủ sở hữu.",
+        "vohieu": "{{count}} người bị bỏ qua vì chưa có tài khoản, đã bị vô hiệu hoá, là chính bạn, hoặc là chủ sở hữu."
+      },
+      "confirm": "Áp cho {{count}} người",
+      "running": "Đang chạy… {{done}}/{{total}}",
+      "done": "Đã áp cho {{count}} người.",
+      "donePartly": "Đã áp cho {{count}} người. {{failed}} người thất bại.",
+      "noneEligible": "Không ai trong số đang chọn áp được việc này."
+    },
     "noAccount": "Chưa có tài khoản",
     "noProfile": "Chưa có hồ sơ",
     "noAccountYet": "Người này chưa có tài khoản đăng nhập, nên chưa có gì để sửa ở đây.",
