@@ -263,4 +263,37 @@
   <data name="Role.PermissionIsOwnerOnly" xml:space="preserve">
     <value>Transferring the workspace belongs to the owner alone; it cannot be granted to another role.</value>
   </data>
+  <data name="Conversation.NotFound" xml:space="preserve">
+    <value>That conversation no longer exists.</value>
+  </data>
+  <data name="Conversation.TenantRequired" xml:space="preserve">
+    <value>A conversation must belong to a workspace.</value>
+  </data>
+  <data name="Conversation.NameEmpty" xml:space="preserve">
+    <value>Group name cannot be empty.</value>
+  </data>
+  <data name="Conversation.NameTooLong" xml:space="preserve">
+    <value>Group name cannot be longer than 120 characters.</value>
+  </data>
+  <data name="Conversation.CannotChatWithSelf" xml:space="preserve">
+    <value>You cannot start a direct conversation with yourself.</value>
+  </data>
+  <data name="Conversation.DirectIsFixed" xml:space="preserve">
+    <value>A direct conversation has exactly two people and cannot be changed. Start a group instead.</value>
+  </data>
+  <data name="Conversation.AlreadyIn" xml:space="preserve">
+    <value>That person is already in this conversation.</value>
+  </data>
+  <data name="Conversation.NotAParticipant" xml:space="preserve">
+    <value>You are not in this conversation.</value>
+  </data>
+  <data name="Message.Empty" xml:space="preserve">
+    <value>A message cannot be empty.</value>
+  </data>
+  <data name="Message.TooLong" xml:space="preserve">
+    <value>A message cannot be longer than 4000 characters.</value>
+  </data>
+  <data name="Message.SenderRequired" xml:space="preserve">
+    <value>A message must have a sender.</value>
+  </data>
 </root>

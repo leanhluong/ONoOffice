@@ -263,4 +263,37 @@
   <data name="Role.PermissionIsOwnerOnly" xml:space="preserve">
     <value>Quyền chuyển nhượng workspace chỉ thuộc về chủ sở hữu, không gán cho vai trò khác được.</value>
   </data>
+  <data name="Conversation.NotFound" xml:space="preserve">
+    <value>Không tìm thấy hội thoại này.</value>
+  </data>
+  <data name="Conversation.TenantRequired" xml:space="preserve">
+    <value>Hội thoại phải thuộc về một workspace.</value>
+  </data>
+  <data name="Conversation.NameEmpty" xml:space="preserve">
+    <value>Tên nhóm không được để trống.</value>
+  </data>
+  <data name="Conversation.NameTooLong" xml:space="preserve">
+    <value>Tên nhóm không được dài quá 120 ký tự.</value>
+  </data>
+  <data name="Conversation.CannotChatWithSelf" xml:space="preserve">
+    <value>Không thể mở hội thoại riêng với chính mình.</value>
+  </data>
+  <data name="Conversation.DirectIsFixed" xml:space="preserve">
+    <value>Hội thoại riêng chỉ có hai người và không đổi được. Hãy mở một nhóm mới.</value>
+  </data>
+  <data name="Conversation.AlreadyIn" xml:space="preserve">
+    <value>Người này đã ở trong hội thoại.</value>
+  </data>
+  <data name="Conversation.NotAParticipant" xml:space="preserve">
+    <value>Bạn không ở trong hội thoại này.</value>
+  </data>
+  <data name="Message.Empty" xml:space="preserve">
+    <value>Tin nhắn không được để trống.</value>
+  </data>
+  <data name="Message.TooLong" xml:space="preserve">
+    <value>Tin nhắn không được dài quá 4000 ký tự.</value>
+  </data>
+  <data name="Message.SenderRequired" xml:space="preserve">
+    <value>Tin nhắn phải có người gửi.</value>
+  </data>
 </root>

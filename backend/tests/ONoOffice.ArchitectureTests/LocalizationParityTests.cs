@@ -102,14 +102,28 @@ public partial class LocalizationParityTests
     /// vẫn xanh, vì chúng không biết file đó tồn tại. Người dùng tiếng Anh sẽ nhận câu
     /// tiếng Việt viết cứng trong <c>Error.Conflict(...)</c>.
     ///
-    /// Nay danh sách này QUÉT theo mẫu tên. Thêm module thứ ba mà quên dịch thì test đỏ
-    /// ngay, không cần ai nhớ sửa chỗ này.
+    /// <b>Và bản thứ hai — danh sách khai tay — cũng là một lỗ hổng thật:</b> chú thích
+    /// trên đây đã hứa "quét theo mẫu tên", nhưng code bên dưới lại là một mảng cứng hai
+    /// dòng. Khi module Comm ra đời, 12 mã lỗi của nó lặng lẽ không được đối chiếu — đúng
+    /// y cái cách module Org đã lọt lưới, chỉ khác là lần này chú thích còn nói dối rằng
+    /// chuyện đó không thể xảy ra.
+    ///
+    /// Nay nó QUÉT thật. Thêm module thứ tư mà quên dịch thì test đỏ ngay, không cần ai
+    /// nhớ sửa chỗ này.
     /// </summary>
-    private static readonly string[] ErrorSources =
-    [
-        Path.Combine("Identity", "ONoOffice.Identity.Domain", "IdentityErrors.cs"),
-        Path.Combine("Org", "ONoOffice.Org.Domain", "OrgErrors.cs"),
-    ];
+    private static string[] ErrorSources() =>
+        [.. Directory
+            .EnumerateFiles(
+                Path.Combine(SolutionRoot(), "src", "Modules"),
+                "*Errors.cs",
+                SearchOption.AllDirectories)
+            // Chỉ lấy tầng Domain: mã lỗi sống ở đó, còn `bin`/`obj` thì chứa bản sao của
+            // chính những file này và sẽ làm mỗi mã bị đếm hai lần.
+            .Where(p => p.Contains($"{Path.DirectorySeparatorChar}ONoOffice.", StringComparison.Ordinal)
+                && p.Contains(".Domain", StringComparison.Ordinal)
+                && !p.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                && !p.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+            .Order(StringComparer.Ordinal)];
 
     /// <summary>
     /// Đọc THẲNG mã nguồn thay vì dùng phản chiếu.
@@ -120,8 +134,7 @@ public partial class LocalizationParityTests
     /// </summary>
     private static HashSet<string> ErrorCodesFromSource()
     {
-        var codes = ErrorSources
-            .Select(rel => Path.Combine(SolutionRoot(), "src", "Modules", rel))
+        var codes = ErrorSources()
             .SelectMany(path => ErrorCall().Matches(File.ReadAllText(path)))
             .Select(m => m.Groups[1].Value);
 
@@ -131,20 +144,30 @@ public partial class LocalizationParityTests
     /// <summary>
     /// Bẫy tự thân số hai: mỗi file nguồn phải THẬT SỰ đọc được.
     ///
-    /// Đường dẫn hỏng thì <c>SelectMany</c> ở trên chỉ đơn giản là đóng góp 0 mã, và cả
-    /// ba test đối chiếu vẫn xanh — đúng cái cách module Org lọt lưới suốt.
+    /// Phép quét trượt hết thì <c>SelectMany</c> ở trên chỉ đơn giản là đóng góp 0 mã, và
+    /// cả ba test đối chiếu vẫn xanh — đúng cái cách module Org lọt lưới suốt.
+    ///
+    /// Con số dưới đây phải TĂNG theo số module. Để nó là <c>>= 1</c> thì một phép quét
+    /// chỉ còn tìm thấy đúng <c>IdentityErrors.cs</c> vẫn qua được, và ta lại trở về đúng
+    /// chỗ cũ.
     /// </summary>
     [Fact]
     public void MoiFileMaLoi_DeuDocDuoc()
     {
-        foreach (string rel in ErrorSources)
-        {
-            string path = Path.Combine(SolutionRoot(), "src", "Modules", rel);
+        var sources = ErrorSources();
 
-            Assert.True(File.Exists(path), $"Không đọc được file mã lỗi: {path}");
+        Assert.True(
+            sources.Length >= 3,
+            "Phép quét chỉ tìm thấy "
+                + $"{sources.Length} file *Errors.cs, trong khi có ít nhất 3 module: "
+                + string.Join(", ", sources));
+
+        foreach (string path in sources)
+        {
             Assert.True(
                 ErrorCall().Matches(File.ReadAllText(path)).Count >= 5,
-                $"File {rel} khai quá ít mã lỗi — nhiều khả năng biểu thức đọc đã hỏng.");
+                $"File {Path.GetFileName(path)} khai quá ít mã lỗi — "
+                    + "nhiều khả năng biểu thức đọc đã hỏng.");
         }
     }
 

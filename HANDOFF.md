@@ -44,7 +44,7 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 | Phần | Trạng thái | Số test |
 |---|---|---|
 | `Luong.Kernel` (8 gói) | 🟢 Đủ dùng cho lát 1 | **202** |
-| ONoOffice · Domain | 🟢 Identity xong · Org xong | 239 + 69 |
+| ONoOffice · Domain | 🟢 Identity xong · Org xong · **Comm (chat) tầng Domain xong** | 239 + 69 + **19** |
 | ONoOffice · Application | 🟢 Auth · Users · Me · Roles · **Departments · Employees · Contacts · Members** | *(trong 239)* |
 | ONoOffice · Infrastructure | 🟢 EF · Argon2id · JWT · repository · seeder · sinh mật khẩu tạm | *(trong 239)* |
 | ONoOffice · Api | 🟢 **33 endpoint · 9 controller** · phân quyền động · CORS · i18n · header an toàn | 32 |
@@ -74,7 +74,7 @@ dotnet build -p:UseLocalKernel=false      # PackageReference — ghim Luong.Kern
 
 ```bash
 docker compose up -d                          # Postgres 16 ở cổng 5433
-cd backend && dotnet build && dotnet test     # 355 xanh không cần Docker · +52 test database nếu có
+cd backend && dotnet build && dotnet test     # 374 xanh không cần Docker · +52 test database nếu có
 cd frontend && npm test && npm run parity     # 192 xanh · hai màn lệch 0,02%
 ```
 
@@ -196,10 +196,17 @@ Sau đó:
 🔴 BẤM TAY QUA VÙNG QUẢN TRỊ — khung B chưa từng chạy với dữ liệu thật.
      Cần `docker compose up -d` (máy này Docker Desktop đang TẮT). Sau đó:
      đăng nhập → menu ảnh đại diện → "Quản trị & gói cước" → xem 4 con số.
-⬜ Trao đổi (chat) — bản dựng đã xong và rất chi tiết, code thì CHƯA CÓ MỘT DÒNG.
-     Trước khi bắt đầu phải sửa hai chỗ `chat.md` nói sai về hệ thống:
-       · mục 2 hứa quyền `conversation.read` — Permissions.cs KHÔNG có quyền đó
-       · mục 7 hứa SignalR — `Luong.Kernel.Realtime` chưa được tham chiếu ở đâu cả
+🟡 Trao đổi (chat) — LÁT 1 đang làm. **Tầng Domain xong (19 test).**
+     Module thứ ba `Comm`, schema `comm`. Còn lại: Application → EF + migration
+     → 5–6 endpoint → màn Angular.
+     ❌ KHÔNG nằm trong lát 1: realtime · đính kèm file · sửa/xoá tin nhắn.
+     Hai chỗ `chat.md` nói sai về hệ thống, đã xử lý một:
+       · mục 2 hứa quyền `conversation.read` — Permissions.cs KHÔNG có quyền đó.
+         **Chốt: không thêm quyền nào.** Quyền mà cả bốn vai đều có thì không phải
+         quyền; câu hỏi đúng là "có ở trong hội thoại này không", và nó được trả
+         lời bằng bảng `comm.participants`, không bằng bảng vai trò.
+       · mục 7 hứa SignalR — `Luong.Kernel.Realtime` chưa được tham chiếu ở đâu cả.
+         Vẫn còn treo: lát 1 dùng phép hỏi lại (poll), realtime để lát sau.
 ⬜ Nối bốn gói kernel còn lại: Messaging · Realtime · Caching · Jobs.
      ⚠️ Outbox đang GHI VÀO HƯ KHÔNG: bảng `outbox_messages` được tạo và
      `InsertOutboxMessagesInterceptor` vẫn ghi vào đó, nhưng không có
@@ -301,6 +308,7 @@ quyền chỉ đổi mức toàn vẹn, nó không nạp thêm nhóm mới. Mọ
 |---|---|---|---|
 | `Identity.UnitTests` | 239 | không | Luật nghiệp vụ của Identity có đúng không |
 | `Org.UnitTests` | 69 | không | Luật nghiệp vụ của Org (phòng ban, nhân viên) |
+| `Comm.UnitTests` | 19 | không | Luật nghiệp vụ của Comm (hội thoại, tin nhắn) |
 | `ArchitectureTests` | 15 | không | Ranh giới tầng và luật Controller có bị phá không |
 | `Api.IntegrationTests` | 32 | không | Pipeline, phân quyền, hình dạng lỗi, i18n có đúng không |
 | `Api.DatabaseTests` | 52 | **Docker** | EF ánh xạ, cô lập tenant, luồng đăng nhập/đăng ký/tạo tài khoản có chạy THẬT không |
@@ -312,7 +320,7 @@ test nối vào compose sẽ im lặng bỏ qua trên máy chưa `up` và trên 
 thì tệ hơn cả không có, vì nhìn danh sách vẫn thấy nó nằm đó.
 
 ```bash
-cd backend  && dotnet build && dotnet test      # 355 xanh không cần Docker · +52 test database nếu có
+cd backend  && dotnet build && dotnet test      # 374 xanh không cần Docker · +52 test database nếu có
 cd frontend && npm test && npm run build && npm run lint && npm run parity
 ```
 
@@ -622,7 +630,7 @@ bản dựng theo luật 8.
 
 Bắt đầu bằng việc chạy `cd ONoOffice/backend && dotnet build && dotnet test`
 và `cd ONoOffice/frontend && npm test && npm run parity` để xác nhận
-355 + 192 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
+374 + 192 test còn xanh và hai màn vẫn khớp bản dựng, rồi báo tôi trạng thái
 trước khi làm gì. 52 test database sẽ ĐỎ nếu chưa `docker compose up -d` —
 đó là hỏng môi trường, không phải hỏng code.
 ```
